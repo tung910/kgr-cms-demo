@@ -16,3 +16,5 @@ playwright-report
 e2e/
 playwright.config.ts
 .playwright-mcp/
+.vercel
+.env*
