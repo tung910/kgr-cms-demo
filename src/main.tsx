@@ -7,7 +7,7 @@ import '@/app/styles/index.css';
 import { env } from '@/core/config/env';
 
 async function bootstrap() {
-  if (import.meta.env.DEV && env.enableMocks) {
+  if (env.enableMocks) {
     const { worker } = await import('@/mocks/browser');
     await worker.start({ onUnhandledRequest: 'bypass' });
   }
