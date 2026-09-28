@@ -1,0 +1,43 @@
+{
+  "page": {
+    "title": "Alert Center",
+    "description": "Monitor and handle fleet-wide alerts using the shared error-code table"
+  },
+  "stats": {
+    "open": "Open alerts",
+    "highUnresolved": "Unresolved high severity",
+    "total": "Total alerts"
+  },
+  "filters": {
+    "severityLabel": "Severity",
+    "resolvedVisibilityLabel": "Show resolved alerts",
+    "all": "All",
+    "open": "Open",
+    "includeResolved": "Include resolved"
+  },
+  "severity": {
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "status": {
+    "new": "New",
+    "assigned": "Assigned",
+    "resolved": "Resolved"
+  },
+  "list": {
+    "empty": "No matching alerts",
+    "columns": {
+      "identity": "Error code / Device",
+      "message": "Message",
+      "severity": "Severity",
+      "status": "Status",
+      "raisedAt": "Time",
+      "actions": "Actions"
+    },
+    "assignee": "Assignee: {{name}}",
+    "currentUser": "You",
+    "assign": "Assign to me",
+    "resolve": "Close alert"
+  }
+}

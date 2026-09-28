@@ -1,0 +1,27 @@
+{
+  "page": {
+    "title": "Analytics & reports",
+    "description": "Operational metrics, warranty ticket trends, and error distribution by shared code",
+    "exportButton": "Export report",
+    "exportSuccess": "Sample report prepared for export"
+  },
+  "kpi": {
+    "activeDevices": "Active devices",
+    "openTickets": "Open warranty tickets",
+    "avgResolutionHours": "Avg. resolution time",
+    "avgResolutionHoursValue": "{{hours}} hours",
+    "filterRecallRate": "Filter recall rate"
+  },
+  "chart": {
+    "title": "Warranty tickets by month",
+    "description": "Last 6 months"
+  },
+  "table": {
+    "columns": {
+      "code": "Error code",
+      "label": "Description",
+      "count": "Count",
+      "percentage": "Percentage"
+    }
+  }
+}

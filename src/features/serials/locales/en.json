@@ -1,0 +1,166 @@
+{
+  "listPage": {
+    "title": "Serials & anti-counterfeit",
+    "description": "Ingest factory serial batches, validate genuine cores and recall a batch when quality issues appear.",
+    "ingest": "Ingest factory batch",
+    "coreConfig": "Core lifecycle config",
+    "empty": "No serial matches the current filters.",
+    "stats": {
+      "total": "Serials ingested",
+      "used": "Used for a core reset",
+      "recalledBatches": "Recalled batches"
+    }
+  },
+  "tabs": {
+    "serials": "Serials",
+    "batches": "Batches"
+  },
+  "status": {
+    "unused": "Unused",
+    "used": "Used",
+    "recalled": "Recalled"
+  },
+  "filters": {
+    "searchAriaLabel": "Search serials",
+    "searchPlaceholder": "Search by serial string",
+    "modelAriaLabel": "Filter by model",
+    "modelPlaceholder": "Model",
+    "batchAriaLabel": "Filter by batch",
+    "batchPlaceholder": "Batch",
+    "statusAriaLabel": "Filter by status",
+    "statusAll": "All",
+    "reset": "Reset"
+  },
+  "table": {
+    "columns": {
+      "serial": "Serial",
+      "key": "Validation key",
+      "batch": "Batch",
+      "status": "Status",
+      "usedAt": "Used at",
+      "actions": "Actions"
+    },
+    "keyMaskedHint": "The key is the anti-counterfeit secret — the API never returns it in full.",
+    "notUsed": "Not used"
+  },
+  "batchTable": {
+    "columns": {
+      "batch": "Batch",
+      "volume": "Used / Total",
+      "ingestedAt": "Ingested at",
+      "state": "State"
+    },
+    "volumeValue": "{{used}} / {{total}}",
+    "active": "Active",
+    "recalled": "Recalled",
+    "recall": "Recall batch"
+  },
+  "ingestModal": {
+    "title": "Ingest factory serial batch",
+    "description": "The file needs two columns only: serial and key. The model code is extracted from the serial string and checked against the business-vertical model catalogue.",
+    "dropHint": "Drop a CSV file here or click to select one",
+    "done": "Close",
+    "error": "Batch ingest failed.",
+    "summary": "Batch {{batchId}}: {{inserted}} records ingested, {{rejected}} rows rejected.",
+    "columns": {
+      "line": "Line",
+      "serial": "Serial",
+      "reason": "Rejection reason"
+    },
+    "reasons": {
+      "missingField": "Missing serial or key",
+      "invalidSerialFormat": "Invalid serial format",
+      "unknownModel": "Model not in the catalogue",
+      "duplicateInFile": "Duplicated within the file",
+      "alreadyIngested": "Already ingested"
+    }
+  },
+  "recallModal": {
+    "title": "Recall batch {{batchId}}",
+    "warning": "All {{total}} serials in this batch will be rejected for activation across the platform.",
+    "reason": "Recall reason",
+    "confirm": "Recall",
+    "success": "Batch recalled.",
+    "error": "Batch recall failed."
+  },
+  "coreConfigPage": {
+    "backToSerials": "Serial list",
+    "title": "M04.1 · Core lifecycle & replacement alert configuration",
+    "description": "The single source of truth the device uses to count core lifespan and the app uses to show replacement alerts.",
+    "modelPickerPlaceholder": "Select a model",
+    "modelSourceNote": "Models come from product-line data; a model only defines core positions and compatible SKUs, never lifespan.",
+    "empty": "This model has no core positions yet."
+  },
+  "editModal": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "success": "Changes saved.",
+    "error": "Saving changes failed."
+  },
+  "errors": {
+    "forbidden": "You do not have permission for this action.",
+    "batchNotFound": "Batch not found.",
+    "batchAlreadyRecalled": "This batch has already been recalled.",
+    "recallReasonRequired": "A recall reason is required.",
+    "invalidCoreConfig": "Invalid core config."
+  },
+  "coreLifecycle": {
+    "title": "Core lifecycle configuration",
+    "precedenceNote": "Precedence: core SKU → model core position → per-device TDS factor → campaign. Lifespan or factor changes apply only to consumption from the time of the edit; history is not recalculated.",
+    "tabs": {
+      "cores": "Core SKUs",
+      "layout": "Core positions by model",
+      "campaign": "Campaigns"
+    },
+    "sku": "Core SKU",
+    "allSkus": "All core SKUs",
+    "kind": "Core kind",
+    "kinds": {
+      "standard": "Standard",
+      "poor_water": "Poor-water specialty"
+    },
+    "skuSourceNote": "The core SKU catalog comes from product-line data; the portal only configures lifespan, thresholds and factors.",
+    "position": "Position",
+    "positionName": "Position {{position}} name",
+    "coreName": "Core name",
+    "lifespan": "Rated lifespan",
+    "lifespanValue": "{{months}} months / {{liters}} L",
+    "lifespanMonths": "Lifespan (months)",
+    "lifespanLiters": "Lifespan (liters)",
+    "warningThreshold": "Warning level 1 / 2",
+    "warningLevel1": "Warning level 1 (%)",
+    "warningLevel2": "Warning level 2 (%)",
+    "level2AboveLevel1": "Level 2 must be above level 1.",
+    "guideVideo": "Replacement guide video",
+    "saleRegions": "Sale regions",
+    "allRegions": "Nationwide",
+    "tdsFactors": "Inlet TDS wear factors",
+    "fromPpm": "From ppm",
+    "toPpm": "To ppm",
+    "addTdsFactor": "Add TDS band",
+    "compatibleSkus": "Compatible SKUs",
+    "defaultSku": "Default SKU",
+    "defaultNotCompatible": "Default SKU must be one of the compatible SKUs.",
+    "editCore": "Edit core {{sku}}",
+    "edit": "Edit",
+    "editLayout": "Edit core positions",
+    "addPosition": "Add core position",
+    "effectiveWindowValue": "{{from}} → {{to}}",
+    "campaignName": "Campaign",
+    "pushContent": "Push content",
+    "cta": "CTA / Deeplink",
+    "runWindow": "Run window",
+    "auditLog": "Change log",
+    "auditLogEmpty": "No changes recorded yet.",
+    "auditEntryTitle": "{{actor}} changed {{field}}",
+    "auditEntryChange": "{{before}} → {{after}}",
+    "addCampaign": "Add campaign",
+    "ctaLabel": "CTA label",
+    "deeplink": "Deeplink",
+    "campaignCreated": "Created",
+    "entryExists": "Existing",
+    "entryRemoved": "Removed",
+    "confirmDelete": "Delete this entry?",
+    "delete": "Delete"
+  }
+}

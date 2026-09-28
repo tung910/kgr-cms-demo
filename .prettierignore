@@ -1,0 +1,7 @@
+dist
+node_modules
+pnpm-lock.yaml
+.superpowers/
+docs/superpowers/
+.claude/
+src/routeTree.gen.ts

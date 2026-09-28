@@ -1,0 +1,48 @@
+{
+  "page": {
+    "title": "Khách hàng & bảo hành",
+    "description": "Hồ sơ khách hàng, tình trạng bảo hành và lịch hẹn dịch vụ hiện trường",
+    "searchPlaceholder": "Tìm theo tên, số điện thoại hoặc mã khách hàng"
+  },
+  "tabs": {
+    "customers": "Khách hàng",
+    "warranty": "Bảo hành",
+    "bookings": "Lịch hẹn dịch vụ"
+  },
+  "table": {
+    "columns": {
+      "id": "Mã khách hàng",
+      "name": "Họ tên",
+      "phone": "Điện thoại",
+      "region": "Khu vực",
+      "deviceCount": "Số thiết bị",
+      "warrantyStatus": "Bảo hành"
+    }
+  },
+  "warranty": {
+    "active": "Còn hạn",
+    "expiring": "Sắp hết hạn",
+    "expired": "Hết hạn",
+    "activeLabel": "Còn hạn bảo hành"
+  },
+  "booking": {
+    "columns": {
+      "id": "Mã lịch hẹn",
+      "customerName": "Khách hàng",
+      "deviceId": "Thiết bị",
+      "issue": "Vấn đề",
+      "scheduledAt": "Thời gian hẹn",
+      "technician": "Kỹ thuật viên",
+      "status": "Trạng thái",
+      "actions": "Thao tác"
+    },
+    "status": {
+      "pending": "Chờ phân công",
+      "assigned": "Đã phân công",
+      "done": "Hoàn tất"
+    },
+    "assign": "Phân công",
+    "complete": "Hoàn tất",
+    "assignedToYou": "Bạn"
+  }
+}

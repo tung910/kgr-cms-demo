@@ -1,0 +1,43 @@
+{
+  "page": {
+    "title": "Trung tâm cảnh báo",
+    "description": "Theo dõi và xử lý cảnh báo toàn hệ thống theo mã lỗi dùng chung"
+  },
+  "stats": {
+    "open": "Cảnh báo đang mở",
+    "highUnresolved": "Mức độ cao chưa xử lý",
+    "total": "Tổng số cảnh báo"
+  },
+  "filters": {
+    "severityLabel": "Mức độ nghiêm trọng",
+    "resolvedVisibilityLabel": "Hiển thị cảnh báo đã xử lý",
+    "all": "Tất cả",
+    "open": "Đang mở",
+    "includeResolved": "Bao gồm đã xử lý"
+  },
+  "severity": {
+    "high": "Cao",
+    "medium": "Trung bình",
+    "low": "Thấp"
+  },
+  "status": {
+    "new": "Mới",
+    "assigned": "Đã giao",
+    "resolved": "Đã xử lý"
+  },
+  "list": {
+    "empty": "Không có cảnh báo phù hợp",
+    "columns": {
+      "identity": "Mã lỗi / Thiết bị",
+      "message": "Nội dung",
+      "severity": "Mức độ",
+      "status": "Trạng thái",
+      "raisedAt": "Thời gian",
+      "actions": "Thao tác"
+    },
+    "assignee": "Người xử lý: {{name}}",
+    "currentUser": "Bạn",
+    "assign": "Nhận xử lý",
+    "resolve": "Đóng cảnh báo"
+  }
+}

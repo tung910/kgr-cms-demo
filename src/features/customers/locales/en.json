@@ -1,0 +1,48 @@
+{
+  "page": {
+    "title": "Customers & Warranty",
+    "description": "Customer profiles, warranty status, and field service bookings",
+    "searchPlaceholder": "Search by name, phone number, or customer ID"
+  },
+  "tabs": {
+    "customers": "Customers",
+    "warranty": "Warranty",
+    "bookings": "Service bookings"
+  },
+  "table": {
+    "columns": {
+      "id": "Customer ID",
+      "name": "Full name",
+      "phone": "Phone",
+      "region": "Region",
+      "deviceCount": "Devices",
+      "warrantyStatus": "Warranty"
+    }
+  },
+  "warranty": {
+    "active": "Active",
+    "expiring": "Expiring soon",
+    "expired": "Expired",
+    "activeLabel": "Under warranty"
+  },
+  "booking": {
+    "columns": {
+      "id": "Booking ID",
+      "customerName": "Customer",
+      "deviceId": "Device",
+      "issue": "Issue",
+      "scheduledAt": "Scheduled time",
+      "technician": "Technician",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending assignment",
+      "assigned": "Assigned",
+      "done": "Completed"
+    },
+    "assign": "Assign",
+    "complete": "Complete",
+    "assignedToYou": "You"
+  }
+}

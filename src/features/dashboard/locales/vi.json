@@ -1,0 +1,59 @@
+{
+  "page": {
+    "title": "Tổng quan điều hành",
+    "realtimeTag": "Cập nhật realtime"
+  },
+  "metrics": {
+    "total": "Thiết bị online",
+    "errorRate": "Tỷ lệ lỗi (24h)",
+    "tds": "TDS TB toàn quốc",
+    "active": "Người dùng hoạt động",
+    "filters": "Lõi lọc đã bán (tháng)",
+    "revenue": "Doanh thu lõi (tháng)"
+  },
+  "errors": {
+    "loadFailed": "Không tải được dữ liệu tổng quan",
+    "invalidResponse": "Dữ liệu tổng quan trả về không hợp lệ",
+    "activeLoadFailed": "Không tải được số liệu active"
+  },
+  "charts": {
+    "onlineTrend": {
+      "title": "Thiết bị online/offline (24h)",
+      "description": "Số thiết bị Online và Offline theo giờ",
+      "ariaLabel": "Số thiết bị online và offline theo từng giờ trong 24 giờ qua."
+    },
+    "tds": {
+      "title": "TDS trung bình theo khu vực",
+      "description": "ppm · đỏ = vượt ngưỡng {{threshold}}"
+    },
+    "revenue": {
+      "title": "Doanh thu lõi lọc & sản lượng",
+      "description": "6 tháng gần nhất · doanh thu (tỷ đ) và số lõi bán ra",
+      "ariaLabel": "Doanh thu minh họa từ tháng 2 đến tháng 7 tăng dần; sản lượng lõi lọc tăng theo."
+    }
+  },
+  "legend": {
+    "online": "Online",
+    "offline": "Offline",
+    "revenue": "Doanh thu",
+    "filters": "Số lõi"
+  },
+  "actions": {
+    "exportExcel": "Xuất Excel",
+    "exportFile": "Xuất file"
+  },
+  "active": {
+    "title": "Thiết bị & khách hàng active",
+    "granularityAriaLabel": "Chu kỳ thống kê",
+    "rangeAriaLabel": "Khoảng thời gian",
+    "granularity": { "week": "Tuần", "month": "Tháng", "year": "Năm" },
+    "customers": {
+      "title": "Khách hàng active",
+      "description": "Số khách hàng có hoạt động trong mỗi kỳ"
+    },
+    "devices": {
+      "title": "Thiết bị active",
+      "description": "Số thiết bị có kết nối trong mỗi kỳ"
+    }
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "listPage": {
+    "title": "Serial & chống hàng giả",
+    "description": "Nạp lô serial từ nhà máy, đối chiếu lõi chính hãng và thu hồi lô khi có sự cố.",
+    "ingest": "Nạp lô từ nhà máy",
+    "coreConfig": "Cấu hình tuổi thọ lõi",
+    "empty": "Không có serial nào khớp bộ lọc.",
+    "stats": {
+      "total": "Tổng serial đã nạp",
+      "used": "Đã dùng để reset lõi",
+      "recalledBatches": "Lô đã thu hồi"
+    }
+  },
+  "tabs": {
+    "serials": "Serial",
+    "batches": "Lô sản xuất"
+  },
+  "status": {
+    "unused": "Chưa dùng",
+    "used": "Đã dùng",
+    "recalled": "Đã thu hồi"
+  },
+  "filters": {
+    "searchAriaLabel": "Tìm serial",
+    "searchPlaceholder": "Tìm theo chuỗi serial",
+    "modelAriaLabel": "Lọc theo model",
+    "modelPlaceholder": "Model",
+    "batchAriaLabel": "Lọc theo lô",
+    "batchPlaceholder": "Lô sản xuất",
+    "statusAriaLabel": "Lọc theo trạng thái",
+    "statusAll": "Tất cả",
+    "reset": "Đặt lại"
+  },
+  "table": {
+    "columns": {
+      "serial": "Serial",
+      "key": "Key đối chiếu",
+      "batch": "Lô",
+      "status": "Trạng thái",
+      "usedAt": "Thời điểm dùng",
+      "actions": "Thao tác"
+    },
+    "keyMaskedHint": "Key là mã bí mật chống hàng giả — hệ thống không bao giờ trả về đầy đủ.",
+    "notUsed": "Chưa dùng"
+  },
+  "batchTable": {
+    "columns": {
+      "batch": "Lô",
+      "volume": "Đã dùng / Tổng",
+      "ingestedAt": "Thời điểm nạp",
+      "state": "Tình trạng"
+    },
+    "volumeValue": "{{used}} / {{total}}",
+    "active": "Đang hiệu lực",
+    "recalled": "Đã thu hồi",
+    "recall": "Thu hồi lô"
+  },
+  "ingestModal": {
+    "title": "Nạp lô serial từ nhà máy",
+    "description": "File chỉ cần hai cột: serial và key. Mã model được trích từ chuỗi serial và đối chiếu với danh mục model của ngành hàng kinh doanh.",
+    "dropHint": "Kéo thả hoặc bấm để chọn file CSV",
+    "done": "Đóng",
+    "error": "Nạp lô thất bại.",
+    "summary": "Lô {{batchId}}: đã nạp {{inserted}} bản ghi, từ chối {{rejected}} dòng.",
+    "columns": {
+      "line": "Dòng",
+      "serial": "Serial",
+      "reason": "Lý do từ chối"
+    },
+    "reasons": {
+      "missingField": "Thiếu serial hoặc key",
+      "invalidSerialFormat": "Sai định dạng serial",
+      "unknownModel": "Model không có trong danh mục",
+      "duplicateInFile": "Trùng trong cùng file",
+      "alreadyIngested": "Đã nạp trước đó"
+    }
+  },
+  "recallModal": {
+    "title": "Thu hồi lô {{batchId}}",
+    "warning": "Toàn bộ {{total}} serial thuộc lô sẽ bị từ chối kích hoạt trên toàn hệ thống.",
+    "reason": "Lý do thu hồi",
+    "confirm": "Thu hồi",
+    "success": "Đã thu hồi lô.",
+    "error": "Thu hồi lô thất bại."
+  },
+  "coreConfigPage": {
+    "backToSerials": "Danh sách serial",
+    "title": "M04.1 · Cấu hình tuổi thọ lõi và cảnh báo thay lõi",
+    "description": "Nguồn dữ liệu duy nhất để thiết bị tính tuổi thọ lõi và App hiển thị cảnh báo thay lõi.",
+    "modelPickerPlaceholder": "Chọn model",
+    "modelSourceNote": "Danh mục model lấy từ ngành hàng kinh doanh; model chỉ quy định vị trí lõi và mã lõi tương thích, không khai báo tuổi thọ.",
+    "empty": "Model này chưa khai báo vị trí lõi."
+  },
+  "editModal": {
+    "save": "Lưu",
+    "cancel": "Huỷ",
+    "success": "Đã lưu thay đổi.",
+    "error": "Lưu thay đổi thất bại."
+  },
+  "errors": {
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "batchNotFound": "Không tìm thấy lô.",
+    "batchAlreadyRecalled": "Lô này đã được thu hồi.",
+    "recallReasonRequired": "Phải nhập lý do thu hồi.",
+    "invalidCoreConfig": "Cấu hình lõi không hợp lệ."
+  },
+  "coreLifecycle": {
+    "title": "Cấu hình tuổi thọ lõi",
+    "precedenceNote": "Thứ tự áp dụng: Mã lõi → Vị trí lõi của model → Hệ số TDS của từng máy → Chiến dịch. Đổi tuổi thọ hoặc hệ số chỉ áp dụng cho phần tiêu thụ từ thời điểm sửa, không tính lại quá khứ.",
+    "tabs": {
+      "cores": "Mã lõi",
+      "layout": "Vị trí lõi theo model",
+      "campaign": "Chiến dịch"
+    },
+    "sku": "Mã lõi (SKU)",
+    "allSkus": "Mọi mã lõi",
+    "kind": "Loại lõi",
+    "kinds": {
+      "standard": "Thường",
+      "poor_water": "Chuyên dụng nước kém"
+    },
+    "skuSourceNote": "Danh mục mã lõi lấy từ dữ liệu ngành hàng kinh doanh; Portal chỉ cấu hình tuổi thọ, ngưỡng và hệ số.",
+    "position": "Vị trí",
+    "positionName": "Tên vị trí {{position}}",
+    "coreName": "Tên lõi",
+    "lifespan": "Tuổi thọ định mức",
+    "lifespanValue": "{{months}} tháng / {{liters}} lít",
+    "lifespanMonths": "Tuổi thọ (tháng)",
+    "lifespanLiters": "Tuổi thọ (lít)",
+    "warningThreshold": "Ngưỡng cảnh báo mức 1 / 2",
+    "warningLevel1": "Ngưỡng cảnh báo mức 1 (%)",
+    "warningLevel2": "Ngưỡng cảnh báo mức 2 (%)",
+    "level2AboveLevel1": "Ngưỡng mức 2 phải lớn hơn mức 1.",
+    "guideVideo": "Video hướng dẫn thay lõi",
+    "saleRegions": "Khu vực bán",
+    "allRegions": "Toàn quốc",
+    "tdsFactors": "Hệ số hao mòn theo TDS đầu vào",
+    "fromPpm": "Từ ppm",
+    "toPpm": "Đến ppm",
+    "addTdsFactor": "Thêm dải TDS",
+    "compatibleSkus": "Mã lõi tương thích",
+    "defaultSku": "Mã lõi mặc định",
+    "defaultNotCompatible": "Mã lõi mặc định phải nằm trong danh sách tương thích.",
+    "editCore": "Sửa cấu hình lõi {{sku}}",
+    "edit": "Sửa",
+    "editLayout": "Sửa vị trí lõi",
+    "addPosition": "Thêm vị trí lõi",
+    "effectiveWindowValue": "{{from}} → {{to}}",
+    "campaignName": "Chiến dịch",
+    "pushContent": "Nội dung push",
+    "cta": "CTA / Deeplink",
+    "runWindow": "Thời gian chạy",
+    "auditLog": "Nhật ký thay đổi",
+    "auditLogEmpty": "Chưa có thay đổi nào được ghi nhận.",
+    "auditEntryTitle": "{{actor}} đã thay đổi {{field}}",
+    "auditEntryChange": "{{before}} → {{after}}",
+    "addCampaign": "Thêm chiến dịch",
+    "ctaLabel": "Nhãn CTA",
+    "deeplink": "Deeplink",
+    "campaignCreated": "Đã tạo",
+    "entryExists": "Đang tồn tại",
+    "entryRemoved": "Đã xoá",
+    "confirmDelete": "Xoá mục này?",
+    "delete": "Xoá"
+  }
+}

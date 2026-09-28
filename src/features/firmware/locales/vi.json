@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "OTA Firmware",
+    "description": "Quản lý chiến dịch cập nhật firmware theo nhóm và theo dõi tỷ lệ lỗi"
+  },
+  "stats": {
+    "running": "Đang triển khai",
+    "paused": "Đang tạm dừng",
+    "total": "Tổng chiến dịch"
+  },
+  "status": {
+    "running": "Đang triển khai",
+    "paused": "Tạm dừng",
+    "completed": "Hoàn tất",
+    "cancelled": "Đã hủy"
+  },
+  "track": {
+    "module": "Module",
+    "mainboard": "Mainboard"
+  },
+  "campaign": {
+    "deviceCount": "{{count}} thiết bị",
+    "startedAt": "Bắt đầu: {{date}}",
+    "errorRate": "Tỷ lệ lỗi: {{rate}}% (ngưỡng dừng tự động {{threshold}}%)"
+  },
+  "actions": {
+    "pause": "Tạm dừng",
+    "resume": "Tiếp tục",
+    "cancel": "Hủy chiến dịch"
+  }
+}

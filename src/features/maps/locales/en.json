@@ -1,0 +1,30 @@
+{
+  "page": {
+    "title": "Device map",
+    "description": "Device locations by region and connection status"
+  },
+  "stats": {
+    "totalDevices": "Total devices",
+    "alerting": "In alert",
+    "regions": "Regions"
+  },
+  "filters": {
+    "statusAriaLabel": "Device status",
+    "regionAriaLabel": "Region",
+    "regionPlaceholder": "Region",
+    "all": "All"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "alert": "Alert"
+  },
+  "empty": {
+    "noMatchingDevices": "No matching devices",
+    "selectDevice": "Select a device on the map"
+  },
+  "detail": {
+    "region": "Region: {{region}}",
+    "status": "Status: {{status}}"
+  }
+}

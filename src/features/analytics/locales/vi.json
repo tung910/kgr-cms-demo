@@ -1,0 +1,27 @@
+{
+  "page": {
+    "title": "Phân tích & báo cáo",
+    "description": "Chỉ số vận hành, xu hướng phiếu bảo hành và phân bổ lỗi theo mã dùng chung",
+    "exportButton": "Xuất báo cáo",
+    "exportSuccess": "Đã chuẩn bị báo cáo mẫu để xuất"
+  },
+  "kpi": {
+    "activeDevices": "Thiết bị hoạt động",
+    "openTickets": "Phiếu bảo hành đang mở",
+    "avgResolutionHours": "TG xử lý trung bình",
+    "avgResolutionHoursValue": "{{hours}} giờ",
+    "filterRecallRate": "Tỷ lệ thu hồi lõi lọc"
+  },
+  "chart": {
+    "title": "Phiếu bảo hành theo tháng",
+    "description": "6 tháng gần nhất"
+  },
+  "table": {
+    "columns": {
+      "code": "Mã lỗi",
+      "label": "Mô tả",
+      "count": "Số lượng",
+      "percentage": "Tỷ lệ"
+    }
+  }
+}

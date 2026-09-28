@@ -1,0 +1,98 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "devices": "Devices",
+    "ota": "OTA Firmware",
+    "alerts": "Alert Center",
+    "device_map": "Device Map",
+    "customers": "Customers & Warranty",
+    "analytics": "Analytics & Reports",
+    "serials": "Serials & Anti-counterfeit",
+    "coreConfig": "Core lifecycle config",
+    "system": "System",
+    "members": "Members",
+    "role_groups": "Role groups",
+    "audit_log": "Audit log",
+    "system_config": "System settings"
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "deviceDetail": "Detail {{id}}"
+  },
+  "roles": {
+    "super_admin": "Super Admin",
+    "admin": "Admin",
+    "service_center": "TT DV",
+    "factory": "Nhà máy",
+    "sales": "KD",
+    "logistics": "Kho vận"
+  },
+  "userMenu": {
+    "roleLabel": "Role: {{role}}",
+    "logout": "Log out",
+    "changePassword": "Change password"
+  },
+  "topbar": {
+    "openNav": "Open navigation",
+    "collapseNav": "Collapse navigation"
+  },
+  "languageSwitcher": {
+    "en": "EN",
+    "vi": "VI"
+  },
+  "sidebar": {
+    "brandFull": "KGR CMS",
+    "brandShort": "KGR",
+    "groupOverview": "OVERVIEW",
+    "groupOperations": "OPERATIONS",
+    "groupBusiness": "BUSINESS",
+    "groupSystem": "SYSTEM"
+  },
+  "pageState": {
+    "noData": "No data",
+    "forbiddenTitle": "You do not have access",
+    "notFoundTitle": "Page not found",
+    "errorTitle": "An error occurred",
+    "retry": "Retry"
+  },
+  "login": {
+    "subtitle": "Sign in with your phone number and password.",
+    "phone": "Phone number",
+    "password": "Password",
+    "submit": "Sign in",
+    "demoHint": "Development accounts (mock backend) — pick one to fill the form:",
+    "errors": {
+      "invalid_credentials": "Incorrect phone number or password.",
+      "account_locked": "This account is locked. Please contact an administrator.",
+      "attempts_locked": "Too many failed attempts. Try again in {{minutes}} minute(s).",
+      "generic": "Could not sign in. Please try again."
+    }
+  },
+  "connectionStatus": {
+    "online": "Online",
+    "warning": "Error",
+    "offline": "Offline"
+  },
+  "auth": {
+    "cancel": "Cancel",
+    "changePassword": {
+      "title": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "mismatch": "Passwords do not match.",
+      "submit": "Change password",
+      "success": "Password changed.",
+      "errors": {
+        "invalid_credentials": "The current password is incorrect.",
+        "weak_password": "The new password does not meet the password policy.",
+        "generic": "Could not change the password."
+      }
+    }
+  },
+  "simulation": {
+    "banner": "Simulating role: {{role}} — read-only, no changes can be made.",
+    "exit": "Exit simulation",
+    "exitError": "Could not exit the simulation."
+  }
+}

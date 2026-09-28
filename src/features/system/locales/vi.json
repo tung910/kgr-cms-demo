@@ -1,0 +1,341 @@
+{
+  "common": {
+    "save": "Lưu",
+    "cancel": "Huỷ",
+    "confirm": "Xác nhận"
+  },
+  "errors": {
+    "generic": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+    "unauthenticated": "Phiên đăng nhập đã hết hạn.",
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "simulation_read_only": "Chế độ mô phỏng vai trò chỉ cho phép xem.",
+    "validation": "Một số giá trị không hợp lệ.",
+    "not_found": "Mục này không còn tồn tại.",
+    "invalid_credentials": "Mật khẩu hiện tại không đúng.",
+    "weak_password": "Mật khẩu phải có tối thiểu {{min}} ký tự, gồm cả chữ và số.",
+    "phone_taken": "Số điện thoại này đã được tài khoản khác sử dụng.",
+    "super_admin_single": "Chỉ được có một tài khoản Super Admin.",
+    "name_taken": "Đã có nhóm quyền trùng tên.",
+    "group_in_use": "Nhóm quyền này vẫn còn thành viên.",
+    "group_locked": "Không thể thay đổi nhóm quyền này.",
+    "duplicate_code": "Mã bị trùng trong danh mục {{min}}.",
+    "confirm_mismatch": "Mã bản sao lưu không khớp.",
+    "invalid_role": "Không thể mô phỏng vai trò này.",
+    "out_of_scope": "Tài khoản này không thuộc phạm vi quản lý của bạn.",
+    "exceeds_parent": "Nhóm con không được có quyền mà nhóm cha không có.",
+    "exceeds_permissions": "Bạn chỉ được cấp nhóm quyền mà bản thân đang có đầy đủ.",
+    "owned_admins_pending": "Còn Admin lĩnh vực trực thuộc. Hãy chuyển giao cho System Admin khác đang hoạt động.",
+    "invalid_owner": "System Admin tiếp nhận phải khác và đang hoạt động.",
+    "invalid_target": "Chỉ chuyển giao được Admin lĩnh vực.",
+    "no_hard_delete": "Không xoá System Admin. Hãy dùng Vô hiệu hoá.",
+    "has_children": "Tài khoản còn người dùng trực thuộc. Hãy xử lý họ trước."
+  },
+  "members": {
+    "title": "Thành viên",
+    "description": "Tài khoản CMS, nhóm quyền và lần truy cập gần nhất.",
+    "add": "Thêm thành viên",
+    "empty": "Chưa có thành viên nào.",
+    "status": {
+      "active": "Đang hoạt động",
+      "locked": "Đã khoá",
+      "disabled": "Vô hiệu hoá"
+    },
+    "actions": {
+      "edit": "Sửa",
+      "lock": "Khoá",
+      "unlock": "Mở khoá",
+      "delete": "Xoá",
+      "disable": "Vô hiệu hoá",
+      "transfer": "Chuyển giao"
+    },
+    "form": {
+      "createTitle": "Thêm thành viên",
+      "editTitle": "Sửa thành viên",
+      "permissions": "Quyền của System Admin",
+      "permissionsHint": "Nhóm quyền riêng cho tài khoản này; sau khi đăng nhập họ tạo các nhóm quyền lĩnh vực trong phạm vi này.",
+      "created": "Đã tạo thành viên.",
+      "updated": "Đã cập nhật thành viên.",
+      "fullName": "Họ và tên",
+      "phone": "Số điện thoại (đăng nhập)",
+      "phoneHint": "Dùng để đăng nhập, không được trùng.",
+      "phoneInvalid": "Nhập số điện thoại di động Việt Nam hợp lệ.",
+      "password": "Mật khẩu",
+      "passwordKeep": "Để trống để giữ nguyên mật khẩu hiện tại.",
+      "role": "Nhóm quyền",
+      "regions": "Khu vực được gán",
+      "regionsHint": "Giới hạn dữ liệu thành viên được xem theo các khu vực này.",
+      "regionsAll": "Toàn quốc (tất cả khu vực)"
+    },
+    "reasonModal": {
+      "reason": "Lý do",
+      "lock": {
+        "title": "Khoá tài khoản {{name}}",
+        "success": "Đã khoá tài khoản."
+      },
+      "unlock": {
+        "title": "Mở khoá tài khoản {{name}}",
+        "success": "Đã mở khoá tài khoản."
+      },
+      "delete": {
+        "title": "Xoá tài khoản {{name}}",
+        "success": "Đã xoá tài khoản.",
+        "warning": "Xoá sẽ gỡ tài khoản khỏi danh sách vĩnh viễn. Nên dùng Khoá nếu người này có thể quay lại."
+      },
+      "owner": "System Admin tiếp nhận",
+      "ownedTitle": "Các Admin lĩnh vực đang trực thuộc (bắt buộc chuyển giao trước):",
+      "ownedNone": "Không có Admin lĩnh vực nào trực thuộc.",
+      "disable": {
+        "title": "Vô hiệu hoá tài khoản {{name}}",
+        "success": "Đã vô hiệu hoá tài khoản."
+      },
+      "transfer": {
+        "title": "Chuyển giao {{name}}",
+        "success": "Đã chuyển giao Admin lĩnh vực."
+      }
+    },
+    "levels": {
+      "sp_admin": "SP-Admin",
+      "system_admin": "System Admin",
+      "field_admin": "Admin lĩnh vực",
+      "user": "Người dùng"
+    },
+    "emptyFiltered": "Không có thành viên khớp bộ lọc.",
+    "filters": {
+      "searchAriaLabel": "Tìm kiếm thành viên",
+      "searchPlaceholder": "Tìm theo tên, SĐT hoặc vai trò",
+      "roleAriaLabel": "Lọc theo nhóm quyền",
+      "rolePlaceholder": "Nhóm quyền",
+      "reset": "Xoá bộ lọc"
+    },
+    "table": {
+      "columns": {
+        "name": "Tên",
+        "phone": "SĐT",
+        "role": "Nhóm quyền",
+        "lastAccess": "Truy cập gần nhất",
+        "status": "Trạng thái",
+        "actions": "Thao tác"
+      },
+      "notManageable": "Bạn chỉ thao tác được trên tài khoản thuộc phạm vi quản lý của mình."
+    }
+  },
+  "roles": {
+    "title": "Nhóm quyền",
+    "description": "Định nghĩa từng nhóm quyền được dùng những chức năng và hành động nào.",
+    "add": "Thêm nhóm quyền",
+    "matrix": {
+      "module": "Module",
+      "function": "Chức năng",
+      "modules": {
+        "dashboard": "Tổng quan",
+        "devices": "Thiết bị",
+        "serials": "Serial & lõi lọc",
+        "ota": "Firmware OTA",
+        "alerts": "Trung tâm cảnh báo",
+        "device_map": "Bản đồ thiết bị",
+        "customers": "Khách hàng & bảo hành",
+        "campaigns": "Chiến dịch truyền thông",
+        "analytics": "Phân tích & báo cáo",
+        "system": "Hệ thống"
+      },
+      "functions": {
+        "dashboard_tds": "Biểu đồ TDS theo khu vực",
+        "dashboard_revenue": "Biểu đồ doanh thu lõi",
+        "dashboard_active": "Biểu đồ active thiết bị & khách hàng",
+        "device_list": "Danh sách & chi tiết thiết bị",
+        "device_owner": "Chủ sở hữu & chia sẻ thiết bị (PII)",
+        "device_info": "Thông tin thiết bị",
+        "device_diagnose": "Chẩn đoán từ xa",
+        "device_control": "Điều khiển từ xa",
+        "device_history": "Lịch sử thiết bị (kết nối, OTA, cảnh báo)",
+        "customers": "Danh sách & hồ sơ khách hàng",
+        "customer_access_log": "Lịch sử truy cập & hoạt động của KH",
+        "warranty": "Bảo hành điện tử",
+        "service_schedule": "Lịch dịch vụ & phân công KTV",
+        "customer_notify": "Push thông báo tới khách hàng",
+        "serial": "Serial lõi lọc & lô",
+        "serial_detail": "Tra cứu mã QR (lịch sử quét, vị trí)",
+        "serial_void": "Vô hiệu hoá mã / lô QR",
+        "serial_anomaly": "Cảnh báo bất thường QR",
+        "core_config_lifespan": "Tuổi thọ lõi & cấu hình model",
+        "core_config_tune": "Ngưỡng lõi & chiến dịch",
+        "ota": "Theo dõi chiến dịch OTA",
+        "firmware": "Thư viện firmware & duyệt phiên bản",
+        "ota_campaign": "Chiến dịch OTA & điều khiển triển khai",
+        "alerts": "Trung tâm cảnh báo",
+        "alert_config": "SLA, escalation & kênh thông báo",
+        "device_map": "Bản đồ thiết bị",
+        "device_map_location": "Vị trí lắp đặt chính xác",
+        "campaign": "Quản lý chiến dịch",
+        "campaign_voucher": "Voucher & điểm thưởng chiến dịch",
+        "analytics": "Phân tích & báo cáo",
+        "analytics_reliability": "Sức khoẻ thiết bị, top lỗi & MTBF",
+        "analytics_revenue": "Doanh thu lõi lọc",
+        "analytics_metric_config": "Định nghĩa chỉ số & báo cáo định kỳ",
+        "member": "Thành viên",
+        "role_group": "Nhóm quyền",
+        "role_simulate": "Mô phỏng vai trò",
+        "audit_log": "Nhật ký hệ thống",
+        "system_config": "Cấu hình hệ thống",
+        "security_config": "Cấu hình đăng nhập & bảo mật",
+        "backup": "Sao lưu & khôi phục"
+      },
+      "actions": {
+        "read": "Xem",
+        "create": "Tạo",
+        "update": "Sửa",
+        "delete": "Xoá",
+        "export": "Xuất",
+        "send": "Gửi lệnh",
+        "approve": "Duyệt"
+      }
+    },
+    "editor": {
+      "name": "Tên nhóm quyền",
+      "simulate": "Mô phỏng vai trò này",
+      "delete": "Xoá",
+      "deleteConfirm": "Xoá nhóm quyền “{{name}}”?",
+      "inUse": "Hãy chuyển các thành viên sang nhóm quyền khác trước.",
+      "saved": "Đã lưu nhóm quyền.",
+      "deleted": "Đã xoá nhóm quyền.",
+      "lockedHint": "Nhóm Super Admin luôn có toàn quyền và không thể thay đổi.",
+      "cumulativeHint": "Cấp bất kỳ hành động nào sẽ tự cấp quyền Xem cho chức năng đó; bỏ Xem sẽ bỏ cả hàng.",
+      "readOnlyHint": "Bạn chỉ có thể xem ma trận này, không thể thay đổi."
+    },
+    "create": {
+      "title": "Thêm nhóm quyền",
+      "name": "Tên nhóm quyền",
+      "success": "Đã tạo nhóm quyền. Hãy chọn quyền cho nhóm.",
+      "titleAdmin": "Thêm nhóm quyền lĩnh vực"
+    }
+  },
+  "audit": {
+    "title": "Nhật ký hệ thống",
+    "description": "Lịch sử các hành động nhạy cảm, chỉ được ghi thêm. Không thể sửa hoặc xoá bản ghi.",
+    "export": "Xuất CSV",
+    "empty": "Chưa có bản ghi nào.",
+    "emptyFiltered": "Không có bản ghi khớp bộ lọc.",
+    "filters": {
+      "actorAriaLabel": "Lọc theo người thực hiện",
+      "actorPlaceholder": "Người thực hiện",
+      "moduleAriaLabel": "Lọc theo module",
+      "modulePlaceholder": "Module",
+      "actionAriaLabel": "Lọc theo hành động",
+      "actionPlaceholder": "Hành động",
+      "rangeAriaLabel": "Lọc theo khoảng thời gian",
+      "reset": "Xoá bộ lọc"
+    },
+    "table": {
+      "columns": {
+        "time": "Thời gian",
+        "actor": "Người thực hiện",
+        "ip": "IP",
+        "module": "Module",
+        "action": "Hành động",
+        "target": "Đối tượng"
+      },
+      "reason": "Lý do",
+      "before": "Trước",
+      "after": "Sau"
+    },
+    "modules": {
+      "auth": "Đăng nhập",
+      "members": "Thành viên",
+      "role_groups": "Nhóm quyền",
+      "system_config": "Cấu hình hệ thống",
+      "backup": "Sao lưu",
+      "simulation": "Mô phỏng vai trò",
+      "audit_log": "Nhật ký hệ thống",
+      "access": "Kiểm soát truy cập"
+    },
+    "actions": {
+      "login": "login",
+      "login_failed": "login_failed",
+      "change_password": "change_password",
+      "create": "create",
+      "update": "update",
+      "lock": "lock",
+      "unlock": "unlock",
+      "delete": "delete",
+      "export": "export",
+      "simulation_start": "simulation_start",
+      "simulation_end": "simulation_end",
+      "backup_create": "backup_create",
+      "backup_restore": "backup_restore",
+      "disable": "disable",
+      "transfer": "transfer",
+      "access_denied": "access_denied"
+    }
+  },
+  "config": {
+    "title": "Cấu hình hệ thống",
+    "description": "Tham số và danh mục áp dụng cho toàn portal và app.",
+    "saved": "Đã lưu cấu hình.",
+    "readOnlyHint": "Bạn chỉ xem được giá trị đang áp dụng. Muốn đổi, hãy gửi đề xuất cho quản trị viên.",
+    "tabs": {
+      "config": "Tham số & danh mục",
+      "backup": "Sao lưu & khôi phục"
+    },
+    "sections": {
+      "params": "Tham số",
+      "sla": "SLA theo mức độ",
+      "catalogs": "Danh mục"
+    },
+    "params": {
+      "tdsThresholdRegion": "Ngưỡng TDS khu vực (ppm)",
+      "otaAutoPauseRate": "Tỷ lệ lỗi tự dừng OTA (%)",
+      "deviceAckTimeout": "ACK timeout thiết bị (giây)",
+      "warrantyExpiringDays": "Bảo hành sắp hết hạn (ngày)",
+      "qrAnomalyRate": "Ngưỡng bất thường QR (%)",
+      "loginMaxFailed": "Số lần đăng nhập sai trước khi khoá",
+      "lockoutMinutes": "Thời gian khoá (phút)",
+      "sessionTimeoutMinutes": "Hết phiên khi không hoạt động (phút)",
+      "passwordMinLength": "Độ dài mật khẩu tối thiểu",
+      "alertAutoClose": "Tự đóng cảnh báo khi thiết bị hết lỗi"
+    },
+    "slaHint": "Số phút để xử lý một cảnh báo. Chưa có giá trị mặc định nên ban đầu để trống.",
+    "slaUnset": "Chưa cấu hình",
+    "sla": {
+      "critical": "Nghiêm trọng (phút)",
+      "medium": "Trung bình (phút)",
+      "low": "Thấp (phút)"
+    },
+    "catalogs": {
+      "model": "Model",
+      "core": "Lõi lọc",
+      "region": "Khu vực",
+      "code": "Mã",
+      "name": "Tên",
+      "parent": "Cấp trên",
+      "add": "Thêm",
+      "remove": "Xoá",
+      "duplicate": "Mã bị trùng"
+    }
+  },
+  "backup": {
+    "hint": "Sao lưu định kỳ do hệ thống tự chạy. Hãy sao lưu thủ công trước các đợt thay đổi lớn.",
+    "create": "Sao lưu ngay",
+    "created": "Đã tạo bản sao lưu.",
+    "restored": "Đã ghi nhận yêu cầu khôi phục.",
+    "restore": "Khôi phục",
+    "system": "Hệ thống",
+    "kind": {
+      "scheduled": "Định kỳ",
+      "manual": "Thủ công"
+    },
+    "columns": {
+      "code": "Mã bản sao lưu",
+      "kind": "Loại",
+      "createdAt": "Thời điểm tạo",
+      "size": "Dung lượng",
+      "createdBy": "Người tạo",
+      "actions": "Thao tác"
+    },
+    "restoreModal": {
+      "title": "Khôi phục {{code}}",
+      "warning": "Khôi phục sẽ ghi đè toàn bộ hệ thống bằng bản sao lưu này. Thao tác được ghi log.",
+      "typeCode": "Nhập lại mã bản sao lưu {{code}} để xác nhận.",
+      "confirm": "Khôi phục"
+    }
+  }
+}

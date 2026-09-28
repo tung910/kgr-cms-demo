@@ -1,0 +1,419 @@
+{
+  "filters": {
+    "searchAriaLabel": "Tìm thiết bị",
+    "searchPlaceholder": "Tìm theo serial hoặc tên chủ sở hữu",
+    "modelAriaLabel": "Model",
+    "modelPlaceholder": "Tất cả model",
+    "regionAriaLabel": "Khu vực",
+    "regionPlaceholder": "Tất cả khu vực",
+    "statusAriaLabel": "Trạng thái thiết bị",
+    "statusAll": "Tất cả",
+    "reset": "Đặt lại"
+  },
+  "history": {
+    "title": "Lịch sử thiết bị",
+    "module": "Module",
+    "mainboard": "Mainboard",
+    "tabs": {
+      "connectivity": "Online/Offline",
+      "ota": "OTA",
+      "service": "Bảo hành & bảo trì",
+      "alerts": "Cảnh báo",
+      "filterChanges": "Thay lõi"
+    },
+    "export": "Xuất CSV",
+    "loading": "Đang tải…",
+    "loadError": "Không thể tải lịch sử này.",
+    "connectivityEmpty": "Chưa có lịch sử kết nối.",
+    "alertsEmpty": "Chưa có cảnh báo nào trên thiết bị này.",
+    "filterChangesEmpty": "Chưa có lịch sử thay lõi.",
+    "otaEmpty": "Chưa có lịch sử cập nhật firmware.",
+    "serviceEmpty": "Chưa có lịch sử bảo hành hoặc bảo trì.",
+    "connectivity": {
+      "online": "Kết nối lại",
+      "offline": "Mất kết nối"
+    },
+    "duration": "Kéo dài {{hours}} giờ {{minutes}} phút",
+    "alertStatus": {
+      "open": "Đang mở",
+      "assigned": "Đã phân công",
+      "in_progress": "Đang xử lý",
+      "closed": "Đã đóng"
+    },
+    "filterPosition": "Vị trí {{position}} · {{name}}",
+    "channel": {
+      "app": "Qua App",
+      "technician": "Kỹ thuật viên"
+    },
+    "otaResult": {
+      "success": "Thành công",
+      "failed": "Thất bại",
+      "rolled_back": "Đã quay lại bản cũ"
+    },
+    "serviceType": {
+      "warranty": "Bảo hành",
+      "maintenance": "Bảo trì"
+    },
+    "serviceStatus": {
+      "scheduled": "Đã lên lịch",
+      "in_progress": "Đang xử lý",
+      "done": "Hoàn tất"
+    },
+    "csv": {
+      "time": "Thời điểm",
+      "event": "Sự kiện",
+      "durationMinutes": "Thời lượng (phút)",
+      "track": "Loại firmware",
+      "fromVersion": "Từ phiên bản",
+      "toVersion": "Lên phiên bản",
+      "result": "Kết quả",
+      "completedAt": "Hoàn tất lúc",
+      "ticket": "Mã phiếu",
+      "type": "Loại",
+      "summary": "Nội dung",
+      "status": "Trạng thái",
+      "code": "Mã lỗi",
+      "title": "Tiêu đề",
+      "severity": "Mức độ",
+      "closedAt": "Đóng lúc",
+      "position": "Vị trí",
+      "core": "Lõi",
+      "oldSerial": "Serial cũ",
+      "newSerial": "Serial mới",
+      "channel": "Kênh"
+    }
+  },
+  "controlState": {
+    "powerOn": "Nguồn: Đang bật",
+    "powerOff": "Nguồn: Đang tắt",
+    "locked": "Khóa: Đang khóa",
+    "unlocked": "Khóa: Hoạt động"
+  },
+  "table": {
+    "columns": {
+      "identity": "Serial / Model",
+      "region": "Khách hàng & khu vực",
+      "status": "Trạng thái",
+      "filterLife": "Tuổi thọ lõi cần chú ý",
+      "firmware": "Firmware",
+      "lastSeen": "Lần cuối kết nối",
+      "activatedAt": "Ngày kích hoạt",
+      "actions": "Thao tác"
+    },
+    "attentionCore": {
+      "label": "Lõi {{position}} ({{name}})",
+      "expired": "Hết hạn"
+    },
+    "viewDetail": "Xem chi tiết",
+    "totalDevices": "Tổng cộng {{total}} thiết bị",
+    "lastOnlineLabel": "Kết nối: {{time}}",
+    "justNow": "Vừa xong"
+  },
+  "stats": {
+    "total": "Tổng thiết bị"
+  },
+  "listPage": {
+    "title": "Quản lý thiết bị",
+    "description": "{{total}} thiết bị phù hợp bộ lọc · Trạng thái kết nối và firmware",
+    "export": "Xuất dữ liệu",
+    "exportSuccess": "Đã xuất {{count}} thiết bị theo bộ lọc đang áp dụng.",
+    "exportError": "Không thể xuất dữ liệu thiết bị.",
+    "empty": "Không tìm thấy thiết bị phù hợp."
+  },
+  "detailPage": {
+    "title": "Thiết bị {{deviceId}}",
+    "description": "{{model}} · {{region}} · Thông tin kết nối và chẩn đoán",
+    "remoteControl": "Điều khiển từ xa",
+    "remoteControlNotImplemented": "Điều khiển từ xa chưa được triển khai trong phiên bản cơ sở.",
+    "notFoundTitle": "Không tìm thấy thiết bị",
+    "stats": {
+      "activatedAt": "Kích hoạt"
+    },
+    "signal": {
+      "stable": "Ổn định",
+      "weak": "Sóng yếu",
+      "poor": "Sóng rất yếu",
+      "unknown": "Mất kết nối"
+    },
+    "serial": "SN: {{id}}",
+    "noOwner": "Chưa có chủ sở hữu",
+    "warrantyExpiredOn": "Hết bảo hành từ {{date}}",
+    "backToList": "Danh sách thiết bị",
+    "tdsLevel": {
+      "verySafe": "Rất an toàn",
+      "safe": "An toàn",
+      "high": "Cao"
+    },
+    "cards": {
+      "tdsTitle": "TDS Nước sạch",
+      "tdsOutHint": "Đầu ra uống trực tiếp",
+      "tdsIn": "TDS nước nguồn:",
+      "connectionTitle": "Kết nối",
+      "activationTitle": "Thông tin Kích hoạt & FW",
+      "warrantyMonths": "Bảo hành {{count}}T",
+      "warrantyTerm": "Thời hạn bảo hành",
+      "warrantyUntilShort": "Đến {{date}}",
+      "moduleFirmware": "Firmware Module",
+      "mainboardFirmware": "Firmware Mainboard",
+      "lastConnected": "Lần cuối kết nối:",
+      "connectionHint": {
+        "stable": "Độ trễ thấp · Tín hiệu thông suốt",
+        "weak": "Độ trễ cao · Tín hiệu chập chờn",
+        "poor": "Tín hiệu rất yếu · Dễ mất kết nối",
+        "unknown": "Thiết bị đang offline · Không có tín hiệu"
+      },
+      "latencyWithSignal": "{{latency}}ms • {{signal}}",
+      "warrantyDaysLeft_other": "Còn {{count}} ngày"
+    }
+  },
+  "validation": {
+    "required": "Vui lòng nhập trường này."
+  },
+  "appSyncStatus": {
+    "none": "Không có cập nhật chờ xử lý",
+    "queued": "Đã ghi nhận cập nhật chờ xử lý (mô phỏng)"
+  },
+  "lifecycleState": {
+    "active": "Đang sử dụng",
+    "locked": "Đã khóa",
+    "decommissioned": "Ngừng sử dụng"
+  },
+  "warrantyStatus": {
+    "active": "Còn bảo hành",
+    "expiring": "Sắp hết bảo hành",
+    "expired": "Hết bảo hành",
+    "none": "Chưa có bảo hành"
+  },
+  "deleteDialog": {
+    "blocking": {
+      "openTickets": "Cần xử lý hoặc chuyển tiếp phiếu bảo hành, lịch hẹn và cảnh báo chưa đóng.",
+      "activeOta": "Chờ quá trình cập nhật firmware kết thúc.",
+      "activeRental": "Thiết bị có hợp đồng thuê còn hiệu lực."
+    },
+    "deleteSuccess": "Đã xóa bản ghi; serial vẫn được giữ, không cấp lại.",
+    "deleteTitle": "Xóa thiết bị {{deviceId}}",
+    "confirmDelete": "Xóa bản ghi",
+    "cancel": "Hủy",
+    "serial": "Serial",
+    "model": "Model",
+    "currentOwner": "Chủ hiện tại",
+    "noOwner": "Chưa có chủ",
+    "blockedTitle": "Chưa thể thực hiện",
+    "reason": "Lý do",
+    "reasonHint": "Nhập lý do xóa thiết bị.",
+    "error": "Không thể hoàn tất thao tác.",
+    "impact": "Dữ liệu ảnh hưởng: {{members}} thành viên chia sẻ, {{automations}} kịch bản, {{tickets}} phiếu bảo hành, {{appointments}} lịch hẹn, {{alerts}} cảnh báo mở.",
+    "effects": "Thu hồi chia sẻ và quyền điều khiển của khách, tắt kịch bản và ghi nhận thông báo App kèm lý do. Giữ lịch sử kỹ thuật và thời hạn bảo hành còn lại."
+  },
+  "lifecycleActions": {
+    "success": "Đã cập nhật trạng thái thiết bị.",
+    "error": "Không thể cập nhật trạng thái thiết bị.",
+    "lock": "Khóa",
+    "unlock": "Mở khóa",
+    "restore": "Khôi phục",
+    "restoreSuccess": "Đã khôi phục thiết bị về trạng thái và chủ sở hữu trước đó.",
+    "confirm": "Xác nhận",
+    "cancel": "Hủy",
+    "reason": "Lý do",
+    "confirmTitle": {
+      "active": "Mở khóa thiết bị",
+      "locked": "Khóa thiết bị",
+      "restore": "Khôi phục thiết bị"
+    }
+  },
+  "ownership": {
+    "title": "Quản lý chủ sở hữu",
+    "currentOwner": "Chủ hiện tại",
+    "noOwner": "Chưa gán chủ sở hữu",
+    "phone": "SĐT",
+    "address": "Địa chỉ",
+    "sharedMembers": "Danh sách chia sẻ",
+    "noSharedMembers": "Chưa chia sẻ cho ai.",
+    "columns": {
+      "name": "Tên",
+      "phone": "SĐT",
+      "address": "Địa chỉ",
+      "permission": "Quyền",
+      "actions": ""
+    },
+    "permission": {
+      "control": "Điều khiển",
+      "view": "Chỉ xem"
+    },
+    "history": "Lịch sử chủ sở hữu",
+    "present": "Hiện tại",
+    "endReason": "Lý do",
+    "deleteRecord": "Xóa bản ghi",
+    "change": "Đổi chủ sở hữu",
+    "changeTitle": "Đổi chủ sở hữu thiết bị",
+    "changeWarning": "Chủ cũ sẽ mất quyền điều khiển máy trên App và nhận thông báo. Thao tác được ghi nhật ký.",
+    "newOwner": "Chủ sở hữu mới",
+    "newOwnerHint": "Tìm theo SĐT hoặc mã khách hàng",
+    "searchMin": "Nhập ít nhất 2 ký tự",
+    "searchError": "Không thể tìm khách hàng.",
+    "noCandidates": "Không tìm thấy khách hàng",
+    "changeConfirm": "Đổi chủ",
+    "changeSuccess": "Đã đổi chủ sở hữu.",
+    "changeSuccessNotified": "Đã đổi chủ sở hữu và gửi thông báo cho chủ cũ.",
+    "remove": "Xóa chủ sở hữu",
+    "removeTitle": "Xóa chủ sở hữu",
+    "removeWarning": "Khách hàng sẽ mất quyền điều khiển máy trên App và nhận thông báo. Thao tác được ghi nhật ký.",
+    "removeConfirm": "Xóa chủ",
+    "removeSuccess": "Đã xóa chủ sở hữu.",
+    "removeSuccessNotified": "Đã xóa chủ sở hữu và gửi thông báo cho khách hàng.",
+    "revoke": "Thu hồi",
+    "revokeTitle": "Thu hồi chia sẻ của {{name}}",
+    "revokeWarning": "Thành viên này sẽ mất quyền truy cập thiết bị trên App. Thao tác được ghi nhật ký.",
+    "revokeConfirm": "Thu hồi",
+    "revokeSuccess": "Đã thu hồi chia sẻ.",
+    "reason": "Lý do",
+    "cancel": "Hủy",
+    "error": "Không thể hoàn tất thao tác.",
+    "notAvailable": "—"
+  },
+  "coreAlerts": {
+    "title": "Cảnh báo lõi cần thay",
+    "position": "Vị trí {{position}} · {{name}}",
+    "code": "Mã lỗi",
+    "sku": "SKU thay thế",
+    "usedPercent": "Đã dùng {{used}}% (ngưỡng {{threshold}}%)",
+    "status": {
+      "open": "Đang mở",
+      "assigned": "Đã phân công"
+    },
+    "createAppointment": "Tạo lịch kỹ thuật viên",
+    "modalTitle": "Tạo lịch kỹ thuật viên — vị trí {{position}}",
+    "reason": "Lý do",
+    "confirm": "Tạo phiếu",
+    "cancel": "Hủy",
+    "ticketSuccess": "Đã tạo phiếu và phân công cảnh báo.",
+    "error": "Không thể tạo phiếu bảo hành."
+  },
+  "diagnosticsPanel": {
+    "offlineError": "Thiết bị đang ngoại tuyến, không thể chẩn đoán.",
+    "error": "Không thể yêu cầu chẩn đoán."
+  },
+  "controlPanel": {
+    "description": "Mọi lệnh đều bắt buộc nhập lý do và được ghi vào nhật ký thao tác; khách hàng xem được nhật ký này trong App.",
+    "commands": {
+      "power_on": "Bật máy",
+      "power_off": "Tắt máy",
+      "set_hot_tank": "Đổi chế độ bầu nóng",
+      "flush_membrane": "Xả rửa lõi lọc",
+      "reboot": "Khởi động lại thiết bị",
+      "ping": "Kiểm tra kết nối (ping)"
+    },
+    "confirmTitle": "Xác nhận: {{command}}",
+    "reason": "Lý do",
+    "reasonHint": "Nhập lý do thực hiện lệnh này.",
+    "confirm": "Gửi lệnh",
+    "cancel": "Hủy",
+    "success": "Đã gửi lệnh tới thiết bị.",
+    "error": "Không thể gửi lệnh tới thiết bị.",
+    "blockedMessage": "Lệnh bị từ chối vì chưa thỏa điều kiện: {{conditions}}.",
+    "blocking": {
+      "notActive": "Thiết bị không ở trạng thái đang sử dụng.",
+      "activeOta": "Thiết bị đang cập nhật firmware.",
+      "activeRental": "Thiết bị thuộc hợp đồng cho thuê còn hiệu lực."
+    }
+  },
+  "errors": {
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "notFound": "Không tìm thấy thiết bị hoặc thành viên chia sẻ.",
+    "server": "Máy chủ mô phỏng không thể xử lý yêu cầu.",
+    "invalidInput": "Nhập thông tin hợp lệ, lý do và các thay đổi cần ghi nhật ký.",
+    "inactive": "Không thể gán thiết bị đã khóa hoặc ngừng sử dụng.",
+    "customerNotFound": "Không tìm thấy khách hàng.",
+    "previouslyActive": "Không thể xóa hẳn thiết bị đã từng hoạt động.",
+    "restoreExpired": "Đã quá 7 ngày hoặc thiết bị đã có khách mới, không thể khôi phục.",
+    "restoreNotEligible": "Thiết bị này không ở trạng thái có thể khôi phục.",
+    "invalidResponse": "Máy chủ trả về dữ liệu thiết bị không hợp lệ.",
+    "sameOwner": "Khách hàng này đã là chủ sở hữu hiện tại.",
+    "noOwner": "Thiết bị chưa có chủ sở hữu."
+  },
+  "telemetry": {
+    "title": "Chất lượng nước vào/ra",
+    "description": "TDS nước nguồn và nước đầu ra theo thời gian · bấm chú thích để ẩn/hiện từng đường",
+    "unit": "ppm",
+    "ranges": {
+      "24h": "24h",
+      "7d": "7 ngày",
+      "30d": "30 ngày"
+    },
+    "series": {
+      "tdsIn": "TDS vào",
+      "tdsOut": "TDS ra"
+    },
+    "error": "Không thể tải dữ liệu chất lượng nước.",
+    "empty": "Không có dữ liệu trong khoảng thời gian này."
+  },
+  "filterCores": {
+    "title": "Trạng thái lõi lọc",
+    "description": "Thời gian còn lại của từng lõi theo cấu hình tuổi thọ",
+    "loading": "Đang tải…",
+    "empty": "Model này chưa cấu hình lõi lọc.",
+    "error": "Không thể tải trạng thái lõi lọc.",
+    "levels_other": "{{count}} cấp lọc",
+    "level": "Cấp {{index}}",
+    "columns": {
+      "level": "Cấp lọc",
+      "type": "Loại lõi",
+      "core": "Tên & chức năng",
+      "time": "Thời gian còn lại",
+      "status": "Trạng thái"
+    },
+    "remainingOfTotal": "Còn {{remaining}} / {{total}} ngày",
+    "remainingPercent": "{{percent}}%",
+    "health": {
+      "good": "Tốt",
+      "poor": "Kém",
+      "critical": "Quá kém"
+    }
+  },
+  "remoteDiagnostic": {
+    "title": "Remote Diagnostic",
+    "descriptionParts": {
+      "send": "Gửi lệnh điều khiển từ CMS",
+      "timeout": "ACK timeout 30s",
+      "audit": "ghi audit log"
+    },
+    "readiness": {
+      "ready": "Sẵn sàng",
+      "busy": "Đang thực thi",
+      "offline": "Mất kết nối"
+    },
+    "readStatus": "Đọc trạng thái tức thì",
+    "auditTitle": "Nhật ký lệnh (audit)",
+    "auditEmpty": "Chưa có lệnh nào được gửi.",
+    "auditStatus": {
+      "pending": "PENDING",
+      "ack": "ACK",
+      "timeout": "TIMEOUT",
+      "rejected": "TỪ CHỐI"
+    },
+    "packages_other": "{{count}} gói chẩn đoán",
+    "quickDiagnoseQueued": "Đã gửi yêu cầu đọc trạng thái",
+    "controlMenu": "Thao tác"
+  },
+  "ownerDrawer": {
+    "title": "Hồ sơ khách hàng",
+    "piiMasked": "Một số thông tin cá nhân đã được ẩn theo quyền của bạn.",
+    "contact": "Thông tin liên hệ",
+    "phone": "Số điện thoại",
+    "email": "Email",
+    "region": "Khu vực",
+    "joinedAt": "Ngày tham gia",
+    "stats": {
+      "total": "Tổng thiết bị",
+      "online": "Đang online",
+      "needsAttention": "Cảnh báo / offline",
+      "warrantyEnding": "Sắp / hết bảo hành"
+    },
+    "devices_other": "Thiết bị đang sở hữu ({{count}})",
+    "noDevices": "Khách hàng chưa sở hữu thiết bị nào.",
+    "viewing": "Đang xem",
+    "lastOnline": "Online lần cuối: {{date}}",
+    "viewInDeviceList": "Xem trong danh sách thiết bị",
+    "openProfile": "Mở hồ sơ đầy đủ"
+  }
+}

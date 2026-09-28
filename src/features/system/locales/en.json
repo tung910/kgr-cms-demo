@@ -1,0 +1,341 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "unauthenticated": "Your session has expired.",
+    "forbidden": "You are not allowed to do this.",
+    "simulation_read_only": "Role simulation is read-only.",
+    "validation": "Some values are invalid.",
+    "not_found": "The item no longer exists.",
+    "invalid_credentials": "The current password is incorrect.",
+    "weak_password": "The password must have at least {{min}} characters, including letters and digits.",
+    "phone_taken": "This phone number is already used by another account.",
+    "super_admin_single": "There can only be one Super Admin account.",
+    "name_taken": "A role group with this name already exists.",
+    "group_in_use": "This role group still has members.",
+    "group_locked": "This role group cannot be changed.",
+    "duplicate_code": "Duplicate codes in the {{min}} catalog.",
+    "confirm_mismatch": "The backup code does not match.",
+    "invalid_role": "This role cannot be simulated.",
+    "out_of_scope": "This account is outside your management scope.",
+    "exceeds_parent": "A child group cannot hold a permission its parent does not have.",
+    "exceeds_permissions": "You can only grant a role group you fully hold yourself.",
+    "owned_admins_pending": "Field Admins are still owned. Transfer them to another active System Admin first.",
+    "invalid_owner": "The receiving System Admin must be different and active.",
+    "invalid_target": "Only a field Admin can be transferred.",
+    "no_hard_delete": "A System Admin is never deleted. Use Disable.",
+    "has_children": "The account still has users. Handle them first."
+  },
+  "members": {
+    "title": "Members",
+    "description": "CMS accounts, their role group and last access.",
+    "add": "Add member",
+    "empty": "There are no members yet.",
+    "status": {
+      "active": "Active",
+      "locked": "Locked",
+      "disabled": "Disabled"
+    },
+    "actions": {
+      "edit": "Edit",
+      "lock": "Lock",
+      "unlock": "Unlock",
+      "delete": "Delete",
+      "disable": "Disable",
+      "transfer": "Transfer"
+    },
+    "form": {
+      "createTitle": "Add member",
+      "editTitle": "Edit member",
+      "permissions": "System Admin permissions",
+      "permissionsHint": "A dedicated group for this account; after signing in they create field groups within these permissions.",
+      "created": "Member created.",
+      "updated": "Member updated.",
+      "fullName": "Full name",
+      "phone": "Phone number (login)",
+      "phoneHint": "Used to sign in. Must be unique.",
+      "phoneInvalid": "Enter a valid Vietnamese mobile number.",
+      "password": "Password",
+      "passwordKeep": "Leave blank to keep the current password.",
+      "role": "Role group",
+      "regions": "Assigned regions",
+      "regionsHint": "Limits the data this member sees to these regions.",
+      "regionsAll": "Nationwide (all regions)"
+    },
+    "reasonModal": {
+      "reason": "Reason",
+      "lock": {
+        "title": "Lock {{name}}",
+        "success": "Account locked."
+      },
+      "unlock": {
+        "title": "Unlock {{name}}",
+        "success": "Account unlocked."
+      },
+      "delete": {
+        "title": "Delete {{name}}",
+        "success": "Account deleted.",
+        "warning": "Deleting removes the account from the list for good. Prefer locking when the person may return."
+      },
+      "owner": "Receiving System Admin",
+      "ownedTitle": "Field Admins still owned (must be transferred first):",
+      "ownedNone": "No field Admin is owned.",
+      "disable": {
+        "title": "Disable {{name}}",
+        "success": "Account disabled."
+      },
+      "transfer": {
+        "title": "Transfer {{name}}",
+        "success": "Field Admin transferred."
+      }
+    },
+    "levels": {
+      "sp_admin": "SP-Admin",
+      "system_admin": "System Admin",
+      "field_admin": "Field Admin",
+      "user": "User"
+    },
+    "emptyFiltered": "No member matches the current filters.",
+    "filters": {
+      "searchAriaLabel": "Search members",
+      "searchPlaceholder": "Search by name, phone or role",
+      "roleAriaLabel": "Filter by role group",
+      "rolePlaceholder": "Role group",
+      "reset": "Clear filters"
+    },
+    "table": {
+      "columns": {
+        "name": "Name",
+        "phone": "Phone",
+        "role": "Role group",
+        "lastAccess": "Last access",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "notManageable": "You can only manage accounts within your own scope."
+    }
+  },
+  "roles": {
+    "title": "Role groups",
+    "description": "Define which functions and actions each role group may use.",
+    "add": "Add role group",
+    "matrix": {
+      "module": "Module",
+      "function": "Function",
+      "modules": {
+        "dashboard": "Dashboard",
+        "devices": "Devices",
+        "serials": "Serials & cores",
+        "ota": "OTA firmware",
+        "alerts": "Alert center",
+        "device_map": "Device map",
+        "customers": "Customers & warranty",
+        "campaigns": "Marketing campaigns",
+        "analytics": "Analytics & reports",
+        "system": "System"
+      },
+      "functions": {
+        "dashboard_tds": "TDS by region chart",
+        "dashboard_revenue": "Filter revenue chart",
+        "dashboard_active": "Active device & customer charts",
+        "device_list": "Device list & details",
+        "device_owner": "Device owner & sharing (PII)",
+        "device_info": "Device information",
+        "device_diagnose": "Remote diagnostics",
+        "device_control": "Remote control",
+        "device_history": "Device history (connection, OTA, alerts)",
+        "customers": "Customer list & profile",
+        "customer_access_log": "Customer sign-in & activity log",
+        "warranty": "Electronic warranty",
+        "service_schedule": "Service schedule & technician assignment",
+        "customer_notify": "Push notification to customers",
+        "serial": "Filter serials & batches",
+        "serial_detail": "QR code lookup (scan history, location)",
+        "serial_void": "Void QR code / batch",
+        "serial_anomaly": "QR anomaly alerts",
+        "core_config_lifespan": "Core lifespan & model layout",
+        "core_config_tune": "Core thresholds & campaigns",
+        "ota": "OTA campaign monitoring",
+        "firmware": "Firmware library & approval",
+        "ota_campaign": "OTA campaign & rollout control",
+        "alerts": "Alert center",
+        "alert_config": "SLA, escalation & notification channels",
+        "device_map": "Device map",
+        "device_map_location": "Exact install address",
+        "campaign": "Campaign management",
+        "campaign_voucher": "Campaign vouchers & reward points",
+        "analytics": "Analytics & reports",
+        "analytics_reliability": "Device health, top errors & MTBF",
+        "analytics_revenue": "Filter-core revenue",
+        "analytics_metric_config": "Metric definitions & scheduled reports",
+        "member": "Members",
+        "role_group": "Role groups",
+        "role_simulate": "Role simulation",
+        "audit_log": "Audit log",
+        "system_config": "System settings",
+        "security_config": "Sign-in & security settings",
+        "backup": "Backup & restore"
+      },
+      "actions": {
+        "read": "View",
+        "create": "Create",
+        "update": "Edit",
+        "delete": "Delete",
+        "export": "Export",
+        "send": "Send command",
+        "approve": "Approve"
+      }
+    },
+    "editor": {
+      "name": "Role group name",
+      "simulate": "Simulate this role",
+      "delete": "Delete",
+      "deleteConfirm": "Delete role group “{{name}}”?",
+      "inUse": "Move its members to another role group first.",
+      "saved": "Role group saved.",
+      "deleted": "Role group deleted.",
+      "lockedHint": "The Super Admin group always has every permission and cannot be changed.",
+      "cumulativeHint": "Granting any action also grants View for that function; clearing View clears the whole row.",
+      "readOnlyHint": "You can view this matrix but not change it."
+    },
+    "create": {
+      "title": "Add role group",
+      "name": "Role group name",
+      "success": "Role group created. Now choose its permissions.",
+      "titleAdmin": "Add a field group"
+    }
+  },
+  "audit": {
+    "title": "Audit log",
+    "description": "Append-only history of sensitive actions. Records cannot be edited or deleted.",
+    "export": "Export CSV",
+    "empty": "No audit entries yet.",
+    "emptyFiltered": "No entry matches the current filters.",
+    "filters": {
+      "actorAriaLabel": "Filter by actor",
+      "actorPlaceholder": "Actor",
+      "moduleAriaLabel": "Filter by module",
+      "modulePlaceholder": "Module",
+      "actionAriaLabel": "Filter by action",
+      "actionPlaceholder": "Action",
+      "rangeAriaLabel": "Filter by date range",
+      "reset": "Clear filters"
+    },
+    "table": {
+      "columns": {
+        "time": "Time",
+        "actor": "Actor",
+        "ip": "IP",
+        "module": "Module",
+        "action": "Action",
+        "target": "Target"
+      },
+      "reason": "Reason",
+      "before": "Before",
+      "after": "After"
+    },
+    "modules": {
+      "auth": "Sign-in",
+      "members": "Members",
+      "role_groups": "Role groups",
+      "system_config": "System settings",
+      "backup": "Backup",
+      "simulation": "Role simulation",
+      "audit_log": "Audit log",
+      "access": "Access control"
+    },
+    "actions": {
+      "login": "login",
+      "login_failed": "login_failed",
+      "change_password": "change_password",
+      "create": "create",
+      "update": "update",
+      "lock": "lock",
+      "unlock": "unlock",
+      "delete": "delete",
+      "export": "export",
+      "simulation_start": "simulation_start",
+      "simulation_end": "simulation_end",
+      "backup_create": "backup_create",
+      "backup_restore": "backup_restore",
+      "disable": "disable",
+      "transfer": "transfer",
+      "access_denied": "access_denied"
+    }
+  },
+  "config": {
+    "title": "System settings",
+    "description": "Parameters and catalogs applied across the portal and the app.",
+    "saved": "Settings saved.",
+    "readOnlyHint": "You can see the values currently in effect. To change them, send a proposal to an administrator.",
+    "tabs": {
+      "config": "Parameters & catalogs",
+      "backup": "Backup & restore"
+    },
+    "sections": {
+      "params": "Parameters",
+      "sla": "SLA by severity",
+      "catalogs": "Catalogs"
+    },
+    "params": {
+      "tdsThresholdRegion": "Regional TDS threshold (ppm)",
+      "otaAutoPauseRate": "OTA auto-pause error rate (%)",
+      "deviceAckTimeout": "Device ACK timeout (seconds)",
+      "warrantyExpiringDays": "Warranty expiring soon (days)",
+      "qrAnomalyRate": "QR anomaly rate threshold (%)",
+      "loginMaxFailed": "Failed sign-ins before lock",
+      "lockoutMinutes": "Lock duration (minutes)",
+      "sessionTimeoutMinutes": "Idle session timeout (minutes)",
+      "passwordMinLength": "Minimum password length",
+      "alertAutoClose": "Auto-close alerts when the device recovers"
+    },
+    "slaHint": "Minutes to resolve an alert. No default is defined yet, so these start unset.",
+    "slaUnset": "Not configured",
+    "sla": {
+      "critical": "Critical (minutes)",
+      "medium": "Medium (minutes)",
+      "low": "Low (minutes)"
+    },
+    "catalogs": {
+      "model": "Models",
+      "core": "Filter cores",
+      "region": "Regions",
+      "code": "Code",
+      "name": "Name",
+      "parent": "Parent",
+      "add": "Add",
+      "remove": "Remove",
+      "duplicate": "Duplicate code"
+    }
+  },
+  "backup": {
+    "hint": "Scheduled backups run automatically. Create a manual backup before a big change.",
+    "create": "Back up now",
+    "created": "Backup created.",
+    "restored": "Restore requested and logged.",
+    "restore": "Restore",
+    "system": "System",
+    "kind": {
+      "scheduled": "Scheduled",
+      "manual": "Manual"
+    },
+    "columns": {
+      "code": "Backup code",
+      "kind": "Type",
+      "createdAt": "Created at",
+      "size": "Size",
+      "createdBy": "Created by",
+      "actions": "Actions"
+    },
+    "restoreModal": {
+      "title": "Restore {{code}}",
+      "warning": "Restoring overwrites the whole system with this backup. This action is logged.",
+      "typeCode": "Type the backup code {{code}} to confirm.",
+      "confirm": "Restore"
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "nav": {
+    "overview": "Tổng quan",
+    "devices": "Thiết bị",
+    "ota": "OTA Firmware",
+    "alerts": "Trung tâm cảnh báo",
+    "device_map": "Bản đồ thiết bị",
+    "customers": "Khách hàng & BH",
+    "analytics": "Phân tích & báo cáo",
+    "serials": "Serial & chống hàng giả",
+    "coreConfig": "Cấu hình tuổi thọ lõi",
+    "system": "Hệ thống",
+    "members": "Thành viên",
+    "role_groups": "Nhóm quyền",
+    "audit_log": "Nhật ký hệ thống",
+    "system_config": "Cấu hình hệ thống"
+  },
+  "breadcrumb": {
+    "home": "Trang chủ",
+    "deviceDetail": "Chi tiết {{id}}"
+  },
+  "roles": {
+    "super_admin": "Super Admin",
+    "admin": "Admin",
+    "service_center": "TT DV",
+    "factory": "Nhà máy",
+    "sales": "KD",
+    "logistics": "Kho vận"
+  },
+  "userMenu": {
+    "roleLabel": "Vai trò: {{role}}",
+    "logout": "Đăng xuất",
+    "changePassword": "Đổi mật khẩu"
+  },
+  "topbar": {
+    "openNav": "Mở thanh điều hướng",
+    "collapseNav": "Thu gọn thanh điều hướng"
+  },
+  "languageSwitcher": {
+    "en": "EN",
+    "vi": "VI"
+  },
+  "sidebar": {
+    "brandFull": "KGR CMS",
+    "brandShort": "KGR",
+    "groupOverview": "ĐIỀU HÀNH",
+    "groupOperations": "VẬN HÀNH",
+    "groupBusiness": "KINH DOANH",
+    "groupSystem": "HỆ THỐNG"
+  },
+  "pageState": {
+    "noData": "Không có dữ liệu",
+    "forbiddenTitle": "Bạn không có quyền truy cập",
+    "notFoundTitle": "Không tìm thấy trang",
+    "errorTitle": "Đã xảy ra lỗi",
+    "retry": "Thử lại"
+  },
+  "login": {
+    "subtitle": "Đăng nhập bằng số điện thoại và mật khẩu.",
+    "phone": "Số điện thoại",
+    "password": "Mật khẩu",
+    "submit": "Đăng nhập",
+    "demoHint": "Tài khoản phát triển (backend mock) — chọn để điền sẵn vào form:",
+    "errors": {
+      "invalid_credentials": "Số điện thoại hoặc mật khẩu không đúng.",
+      "account_locked": "Tài khoản đã bị khoá, vui lòng liên hệ quản trị viên.",
+      "attempts_locked": "Sai quá nhiều lần. Vui lòng thử lại sau {{minutes}} phút.",
+      "generic": "Không thể đăng nhập. Vui lòng thử lại."
+    }
+  },
+  "connectionStatus": {
+    "online": "Online",
+    "warning": "Lỗi",
+    "offline": "Offline"
+  },
+  "auth": {
+    "cancel": "Huỷ",
+    "changePassword": {
+      "title": "Đổi mật khẩu",
+      "current": "Mật khẩu hiện tại",
+      "new": "Mật khẩu mới",
+      "confirm": "Nhập lại mật khẩu mới",
+      "mismatch": "Mật khẩu nhập lại không khớp.",
+      "submit": "Đổi mật khẩu",
+      "success": "Đã đổi mật khẩu.",
+      "errors": {
+        "invalid_credentials": "Mật khẩu hiện tại không đúng.",
+        "weak_password": "Mật khẩu mới chưa đạt chính sách mật khẩu.",
+        "generic": "Không thể đổi mật khẩu."
+      }
+    }
+  },
+  "simulation": {
+    "banner": "Đang mô phỏng vai trò: {{role}} — chỉ xem, không thể thay đổi dữ liệu.",
+    "exit": "Thoát mô phỏng",
+    "exitError": "Không thể thoát chế độ mô phỏng."
+  }
+}

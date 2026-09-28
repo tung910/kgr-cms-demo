@@ -1,0 +1,12 @@
+{
+  "sections": {
+    "systemIntegrations": "Hệ thống và tích hợp",
+    "customerService": "Dịch vụ khách hàng",
+    "inventoryAllocation": "Kho và phân bổ",
+    "productCatalog": "Danh mục sản phẩm",
+    "warranties": "Bảo hành",
+    "careContent": "Chăm sóc và nội dung",
+    "automation": "Tự động hóa",
+    "commerce": "Thương mại"
+  }
+}

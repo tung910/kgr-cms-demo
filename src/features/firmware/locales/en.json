@@ -1,0 +1,32 @@
+{
+  "page": {
+    "title": "OTA Firmware",
+    "description": "Manage grouped firmware update campaigns and monitor error rates"
+  },
+  "stats": {
+    "running": "Running",
+    "paused": "Paused",
+    "total": "Total campaigns"
+  },
+  "status": {
+    "running": "Running",
+    "paused": "Paused",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "track": {
+    "module": "Module",
+    "mainboard": "Mainboard"
+  },
+  "campaign": {
+    "deviceCount": "{{count}} device",
+    "deviceCount_other": "{{count}} devices",
+    "startedAt": "Started: {{date}}",
+    "errorRate": "Error rate: {{rate}}% (auto-halt threshold {{threshold}}%)"
+  },
+  "actions": {
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel campaign"
+  }
+}

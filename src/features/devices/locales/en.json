@@ -1,0 +1,423 @@
+{
+  "filters": {
+    "searchAriaLabel": "Search devices",
+    "searchPlaceholder": "Search by serial or owner name",
+    "modelAriaLabel": "Model",
+    "modelPlaceholder": "All models",
+    "regionAriaLabel": "Region",
+    "regionPlaceholder": "All regions",
+    "statusAriaLabel": "Device status",
+    "statusAll": "All",
+    "reset": "Reset"
+  },
+  "history": {
+    "title": "Device history",
+    "module": "Module",
+    "mainboard": "Mainboard",
+    "tabs": {
+      "connectivity": "Online/Offline",
+      "ota": "OTA",
+      "service": "Warranty & maintenance",
+      "alerts": "Alerts",
+      "filterChanges": "Filter changes"
+    },
+    "export": "Export CSV",
+    "loading": "Loading…",
+    "loadError": "Could not load this history.",
+    "connectivityEmpty": "No connectivity history yet.",
+    "alertsEmpty": "No alerts on this device yet.",
+    "filterChangesEmpty": "No filter replacement history yet.",
+    "otaEmpty": "No firmware update history yet.",
+    "serviceEmpty": "No warranty or maintenance history yet.",
+    "connectivity": {
+      "online": "Reconnected",
+      "offline": "Disconnected"
+    },
+    "duration": "Lasted {{hours}} h {{minutes}} min",
+    "alertStatus": {
+      "open": "Open",
+      "assigned": "Assigned",
+      "in_progress": "In progress",
+      "closed": "Closed"
+    },
+    "filterPosition": "Position {{position}} · {{name}}",
+    "channel": {
+      "app": "Via app",
+      "technician": "Technician"
+    },
+    "otaResult": {
+      "success": "Success",
+      "failed": "Failed",
+      "rolled_back": "Rolled back"
+    },
+    "serviceType": {
+      "warranty": "Warranty",
+      "maintenance": "Maintenance"
+    },
+    "serviceStatus": {
+      "scheduled": "Scheduled",
+      "in_progress": "In progress",
+      "done": "Done"
+    },
+    "csv": {
+      "time": "Time",
+      "event": "Event",
+      "durationMinutes": "Duration (min)",
+      "track": "Firmware track",
+      "fromVersion": "From version",
+      "toVersion": "To version",
+      "result": "Result",
+      "completedAt": "Completed at",
+      "ticket": "Ticket",
+      "type": "Type",
+      "summary": "Summary",
+      "status": "Status",
+      "code": "Error code",
+      "title": "Title",
+      "severity": "Severity",
+      "closedAt": "Closed at",
+      "position": "Position",
+      "core": "Core",
+      "oldSerial": "Old serial",
+      "newSerial": "New serial",
+      "channel": "Channel"
+    }
+  },
+  "controlState": {
+    "powerOn": "Power: On",
+    "powerOff": "Power: Off",
+    "locked": "Lock: Locked",
+    "unlocked": "Lock: Active"
+  },
+  "table": {
+    "columns": {
+      "identity": "Serial / Model",
+      "region": "Customer & region",
+      "status": "Status",
+      "filterLife": "Filter cores needing attention",
+      "firmware": "Firmware",
+      "lastSeen": "Last connected",
+      "activatedAt": "Activated on",
+      "actions": "Actions"
+    },
+    "attentionCore": {
+      "label": "Core {{position}} ({{name}})",
+      "expired": "Expired"
+    },
+    "viewDetail": "View details",
+    "totalDevices": "{{total}} devices total",
+    "lastOnlineLabel": "Connected: {{time}}",
+    "justNow": "Just now"
+  },
+  "stats": {
+    "total": "Total devices"
+  },
+  "listPage": {
+    "title": "Device management",
+    "description": "{{total}} devices match the filters · Connection status and firmware",
+    "export": "Export data",
+    "exportSuccess": "Exported {{count}} devices matching the current filters.",
+    "exportError": "Could not export device data.",
+    "empty": "No devices match the filters."
+  },
+  "detailPage": {
+    "title": "Device {{deviceId}}",
+    "description": "{{model}} · {{region}} · Connection and diagnostics information",
+    "remoteControl": "Remote control",
+    "remoteControlNotImplemented": "Remote control is not implemented in the base version.",
+    "notFoundTitle": "Device not found",
+    "stats": {
+      "activatedAt": "Activated"
+    },
+    "signal": {
+      "stable": "Stable",
+      "weak": "Weak signal",
+      "poor": "Poor signal",
+      "unknown": "No signal"
+    },
+    "serial": "SN: {{id}}",
+    "noOwner": "No owner",
+    "warrantyExpiredOn": "Warranty expired on {{date}}",
+    "backToList": "Device list",
+    "tdsLevel": {
+      "verySafe": "Very safe",
+      "safe": "Safe",
+      "high": "High"
+    },
+    "cards": {
+      "tdsTitle": "Purified water TDS",
+      "tdsOutHint": "Drinking outlet",
+      "tdsIn": "Source water TDS:",
+      "connectionTitle": "Connection",
+      "activationTitle": "Activation & FW",
+      "warrantyMonths": "{{count}}M warranty",
+      "warrantyTerm": "Warranty term",
+      "warrantyUntilShort": "Until {{date}}",
+      "moduleFirmware": "Module firmware",
+      "mainboardFirmware": "Mainboard firmware",
+      "lastConnected": "Last connected:",
+      "connectionHint": {
+        "stable": "Low latency · Clear signal",
+        "weak": "Higher latency · Unstable signal",
+        "poor": "Very weak signal · May disconnect",
+        "unknown": "Device is offline · No signal"
+      },
+      "latencyWithSignal": "{{latency}}ms • {{signal}}",
+      "warrantyDaysLeft_one": "{{count}} day left",
+      "warrantyDaysLeft_other": "{{count}} days left"
+    }
+  },
+  "validation": {
+    "required": "This field is required."
+  },
+  "appSyncStatus": {
+    "none": "No pending update",
+    "queued": "Update queued (mock)"
+  },
+  "lifecycleState": {
+    "active": "Active",
+    "locked": "Locked",
+    "decommissioned": "Decommissioned"
+  },
+  "warrantyStatus": {
+    "active": "Active",
+    "expiring": "Expiring",
+    "expired": "Expired",
+    "none": "None"
+  },
+  "deleteDialog": {
+    "blocking": {
+      "openTickets": "Resolve or transfer open warranty tickets, appointments and alerts first.",
+      "activeOta": "Wait for the firmware update to finish.",
+      "activeRental": "The device has an active rental contract."
+    },
+    "deleteSuccess": "Device record deleted; its serial remains reserved.",
+    "deleteTitle": "Delete {{deviceId}}",
+    "confirmDelete": "Delete record",
+    "cancel": "Cancel",
+    "serial": "Serial",
+    "model": "Model",
+    "currentOwner": "Current owner",
+    "noOwner": "No owner",
+    "blockedTitle": "Operation blocked",
+    "reason": "Reason",
+    "reasonHint": "Explain the reason for deletion.",
+    "error": "Could not complete this operation.",
+    "impact": "Affected: {{members}} shared members, {{automations}} automations, {{tickets}} warranty tickets, {{appointments}} appointments, {{alerts}} open alerts.",
+    "effects": "Sharing and customer control access will be revoked; automations will be disabled and an App notification queued with the reason. Technical history and remaining warranty are retained."
+  },
+  "lifecycleActions": {
+    "success": "Device state updated.",
+    "error": "Could not update device state.",
+    "lock": "Lock",
+    "unlock": "Unlock",
+    "restore": "Restore",
+    "restoreSuccess": "Device restored to its previous state and owner.",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "reason": "Reason",
+    "confirmTitle": {
+      "active": "Unlock this device",
+      "locked": "Lock this device",
+      "restore": "Restore this device"
+    }
+  },
+  "ownership": {
+    "title": "Owner management",
+    "currentOwner": "Current owner",
+    "noOwner": "No owner assigned",
+    "phone": "Phone",
+    "address": "Address",
+    "sharedMembers": "Shared with",
+    "noSharedMembers": "Not shared with anyone.",
+    "columns": {
+      "name": "Name",
+      "phone": "Phone",
+      "address": "Address",
+      "permission": "Permission",
+      "actions": ""
+    },
+    "permission": {
+      "control": "Control",
+      "view": "View only"
+    },
+    "history": "Ownership history",
+    "present": "Present",
+    "endReason": "Reason",
+    "deleteRecord": "Delete record",
+    "change": "Change owner",
+    "changeTitle": "Change device owner",
+    "changeWarning": "The previous owner loses control of the device in the app and is notified. This action is audited.",
+    "newOwner": "New owner",
+    "newOwnerHint": "Search by phone or customer ID",
+    "searchMin": "Type at least 2 characters",
+    "searchError": "Could not search for customers.",
+    "noCandidates": "No customer found",
+    "changeConfirm": "Change owner",
+    "changeSuccess": "Owner changed.",
+    "changeSuccessNotified": "Owner changed and the previous owner was notified.",
+    "remove": "Remove owner",
+    "removeTitle": "Remove owner",
+    "removeWarning": "The customer loses control of the device in the app and is notified. This action is audited.",
+    "removeConfirm": "Remove owner",
+    "removeSuccess": "Owner removed.",
+    "removeSuccessNotified": "Owner removed and the customer was notified.",
+    "revoke": "Revoke",
+    "revokeTitle": "Revoke sharing for {{name}}",
+    "revokeWarning": "This member loses access to the device in the app. This action is audited.",
+    "revokeConfirm": "Revoke",
+    "revokeSuccess": "Sharing revoked.",
+    "reason": "Reason",
+    "cancel": "Cancel",
+    "error": "Could not complete the action.",
+    "notAvailable": "—"
+  },
+  "coreAlerts": {
+    "title": "Filter replacement alerts",
+    "position": "Position {{position}} · {{name}}",
+    "code": "Error code",
+    "sku": "Replacement SKU",
+    "usedPercent": "{{used}}% used (threshold {{threshold}}%)",
+    "status": {
+      "open": "Open",
+      "assigned": "Assigned"
+    },
+    "createAppointment": "Create technician appointment",
+    "modalTitle": "Create technician appointment — position {{position}}",
+    "reason": "Reason",
+    "confirm": "Create ticket",
+    "cancel": "Cancel",
+    "ticketSuccess": "Ticket created; the alert is now assigned.",
+    "error": "Could not create the service ticket."
+  },
+  "diagnosticsPanel": {
+    "offlineError": "The device is offline; diagnostics is unavailable.",
+    "error": "Could not request diagnostics."
+  },
+  "controlPanel": {
+    "description": "Every command requires a reason and is written to the operation log; the customer can see this log in the app.",
+    "commands": {
+      "power_on": "Power on",
+      "power_off": "Power off",
+      "set_hot_tank": "Change hot tank mode",
+      "flush_membrane": "Flush filter cores",
+      "reboot": "Restart device",
+      "ping": "Check connection (ping)"
+    },
+    "confirmTitle": "Confirm: {{command}}",
+    "reason": "Reason",
+    "reasonHint": "Explain why this command is being sent.",
+    "confirm": "Send command",
+    "cancel": "Cancel",
+    "success": "Command sent to the device.",
+    "error": "Could not send the command.",
+    "blockedMessage": "Command rejected — unmet conditions: {{conditions}}.",
+    "blocking": {
+      "notActive": "The device is not in an active state.",
+      "activeOta": "The device is currently updating firmware.",
+      "activeRental": "The device has an active rental contract."
+    }
+  },
+  "errors": {
+    "forbidden": "You do not have permission for this operation.",
+    "notFound": "Device or shared member not found.",
+    "server": "The mock server could not process the request.",
+    "invalidInput": "Enter valid information, a reason and audit changes.",
+    "inactive": "Locked or decommissioned devices cannot be assigned.",
+    "customerNotFound": "Customer not found.",
+    "previouslyActive": "A device that has already operated cannot be permanently deleted.",
+    "restoreExpired": "More than 7 days have passed or a new customer already added the device; it can no longer be restored.",
+    "restoreNotEligible": "This device is not in a restorable state.",
+    "invalidResponse": "The server returned an invalid device response.",
+    "sameOwner": "This customer already owns the device.",
+    "noOwner": "The device has no owner."
+  },
+  "telemetry": {
+    "title": "Water quality in/out",
+    "description": "Source and output TDS over time · click the legend to show/hide a line",
+    "unit": "ppm",
+    "ranges": {
+      "24h": "24h",
+      "7d": "7d",
+      "30d": "30d"
+    },
+    "series": {
+      "tdsIn": "TDS in",
+      "tdsOut": "TDS out"
+    },
+    "error": "Could not load water quality data.",
+    "empty": "No data in this range."
+  },
+  "filterCores": {
+    "title": "Filter core status",
+    "description": "Remaining life of each core per the lifespan configuration",
+    "loading": "Loading…",
+    "empty": "This model has no configured filter cores.",
+    "error": "Could not load filter core status.",
+    "levels_one": "{{count}} stage",
+    "levels_other": "{{count}} stages",
+    "level": "Stage {{index}}",
+    "columns": {
+      "level": "Stage",
+      "type": "Core type",
+      "core": "Name & function",
+      "time": "Time left",
+      "status": "Status"
+    },
+    "remainingOfTotal": "{{remaining}} / {{total}} days left",
+    "remainingPercent": "{{percent}}%",
+    "health": {
+      "good": "Good",
+      "poor": "Poor",
+      "critical": "Very poor"
+    }
+  },
+  "remoteDiagnostic": {
+    "title": "Remote Diagnostic",
+    "descriptionParts": {
+      "send": "Send control commands from the CMS",
+      "timeout": "ACK timeout 30s",
+      "audit": "audit logged"
+    },
+    "readiness": {
+      "ready": "Ready",
+      "busy": "Executing",
+      "offline": "Disconnected"
+    },
+    "readStatus": "Read live status",
+    "auditTitle": "Command log (audit)",
+    "auditEmpty": "No commands sent yet.",
+    "auditStatus": {
+      "pending": "PENDING",
+      "ack": "ACK",
+      "timeout": "TIMEOUT",
+      "rejected": "REJECTED"
+    },
+    "packages_one": "{{count}} diagnostics package",
+    "packages_other": "{{count}} diagnostics packages",
+    "quickDiagnoseQueued": "Status read requested",
+    "controlMenu": "Actions"
+  },
+  "ownerDrawer": {
+    "title": "Customer profile",
+    "piiMasked": "Some personal information is hidden based on your permissions.",
+    "contact": "Contact information",
+    "phone": "Phone",
+    "email": "Email",
+    "region": "Region",
+    "joinedAt": "Joined",
+    "stats": {
+      "total": "Total devices",
+      "online": "Online",
+      "needsAttention": "Warning / offline",
+      "warrantyEnding": "Warranty expiring / expired"
+    },
+    "devices_one": "Owned devices ({{count}})",
+    "devices_other": "Owned devices ({{count}})",
+    "noDevices": "This customer does not own any devices.",
+    "viewing": "Viewing",
+    "lastOnline": "Last online: {{date}}",
+    "viewInDeviceList": "View in device list",
+    "openProfile": "Open full profile"
+  }
+}

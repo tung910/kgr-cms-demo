@@ -1,0 +1,30 @@
+{
+  "page": {
+    "title": "Bản đồ thiết bị",
+    "description": "Vị trí thiết bị theo khu vực và trạng thái kết nối"
+  },
+  "stats": {
+    "totalDevices": "Tổng thiết bị",
+    "alerting": "Đang cảnh báo",
+    "regions": "Khu vực"
+  },
+  "filters": {
+    "statusAriaLabel": "Trạng thái thiết bị",
+    "regionAriaLabel": "Khu vực",
+    "regionPlaceholder": "Khu vực",
+    "all": "Tất cả"
+  },
+  "status": {
+    "online": "Trực tuyến",
+    "offline": "Ngoại tuyến",
+    "alert": "Cảnh báo"
+  },
+  "empty": {
+    "noMatchingDevices": "Không có thiết bị phù hợp",
+    "selectDevice": "Chọn một thiết bị trên bản đồ"
+  },
+  "detail": {
+    "region": "Khu vực: {{region}}",
+    "status": "Trạng thái: {{status}}"
+  }
+}

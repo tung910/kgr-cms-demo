@@ -1,0 +1,59 @@
+{
+  "page": {
+    "title": "Executive overview",
+    "realtimeTag": "Live updates"
+  },
+  "metrics": {
+    "total": "Devices online",
+    "errorRate": "Error rate (24h)",
+    "tds": "Avg. TDS nationwide",
+    "active": "Active users",
+    "filters": "Filters sold (month)",
+    "revenue": "Filter revenue (month)"
+  },
+  "errors": {
+    "loadFailed": "Couldn't load dashboard data",
+    "invalidResponse": "The dashboard response was invalid",
+    "activeLoadFailed": "Couldn't load active usage"
+  },
+  "charts": {
+    "onlineTrend": {
+      "title": "Online/offline devices (24h)",
+      "description": "Online and offline devices by hour",
+      "ariaLabel": "Online and offline device counts for each hour of the last 24 hours."
+    },
+    "tds": {
+      "title": "Average TDS by region",
+      "description": "ppm · red = above threshold {{threshold}}"
+    },
+    "revenue": {
+      "title": "Filter revenue & volume",
+      "description": "Last 6 months · revenue (billion VND) and units sold",
+      "ariaLabel": "Sample revenue from February to July trends upward; filter volume rises alongside it."
+    }
+  },
+  "legend": {
+    "online": "Online",
+    "offline": "Offline",
+    "revenue": "Revenue",
+    "filters": "Filters"
+  },
+  "actions": {
+    "exportExcel": "Export to Excel",
+    "exportFile": "Export file"
+  },
+  "active": {
+    "title": "Active devices & customers",
+    "granularityAriaLabel": "Period",
+    "rangeAriaLabel": "Date range",
+    "granularity": { "week": "Week", "month": "Month", "year": "Year" },
+    "customers": {
+      "title": "Active customers",
+      "description": "Customers with activity in each period"
+    },
+    "devices": {
+      "title": "Active devices",
+      "description": "Devices that connected in each period"
+    }
+  }
+}

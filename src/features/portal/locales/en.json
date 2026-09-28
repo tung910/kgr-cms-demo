@@ -1,0 +1,12 @@
+{
+  "sections": {
+    "systemIntegrations": "System & Integrations",
+    "customerService": "Customer Service",
+    "inventoryAllocation": "Inventory & Allocation",
+    "productCatalog": "Product Catalog",
+    "warranties": "Warranties",
+    "careContent": "Care & Content",
+    "automation": "Automation",
+    "commerce": "Commerce"
+  }
+}
