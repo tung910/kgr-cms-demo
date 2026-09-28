@@ -6,6 +6,7 @@ import {
 } from '@/core/permissions/capabilities';
 import i18n from '@/core/i18n';
 import { customerMockData } from '@/features/customers/mocks/customerMockData';
+import { alertMockData } from '@/features/alerts/mocks/alertMockData';
 import { randomId } from '@/shared/lib/id';
 import { maskEmail, maskInstallAddress, maskPhone } from '@/shared/lib/mask';
 import {
@@ -620,6 +621,57 @@ export const handlers = [
         granularity === 'week' || granularity === 'year' ? granularity : 'month'
       )
     );
+  }),
+  http.get('/api/search/suggest', ({ request }) => {
+    const url = new URL(request.url);
+    const query = (url.searchParams.get('q') ?? '').trim().toLowerCase();
+    if (!query) return HttpResponse.json({ items: [] });
+
+    const piiFull = allowed('device.pii.full');
+    const maxPerGroup = 5;
+
+    const customerItems = (allowed('customers.read') ? customerMockData : [])
+      .filter(
+        (customer) =>
+          customer.name.toLowerCase().includes(query) ||
+          customer.phone.toLowerCase().includes(query) ||
+          customer.id.toLowerCase().includes(query)
+      )
+      .slice(0, maxPerGroup)
+      .map((customer) => ({
+        group: 'customer' as const,
+        label: customer.name,
+        sublabel: piiFull ? customer.phone : maskPhone(customer.phone),
+        navigate_to: '/customers',
+      }));
+
+    const deviceItems = (allowed('device.read') ? deviceStore : [])
+      .filter((device) => device.device_id.toLowerCase().includes(query))
+      .slice(0, maxPerGroup)
+      .map((device) => ({
+        group: 'device' as const,
+        label: device.device_id,
+        sublabel: device.model_name,
+        navigate_to: `/devices/${device.device_id}`,
+      }));
+
+    const alertItems = (allowed('alerts.read') ? alertMockData : [])
+      .filter(
+        (alert) =>
+          alert.errorCode.toLowerCase().includes(query) ||
+          alert.message.toLowerCase().includes(query)
+      )
+      .slice(0, maxPerGroup)
+      .map((alert) => ({
+        group: 'alert' as const,
+        label: alert.errorCode,
+        sublabel: alert.message,
+        navigate_to: '/alerts',
+      }));
+
+    return HttpResponse.json({
+      items: [...customerItems, ...deviceItems, ...alertItems],
+    });
   }),
   http.get('/api/devices', ({ request }) => {
     if (!allowed('device.read')) return deviceError('forbidden', 403);

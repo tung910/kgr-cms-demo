@@ -34,7 +34,22 @@
   },
   "topbar": {
     "openNav": "Mở thanh điều hướng",
-    "collapseNav": "Thu gọn thanh điều hướng"
+    "collapseNav": "Thu gọn thanh điều hướng",
+    "sampleNotification": {
+      "newAlert": "Có cảnh báo mới cần xử lý",
+      "minutesAgo": "Cập nhật {{count}} phút trước"
+    }
+  },
+  "globalSearch": {
+    "placeholder": "Tìm serial thiết bị, serial lỗi, khách hàng, mã cảnh báo",
+    "groupCustomer": "KHÁCH HÀNG",
+    "groupDevice": "THIẾT BỊ",
+    "groupAlert": "CẢNH BÁO",
+    "invalidResponse": "Không thể tải gợi ý tìm kiếm.",
+    "notifications": {
+      "title": "Thông báo",
+      "empty": "Không có thông báo mới"
+    }
   },
   "languageSwitcher": {
     "en": "EN",

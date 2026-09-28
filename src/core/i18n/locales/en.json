@@ -34,7 +34,22 @@
   },
   "topbar": {
     "openNav": "Open navigation",
-    "collapseNav": "Collapse navigation"
+    "collapseNav": "Collapse navigation",
+    "sampleNotification": {
+      "newAlert": "A new alert needs attention",
+      "minutesAgo": "Updated {{count}} minute(s) ago"
+    }
+  },
+  "globalSearch": {
+    "placeholder": "Search device serial, filter serial, customer, alert code",
+    "groupCustomer": "CUSTOMERS",
+    "groupDevice": "DEVICES",
+    "groupAlert": "ALERTS",
+    "invalidResponse": "Could not load search suggestions.",
+    "notifications": {
+      "title": "Notifications",
+      "empty": "No new notifications"
+    }
   },
   "languageSwitcher": {
     "en": "EN",

@@ -163,6 +163,14 @@ export function AppShell() {
 
   if (!session) return null;
 
+  const notifications = [
+    {
+      id: 'notif-1',
+      title: t('topbar.sampleNotification.newAlert'),
+      createdAtLabel: t('topbar.sampleNotification.minutesAgo', { count: 2 }),
+    },
+  ];
+
   const visibleItems = navigationItems.filter(
     (item) => item.key === 'overview' || hasMenuAccess(session.role, item.key)
   );
@@ -276,6 +284,7 @@ export function AppShell() {
                 ? setMobileNavOpen((value) => !value)
                 : setCollapsed((value) => !value)
             }
+            notifications={notifications}
           />
           <Content className="portal-content p-3 sm:p-4 md:p-6">
             <Breadcrumb

@@ -8,10 +8,16 @@ export { PortalEChart } from './PortalEChart';
 export type { PortalEChartProps } from './PortalEChart';
 export { PortalMobileNav } from './PortalMobileNav';
 export type { PortalMobileNavProps } from './PortalMobileNav';
+export { PortalNotificationBell } from './PortalNotificationBell';
+export type {
+  PortalNotificationBellProps,
+  PortalNotificationItem,
+} from './PortalNotificationBell';
 export { PortalPageHeader } from './PortalPageHeader';
 export type { PortalPageHeaderProps } from './PortalPageHeader';
 export { PortalProgress } from './PortalProgress';
 export type { PortalProgressProps } from './PortalProgress';
+export { PortalSearchBar } from './PortalSearchBar';
 export { PortalSidebar } from './PortalSidebar';
 export type {
   PortalNavigationGroup,

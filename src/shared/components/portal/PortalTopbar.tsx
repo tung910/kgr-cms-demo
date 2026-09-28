@@ -9,6 +9,10 @@ import { useTranslation } from 'react-i18next';
 
 import { setLanguage } from '@/core/i18n/languagePreference';
 
+import { PortalNotificationBell } from './PortalNotificationBell';
+import type { PortalNotificationItem } from './PortalNotificationBell';
+import { PortalSearchBar } from './PortalSearchBar';
+
 const { Header } = Layout;
 
 export interface PortalTopbarProps {
@@ -18,6 +22,7 @@ export interface PortalTopbarProps {
   userMenuItems: MenuProps['items'];
   onUserMenuClick: MenuProps['onClick'];
   onNavigationToggle: () => void;
+  notifications: readonly PortalNotificationItem[];
 }
 
 export function PortalTopbar({
@@ -27,6 +32,7 @@ export function PortalTopbar({
   userMenuItems,
   onUserMenuClick,
   onNavigationToggle,
+  notifications,
 }: PortalTopbarProps) {
   const { t, i18n } = useTranslation('common');
   const opensNavigation = isMobile || collapsed;
@@ -42,7 +48,11 @@ export function PortalTopbar({
         icon={opensNavigation ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         onClick={onNavigationToggle}
       />
+      <div className="hidden flex-1 justify-center px-4 sm:flex">
+        <PortalSearchBar />
+      </div>
       <div className="flex items-center gap-3">
+        <PortalNotificationBell notifications={notifications} />
         <Segmented
           value={currentLanguage}
           onChange={(value) => setLanguage(value as 'en' | 'vi')}
