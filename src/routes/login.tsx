@@ -46,9 +46,9 @@ function LoginPage() {
   );
   const navigationStarted = useRef(false);
 
-  // Seeded accounts are offered only against the MSW mock backend in dev.
+  // Seeded accounts are offered only against the MSW mock backend.
   useEffect(() => {
-    if (!import.meta.env.DEV || !env.enableMocks) return;
+    if (!env.enableMocks) return;
     void import('@/features/system/mocks/systemFixtures').then((fixtures) =>
       setDemo({
         accounts: fixtures.demoMemberSeeds.map((seed) => ({
