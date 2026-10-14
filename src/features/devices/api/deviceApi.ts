@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { ApiError } from '@/core/api/error';
 import i18n from '@/core/i18n';
 import { apiClient } from '@/core/api/apiClient';
@@ -13,9 +15,15 @@ import {
   type DeviceCountFilters,
   type DeviceListFilters,
   type DeviceStatusCounts,
+  type FirmwareOptions,
   type RestoreDeviceInput,
   type SetLifecycleStateInput,
 } from '../schemas/deviceSchemas';
+
+const firmwareOptionsDtoSchema = z.object({
+  module_versions: z.array(z.string()),
+  mainboard_versions: z.array(z.string()),
+});
 
 function invalidResponse(error: {
   issues: Array<{ code: string; path: PropertyKey[] }>;
@@ -37,12 +45,38 @@ function getDeviceFilterParams(filters: DeviceCountFilters): URLSearchParams {
   const model = filters.model?.trim();
   const region = filters.region?.trim();
   const customerId = filters.customerId?.trim();
+  const coreLife = filters.coreLife;
+  const offlineDuration = filters.offlineDuration;
+  const errorType = filters.errorType;
+  const moduleFirmware = filters.moduleFirmware?.trim();
+  const activatedFrom = filters.activatedFrom?.trim();
+  const activatedTo = filters.activatedTo?.trim();
 
   if (search) params.set('search', search);
   if (model) params.set('model', model);
   if (region) params.set('region', region);
   if (customerId) params.set('customer_id', customerId);
+  if (coreLife) params.set('core_life', coreLife);
+  if (offlineDuration) params.set('offline_duration', offlineDuration);
+  if (errorType) params.set('error_type', errorType);
+  if (moduleFirmware) params.set('module_firmware', moduleFirmware);
+  if (activatedFrom) params.set('activated_from', activatedFrom);
+  if (activatedTo) params.set('activated_to', activatedTo);
   return params;
+}
+
+export async function getDeviceFirmwareOptions(
+  signal?: AbortSignal
+): Promise<FirmwareOptions> {
+  const response = await apiClient.get<unknown>('/devices/firmware-options', {
+    signal,
+  });
+  const parsed = firmwareOptionsDtoSchema.safeParse(response);
+  if (!parsed.success) throw invalidResponse(parsed.error);
+  return {
+    moduleVersions: parsed.data.module_versions,
+    mainboardVersions: parsed.data.mainboard_versions,
+  };
 }
 
 function getDeviceListPath(filters: DeviceListFilters): string {

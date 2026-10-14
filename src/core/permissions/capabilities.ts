@@ -88,6 +88,7 @@ export const CAPABILITIES = [
   'member.update',
   'member.delete',
   'role.read',
+  'role.create_root',
   'role.create',
   'role.update',
   'role.delete',
@@ -172,8 +173,8 @@ export type Capability = (typeof CAPABILITIES)[number];
 // core_config.tune             |   ✓   |   ✓   |         |         |       |           | no sheet row
 // member.read/create/update    |   ✓   |   ✓   |         |         |       |           | 10.1/10.1b
 // member.delete                |   ✓   |       |         |         |       |           | 10.1c
-// role.read/create/update      |   ✓   |   ✓   |         |         |       |           | 10.2
-// role.delete/simulate         |   ✓   |       |         |         |       |           | 10.2/10.3
+// role.read                    |   ✓   |   ✓   |         |         |       |           | 10.2
+// role.create_root/delete/simulate  |   ✓   |       |         |         |       |           | 10.2/10.3
 // audit.read/export            |   ✓   |   ✓   |         |         |       |           | 10.5
 // config.read                  |   ✓   |   ✓   |    ✓    |    ✓    |       |           | 10.6
 // config.update                |   ✓   |   ✓   |         |         |       |           | 10.6
@@ -186,8 +187,7 @@ export type Capability = (typeof CAPABILITIES)[number];
 // - 5.5 ticks R for all six roles but its note restricts sales to province
 //   level and drops factory. Modelled here as a separate capability held by
 //   super/admin/service_center; needs business confirmation.
-// - 10.2 ticks R,C,U for admin but its note says admin may only read. Ticks
-//   win here, so an admin can still widen their own role group.
+// - 10.2: Super Admin manages roots; System Admin manages its own children.
 // - device.edit_info, device.diagnose and core_config.tune have no sheet row
 //   and keep their previous assignment.
 //
@@ -260,8 +260,6 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'member.create',
     'member.update',
     'role.read',
-    'role.create',
-    'role.update',
     'audit.read',
     'audit.export',
     'config.read',

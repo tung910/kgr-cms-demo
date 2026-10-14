@@ -4,6 +4,12 @@ export type DeviceStatus = 'online' | 'offline' | 'warning';
 export type DeviceLifecycleState = 'active' | 'locked' | 'decommissioned';
 export type DeviceWarrantyStatus = 'active' | 'expiring' | 'expired' | 'none';
 
+/** Named tiers shown as fixed options, plus a user-defined band "custom:MIN:MAX" (e.g. "custom:0:9"). */
+export type CoreLifeRange = '10_20' | '21_30' | `custom:${number}:${number}`;
+export type OfflineDurationRange =
+  'under_30m' | '30m_2h' | '2h_24h' | 'above_24h';
+export type DeviceErrorType = 'connectivity' | 'waterLeak' | 'other';
+
 export interface DeviceListFilters {
   search: string;
   status?: DeviceStatus;
@@ -11,8 +17,19 @@ export interface DeviceListFilters {
   region?: string;
   // No UI control: set by the customer list's device-count link.
   customerId?: string;
+  coreLife?: CoreLifeRange;
+  offlineDuration?: OfflineDurationRange;
+  errorType?: DeviceErrorType;
+  moduleFirmware?: string;
+  activatedFrom?: string;
+  activatedTo?: string;
   page: number;
   pageSize: number;
+}
+
+export interface FirmwareOptions {
+  moduleVersions: string[];
+  mainboardVersions: string[];
 }
 
 // Status cards ignore the status filter and pagination (§3.1).

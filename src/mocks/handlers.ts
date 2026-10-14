@@ -6,7 +6,6 @@ import {
 } from '@/core/permissions/capabilities';
 import i18n from '@/core/i18n';
 import { customerMockData } from '@/features/customers/mocks/customerMockData';
-import { alertMockData } from '@/features/alerts/mocks/alertMockData';
 import { randomId } from '@/shared/lib/id';
 import { maskEmail, maskInstallAddress, maskPhone } from '@/shared/lib/mask';
 import {
@@ -464,20 +463,113 @@ function matchesSearch(device: DeviceDto, search: string): boolean {
   return fields.some((value) => value.toLocaleLowerCase().includes(needle));
 }
 
+function matchesCoreLifeRange(
+  remainingPercent: number,
+  range: string
+): boolean {
+  if (range === '10_20')
+    return remainingPercent >= 10 && remainingPercent <= 20;
+  if (range === '21_30') return remainingPercent > 20 && remainingPercent <= 30;
+  if (range.startsWith('custom:')) {
+    const parts = range.split(':');
+    if (parts.length === 3) {
+      const min = Number(parts[1]);
+      const max = Number(parts[2]);
+      if (!Number.isNaN(min) && !Number.isNaN(max)) {
+        return remainingPercent >= min && remainingPercent <= max;
+      }
+    }
+  }
+  return true;
+}
+
+function matchesOfflineDuration(device: DeviceDto, range: string): boolean {
+  if (device.status !== 'offline' || !device.last_online_at) return false;
+  const diffMs = Date.now() - new Date(device.last_online_at).getTime();
+  const minutes = diffMs / 60_000;
+  if (range === 'under_30m') return minutes < 30;
+  if (range === '30m_2h') return minutes >= 30 && minutes <= 120;
+  if (range === '2h_24h') return minutes > 120 && minutes <= 1440;
+  if (range === 'above_24h') return minutes > 1440;
+  return true;
+}
+
+const ERROR_CATEGORY_MAP: Record<string, string> = {
+  ER00051: 'hardware',
+  ER00052: 'hardware',
+  ER00053: 'sensor',
+  ER00054: 'sensor',
+  ER00058: 'filter',
+  ER00062: 'connectivity',
+  ER00066: 'other',
+  ER00067: 'other',
+  ER00068: 'firmware',
+  ER00069: 'firmware',
+  ER00070: 'sensor',
+  ER00074: 'sensor',
+};
+
+function matchesErrorType(device: DeviceDto, errorType: string): boolean {
+  const alerts = buildAlertHistory(device.device_id).filter(
+    (a) => a.status === 'open'
+  );
+  if (alerts.length > 0) {
+    return alerts.some((a) => ERROR_CATEGORY_MAP[a.code] === errorType);
+  }
+  if (errorType === 'connectivity' && device.status === 'offline') return true;
+  if (errorType === 'filter' && device.filter_life_percent <= 10) return true;
+  if (errorType === 'hardware' && device.status === 'warning') return true;
+  return false;
+}
+
 function filterDevices(url: URL, withStatus: boolean): DeviceDto[] {
   const search = url.searchParams.get('search')?.trim() ?? '';
   const status = url.searchParams.get('status');
   const model = url.searchParams.get('model')?.trim();
   const region = url.searchParams.get('region')?.trim();
   const customerId = url.searchParams.get('customer_id')?.trim();
-  return deviceStore.filter(
-    (device) =>
-      (!search || matchesSearch(device, search)) &&
-      (!withStatus || !isDeviceStatus(status) || device.status === status) &&
-      (!model || device.model_name === model) &&
-      (!region || device.region === region) &&
-      (!customerId || device.owner?.id === customerId)
-  );
+  const coreLife = url.searchParams.get('core_life')?.trim();
+  const offlineDuration = url.searchParams.get('offline_duration')?.trim();
+  const errorType = url.searchParams.get('error_type')?.trim();
+  const moduleFirmware = url.searchParams.get('module_firmware')?.trim();
+  const activatedFrom = url.searchParams.get('activated_from')?.trim();
+  const activatedTo = url.searchParams.get('activated_to')?.trim();
+
+  return deviceStore.filter((device) => {
+    if (search && !matchesSearch(device, search)) return false;
+    if (withStatus && isDeviceStatus(status) && device.status !== status)
+      return false;
+    if (model && device.model_name !== model) return false;
+    if (region && device.region !== region) return false;
+    if (customerId && device.owner?.id !== customerId) return false;
+    if (coreLife) {
+      const cores = corePositionsForModelName(device.model_name).map((c) => ({
+        remainingPercent:
+          100 - mockCoreUsedPercent(device.device_id, c.position),
+      }));
+      const matches =
+        cores.length > 0
+          ? cores.some((c) =>
+              matchesCoreLifeRange(c.remainingPercent, coreLife)
+            )
+          : matchesCoreLifeRange(device.filter_life_percent, coreLife);
+      if (!matches) return false;
+    }
+    if (offlineDuration && !matchesOfflineDuration(device, offlineDuration))
+      return false;
+    if (errorType && !matchesErrorType(device, errorType)) return false;
+    if (moduleFirmware && device.module_firmware_version !== moduleFirmware)
+      return false;
+    if (activatedFrom) {
+      const act = device.activated_at?.slice(0, 10);
+      if (!act || act < activatedFrom) return false;
+    }
+    if (activatedTo) {
+      const act = device.activated_at?.slice(0, 10);
+      if (!act || act > activatedTo) return false;
+    }
+    return true;
+  });
 }
 
 async function mutateDevice(
@@ -622,55 +714,17 @@ export const handlers = [
       )
     );
   }),
-  http.get('/api/search/suggest', ({ request }) => {
-    const url = new URL(request.url);
-    const query = (url.searchParams.get('q') ?? '').trim().toLowerCase();
-    if (!query) return HttpResponse.json({ items: [] });
-
-    const piiFull = allowed('device.pii.full');
-    const maxPerGroup = 5;
-
-    const customerItems = (allowed('customers.read') ? customerMockData : [])
-      .filter(
-        (customer) =>
-          customer.name.toLowerCase().includes(query) ||
-          customer.phone.toLowerCase().includes(query) ||
-          customer.id.toLowerCase().includes(query)
-      )
-      .slice(0, maxPerGroup)
-      .map((customer) => ({
-        group: 'customer' as const,
-        label: customer.name,
-        sublabel: piiFull ? customer.phone : maskPhone(customer.phone),
-        navigate_to: '/customers',
-      }));
-
-    const deviceItems = (allowed('device.read') ? deviceStore : [])
-      .filter((device) => device.device_id.toLowerCase().includes(query))
-      .slice(0, maxPerGroup)
-      .map((device) => ({
-        group: 'device' as const,
-        label: device.device_id,
-        sublabel: device.model_name,
-        navigate_to: `/devices/${device.device_id}`,
-      }));
-
-    const alertItems = (allowed('alerts.read') ? alertMockData : [])
-      .filter(
-        (alert) =>
-          alert.errorCode.toLowerCase().includes(query) ||
-          alert.message.toLowerCase().includes(query)
-      )
-      .slice(0, maxPerGroup)
-      .map((alert) => ({
-        group: 'alert' as const,
-        label: alert.errorCode,
-        sublabel: alert.message,
-        navigate_to: '/alerts',
-      }));
-
+  http.get('/api/devices/firmware-options', () => {
+    if (!allowed('device.read')) return deviceError('forbidden', 403);
+    const moduleVersions = Array.from(
+      new Set(deviceStore.map((d) => d.module_firmware_version))
+    ).sort();
+    const mainboardVersions = Array.from(
+      new Set(deviceStore.map((d) => d.mainboard_firmware_version))
+    ).sort();
     return HttpResponse.json({
-      items: [...customerItems, ...deviceItems, ...alertItems],
+      module_versions: moduleVersions,
+      mainboard_versions: mainboardVersions,
     });
   }),
   http.get('/api/devices', ({ request }) => {

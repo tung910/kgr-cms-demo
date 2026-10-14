@@ -1,6 +1,11 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import { getDevice, getDeviceStatusCounts, getDevices } from '../api/deviceApi';
+import {
+  getDevice,
+  getDeviceFirmwareOptions,
+  getDeviceStatusCounts,
+  getDevices,
+} from '../api/deviceApi';
 import {
   getAlertHistory,
   getCommandLog,
@@ -33,12 +38,24 @@ export const deviceQueries = {
       model: filters.model,
       region: filters.region,
       customerId: filters.customerId,
+      coreLife: filters.coreLife,
+      offlineDuration: filters.offlineDuration,
+      errorType: filters.errorType,
+      moduleFirmware: filters.moduleFirmware,
+      activatedFrom: filters.activatedFrom,
+      activatedTo: filters.activatedTo,
     };
     return queryOptions({
       queryKey: [...deviceQueries.all, 'status-counts', countFilters] as const,
       queryFn: ({ signal }) => getDeviceStatusCounts(countFilters, signal),
     });
   },
+  firmwareOptions: () =>
+    queryOptions({
+      queryKey: [...deviceQueries.all, 'firmware-options'] as const,
+      queryFn: ({ signal }) => getDeviceFirmwareOptions(signal),
+      staleTime: 5 * 60 * 1000,
+    }),
   detail: (deviceId: string) =>
     queryOptions({
       queryKey: [...deviceQueries.all, 'detail', deviceId] as const,
