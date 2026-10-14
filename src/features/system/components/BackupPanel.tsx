@@ -98,7 +98,7 @@ export function BackupPanel({ backups }: BackupPanelProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="m-0 text-sm text-[#636466]">{t('backup.hint')}</p>
+        <p className="m-0 text-sm text-brand-gray">{t('backup.hint')}</p>
         <PermissionGuard capability="backup.run">
           <Button
             type="primary"

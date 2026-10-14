@@ -79,7 +79,8 @@ export function RoleMatrix({
       width: 90,
       render: (_: unknown, fn: PermissionFunction) => {
         const capability = fn.cells[action];
-        if (!capability) return <span className="text-[#B0B1B3]">—</span>;
+        if (!capability)
+          return <span className="text-brand-gray-muted">—</span>;
         if (allowed && !allowed.has(capability)) return null;
 
         // Read is forced on (and locked) while any other action is granted.

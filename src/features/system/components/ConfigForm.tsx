@@ -90,7 +90,7 @@ export function ConfigForm({ config, canEdit }: ConfigFormProps) {
       }
     >
       {!canEdit ? (
-        <p className="mb-4 text-sm text-[#636466]">
+        <p className="mb-4 text-sm text-brand-gray">
           {t('config.readOnlyHint')}
         </p>
       ) : null}
@@ -132,7 +132,7 @@ export function ConfigForm({ config, canEdit }: ConfigFormProps) {
       <h3 className="mb-1 mt-4 text-base font-semibold">
         {t('config.sections.sla')}
       </h3>
-      <p className="mb-3 text-sm text-[#636466]">{t('config.slaHint')}</p>
+      <p className="mb-3 text-sm text-brand-gray">{t('config.slaHint')}</p>
       <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-3">
         {severities.map((severity) => (
           <Form.Item

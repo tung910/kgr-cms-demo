@@ -27,6 +27,7 @@ export interface MemberSeed {
 // System Admin: everything except what stays with SP-Admin.
 const SP_ONLY: readonly Capability[] = [
   'member.delete',
+  'role.create_root',
   'role.delete',
   'role.simulate',
   'serial.void.delete',
@@ -57,7 +58,7 @@ const memberAdmin: Capability[] = [
 ];
 
 // Every System Admin owns a group (ticked by SP-Admin) and, below it, the
-// Admin lĩnh vực groups it creates itself.
+// Admin lĩnh vực groups managed within its branch.
 const sysAdminGroup = (n: string, name: string): GroupSeed => ({
   id: `custom:sys-${n}`,
   name,

@@ -18,8 +18,8 @@ export interface AuditTableProps {
 function JsonBlock({ label, value }: { label: string; value: unknown }) {
   return (
     <div className="min-w-0 flex-1">
-      <div className="mb-1 text-xs font-semibold text-[#636466]">{label}</div>
-      <pre className="m-0 max-h-60 overflow-auto rounded bg-[#F4F4F4] p-2 text-xs">
+      <div className="mb-1 text-xs font-semibold text-brand-gray">{label}</div>
+      <pre className="m-0 max-h-60 overflow-auto rounded bg-brand-canvas p-2 text-xs">
         {value ? JSON.stringify(value, null, 2) : '—'}
       </pre>
     </div>

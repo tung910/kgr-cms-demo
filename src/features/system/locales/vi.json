@@ -206,8 +206,10 @@
       "title": "Thêm nhóm quyền",
       "name": "Tên nhóm quyền",
       "success": "Đã tạo nhóm quyền. Hãy chọn quyền cho nhóm.",
-      "titleAdmin": "Thêm nhóm quyền lĩnh vực"
-    }
+      "titleAdmin": "Thêm nhóm quyền lĩnh vực",
+      "template": "Sao chép quyền từ"
+    },
+    "addChild": "Thêm nhóm quyền con"
   },
   "audit": {
     "title": "Nhật ký hệ thống",

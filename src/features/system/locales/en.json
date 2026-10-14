@@ -206,8 +206,10 @@
       "title": "Add role group",
       "name": "Role group name",
       "success": "Role group created. Now choose its permissions.",
-      "titleAdmin": "Add a field group"
-    }
+      "titleAdmin": "Add a field group",
+      "template": "Copy permissions from"
+    },
+    "addChild": "Add child group"
   },
   "audit": {
     "title": "Audit log",

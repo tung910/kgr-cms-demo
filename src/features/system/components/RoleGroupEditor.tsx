@@ -42,7 +42,10 @@ export function RoleGroupEditor({ group, onDeleted }: RoleGroupEditorProps) {
   );
 
   const canEdit =
-    !!session && hasCapability(session.role, 'role.update') && !group.locked;
+    !!session &&
+    hasCapability(session.role, 'role.update') &&
+    !group.locked &&
+    session.role !== group.id;
   const dirty =
     name !== group.name ||
     draft.size !== group.capabilities.length ||

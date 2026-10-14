@@ -70,6 +70,7 @@ interface GroupRecord {
 
 // Group management stays above the Admin lĩnh vực: never part of their groups.
 const FIELD_ADMIN_BARRED: readonly Capability[] = [
+  'role.create_root',
   'role.create',
   'role.update',
   'role.delete',
@@ -746,9 +747,10 @@ export const systemHandlers = [
     }
     if (phoneTaken(values.phone)) return fail(422, 'phone_taken');
 
-    // Each System Admin gets its own group holding what SP-Admin ticked.
+    // Keep the selected System Admin group; only the legacy capabilities-only
+    // input needs a new group created for the account.
     let roleId: PortalRole | undefined = values.role_id;
-    if (level === 'system_admin') {
+    if (level === 'system_admin' && !roleId) {
       const name = `System Admin - ${values.full_name}`;
       if (groupStore.some((g) => !g.parentId && groupName(g.id) === name)) {
         return fail(422, 'name_taken');
@@ -958,7 +960,7 @@ export const systemHandlers = [
       auth.user.level === 'sp_admin'
         ? true
         : auth.user.level === 'system_admin'
-          ? group.parentId === auth.user.roleId
+          ? group.id === auth.user.roleId || group.parentId === auth.user.roleId
           : LEVEL_RANK[groupLevel(group.id)] < LEVEL_RANK[auth.user.level]
     );
     return HttpResponse.json(visible.map(groupDto));
@@ -971,13 +973,21 @@ export const systemHandlers = [
     const body = await readBody(request, roleGroupBodySchema);
     if (body.error) return body.error;
 
-    // A System Admin adds groups only under its own group; a group there never
-    // exceeds that group, nor what the creator itself holds.
     const { user } = auth;
-    // SP-Admin adds System Admin groups (same permissions the member form used
-    // to tick), so no parent.
-    const parentId = user.level === 'sp_admin' ? null : user.roleId;
-    if (parentId && groupLevel(parentId) !== 'system_admin') {
+    const parentId = body.data.parent_id ?? null;
+    if (
+      auth.user.level !== 'sp_admin' &&
+      (auth.user.level !== 'system_admin' || parentId !== auth.user.roleId)
+    ) {
+      return deny(auth.user, 'role.create', 'forbidden');
+    }
+    if (!parentId && !activeCapabilities(user).includes('role.create_root')) {
+      return deny(user, 'role.create_root', 'forbidden');
+    }
+    if (
+      parentId &&
+      (!findGroup(parentId) || groupLevel(parentId) !== 'system_admin')
+    ) {
       return fail(422, 'invalid_parent');
     }
     if (
@@ -1000,13 +1010,6 @@ export const systemHandlers = [
     if (ceiling && body.data.capabilities.some((c) => !ceiling.includes(c))) {
       return fail(422, 'exceeds_parent');
     }
-    if (user.level !== 'sp_admin') {
-      const held = effectiveCapabilities(user);
-      if (body.data.capabilities.some((c) => !held.includes(c))) {
-        return deny(user, body.data.name, 'exceeds_permissions');
-      }
-    }
-
     const group: GroupRecord = {
       id: `custom:${randomId().slice(0, 8)}`,
       customName: body.data.name,
@@ -1020,7 +1023,11 @@ export const systemHandlers = [
       module: 'role_groups',
       action: 'create',
       target: body.data.name,
-      after: { capabilities: group.capabilities },
+      after: {
+        name: body.data.name,
+        parent_id: parentId,
+        capabilities: group.capabilities,
+      },
     });
     return HttpResponse.json(groupDto(group), { status: 201 });
   }),
@@ -1032,23 +1039,18 @@ export const systemHandlers = [
     const id = decodeURIComponent(String(params.id));
     const group = isPortalRole(id) ? findGroup(id) : undefined;
     if (!group) return fail(404, 'not_found');
+    if (
+      auth.user.level !== 'sp_admin' &&
+      (auth.user.level !== 'system_admin' ||
+        group.parentId !== auth.user.roleId)
+    ) {
+      return deny(auth.user, 'role.update', 'forbidden');
+    }
     // Nobody may narrow the Super Admin group ([PQ!J66]).
     if (group.id === 'super_admin') return fail(403, 'group_locked');
 
     const body = await readBody(request, roleGroupBodySchema);
     if (body.error) return body.error;
-
-    // A System Admin edits only the field groups under its own group.
-    const { user } = auth;
-    if (user.level !== 'sp_admin') {
-      if (group.parentId !== user.roleId) {
-        return deny(user, groupName(group.id), 'out_of_scope');
-      }
-      const held = effectiveCapabilities(user);
-      if (body.data.capabilities.some((c) => !held.includes(c))) {
-        return deny(user, groupName(group.id), 'exceeds_permissions');
-      }
-    }
 
     // A child group can never exceed its parent.
     const ceiling = groupCeiling(group);

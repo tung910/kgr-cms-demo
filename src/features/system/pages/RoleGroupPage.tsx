@@ -42,16 +42,15 @@ export function RoleGroupPage({ groupId }: RoleGroupPageProps) {
   const { data } = useSuspenseQuery(systemQueries.roleGroups());
   // The Super Admin group is fixed (all permissions), so its matrix is hidden.
   const groups = data.filter((group) => !group.locked);
+  const [expandedKeys, setExpandedKeys] = useState<string[]>(
+    groups.map((group) => group.id)
+  );
   const [creating, setCreating] = useState(false);
+  const [createParent, setCreateParent] = useState<PortalRole | undefined>();
 
   const selected = groups.find((group) => group.id === groupId) ?? groups[0];
   const select = (id: PortalRole | undefined) =>
     void navigate({ search: (previous) => ({ ...previous, groupId: id }) });
-  // SP-Admin sees System Admin groups and adds top-level ones; a System Admin
-  // only sees its field groups, so a new one sits under the selected's parent.
-  const createParent = groups.some((group) => group.level === 'system_admin')
-    ? undefined
-    : (selected?.parentId ?? undefined);
 
   return (
     <div className="space-y-6">
@@ -59,18 +58,43 @@ export function RoleGroupPage({ groupId }: RoleGroupPageProps) {
         title={t('roles.title')}
         description={t('roles.description')}
         actions={
-          <PermissionGuard capability="role.create">
-            <Button type="primary" onClick={() => setCreating(true)}>
-              {t('roles.add')}
-            </Button>
-          </PermissionGuard>
+          <>
+            <PermissionGuard capability="role.create_root">
+              <Button
+                type="primary"
+                onClick={() => {
+                  setCreateParent(undefined);
+                  setCreating(true);
+                }}
+              >
+                {t('roles.add')}
+              </Button>
+            </PermissionGuard>
+            <PermissionGuard capability="role.create">
+              {selected?.level === 'system_admin' ? (
+                <Button
+                  onClick={() => {
+                    setCreateParent(selected.id);
+                    setCreating(true);
+                  }}
+                >
+                  {t('roles.addChild')}
+                </Button>
+              ) : null}
+            </PermissionGuard>
+          </>
         }
       />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[16rem_1fr]">
         <PortalCard>
           <Tree
             blockNode
-            defaultExpandAll
+            expandedKeys={expandedKeys}
+            onExpand={(keys) =>
+              setExpandedKeys(
+                keys.filter((key): key is string => typeof key === 'string')
+              )
+            }
             treeData={buildGroupNodes(groups)}
             selectedKeys={selected ? [selected.id] : []}
             onSelect={(keys) => {
@@ -89,12 +113,25 @@ export function RoleGroupPage({ groupId }: RoleGroupPageProps) {
           ) : null}
         </PortalCard>
       </div>
-      <RoleGroupCreateModal
-        open={creating}
-        parentId={createParent}
-        onClose={() => setCreating(false)}
-        onCreated={select}
-      />
+      <PermissionGuard capability="role.create">
+        <RoleGroupCreateModal
+          templates={groups.filter((group) => group.level === 'system_admin')}
+          open={creating}
+          parentId={createParent}
+          parentCapabilities={
+            groups.find((group) => group.id === createParent)?.capabilities
+          }
+          onClose={() => setCreating(false)}
+          onCreated={(id) => {
+            if (createParent) {
+              setExpandedKeys((previous) => [
+                ...new Set([...previous, createParent]),
+              ]);
+            }
+            select(id);
+          }}
+        />
+      </PermissionGuard>
     </div>
   );
 }

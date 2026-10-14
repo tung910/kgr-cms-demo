@@ -66,7 +66,7 @@ export function AuditLogPage({ filters }: AuditLogPageProps) {
         }
       />
       <PortalCard padded={false}>
-        <div className="grid grid-cols-1 gap-3 border-b border-[#E7E8E9] p-4 sm:flex sm:flex-wrap sm:items-center">
+        <div className="grid grid-cols-1 gap-3 border-b border-brand-lightgray p-4 sm:flex sm:flex-wrap sm:items-center">
           <Input.Search
             key={`actor:${filters.actor}`}
             allowClear

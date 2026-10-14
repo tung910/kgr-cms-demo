@@ -1,8 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Form, Input, Modal, message } from 'antd';
+import { Form, Input, Modal, Select, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import type { PortalRole } from '@/core/auth/types';
+import type { Capability } from '@/core/permissions/capabilities';
+
+import type { RoleGroup } from '../schemas/systemSchemas';
 
 import { createRoleGroup } from '../api/systemApi';
 import { systemQueries } from '../queries/systemQueries';
@@ -10,32 +13,50 @@ import { systemErrorMessage } from '../utils/systemErrors';
 
 export interface RoleGroupCreateModalProps {
   open: boolean;
+  templates: RoleGroup[];
   // The System Admin group a new Admin lĩnh vực group sits under.
   parentId?: PortalRole | undefined;
+  parentCapabilities?: readonly Capability[] | undefined;
   onClose: () => void;
   onCreated: (id: PortalRole) => void;
 }
 
-// A new group starts with read access to the devices page (the smallest
-// non-empty matrix — at least one permission is required); edit it afterwards.
+// Start with a non-empty subset of the parent; choose further rules in the editor.
 export function RoleGroupCreateModal({
   open,
+  templates,
   parentId,
+  parentCapabilities,
   onClose,
   onCreated,
 }: RoleGroupCreateModalProps) {
   const { t } = useTranslation('system');
-  const [form] = Form.useForm<{ name: string }>();
+  const [form] = Form.useForm<{ name: string; templateId?: PortalRole }>();
   const queryClient = useQueryClient();
 
+  const defaults: Capability[] = parentId
+    ? ['device.read', 'member.read', 'member.create', 'member.update']
+    : ['device.read'];
+  const permitted = parentCapabilities
+    ? defaults.filter((capability) => parentCapabilities.includes(capability))
+    : defaults;
+  const initialCapabilities =
+    permitted.length > 0 ? permitted : (parentCapabilities?.slice(0, 1) ?? []);
+
   const mutation = useMutation({
-    mutationFn: ({ name }: { name: string }) =>
+    mutationFn: ({
+      name,
+      templateId,
+    }: {
+      name: string;
+      templateId?: PortalRole;
+    }) =>
       createRoleGroup({
         name: name.trim(),
-        // An Admin group needs to manage its users, so it starts with that.
         capabilities: parentId
-          ? ['device.read', 'member.read', 'member.create', 'member.update']
-          : ['device.read'],
+          ? initialCapabilities
+          : (templates.find((group) => group.id === templateId)?.capabilities ??
+            initialCapabilities),
         parentId,
       }),
     onSuccess: (group) => {
@@ -62,8 +83,23 @@ export function RoleGroupCreateModal({
       <Form
         form={form}
         layout="vertical"
+        initialValues={{ templateId: templates[0]?.id }}
         onFinish={(values) => mutation.mutate(values)}
       >
+        {!parentId ? (
+          <Form.Item
+            name="templateId"
+            label={t('roles.create.template')}
+            rules={[{ required: true }]}
+          >
+            <Select
+              options={templates.map((group) => ({
+                value: group.id,
+                label: group.name,
+              }))}
+            />
+          </Form.Item>
+        ) : null}
         <Form.Item
           name="name"
           label={t('roles.create.name')}
