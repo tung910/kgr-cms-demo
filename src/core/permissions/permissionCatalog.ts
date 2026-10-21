@@ -69,6 +69,11 @@ export const PERMISSION_CATALOG: readonly PermissionFunction[] = [
     cells: { read: 'device.control.read', send: 'device.control' },
   },
   {
+    key: 'device_inventory',
+    module: 'devices',
+    cells: { update: 'device.inventory.sync' },
+  },
+  {
     key: 'device_history',
     module: 'devices',
     cells: { read: 'device.history.read', export: 'device.history.export' },

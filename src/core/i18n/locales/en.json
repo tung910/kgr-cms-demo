@@ -1,4 +1,8 @@
 {
+  "productConnectivity": {
+    "iot": "IoT",
+    "non_iot": "Non-IoT"
+  },
   "nav": {
     "overview": "Overview",
     "devices": "Devices",

@@ -148,6 +148,7 @@
         "device_diagnose": "Chẩn đoán từ xa",
         "device_control": "Điều khiển từ xa",
         "device_history": "Lịch sử thiết bị (kết nối, OTA, cảnh báo)",
+        "device_inventory": "Đồng bộ thiết bị tồn kho",
         "customers": "Danh sách & hồ sơ khách hàng",
         "customer_access_log": "Lịch sử truy cập & hoạt động của KH",
         "warranty": "Bảo hành điện tử",

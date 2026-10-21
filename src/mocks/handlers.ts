@@ -15,6 +15,7 @@ import {
 
 import { isPortalRole, type PortalRole } from '@/core/auth/types';
 import { systemHandlers } from '@/features/system/mocks/systemHandlers';
+import { deviceExtraHandlers } from '@/features/devices/mocks/deviceExtraHandlers';
 import type {
   DeviceDto,
   DeviceStatus,
@@ -510,6 +511,8 @@ const ERROR_CATEGORY_MAP: Record<string, string> = {
 };
 
 function matchesErrorType(device: DeviceDto, errorType: string): boolean {
+  // Non-IoT units report no device errors.
+  if (device.connectivity === 'non_iot') return false;
   const alerts = buildAlertHistory(device.device_id).filter(
     (a) => a.status === 'open'
   );
@@ -543,6 +546,9 @@ function filterDevices(url: URL, withStatus: boolean): DeviceDto[] {
     if (region && device.region !== region) return false;
     if (customerId && device.owner?.id !== customerId) return false;
     if (coreLife) {
+      // Non-IoT or never-connected units report no core life: never match.
+      if (device.connectivity === 'non_iot' || device.last_online_at === null)
+        return false;
       const cores = corePositionsForModelName(device.model_name).map((c) => ({
         remainingPercent:
           100 - mockCoreUsedPercent(device.device_id, c.position),
@@ -622,7 +628,8 @@ async function mutateDevice(
       current.activated_at ||
       current.last_online_at ||
       current.latest_telemetry.length > 0 ||
-      current.status !== 'offline'
+      current.status === 'online' ||
+      current.status === 'warning'
     )
       return deviceError('previouslyActive');
     updated = {
@@ -642,7 +649,8 @@ async function mutateDevice(
     updated = {
       ...current,
       lifecycle_state: lifecycleState,
-      status: 'offline',
+      // Non-IoT units have no connection to drop.
+      status: current.status === null ? null : 'offline',
       app_sync_status: 'queued',
     };
   } else if (action === 'restore') {
@@ -689,6 +697,7 @@ async function mutateDevice(
 
 export const handlers = [
   ...systemHandlers,
+  ...deviceExtraHandlers,
   http.get('/api/dashboard/summary', ({ request }) => {
     if (hasServerError(new URL(request.url))) {
       return HttpResponse.json(
@@ -717,10 +726,18 @@ export const handlers = [
   http.get('/api/devices/firmware-options', () => {
     if (!allowed('device.read')) return deviceError('forbidden', 403);
     const moduleVersions = Array.from(
-      new Set(deviceStore.map((d) => d.module_firmware_version))
+      new Set(
+        deviceStore.flatMap((d) =>
+          d.module_firmware_version ? [d.module_firmware_version] : []
+        )
+      )
     ).sort();
     const mainboardVersions = Array.from(
-      new Set(deviceStore.map((d) => d.mainboard_firmware_version))
+      new Set(
+        deviceStore.flatMap((d) =>
+          d.mainboard_firmware_version ? [d.mainboard_firmware_version] : []
+        )
+      )
     ).sort();
     return HttpResponse.json({
       module_versions: moduleVersions,
@@ -776,6 +793,8 @@ export const handlers = [
       devices.filter((device) => device.status === status).length;
     return HttpResponse.json({
       total: devices.length,
+      non_iot: devices.filter((device) => device.connectivity === 'non_iot')
+        .length,
       online: count('online'),
       warning: count('warning'),
       offline: count('offline'),
@@ -1129,6 +1148,7 @@ export const handlers = [
     const deviceId = String(params.deviceId);
     const device = deviceStore.find((item) => item.device_id === deviceId);
     if (!device) return deviceError('notFound', 404);
+    if (device.connectivity === 'non_iot') return deviceError('nonIot', 409);
     if (device.status === 'offline')
       return HttpResponse.json(
         { message: i18n.t('devices:diagnosticsPanel.offlineError') },
@@ -1163,6 +1183,7 @@ export const handlers = [
     } | null;
     if (!body?.command || !body.reason?.trim())
       return deviceError('invalidInput', 400);
+    if (device.connectivity === 'non_iot') return deviceError('nonIot', 409);
 
     const unmet =
       body.command === 'ping'

@@ -1,4 +1,8 @@
 {
+  "productConnectivity": {
+    "iot": "IoT",
+    "non_iot": "Không IoT"
+  },
   "nav": {
     "overview": "Tổng quan",
     "devices": "Thiết bị",

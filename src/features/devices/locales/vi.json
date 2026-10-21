@@ -1,4 +1,65 @@
 {
+  "statusCell": {
+    "neverConnected": "Chưa kết nối"
+  },
+  "listTabs": {
+    "inUse": "Đang sử dụng",
+    "inventory": "Tồn kho (chưa sử dụng)"
+  },
+  "nonIot": {
+    "includedInTotal": "Gồm {{count}} sản phẩm không IoT",
+    "detail": {
+      "title": "Sản phẩm không IoT",
+      "description": "Thiết bị không có module IoT nên không có dữ liệu TDS, trạng thái kết nối, firmware hay điều khiển từ xa.",
+      "trackWarranty": "Theo dõi qua bảo hành điện tử (kích hoạt bằng serial/QR).",
+      "trackCores": "Lịch thay lõi được ước tính theo thời gian sử dụng.",
+      "trackService": "Sự cố được ghi nhận qua phiếu dịch vụ và lịch hẹn kỹ thuật viên."
+    }
+  },
+  "inventory": {
+    "empty": "Không có thiết bị tồn kho phù hợp bộ lọc.",
+    "sync": {
+      "action": "Đồng bộ",
+      "title": "Đồng bộ thiết bị tồn kho",
+      "upload": {
+        "title": "Tải file lên",
+        "description": "Nhập danh sách thiết bị từ file. Tính năng sẽ có ở phiên bản sau."
+      },
+      "auto": {
+        "title": "Tự động",
+        "description": "Lấy thiết bị mới nhập kho từ hệ thống kho."
+      },
+      "success": "Đã đồng bộ: thêm {{added}}, cập nhật {{updated}} thiết bị.",
+      "upToDate": "Dữ liệu tồn kho đã mới nhất.",
+      "error": "Không thể đồng bộ tồn kho. Vui lòng thử lại."
+    },
+    "filters": {
+      "searchAriaLabel": "Tìm thiết bị tồn kho",
+      "searchPlaceholder": "Tìm theo serial"
+    },
+    "stats": {
+      "total": "Tổng thiết bị tồn kho",
+      "aged": "Tồn kho quá {{days}} ngày",
+      "fresh": "Tồn dưới {{days}} ngày",
+      "aging": "Tồn {{from}}–{{to}} ngày"
+    },
+    "table": {
+      "columns": {
+        "identity": "Serial / Model",
+        "firmware": "Firmware xuất xưởng",
+        "age": "Thời gian tồn kho",
+        "status": "Trạng thái sử dụng"
+      },
+      "firmwareOutdated": "Cần cập nhật",
+      "firmwareOutdatedHint": "Firmware cũ hơn bản phát hành hiện tại — thiết bị sẽ cần OTA ngay sau khi kích hoạt.",
+      "ageDays_one": "{{count}} ngày",
+      "ageDays_other": "{{count}} ngày",
+      "total": "Tổng cộng {{total}} thiết bị tồn kho",
+      "receivedAt": "Nhập kho: {{date}}",
+      "notActivated": "Chưa kích hoạt"
+    },
+    "description": "{{total}} thiết bị tồn kho phù hợp bộ lọc · Chưa kích hoạt"
+  },
   "filters": {
     "searchAriaLabel": "Tìm thiết bị",
     "searchPlaceholder": "Tìm theo serial hoặc tên chủ sở hữu...",
@@ -366,6 +427,7 @@
     }
   },
   "errors": {
+    "nonIot": "Sản phẩm không IoT không hỗ trợ thao tác từ xa.",
     "forbidden": "Bạn không có quyền thực hiện thao tác này.",
     "notFound": "Không tìm thấy thiết bị hoặc thành viên chia sẻ.",
     "server": "Máy chủ mô phỏng không thể xử lý yêu cầu.",

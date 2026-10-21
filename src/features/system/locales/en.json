@@ -148,6 +148,7 @@
         "device_diagnose": "Remote diagnostics",
         "device_control": "Remote control",
         "device_history": "Device history (connection, OTA, alerts)",
+        "device_inventory": "Sync unused stock",
         "customers": "Customer list & profile",
         "customer_access_log": "Customer sign-in & activity log",
         "warranty": "Electronic warranty",

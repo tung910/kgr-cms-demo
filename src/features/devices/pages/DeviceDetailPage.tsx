@@ -45,7 +45,10 @@ export function DeviceDetailPage({ deviceId }: DeviceDetailPageProps) {
     !device.activatedAt &&
     !device.lastOnlineAt &&
     device.latestTelemetry.length === 0 &&
-    device.status === 'offline';
+    device.status !== 'online' &&
+    device.status !== 'warning';
+  // Non-IoT products have no module: no telemetry, diagnostics or commands.
+  const iot = device.connectivity === 'iot';
 
   return (
     <div className="space-y-4">
@@ -54,7 +57,11 @@ export function DeviceDetailPage({ deviceId }: DeviceDetailPageProps) {
         showOwner={canSeeOwner}
         showControlState={canSeeControlState}
         onOwnerClick={openOwnerDrawer}
-        actions={<DeviceRemoteActions device={device} placement="header" />}
+        actions={
+          iot ? (
+            <DeviceRemoteActions device={device} placement="header" />
+          ) : null
+        }
         secondaryActions={
           <>
             <DeviceLifecycleActions device={device} />
@@ -71,10 +78,10 @@ export function DeviceDetailPage({ deviceId }: DeviceDetailPageProps) {
 
       <DeviceCoreAlertsPanel device={device} />
 
-      <DeviceTelemetryPanel device={device} />
+      {iot ? <DeviceTelemetryPanel device={device} /> : null}
       <DeviceFilterCoresPanel device={device} />
 
-      <DeviceRemoteDiagnosticPanel device={device} />
+      {iot ? <DeviceRemoteDiagnosticPanel device={device} /> : null}
 
       {canSeeHistory || canSeeOwner ? (
         <div

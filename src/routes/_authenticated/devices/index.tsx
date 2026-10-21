@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { hasCapability } from '@/core/permissions/capabilities';
 import { DeviceListSkeleton } from '@/features/devices/components/DeviceListSkeleton';
 import { DeviceListPage } from '@/features/devices/pages/DeviceListPage';
+import { InventoryListPage } from '@/features/devices/pages/InventoryListPage';
+import { deviceListTabSchema } from '@/features/devices/schemas/productConnectivitySchema';
 import { deviceQueries } from '@/features/devices/queries/deviceQueries';
 import { RouteErrorState } from '@/shared/components/RouteErrorState';
 import {
@@ -29,6 +31,8 @@ const deviceErrorTypeSchema = z.enum(['connectivity', 'waterLeak', 'other']);
 
 const deviceListSearchSchema = z.object({
   search: z.string().catch(''),
+  // Added tab: omitted = in use (bound to a customer).
+  tab: deviceListTabSchema.optional().catch(undefined),
   status: deviceStatusSchema.optional().catch(undefined),
   model: z.string().trim().min(1).optional().catch(undefined),
   region: z.string().trim().min(1).optional().catch(undefined),
@@ -90,6 +94,19 @@ export const Route = createFileRoute('/_authenticated/devices/')({
 
 function DeviceListRoute() {
   const search = Route.useSearch();
+  // Added view with its own filters: unused stock.
+  if (search.tab === 'inventory') {
+    return (
+      <InventoryListPage
+        filters={{
+          search: search.search,
+          model: search.model,
+          page: search.page,
+          pageSize: search.pageSize,
+        }}
+      />
+    );
+  }
   const filters: DeviceListFilters = {
     ...search,
     coreLife: search.coreLife as CoreLifeRange | undefined,

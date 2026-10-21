@@ -26,6 +26,7 @@ export const CAPABILITIES = [
   'device.lifecycle',
   'device.history.read',
   'device.history.export',
+  'device.inventory.sync',
   // M02 customers, warranty and field service (2.x).
   'customers.read',
   'customers.export',
@@ -125,6 +126,7 @@ export type Capability = (typeof CAPABILITIES)[number];
 // device.lifecycle             |   ✓   |   ✓   |         |         |       |           | 3.4b (D)
 // device.history.read          |   ✓   |   ✓   |    ✓    |    ✓    |       |           | 3.4d
 // device.history.export        |   ✓   |   ✓   |    ✓    |         |       |           | 3.4d
+// device.inventory.sync        |   ✓   |   ✓   |    ✓    |         |       |     ✓     | no sheet row
 // customers.read               |   ✓   |   ✓   |         |    ✓    |   ✓   |           | 2.1/2.2b
 // customers.export             |   ✓   |   ✓   |         |    ✓    |   ✓   |           | 2.1
 // customers.write              |   ✓   |   ✓   |         |    ✓    |       |           | 2.2
@@ -190,6 +192,8 @@ export type Capability = (typeof CAPABILITIES)[number];
 // - 10.2: Super Admin manages roots; System Admin manages its own children.
 // - device.edit_info, device.diagnose and core_config.tune have no sheet row
 //   and keep their previous assignment.
+// - device.inventory.sync (Tồn kho "Đồng bộ") has no sheet row: assumed for
+//   the roles that produce or hold stock (factory, logistics) plus admins.
 //
 // ⚠️ M10 assumption (plan roles ↔ sheet roles): Super Admin ≙ super_admin,
 // Admin ≙ admin, Nhà máy ≙ factory, TT DV ≙ service_center,
@@ -212,6 +216,7 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'device.lifecycle',
     'device.history.read',
     'device.history.export',
+    'device.inventory.sync',
     'customers.read',
     'customers.export',
     'customers.write',
@@ -332,6 +337,7 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'device.control.read',
     'device.history.read',
     'device.history.export',
+    'device.inventory.sync',
     'warranty.read',
     'ota.read',
     'ota.export',
@@ -357,6 +363,7 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
   logistics: [
     'device.read',
     'device.export',
+    'device.inventory.sync',
     'warranty.read',
     'service.read',
     'device_map.read',
