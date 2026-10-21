@@ -43,7 +43,8 @@ const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
       region,
       connectivity: 'iot',
       ward: wardsByRegion[region][index % 3],
-      status: index === 35 ? 'offline' : status,
+      // #20 is decommissioned, #35 never connected: both offline.
+      status: index === 35 || index === 20 ? 'offline' : status,
       last_online_at:
         index === 35
           ? null
@@ -95,7 +96,8 @@ const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
       install_address: `Số ${number} đường Kim Giang, ${region}`,
       internal_note: index % 5 === 0 ? 'Khách VIP, ưu tiên hỗ trợ.' : '',
       tags: index % 7 === 0 ? ['vip'] : index % 4 === 0 ? ['cho-thue'] : [],
-      lifecycle_state: 'active',
+      lifecycle_state:
+        index === 6 ? 'locked' : index === 20 ? 'decommissioned' : 'active',
       warranty_status: index === 35 ? 'none' : warrantyStatus,
       // active: >60 days left, expiring: <30 days, expired: already past.
       warranty_expires_at:

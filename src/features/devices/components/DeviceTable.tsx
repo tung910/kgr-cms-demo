@@ -3,7 +3,6 @@ import { Button, Pagination, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 
-import { ConnectionStatusBadge } from '@/shared/components/ConnectionStatusBadge';
 import { PortalProgress, type PortalTone } from '@/shared/components/portal';
 import { toneColors } from '@/shared/components/portal/tone';
 import {
@@ -14,6 +13,7 @@ import {
 import type { PageResponse } from '@/shared/types/pagination';
 
 import type { Device, DeviceListFilters } from '../schemas/deviceSchemas';
+import { DeviceStatusCell } from './DeviceStatusCell';
 
 function filterLifeTone(percent: number): PortalTone {
   if (percent <= 20) return 'danger';
@@ -129,8 +129,8 @@ export function DeviceTable({
       title: t('table.columns.status'),
       dataIndex: 'status',
       key: 'status',
-      render: (status: Device['status']) => (
-        <ConnectionStatusBadge status={status} />
+      render: (_: unknown, device: Device) => (
+        <DeviceStatusCell device={device} />
       ),
     },
     {
@@ -266,7 +266,7 @@ export function DeviceTable({
                         : device.region}
                     </div>
                   </div>
-                  <ConnectionStatusBadge status={device.status} />
+                  <DeviceStatusCell device={device} />
                 </div>
                 <div className="mt-3">
                   <FilterLifeIndicator device={device} />

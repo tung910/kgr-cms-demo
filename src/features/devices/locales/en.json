@@ -1,4 +1,8 @@
 {
+  "statusCell": {
+    "neverConnected": "Never connected",
+    "neverConnectedHint": "Activated, but no signal has been received from the device yet."
+  },
   "listTabs": {
     "inUse": "In use",
     "inventory": "Inventory (unused)"
