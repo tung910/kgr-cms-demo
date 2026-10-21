@@ -20,6 +20,15 @@
     "empty": "Không có thiết bị tồn kho phù hợp bộ lọc.",
     "sync": {
       "action": "Đồng bộ",
+      "title": "Đồng bộ thiết bị tồn kho",
+      "upload": {
+        "title": "Tải file lên",
+        "description": "Nhập danh sách thiết bị từ file. Tính năng sẽ có ở phiên bản sau."
+      },
+      "auto": {
+        "title": "Tự động",
+        "description": "Lấy thiết bị mới nhập kho từ hệ thống kho."
+      },
       "success": "Đã đồng bộ: thêm {{added}}, cập nhật {{updated}} thiết bị.",
       "upToDate": "Dữ liệu tồn kho đã mới nhất.",
       "error": "Không thể đồng bộ tồn kho. Vui lòng thử lại."

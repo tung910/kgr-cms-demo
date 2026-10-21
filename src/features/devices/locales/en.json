@@ -20,6 +20,15 @@
     "empty": "No inventory devices match the filters.",
     "sync": {
       "action": "Sync",
+      "title": "Sync unused stock",
+      "upload": {
+        "title": "Upload a file",
+        "description": "Import devices from a file. Coming in a later release."
+      },
+      "auto": {
+        "title": "Automatic",
+        "description": "Pull newly received units from the warehouse system."
+      },
       "success": "Synced: {{added}} added, {{updated}} updated.",
       "upToDate": "Inventory is already up to date.",
       "error": "Could not sync inventory. Please try again."
