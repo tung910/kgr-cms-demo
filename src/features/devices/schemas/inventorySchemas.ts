@@ -44,6 +44,22 @@ export const inventoryCountsDtoSchema = z.object({
 });
 export type InventoryCountsDto = z.infer<typeof inventoryCountsDtoSchema>;
 
+// Pulls never-activated units from the production/warehouse system.
+export const inventorySyncResultDtoSchema = z.object({
+  synced_at: z.string().datetime({ offset: true }),
+  added: z.number().int().nonnegative(),
+  updated: z.number().int().nonnegative(),
+});
+export type InventorySyncResultDto = z.infer<
+  typeof inventorySyncResultDtoSchema
+>;
+
+export interface InventorySyncResult {
+  syncedAt: string;
+  added: number;
+  updated: number;
+}
+
 export interface InventoryDevice {
   id: string;
   modelName: string;

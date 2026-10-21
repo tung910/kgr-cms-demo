@@ -18,6 +18,12 @@
   },
   "inventory": {
     "empty": "Không có thiết bị tồn kho phù hợp bộ lọc.",
+    "sync": {
+      "action": "Đồng bộ",
+      "success": "Đã đồng bộ: thêm {{added}}, cập nhật {{updated}} thiết bị.",
+      "upToDate": "Dữ liệu tồn kho đã mới nhất.",
+      "error": "Không thể đồng bộ tồn kho. Vui lòng thử lại."
+    },
     "filters": {
       "searchAriaLabel": "Tìm thiết bị tồn kho",
       "searchPlaceholder": "Tìm theo serial"

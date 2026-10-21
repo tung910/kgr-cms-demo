@@ -7,10 +7,12 @@ import { mapInventoryCounts, mapInventoryDevicePage } from './inventoryMapper';
 import {
   inventoryCountsDtoSchema,
   inventoryDevicePageDtoSchema,
+  inventorySyncResultDtoSchema,
   type InventoryCountFilters,
   type InventoryCounts,
   type InventoryDevice,
   type InventoryListFilters,
+  type InventorySyncResult,
 } from '../schemas/inventorySchemas';
 
 function invalidResponse(error: {
@@ -68,4 +70,15 @@ export async function getInventoryCounts(
   const parsed = inventoryCountsDtoSchema.safeParse(response);
   if (!parsed.success) throw invalidResponse(parsed.error);
   return mapInventoryCounts(parsed.data);
+}
+
+export async function syncInventory(): Promise<InventorySyncResult> {
+  const response = await apiClient.post<unknown>('/devices/inventory/sync', {});
+  const parsed = inventorySyncResultDtoSchema.safeParse(response);
+  if (!parsed.success) throw invalidResponse(parsed.error);
+  return {
+    syncedAt: parsed.data.synced_at,
+    added: parsed.data.added,
+    updated: parsed.data.updated,
+  };
 }

@@ -18,6 +18,12 @@
   },
   "inventory": {
     "empty": "No inventory devices match the filters.",
+    "sync": {
+      "action": "Sync",
+      "success": "Synced: {{added}} added, {{updated}} updated.",
+      "upToDate": "Inventory is already up to date.",
+      "error": "Could not sync inventory. Please try again."
+    },
     "filters": {
       "searchAriaLabel": "Search inventory devices",
       "searchPlaceholder": "Search by serial"

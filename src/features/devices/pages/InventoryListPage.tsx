@@ -18,6 +18,7 @@ import { PageState } from '@/shared/components/PageState';
 
 import { DeviceListTabs } from '../components/DeviceListTabs';
 import { InventoryFilters } from '../components/InventoryFilters';
+import { InventorySyncButton } from '../components/InventorySyncButton';
 import { InventoryTable } from '../components/InventoryTable';
 import { AGED_STOCK_DAYS, AGING_WARNING_DAYS } from '../constants/inventory';
 import { inventoryQueries } from '../queries/deviceListExtraQueries';
@@ -49,6 +50,7 @@ export function InventoryListPage({ filters }: InventoryListPageProps) {
       <PortalPageHeader
         title={t('listPage.title')}
         description={t('inventory.description', { total: data.total })}
+        actions={<InventorySyncButton />}
       />
       <DeviceListTabs />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
