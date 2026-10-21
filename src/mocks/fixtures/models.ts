@@ -39,4 +39,23 @@ export const modelFixtures: readonly ModelReferenceDto[] = [
     has_cold_tank: true,
     supports_membrane_flush: true,
   },
+  // Non-IoT lines: same catalogue, no IoT module on board.
+  {
+    model_id: 'model-n110',
+    code: 'KGR-N110',
+    name: 'Kangaroo KG110 (không IoT)',
+    industry: 'water_purifier',
+    has_hot_tank: false,
+    has_cold_tank: false,
+    supports_membrane_flush: false,
+  },
+  {
+    model_id: 'model-n120',
+    code: 'KGR-N120',
+    name: 'Kangaroo KG120 Hot (không IoT)',
+    industry: 'water_purifier',
+    has_hot_tank: true,
+    has_cold_tank: false,
+    supports_membrane_flush: false,
+  },
 ];

@@ -160,22 +160,25 @@ export function DeviceTable({
     {
       title: t('table.columns.firmware'),
       key: 'firmware',
-      render: (_: unknown, device: Device) => (
-        <div className="space-y-1 text-xs text-[#636466]">
-          <div>
-            {t('history.module')}{' '}
-            <span className="rounded-md bg-[#F3F4F4] px-1.5 py-0.5 font-mono text-[#020204]">
-              {device.moduleFirmwareVersion}
-            </span>
+      render: (_: unknown, device: Device) =>
+        device.connectivity === 'non_iot' ? (
+          <span className="text-xs text-[#9A9B9C]">—</span>
+        ) : (
+          <div className="space-y-1 text-xs text-[#636466]">
+            <div>
+              {t('history.module')}{' '}
+              <span className="rounded-md bg-[#F3F4F4] px-1.5 py-0.5 font-mono text-[#020204]">
+                {device.moduleFirmwareVersion}
+              </span>
+            </div>
+            <div>
+              {t('history.mainboard')}{' '}
+              <span className="rounded-md bg-[#F3F4F4] px-1.5 py-0.5 font-mono text-[#020204]">
+                {device.mainboardFirmwareVersion}
+              </span>
+            </div>
           </div>
-          <div>
-            {t('history.mainboard')}{' '}
-            <span className="rounded-md bg-[#F3F4F4] px-1.5 py-0.5 font-mono text-[#020204]">
-              {device.mainboardFirmwareVersion}
-            </span>
-          </div>
-        </div>
-      ),
+        ),
     },
     {
       title: t('table.columns.activatedAt'),

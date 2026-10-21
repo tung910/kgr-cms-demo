@@ -3,6 +3,7 @@ import { Pagination, Table, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 
+import { ConnectionStatusBadge } from '@/shared/components/ConnectionStatusBadge';
 import { toneColors } from '@/shared/components/portal/tone';
 import { formatDate } from '@/shared/lib/format';
 import type { PageResponse } from '@/shared/types/pagination';
@@ -56,9 +57,6 @@ export function InventoryTable({
   onPageChange,
 }: InventoryTableProps) {
   const { t } = useTranslation('devices');
-  // Non-IoT stock has no firmware to track, so the column is dropped in the
-  // non-IoT view.
-  const nonIotOnly = filters.connectivity === 'non_iot';
 
   const columns: ColumnsType<InventoryDevice> = [
     {
@@ -71,6 +69,9 @@ export function InventoryTable({
           </div>
           <div className="mt-1 flex items-center gap-1.5 text-xs text-[#636466]">
             {device.modelName}
+            {device.connectivity === 'non_iot' ? (
+              <ConnectionStatusBadge status={null} />
+            ) : null}
           </div>
         </div>
       ),
@@ -83,29 +84,32 @@ export function InventoryTable({
     {
       title: t('inventory.table.columns.firmware'),
       key: 'firmware',
-      render: (_: unknown, device) => (
-        <div className="space-y-1 text-xs text-[#636466]">
-          <div>
-            {t('history.module')}{' '}
-            <span className="rounded-md bg-[#F3F4F4] px-1.5 py-0.5 font-mono text-[#020204]">
-              {device.moduleFirmwareVersion}
-            </span>
+      render: (_: unknown, device) =>
+        device.connectivity === 'non_iot' ? (
+          <span className="text-xs text-[#9A9B9C]">—</span>
+        ) : (
+          <div className="space-y-1 text-xs text-[#636466]">
+            <div>
+              {t('history.module')}{' '}
+              <span className="rounded-md bg-[#F3F4F4] px-1.5 py-0.5 font-mono text-[#020204]">
+                {device.moduleFirmwareVersion}
+              </span>
+            </div>
+            <div>
+              {t('history.mainboard')}{' '}
+              <span className="rounded-md bg-[#F3F4F4] px-1.5 py-0.5 font-mono text-[#020204]">
+                {device.mainboardFirmwareVersion}
+              </span>
+            </div>
+            {device.firmwareOutdated ? (
+              <Tooltip title={t('inventory.table.firmwareOutdatedHint')}>
+                <Tag color="warning" icon={<WarningOutlined />} className="m-0">
+                  {t('inventory.table.firmwareOutdated')}
+                </Tag>
+              </Tooltip>
+            ) : null}
           </div>
-          <div>
-            {t('history.mainboard')}{' '}
-            <span className="rounded-md bg-[#F3F4F4] px-1.5 py-0.5 font-mono text-[#020204]">
-              {device.mainboardFirmwareVersion}
-            </span>
-          </div>
-          {device.firmwareOutdated ? (
-            <Tooltip title={t('inventory.table.firmwareOutdatedHint')}>
-              <Tag color="warning" icon={<WarningOutlined />} className="m-0">
-                {t('inventory.table.firmwareOutdated')}
-              </Tag>
-            </Tooltip>
-          ) : null}
-        </div>
-      ),
+        ),
     },
     {
       title: t('inventory.table.columns.age'),
@@ -122,9 +126,6 @@ export function InventoryTable({
       ),
     },
   ];
-  const visibleColumns = nonIotOnly
-    ? columns.filter((column) => column.key !== 'firmware')
-    : columns;
 
   return (
     <>
@@ -132,7 +133,7 @@ export function InventoryTable({
         <Table
           rowKey="id"
           size="middle"
-          columns={visibleColumns}
+          columns={columns}
           dataSource={data.items}
           loading={loading}
           scroll={{ x: 'max-content' }}

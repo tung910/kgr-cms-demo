@@ -74,6 +74,8 @@ export const coreLifecycleConfigFixture: CoreLifecycleConfigDto = {
   model_layouts: [
     { model_id: 'model-a100', positions: fiveCoreLayout },
     { model_id: 'model-b200', positions: fiveCoreLayout.slice(0, 3) },
+    { model_id: 'model-n110', positions: fiveCoreLayout.slice(0, 4) },
+    { model_id: 'model-n120', positions: fiveCoreLayout },
     {
       model_id: 'model-c300',
       positions: [

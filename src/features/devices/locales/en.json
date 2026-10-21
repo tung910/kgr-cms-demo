@@ -1,32 +1,16 @@
 {
   "listTabs": {
     "inUse": "In use",
-    "inventory": "Inventory (unused)",
-    "productTypeAriaLabel": "Product type"
+    "inventory": "Inventory (unused)"
   },
   "nonIot": {
-    "description": "{{total}} non-IoT devices match the filters · Followed up by warranty",
-    "stats": {
-      "total": "Total non-IoT devices"
-    },
-    "filters": {
-      "searchPlaceholder": "Search by serial or customer ID",
-      "warrantyAriaLabel": "Warranty status"
-    },
-    "table": {
-      "warranty": "Warranty",
-      "warrantyUntil": "Until {{date}}"
-    },
+    "includedInTotal": "Includes {{count}} non-IoT products",
     "detail": {
       "title": "Non-IoT product",
       "description": "This device has no IoT module, so there is no TDS data, connection state, firmware or remote control.",
       "trackWarranty": "Followed up through e-warranty (activated by serial/QR).",
       "trackCores": "Core changes are estimated from time in use.",
-      "trackService": "Issues are recorded through service tickets and technician appointments.",
-      "owner": "Customer",
-      "location": "Area",
-      "batch": "Batch",
-      "manufacturedAt": "Manufactured"
+      "trackService": "Issues are recorded through service tickets and technician appointments."
     }
   },
   "inventory": {
@@ -426,6 +410,7 @@
     }
   },
   "errors": {
+    "nonIot": "Non-IoT products do not support remote operations.",
     "forbidden": "You do not have permission for this operation.",
     "notFound": "Device or shared member not found.",
     "server": "The mock server could not process the request.",

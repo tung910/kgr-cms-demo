@@ -21,28 +21,19 @@ import type { PortalTone } from '@/shared/components/portal';
 import { formatDate, formatDateTimeInLocale } from '@/shared/lib/format';
 import { referenceColors } from '@/theme/tokens';
 
+import { WARRANTY_STATUS_TONES } from '../constants/warranty';
 import { deviceQueries } from '../queries/deviceQueries';
 import type {
   DeviceOwnerProfile,
   DeviceOwnerProfileDevice,
 } from '../schemas/deviceDetailSchemas';
-import type {
-  DeviceStatus,
-  DeviceWarrantyStatus,
-} from '../schemas/deviceSchemas';
+import type { DeviceStatus } from '../schemas/deviceSchemas';
 
 export interface DeviceOwnerDrawerProps {
   deviceId: string;
   open: boolean;
   onClose: () => void;
 }
-
-const warrantyTone: Record<DeviceWarrantyStatus, PortalTone> = {
-  active: 'primary',
-  expiring: 'warning',
-  expired: 'danger',
-  none: 'info',
-};
 
 // Devices needing attention first so CSKH sees problems without scrolling.
 const statusOrder: Record<DeviceStatus, number> = {
@@ -157,7 +148,11 @@ function OwnerProfileBody({
   const devices = [...profile.devices].sort((a, b) => {
     if (a.id === currentDeviceId) return -1;
     if (b.id === currentDeviceId) return 1;
-    return statusOrder[a.status] - statusOrder[b.status];
+    // Non-IoT units have no connection state; list them after IoT ones.
+    return (
+      (a.status ? statusOrder[a.status] : 3) -
+      (b.status ? statusOrder[b.status] : 3)
+    );
   });
   const count = (predicate: (device: DeviceOwnerProfileDevice) => boolean) =>
     devices.filter(predicate).length;
@@ -226,7 +221,10 @@ function OwnerProfileBody({
         />
         <StatTile
           label={t('ownerDrawer.stats.needsAttention')}
-          value={count((device) => device.status !== 'online')}
+          value={count(
+            (device) =>
+              device.status === 'warning' || device.status === 'offline'
+          )}
           tone="danger"
         />
         <StatTile
@@ -275,7 +273,9 @@ function OwnerProfileBody({
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <ConnectionStatusBadge status={device.status} />
-                    <PortalBadge tone={warrantyTone[device.warrantyStatus]}>
+                    <PortalBadge
+                      tone={WARRANTY_STATUS_TONES[device.warrantyStatus]}
+                    >
                       {t('warrantyStatus.' + device.warrantyStatus)}
                       {device.warrantyExpiresAt
                         ? ` · ${formatDate(device.warrantyExpiresAt)}`

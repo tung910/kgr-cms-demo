@@ -98,7 +98,8 @@ export async function getDeviceStatusCounts(
   );
   const parsed = deviceStatusCountsDtoSchema.safeParse(response);
   if (!parsed.success) throw invalidResponse(parsed.error);
-  return parsed.data;
+  const { non_iot: nonIot, ...statusCounts } = parsed.data;
+  return { ...statusCounts, nonIot };
 }
 
 async function parseDeviceResponse(response: unknown): Promise<Device> {

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import {
+  ApiOutlined,
   ArrowLeftOutlined,
   CalendarOutlined,
   ClusterOutlined,
@@ -165,6 +166,7 @@ export function DeviceOverview({
     device.latestTelemetry.find((item) => item.metricKey === key);
   const tdsOut = metric('tds_out');
   const tdsIn = metric('tds_in');
+  const nonIot = device.connectivity === 'non_iot';
   const offline = device.status === 'offline';
   const quality = offline ? 'unknown' : signalQuality(device.wifiSignalDbm);
   // Offline trumps signal quality: an unreachable device is never 'stable'.
@@ -215,6 +217,11 @@ export function DeviceOverview({
               <span className="rounded-lg bg-[#F3F4F4] px-2 py-1 font-mono text-xs text-[#636466]">
                 {t('detailPage.serial', { id: device.id })}
               </span>
+              {nonIot ? (
+                <PortalBadge tone="info">
+                  {t('productConnectivity.non_iot', { ns: 'common' })}
+                </PortalBadge>
+              ) : null}
             </div>
             {device.lifecycleState === 'decommissioned' ||
             (showControlState && device.lifecycleState === 'locked') ? (
@@ -222,7 +229,7 @@ export function DeviceOverview({
                 {t('lifecycleState.' + device.lifecycleState)}
               </PortalBadge>
             ) : null}
-            {showControlState ? (
+            {showControlState && !nonIot ? (
               <div className="flex flex-wrap items-center gap-2">
                 <PortalBadge tone={device.powered ? 'primary' : 'danger'} dot>
                   {t(
@@ -270,72 +277,95 @@ export function DeviceOverview({
       </PortalCard>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <PortalCard className="h-full">
-          <div className="flex h-full flex-col gap-4">
-            <TileHeader
-              icon={<ExperimentOutlined />}
-              tone="water"
-              title={t('detailPage.cards.tdsTitle')}
-              badge={
-                tdsOut ? (
-                  <PortalBadge tone={tdsTone[tdsLevel(tdsOut.value)]}>
-                    {t('detailPage.tdsLevel.' + tdsLevel(tdsOut.value))}
-                  </PortalBadge>
-                ) : null
-              }
-            />
-            <div className="flex-1">
-              <p className="m-0 text-4xl font-bold text-[#058642]">
-                {tdsOut ? tdsOut.value.toLocaleString(locale) : '—'}{' '}
-                <span className="text-sm font-normal text-[#636466]">
-                  {tdsOut?.unit}
-                </span>
-              </p>
+        {nonIot ? (
+          <PortalCard className="h-full md:col-span-1 xl:col-span-2">
+            <div className="flex h-full flex-col gap-3">
+              <TileHeader
+                icon={<ApiOutlined />}
+                tone="info"
+                title={t('nonIot.detail.title')}
+                badge={<ConnectionStatusBadge status={null} />}
+              />
               <p className="m-0 text-sm text-[#636466]">
-                {t('detailPage.cards.tdsOutHint')}
+                {t('nonIot.detail.description')}
               </p>
+              <ul className="m-0 list-disc space-y-1 pl-5 text-sm text-[#020204]">
+                <li>{t('nonIot.detail.trackWarranty')}</li>
+                <li>{t('nonIot.detail.trackCores')}</li>
+                <li>{t('nonIot.detail.trackService')}</li>
+              </ul>
             </div>
-            <div className="border-0 border-t border-solid border-[#EEEFEF] pt-3 text-sm text-[#636466]">
-              {t('detailPage.cards.tdsIn')}{' '}
-              <span className="font-mono font-semibold text-[#020204]">
-                {tdsIn ? `${tdsIn.value} ${tdsIn.unit}` : '—'}
-              </span>
-            </div>
-          </div>
-        </PortalCard>
+          </PortalCard>
+        ) : (
+          <>
+            <PortalCard className="h-full">
+              <div className="flex h-full flex-col gap-4">
+                <TileHeader
+                  icon={<ExperimentOutlined />}
+                  tone="water"
+                  title={t('detailPage.cards.tdsTitle')}
+                  badge={
+                    tdsOut ? (
+                      <PortalBadge tone={tdsTone[tdsLevel(tdsOut.value)]}>
+                        {t('detailPage.tdsLevel.' + tdsLevel(tdsOut.value))}
+                      </PortalBadge>
+                    ) : null
+                  }
+                />
+                <div className="flex-1">
+                  <p className="m-0 text-4xl font-bold text-[#058642]">
+                    {tdsOut ? tdsOut.value.toLocaleString(locale) : '—'}{' '}
+                    <span className="text-sm font-normal text-[#636466]">
+                      {tdsOut?.unit}
+                    </span>
+                  </p>
+                  <p className="m-0 text-sm text-[#636466]">
+                    {t('detailPage.cards.tdsOutHint')}
+                  </p>
+                </div>
+                <div className="border-0 border-t border-solid border-[#EEEFEF] pt-3 text-sm text-[#636466]">
+                  {t('detailPage.cards.tdsIn')}{' '}
+                  <span className="font-mono font-semibold text-[#020204]">
+                    {tdsIn ? `${tdsIn.value} ${tdsIn.unit}` : '—'}
+                  </span>
+                </div>
+              </div>
+            </PortalCard>
 
-        <PortalCard className="h-full">
-          <div className="flex h-full flex-col gap-4">
-            <TileHeader
-              icon={<WifiOutlined />}
-              tone={connectionTone}
-              title={t('detailPage.cards.connectionTitle')}
-              badge={<ConnectionStatusBadge status={device.status} />}
-            />
-            <div className="flex flex-1 flex-col justify-center gap-1">
-              <p
-                className="m-0 text-4xl font-bold"
-                style={{ color: referenceColors[connectionTone] }}
-              >
-                {!offline && device.latencyMs !== undefined
-                  ? t('detailPage.cards.latencyWithSignal', {
-                      latency: device.latencyMs,
-                      signal: t('detailPage.signal.' + quality),
-                    })
-                  : t('detailPage.signal.' + quality)}
-              </p>
-              <p className="m-0 text-sm text-[#636466]">
-                {t('detailPage.cards.connectionHint.' + quality)}
-              </p>
-            </div>
-            <div className="border-0 border-t border-solid border-[#EEEFEF] pt-3 text-sm text-[#636466]">
-              {t('detailPage.cards.lastConnected')}{' '}
-              <span className="font-mono font-semibold text-[#020204]">
-                {formatLastConnected(device.lastOnlineAt, locale)}
-              </span>
-            </div>
-          </div>
-        </PortalCard>
+            <PortalCard className="h-full">
+              <div className="flex h-full flex-col gap-4">
+                <TileHeader
+                  icon={<WifiOutlined />}
+                  tone={connectionTone}
+                  title={t('detailPage.cards.connectionTitle')}
+                  badge={<ConnectionStatusBadge status={device.status} />}
+                />
+                <div className="flex flex-1 flex-col justify-center gap-1">
+                  <p
+                    className="m-0 text-4xl font-bold"
+                    style={{ color: referenceColors[connectionTone] }}
+                  >
+                    {!offline && device.latencyMs !== undefined
+                      ? t('detailPage.cards.latencyWithSignal', {
+                          latency: device.latencyMs,
+                          signal: t('detailPage.signal.' + quality),
+                        })
+                      : t('detailPage.signal.' + quality)}
+                  </p>
+                  <p className="m-0 text-sm text-[#636466]">
+                    {t('detailPage.cards.connectionHint.' + quality)}
+                  </p>
+                </div>
+                <div className="border-0 border-t border-solid border-[#EEEFEF] pt-3 text-sm text-[#636466]">
+                  {t('detailPage.cards.lastConnected')}{' '}
+                  <span className="font-mono font-semibold text-[#020204]">
+                    {formatLastConnected(device.lastOnlineAt, locale)}
+                  </span>
+                </div>
+              </div>
+            </PortalCard>
+          </>
+        )}
 
         <PortalCard className="h-full">
           <div className="flex h-full flex-col gap-4">
@@ -379,24 +409,28 @@ export function DeviceOverview({
                   )
                 }
               />
-              <InfoRow
-                icon={<ClusterOutlined />}
-                label={t('detailPage.cards.moduleFirmware')}
-                value={
-                  <PortalBadge tone="primary">
-                    {device.moduleFirmwareVersion}
-                  </PortalBadge>
-                }
-              />
-              <InfoRow
-                icon={<ClusterOutlined />}
-                label={t('detailPage.cards.mainboardFirmware')}
-                value={
-                  <span className="font-mono">
-                    {device.mainboardFirmwareVersion}
-                  </span>
-                }
-              />
+              {nonIot ? null : (
+                <>
+                  <InfoRow
+                    icon={<ClusterOutlined />}
+                    label={t('detailPage.cards.moduleFirmware')}
+                    value={
+                      <PortalBadge tone="primary">
+                        {device.moduleFirmwareVersion}
+                      </PortalBadge>
+                    }
+                  />
+                  <InfoRow
+                    icon={<ClusterOutlined />}
+                    label={t('detailPage.cards.mainboardFirmware')}
+                    value={
+                      <span className="font-mono">
+                        {device.mainboardFirmwareVersion}
+                      </span>
+                    }
+                  />
+                </>
+              )}
             </div>
             <div className="flex items-center justify-between gap-3 border-0 border-t border-solid border-[#EEEFEF] pt-3 text-sm">
               <span className="text-[#636466]">

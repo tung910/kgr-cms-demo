@@ -88,7 +88,6 @@ export function InventoryListPage({ filters }: InventoryListPageProps) {
             void navigate({
               search: {
                 tab: 'inventory',
-                connectivity: filters.connectivity,
                 search: '',
                 page: 1,
                 pageSize: 10,

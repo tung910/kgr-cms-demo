@@ -70,7 +70,6 @@ export interface InventoryCounts {
 export interface InventoryListFilters {
   search: string;
   model?: string;
-  connectivity?: ProductConnectivity;
   page: number;
   pageSize: number;
 }

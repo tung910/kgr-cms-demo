@@ -40,7 +40,7 @@ const defaultFilters: DeviceListFilters = {
 };
 
 const statCardConfig: Record<
-  Device['status'],
+  NonNullable<Device['status']>,
   { icon: ReactNode; tone: PortalTone }
 > = {
   online: { icon: <WifiOutlined />, tone: 'primary' },
@@ -115,6 +115,11 @@ export function DeviceListPage({ filters }: DeviceListPageProps) {
           icon={<AppstoreOutlined />}
           tone="info"
           value={counts.total}
+          detail={
+            counts.nonIot > 0
+              ? t('nonIot.includedInTotal', { count: counts.nonIot })
+              : undefined
+          }
         />
         {CONNECTION_STATUSES.map(({ value: status, labelKey }) => (
           <PortalStatCard

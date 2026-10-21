@@ -7,7 +7,7 @@ const columns: CsvColumn<Device>[] = [
   { header: 'Model', value: (d) => d.modelName },
   { header: 'Region', value: (d) => d.region },
   { header: 'Ward', value: (d) => d.ward ?? '' },
-  { header: 'Status', value: (d) => d.status },
+  { header: 'Status', value: (d) => d.status ?? '' },
   { header: 'Owner', value: (d) => d.owner?.name ?? d.owner?.id ?? '' },
   { header: 'Warranty status', value: (d) => d.warrantyStatus },
   { header: 'Lifecycle state', value: (d) => d.lifecycleState },
@@ -17,6 +17,8 @@ const columns: CsvColumn<Device>[] = [
   { header: 'Last online', value: (d) => d.lastOnlineAt ?? '' },
   { header: 'Activated at', value: (d) => d.activatedAt ?? '' },
   { header: 'Install address', value: (d) => d.installAddress },
+  // Appended so existing column positions stay unchanged.
+  { header: 'Product type', value: (d) => d.connectivity },
 ];
 
 export function downloadDevicesCsv(devices: readonly Device[]): void {

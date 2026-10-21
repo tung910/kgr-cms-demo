@@ -24,6 +24,7 @@ export function mapDevice(dto: DeviceDto): Device {
     modelName: dto.model_name,
     region: dto.region,
     ...(dto.ward && { ward: dto.ward }),
+    connectivity: dto.connectivity,
     status: dto.status,
     lastOnlineAt: dto.last_online_at,
     manufacturedAt: dto.manufactured_at,

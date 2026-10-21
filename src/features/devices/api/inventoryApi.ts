@@ -36,8 +36,6 @@ function getInventoryFilterParams(
 
   if (search) params.set('search', search);
   if (model) params.set('model', model);
-  // Omitted = IoT, matching the in-use tab.
-  params.set('connectivity', filters.connectivity ?? 'iot');
   return params;
 }
 

@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+import type { ProductConnectivity } from '@/shared/constants/productConnectivity';
+
+import { productConnectivitySchema } from './productConnectivitySchema';
+
 export type DeviceStatus = 'online' | 'offline' | 'warning';
 export type DeviceLifecycleState = 'active' | 'locked' | 'decommissioned';
 export type DeviceWarrantyStatus = 'active' | 'expiring' | 'expired' | 'none';
@@ -38,8 +42,11 @@ export type DeviceCountFilters = Omit<
   'status' | 'page' | 'pageSize'
 >;
 
+// online/warning/offline only count IoT devices; `total` also includes the
+// non-IoT units, which never report a connection.
 export interface DeviceStatusCounts {
   total: number;
+  nonIot: number;
   online: number;
   warning: number;
   offline: number;
@@ -109,7 +116,9 @@ export interface Device {
   region: string;
   // Ward/commune; region is the province.
   ward?: string;
-  status: DeviceStatus;
+  connectivity: ProductConnectivity;
+  /** `null` for non-IoT products — they never report a connection. */
+  status: DeviceStatus | null;
   lastOnlineAt: string | null;
   manufacturedAt: string;
   batchCode: string;
@@ -121,8 +130,9 @@ export interface Device {
   // Power state is independent of connection `status` — a powered-off
   // device stays connected so it can still receive a power-on command.
   powered: boolean;
-  moduleFirmwareVersion: string;
-  mainboardFirmwareVersion: string;
+  /** `null` for non-IoT products (no IoT module). */
+  moduleFirmwareVersion: string | null;
+  mainboardFirmwareVersion: string | null;
   owner?: DeviceOwner;
   latestTelemetry: DeviceTelemetry[];
   activatedAt?: string;
@@ -203,7 +213,8 @@ export const deviceDtoSchema = z.object({
   model_name: z.string().min(1),
   region: z.string().min(1),
   ward: z.string().min(1).optional(),
-  status: deviceStatusSchema,
+  connectivity: productConnectivitySchema,
+  status: deviceStatusSchema.nullable(),
   last_online_at: z.string().datetime({ offset: true }).nullable(),
   manufactured_at: z.string().datetime({ offset: true }),
   batch_code: z.string().min(1),
@@ -218,8 +229,8 @@ export const deviceDtoSchema = z.object({
     })
     .optional(),
   powered: z.boolean(),
-  module_firmware_version: z.string().min(1),
-  mainboard_firmware_version: z.string().min(1),
+  module_firmware_version: z.string().min(1).nullable(),
+  mainboard_firmware_version: z.string().min(1).nullable(),
   owner: deviceOwnerDtoSchema.optional(),
   latest_telemetry: z.array(deviceTelemetryDtoSchema),
   activated_at: z.string().datetime({ offset: true }).optional(),
@@ -251,6 +262,7 @@ export const devicePageDtoSchema = z.object({
 
 export const deviceStatusCountsDtoSchema = z.object({
   total: z.number().int().nonnegative(),
+  non_iot: z.number().int().nonnegative(),
   online: z.number().int().nonnegative(),
   warning: z.number().int().nonnegative(),
   offline: z.number().int().nonnegative(),

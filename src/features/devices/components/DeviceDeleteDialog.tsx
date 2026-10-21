@@ -50,7 +50,8 @@ export function DeviceDeleteDialog({
     device.activatedAt ||
     device.lastOnlineAt ||
     device.latestTelemetry.length > 0 ||
-    device.status !== 'offline'
+    device.status === 'online' ||
+    device.status === 'warning'
   )
     blockingReasons.push(t('errors.previouslyActive'));
   const isBlocked = blockingReasons.length > 0;
