@@ -11,7 +11,7 @@ import { formatDate } from '@/shared/lib/format';
 
 import { nonIotDeviceQueries } from '../queries/deviceListExtraQueries';
 import type { NonIotDevice } from '../schemas/nonIotDeviceSchemas';
-import { NonIotFilterLife, NonIotWarrantyCell } from './NonIotDeviceTable';
+import { NonIotWarrantyCell } from './NonIotDeviceTable';
 
 export interface NonIotDeviceDrawerProps {
   deviceId: string | undefined;
@@ -109,13 +109,6 @@ function NonIotDeviceBody({ device }: { device: NonIotDevice }) {
           <NonIotWarrantyCell device={device} />
         </Row>
       </dl>
-
-      <section className="space-y-2">
-        <p className="m-0 text-xs font-medium uppercase text-[#636466]">
-          {t('nonIot.table.filterLife')}
-        </p>
-        <NonIotFilterLife device={device} />
-      </section>
     </div>
   );
 }

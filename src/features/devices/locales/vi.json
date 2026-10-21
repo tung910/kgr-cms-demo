@@ -15,9 +15,7 @@
     },
     "table": {
       "warranty": "Bảo hành",
-      "warrantyUntil": "Đến {{date}}",
-      "filterLife": "Tuổi thọ lõi (ước tính)",
-      "filterLifeEstimated": "Ước tính theo thời gian sử dụng"
+      "warrantyUntil": "Đến {{date}}"
     },
     "detail": {
       "title": "Sản phẩm không IoT",

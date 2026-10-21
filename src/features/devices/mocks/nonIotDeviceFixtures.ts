@@ -50,7 +50,6 @@ export const nonIotDeviceFixtures: readonly NonIotDeviceDto[] = Array.from(
       activated_at: `2025-${month}-10T08:00:00.000Z`,
       warranty_status: warrantyStatus,
       warranty_expires_at: `${expiresYear}-${expiresMonth}-10T00:00:00.000Z`,
-      filter_life_percent: (index * 17 + 9) % 101,
     };
   }
 );

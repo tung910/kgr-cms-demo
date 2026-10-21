@@ -3,11 +3,7 @@ import { Button, Pagination, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 
-import {
-  PortalBadge,
-  PortalProgress,
-  type PortalTone,
-} from '@/shared/components/portal';
+import { PortalBadge } from '@/shared/components/portal';
 import { formatDate } from '@/shared/lib/format';
 import type { PageResponse } from '@/shared/types/pagination';
 
@@ -16,12 +12,6 @@ import type {
   NonIotDevice,
   NonIotDeviceListFilters,
 } from '../schemas/nonIotDeviceSchemas';
-
-function filterLifeTone(percent: number): PortalTone {
-  if (percent <= 20) return 'danger';
-  if (percent <= 40) return 'warning';
-  return 'primary';
-}
 
 export function NonIotWarrantyCell({ device }: { device: NonIotDevice }) {
   const { t } = useTranslation('devices');
@@ -40,26 +30,6 @@ export function NonIotWarrantyCell({ device }: { device: NonIotDevice }) {
           )}
         </div>
       ) : null}
-    </div>
-  );
-}
-
-export function NonIotFilterLife({ device }: { device: NonIotDevice }) {
-  const { t } = useTranslation('devices');
-  const percent = device.filterLifePercent;
-  return (
-    <div className="min-w-44 space-y-1">
-      <div className="text-right text-xs font-semibold tabular-nums">
-        {percent}%
-      </div>
-      <PortalProgress
-        value={percent}
-        max={100}
-        tone={filterLifeTone(percent)}
-      />
-      <div className="text-[11px] text-[#9A9B9C]">
-        {t('nonIot.table.filterLifeEstimated')}
-      </div>
     </div>
   );
 }
@@ -115,11 +85,6 @@ export function NonIotDeviceTable({
       title: t('nonIot.table.warranty'),
       key: 'warranty',
       render: (_: unknown, device) => <NonIotWarrantyCell device={device} />,
-    },
-    {
-      title: t('nonIot.table.filterLife'),
-      key: 'filterLife',
-      render: (_: unknown, device) => <NonIotFilterLife device={device} />,
     },
     {
       title: t('table.columns.activatedAt'),
@@ -187,7 +152,6 @@ export function NonIotDeviceTable({
                 </div>
                 <NonIotWarrantyCell device={device} />
               </div>
-              <NonIotFilterLife device={device} />
               <div className="flex justify-end border-t border-[#E7E8E9] pt-3">
                 <Button type="link" onClick={() => onOpenDevice(device.id)}>
                   {t('table.viewDetail')}

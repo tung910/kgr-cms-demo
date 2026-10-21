@@ -15,9 +15,7 @@
     },
     "table": {
       "warranty": "Warranty",
-      "warrantyUntil": "Until {{date}}",
-      "filterLife": "Core life (estimated)",
-      "filterLifeEstimated": "Estimated from time in use"
+      "warrantyUntil": "Until {{date}}"
     },
     "detail": {
       "title": "Non-IoT product",

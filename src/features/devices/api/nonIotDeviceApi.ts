@@ -41,7 +41,6 @@ export function mapNonIotDevice(dto: NonIotDeviceDto): NonIotDevice {
     ...(dto.warranty_expires_at && {
       warrantyExpiresAt: dto.warranty_expires_at,
     }),
-    filterLifePercent: dto.filter_life_percent,
   };
 }
 

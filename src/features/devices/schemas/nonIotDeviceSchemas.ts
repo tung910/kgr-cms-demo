@@ -21,8 +21,6 @@ export const nonIotDeviceDtoSchema = z.object({
   activated_at: z.string().datetime({ offset: true }).optional(),
   warranty_status: deviceWarrantyStatusSchema,
   warranty_expires_at: z.string().datetime({ offset: true }).optional(),
-  // Estimated from time in use: nothing on board measures it.
-  filter_life_percent: z.number().min(0).max(100),
 });
 export type NonIotDeviceDto = z.infer<typeof nonIotDeviceDtoSchema>;
 
@@ -51,7 +49,6 @@ export interface NonIotDevice {
   activatedAt?: string;
   warrantyStatus: DeviceWarrantyStatus;
   warrantyExpiresAt?: string;
-  filterLifePercent: number;
 }
 
 export interface NonIotDeviceCounts {
