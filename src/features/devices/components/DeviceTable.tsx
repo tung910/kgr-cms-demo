@@ -153,9 +153,13 @@ export function DeviceTable({
       title: t('table.columns.filterLife'),
       key: 'filterLife',
       width: 280,
-      render: (_: unknown, device: Device) => (
-        <FilterLifeIndicator device={device} />
-      ),
+      // Non-IoT units report no core life.
+      render: (_: unknown, device: Device) =>
+        device.connectivity === 'non_iot' ? (
+          <span className="text-xs text-[#9A9B9C]">—</span>
+        ) : (
+          <FilterLifeIndicator device={device} />
+        ),
     },
     {
       title: t('table.columns.firmware'),
@@ -268,9 +272,11 @@ export function DeviceTable({
                   </div>
                   <DeviceStatusCell device={device} />
                 </div>
-                <div className="mt-3">
-                  <FilterLifeIndicator device={device} />
-                </div>
+                {device.connectivity === 'non_iot' ? null : (
+                  <div className="mt-3">
+                    <FilterLifeIndicator device={device} />
+                  </div>
+                )}
               </button>
               <div className="mt-3 flex items-center justify-between gap-3 border-t border-[#E7E8E9] pt-3">
                 <Typography.Text type="secondary" className="text-xs">

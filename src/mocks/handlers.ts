@@ -546,6 +546,8 @@ function filterDevices(url: URL, withStatus: boolean): DeviceDto[] {
     if (region && device.region !== region) return false;
     if (customerId && device.owner?.id !== customerId) return false;
     if (coreLife) {
+      // Non-IoT units report no core life, so they never match.
+      if (device.connectivity === 'non_iot') return false;
       const cores = corePositionsForModelName(device.model_name).map((c) => ({
         remainingPercent:
           100 - mockCoreUsedPercent(device.device_id, c.position),
