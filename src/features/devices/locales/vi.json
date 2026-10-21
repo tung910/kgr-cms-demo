@@ -1,7 +1,6 @@
 {
   "statusCell": {
-    "neverConnected": "Chưa kết nối",
-    "neverConnectedHint": "Đã kích hoạt nhưng chưa nhận được tín hiệu nào từ thiết bị."
+    "neverConnected": "Chưa kết nối"
   },
   "listTabs": {
     "inUse": "Đang sử dụng",

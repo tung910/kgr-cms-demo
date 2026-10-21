@@ -21,6 +21,12 @@ function filterLifeTone(percent: number): PortalTone {
   return 'primary';
 }
 
+// Core life comes from the device itself: none for non-IoT units or IoT units
+// that never reported in.
+function reportsCoreLife(device: Device): boolean {
+  return device.connectivity === 'iot' && device.lastOnlineAt !== null;
+}
+
 function lastSeenLabel(
   value: string | null,
   locale: string | undefined,
@@ -153,9 +159,8 @@ export function DeviceTable({
       title: t('table.columns.filterLife'),
       key: 'filterLife',
       width: 280,
-      // Non-IoT units report no core life.
       render: (_: unknown, device: Device) =>
-        device.connectivity === 'non_iot' ? (
+        !reportsCoreLife(device) ? (
           <span className="text-xs text-[#9A9B9C]">—</span>
         ) : (
           <FilterLifeIndicator device={device} />
@@ -272,7 +277,7 @@ export function DeviceTable({
                   </div>
                   <DeviceStatusCell device={device} />
                 </div>
-                {device.connectivity === 'non_iot' ? null : (
+                {!reportsCoreLife(device) ? null : (
                   <div className="mt-3">
                     <FilterLifeIndicator device={device} />
                   </div>

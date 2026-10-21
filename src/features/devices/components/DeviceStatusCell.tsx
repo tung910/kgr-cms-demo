@@ -1,4 +1,3 @@
-import { Tooltip } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/core/auth/useAuth';
@@ -30,11 +29,9 @@ export function DeviceStatusCell({ device }: { device: Device }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {neverConnected ? (
-        <Tooltip title={t('statusCell.neverConnectedHint')}>
-          <span className="inline-flex items-center whitespace-nowrap rounded-full border border-dashed border-[#B5B6B8] px-2.5 py-0.5 text-xs font-medium text-[#636466]">
-            {t('statusCell.neverConnected')}
-          </span>
-        </Tooltip>
+        <span className="inline-flex items-center whitespace-nowrap rounded-full border border-dashed border-[#B5B6B8] px-2.5 py-0.5 text-xs font-medium text-[#636466]">
+          {t('statusCell.neverConnected')}
+        </span>
       ) : (
         <ConnectionStatusBadge status={device.status} />
       )}

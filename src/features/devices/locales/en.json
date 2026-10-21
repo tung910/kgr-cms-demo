@@ -1,7 +1,6 @@
 {
   "statusCell": {
-    "neverConnected": "Never connected",
-    "neverConnectedHint": "Activated, but no signal has been received from the device yet."
+    "neverConnected": "Never connected"
   },
   "listTabs": {
     "inUse": "In use",
