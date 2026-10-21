@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ConnectionStatusBadge } from '@/shared/components/ConnectionStatusBadge';
 import { toneColors } from '@/shared/components/portal/tone';
-import { formatDate } from '@/shared/lib/format';
+import { formatDateTime } from '@/shared/lib/format';
 import type { PageResponse } from '@/shared/types/pagination';
 
 import { stockAgeTone } from '../constants/inventory';
@@ -119,7 +119,7 @@ export function InventoryTable({
           <StockAge device={device} />
           <div className="whitespace-nowrap text-xs text-[#636466]">
             {t('inventory.table.receivedAt', {
-              date: formatDate(device.receivedAt),
+              date: formatDateTime(device.receivedAt),
             })}
           </div>
         </div>
@@ -169,7 +169,7 @@ export function InventoryTable({
               <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E7E8E9] pt-3">
                 <span className="text-xs text-[#636466]">
                   {t('inventory.table.receivedAt', {
-                    date: formatDate(device.receivedAt),
+                    date: formatDateTime(device.receivedAt),
                   })}
                 </span>
                 <StockAge device={device} />

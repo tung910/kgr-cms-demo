@@ -24,7 +24,9 @@ const allInventoryDevices: readonly InventoryDeviceDto[] = Array.from(
   (_, index) => {
     const model = models[index % models.length]!;
     const ageDays = 2 + ((index * 37) % 380);
-    const receivedAt = new Date(Date.now() - ageDays * dayMs);
+    // Spread intake times over the day (under 10 h, so the age in days holds).
+    const intakeOffsetMs = ((index * 97) % 600) * 60_000;
+    const receivedAt = new Date(Date.now() - ageDays * dayMs - intakeOffsetMs);
     const manufacturedAt = new Date(receivedAt.getTime() - 7 * dayMs);
     const qcStatus: InventoryQcStatus =
       index % 8 === 7 ? (index % 16 === 7 ? 'failed' : 'pending') : 'passed';
