@@ -3,6 +3,8 @@ import type {
   InventoryQcStatus,
 } from '@/features/devices/schemas/inventorySchemas';
 
+import { nonIotProductsEnabled } from './nonIotProducts';
+
 // One in three units is a non-IoT line.
 const models = [
   'KGR-A100',
@@ -17,8 +19,9 @@ const dayMs = 86_400_000;
 
 // Never-activated units: no owner, telemetry or warranty yet. Received dates
 // are relative to "now" so the stock-age column stays meaningful.
-export const inventoryDeviceFixtures: readonly InventoryDeviceDto[] =
-  Array.from({ length: 48 }, (_, index) => {
+const allInventoryDevices: readonly InventoryDeviceDto[] = Array.from(
+  { length: 48 },
+  (_, index) => {
     const model = models[index % models.length]!;
     const ageDays = 2 + ((index * 37) % 380);
     const receivedAt = new Date(Date.now() - ageDays * dayMs);
@@ -41,4 +44,10 @@ export const inventoryDeviceFixtures: readonly InventoryDeviceDto[] =
       // Units older than ~6 months shipped with firmware before the current track.
       firmware_outdated: iot && ageDays > 150,
     };
-  });
+  }
+);
+
+export const inventoryDeviceFixtures: readonly InventoryDeviceDto[] =
+  nonIotProductsEnabled
+    ? allInventoryDevices
+    : allInventoryDevices.filter((device) => device.connectivity === 'iot');

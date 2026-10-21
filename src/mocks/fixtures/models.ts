@@ -1,3 +1,5 @@
+import { nonIotProductsEnabled } from './nonIotProducts';
+
 // Mirrors what the business-vertical system exposes to the portal: enough to
 // identify a model and know what hardware it has, nothing the portal is
 // allowed to edit (spec §1.3).
@@ -11,7 +13,7 @@ export interface ModelReferenceDto {
   supports_membrane_flush: boolean;
 }
 
-export const modelFixtures: readonly ModelReferenceDto[] = [
+const iotModelFixtures: readonly ModelReferenceDto[] = [
   {
     model_id: 'model-a100',
     code: 'KGR-A100',
@@ -39,7 +41,10 @@ export const modelFixtures: readonly ModelReferenceDto[] = [
     has_cold_tank: true,
     supports_membrane_flush: true,
   },
-  // Non-IoT lines: same catalogue, no IoT module on board.
+];
+
+// Non-IoT lines: same catalogue, no IoT module on board.
+const nonIotModelFixtures: readonly ModelReferenceDto[] = [
   {
     model_id: 'model-n110',
     code: 'KGR-N110',
@@ -58,4 +63,9 @@ export const modelFixtures: readonly ModelReferenceDto[] = [
     has_cold_tank: false,
     supports_membrane_flush: false,
   },
+];
+
+export const modelFixtures: readonly ModelReferenceDto[] = [
+  ...iotModelFixtures,
+  ...(nonIotProductsEnabled ? nonIotModelFixtures : []),
 ];
