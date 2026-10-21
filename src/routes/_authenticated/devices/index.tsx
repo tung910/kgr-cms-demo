@@ -6,6 +6,12 @@ import { z } from 'zod';
 import { hasCapability } from '@/core/permissions/capabilities';
 import { DeviceListSkeleton } from '@/features/devices/components/DeviceListSkeleton';
 import { DeviceListPage } from '@/features/devices/pages/DeviceListPage';
+import { InventoryListPage } from '@/features/devices/pages/InventoryListPage';
+import { NonIotDeviceListPage } from '@/features/devices/pages/NonIotDeviceListPage';
+import {
+  deviceListTabSchema,
+  productConnectivitySchema,
+} from '@/features/devices/schemas/productConnectivitySchema';
 import { deviceQueries } from '@/features/devices/queries/deviceQueries';
 import { RouteErrorState } from '@/shared/components/RouteErrorState';
 import {
@@ -29,6 +35,13 @@ const deviceErrorTypeSchema = z.enum(['connectivity', 'waterLeak', 'other']);
 
 const deviceListSearchSchema = z.object({
   search: z.string().catch(''),
+  // Added views: omitted tab = in use, omitted connectivity = IoT.
+  tab: deviceListTabSchema.optional().catch(undefined),
+  connectivity: productConnectivitySchema.optional().catch(undefined),
+  warrantyStatus: z
+    .enum(['active', 'expiring', 'expired'])
+    .optional()
+    .catch(undefined),
   status: deviceStatusSchema.optional().catch(undefined),
   model: z.string().trim().min(1).optional().catch(undefined),
   region: z.string().trim().min(1).optional().catch(undefined),
@@ -90,6 +103,33 @@ export const Route = createFileRoute('/_authenticated/devices/')({
 
 function DeviceListRoute() {
   const search = Route.useSearch();
+  // Added views, each with its own filters: unused stock and non-IoT units.
+  if (search.tab === 'inventory') {
+    return (
+      <InventoryListPage
+        filters={{
+          search: search.search,
+          model: search.model,
+          connectivity: search.connectivity,
+          page: search.page,
+          pageSize: search.pageSize,
+        }}
+      />
+    );
+  }
+  if (search.connectivity === 'non_iot') {
+    return (
+      <NonIotDeviceListPage
+        filters={{
+          search: search.search,
+          region: search.region,
+          warrantyStatus: search.warrantyStatus,
+          page: search.page,
+          pageSize: search.pageSize,
+        }}
+      />
+    );
+  }
   const filters: DeviceListFilters = {
     ...search,
     coreLife: search.coreLife as CoreLifeRange | undefined,

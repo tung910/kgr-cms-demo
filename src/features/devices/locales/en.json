@@ -1,4 +1,65 @@
 {
+  "listTabs": {
+    "inUse": "In use",
+    "inventory": "Inventory (unused)",
+    "productTypeAriaLabel": "Product type"
+  },
+  "nonIot": {
+    "description": "{{total}} non-IoT devices match the filters · Followed up by warranty",
+    "stats": {
+      "total": "Total non-IoT devices"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by serial or customer ID",
+      "warrantyAriaLabel": "Warranty status"
+    },
+    "table": {
+      "warranty": "Warranty",
+      "warrantyUntil": "Until {{date}}",
+      "filterLife": "Core life (estimated)",
+      "filterLifeEstimated": "Estimated from time in use"
+    },
+    "detail": {
+      "title": "Non-IoT product",
+      "description": "This device has no IoT module, so there is no TDS data, connection state, firmware or remote control.",
+      "trackWarranty": "Followed up through e-warranty (activated by serial/QR).",
+      "trackCores": "Core changes are estimated from time in use.",
+      "trackService": "Issues are recorded through service tickets and technician appointments.",
+      "owner": "Customer",
+      "location": "Area",
+      "batch": "Batch",
+      "manufacturedAt": "Manufactured"
+    }
+  },
+  "inventory": {
+    "empty": "No inventory devices match the filters.",
+    "filters": {
+      "searchAriaLabel": "Search inventory devices",
+      "searchPlaceholder": "Search by serial"
+    },
+    "stats": {
+      "total": "Total devices in stock",
+      "aged": "In stock over {{days}} days",
+      "fresh": "In stock under {{days}} days",
+      "aging": "In stock {{from}}–{{to}} days"
+    },
+    "table": {
+      "columns": {
+        "identity": "Serial / Model",
+        "firmware": "Factory firmware",
+        "age": "Stock age",
+        "status": "Usage status"
+      },
+      "firmwareOutdated": "Needs update",
+      "firmwareOutdatedHint": "Firmware is older than the current release — the device will need OTA right after activation.",
+      "ageDays_one": "{{count}} day",
+      "ageDays_other": "{{count}} days",
+      "total": "{{total}} devices in stock",
+      "receivedAt": "Received: {{date}}",
+      "notActivated": "Not activated"
+    },
+    "description": "{{total}} in-stock devices match the filters · Not activated"
+  },
   "filters": {
     "searchAriaLabel": "Search devices",
     "searchPlaceholder": "Search by serial or owner name...",

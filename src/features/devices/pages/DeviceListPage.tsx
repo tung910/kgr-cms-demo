@@ -23,6 +23,7 @@ import type { Device } from '../schemas/deviceSchemas';
 
 import { getAllDevices } from '../api/deviceApi';
 import { DeviceFilters } from '../components/DeviceFilters';
+import { DeviceListTabs } from '../components/DeviceListTabs';
 import { DeviceTable } from '../components/DeviceTable';
 import { deviceQueries } from '../queries/deviceQueries';
 import { downloadDevicesCsv } from '../utils/exportDevicesToCsv';
@@ -107,6 +108,7 @@ export function DeviceListPage({ filters }: DeviceListPageProps) {
           </PermissionGuard>
         }
       />
+      <DeviceListTabs />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <PortalStatCard
           label={t('stats.total')}

@@ -1,4 +1,65 @@
 {
+  "listTabs": {
+    "inUse": "Đang sử dụng",
+    "inventory": "Tồn kho (chưa sử dụng)",
+    "productTypeAriaLabel": "Loại sản phẩm"
+  },
+  "nonIot": {
+    "description": "{{total}} thiết bị không IoT phù hợp bộ lọc · Theo dõi qua bảo hành",
+    "stats": {
+      "total": "Tổng thiết bị không IoT"
+    },
+    "filters": {
+      "searchPlaceholder": "Tìm theo serial hoặc mã khách hàng",
+      "warrantyAriaLabel": "Trạng thái bảo hành"
+    },
+    "table": {
+      "warranty": "Bảo hành",
+      "warrantyUntil": "Đến {{date}}",
+      "filterLife": "Tuổi thọ lõi (ước tính)",
+      "filterLifeEstimated": "Ước tính theo thời gian sử dụng"
+    },
+    "detail": {
+      "title": "Sản phẩm không IoT",
+      "description": "Thiết bị không có module IoT nên không có dữ liệu TDS, trạng thái kết nối, firmware hay điều khiển từ xa.",
+      "trackWarranty": "Theo dõi qua bảo hành điện tử (kích hoạt bằng serial/QR).",
+      "trackCores": "Lịch thay lõi được ước tính theo thời gian sử dụng.",
+      "trackService": "Sự cố được ghi nhận qua phiếu dịch vụ và lịch hẹn kỹ thuật viên.",
+      "owner": "Khách hàng",
+      "location": "Khu vực",
+      "batch": "Lô sản xuất",
+      "manufacturedAt": "Ngày sản xuất"
+    }
+  },
+  "inventory": {
+    "empty": "Không có thiết bị tồn kho phù hợp bộ lọc.",
+    "filters": {
+      "searchAriaLabel": "Tìm thiết bị tồn kho",
+      "searchPlaceholder": "Tìm theo serial"
+    },
+    "stats": {
+      "total": "Tổng thiết bị tồn kho",
+      "aged": "Tồn kho quá {{days}} ngày",
+      "fresh": "Tồn dưới {{days}} ngày",
+      "aging": "Tồn {{from}}–{{to}} ngày"
+    },
+    "table": {
+      "columns": {
+        "identity": "Serial / Model",
+        "firmware": "Firmware xuất xưởng",
+        "age": "Thời gian tồn kho",
+        "status": "Trạng thái sử dụng"
+      },
+      "firmwareOutdated": "Cần cập nhật",
+      "firmwareOutdatedHint": "Firmware cũ hơn bản phát hành hiện tại — thiết bị sẽ cần OTA ngay sau khi kích hoạt.",
+      "ageDays_one": "{{count}} ngày",
+      "ageDays_other": "{{count}} ngày",
+      "total": "Tổng cộng {{total}} thiết bị tồn kho",
+      "receivedAt": "Nhập kho: {{date}}",
+      "notActivated": "Chưa kích hoạt"
+    },
+    "description": "{{total}} thiết bị tồn kho phù hợp bộ lọc · Chưa kích hoạt"
+  },
   "filters": {
     "searchAriaLabel": "Tìm thiết bị",
     "searchPlaceholder": "Tìm theo serial hoặc tên chủ sở hữu...",
