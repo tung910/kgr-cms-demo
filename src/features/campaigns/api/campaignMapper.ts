@@ -19,6 +19,8 @@ import type {
 export function mapCampaign(dto: CampaignDto): Campaign {
   return {
     id: dto.id,
+    tenantId: dto.tenant_id,
+    priority: dto.priority,
     name: dto.name,
     kind: dto.kind,
     channel: dto.channel,
@@ -62,6 +64,7 @@ export function mapCampaignCounts(dto: CampaignCountsDto): CampaignCounts {
     pendingApproval: dto.pending_approval,
     approved: dto.approved,
     running: dto.running,
+    paused: dto.paused,
     ended: dto.ended,
     rejected: dto.rejected,
   };
@@ -69,6 +72,11 @@ export function mapCampaignCounts(dto: CampaignCountsDto): CampaignCounts {
 
 export function mapCampaignMetrics(dto: CampaignMetricsDto): CampaignMetrics {
   return {
+    attributionModel: dto.attribution_model,
+    attributionWindowDays: dto.attribution_window_days,
+    sendId: dto.send_id,
+    failed: dto.failed,
+    failureReason: dto.failure_reason,
     sent: dto.sent,
     delivered: dto.delivered,
     opened: dto.opened,
@@ -85,13 +93,17 @@ export function mapAudienceCustomer(
   return {
     customerId: dto.customer_id,
     name: dto.name,
-    region: dto.region,
-    modelName: dto.model_name,
-    firmwareVersion: dto.firmware_version,
-    coreRemainingDays: dto.core_remaining_days,
-    warrantyStatus: dto.warranty_status,
+    devices: dto.devices.map((device) => ({
+      deviceId: device.device_id,
+      region: device.region,
+      modelName: device.model_name,
+      firmwareVersion: device.firmware_version,
+      coreRemainingDays: device.core_remaining_days,
+      warrantyStatus: device.warranty_status,
+      regionTds: device.region_tds,
+      warrantyRemainingDays: device.warranty_remaining_days,
+    })),
     loyaltyPoints: dto.loyalty_points,
-    regionTds: dto.region_tds,
     tenureDays: dto.tenure_days,
     optIn: dto.opt_in,
   };

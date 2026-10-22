@@ -39,6 +39,9 @@ export function CampaignMetricsPanel({ campaign }: CampaignMetricsPanelProps) {
 
   return (
     <div className="space-y-4">
+      <p className="text-sm">
+        {t('metrics.attribution', { days: data.attributionWindowDays })}
+      </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <PortalStatCard
           label={t('metrics.sent')}
@@ -90,6 +93,13 @@ export function CampaignMetricsPanel({ campaign }: CampaignMetricsPanelProps) {
           value={currency.format(data.revenue)}
         />
       </div>
+      <p className="text-sm">
+        {t('metrics.failed')}: {data.failed} · {t('metrics.sendId')}:{' '}
+        {data.sendId}
+        {data.failureReason
+          ? ' · ' + t('metrics.failureReason') + ': ' + t('metrics.mockFailure')
+          : ''}
+      </p>
       <PermissionGuard capability="campaign.export">
         <Button
           icon={<DownloadOutlined />}
@@ -99,6 +109,9 @@ export function CampaignMetricsPanel({ campaign }: CampaignMetricsPanelProps) {
               data,
               {
                 campaign: t('table.columns.campaign'),
+                sendId: t('metrics.sendId'),
+                failed: t('metrics.failed'),
+                failureReason: t('metrics.failureReason'),
                 sent: t('metrics.sent'),
                 delivered: t('metrics.delivered'),
                 opened: t('metrics.opened'),

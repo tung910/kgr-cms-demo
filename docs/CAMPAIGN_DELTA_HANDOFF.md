@@ -1,6 +1,6 @@
 # Bàn giao — Feature Chiến dịch (§7), áp delta theo audit
 
-> Dùng file này để một session mới tiếp tục công việc đang dở. Cập nhật đến: D1–D6 đã xong, D7–D14 còn lại.
+> Dùng file này để một session mới tiếp tục công việc đang dở. Cập nhật 2026-10-22: D1–D14 đã áp; D7–D14 đang ở working tree, chưa commit.
 
 ## Bối cảnh ngắn
 
@@ -15,11 +15,9 @@
 
 ## Trạng thái git
 
-- Branch: `feat/device-status-sublabels`. **Chưa commit gì** liên quan campaigns.
-- Untracked: toàn bộ `src/features/campaigns/`, `src/routes/_authenticated/campaigns/`, `src/mocks/fixtures/campaign{Audience,s}.ts`, 2 file docs trên + `docs/CAMPAIGN_DELTA_HANDOFF.md`.
-- Modified (do feature + delta): `src/core/i18n/index.ts` + locales, `src/core/permissions/{capabilities,permissionCatalog}.ts`, `src/features/system/constants/auditModules.ts` + system locales, `src/mocks/handlers.ts`, `src/routeTree.gen.ts`, `src/shared/components/AppShell.tsx`, `src/shared/lib/mask.ts`.
-- `typecheck` + `lint` hiện **xanh** (chỉ 1 warning có sẵn ở `public/mockServiceWorker.js`, không liên quan).
-- **Chưa verify trên browser.** Chưa commit — commit lúc này sẽ gói cả feature + docs + delta thành 1 commit `feat(campaigns)`.
+- Branch: `feat/device-status-sublabels`. Nền campaigns + D1–D6 đã committed khi bắt đầu lượt tiếp tục (khác snapshot cũ).
+- D7–D14 là thay đổi chưa commit; giữ nguyên file untracked ngoài phạm vi `.claude/pr-body-devices-inventory.md`.
+- Không sửa generated `src/routeTree.gen.ts` bằng tay.
 
 ## Đã áp (D1–D6)
 
@@ -32,7 +30,7 @@
 | **D5** (#2)  | Deeplink enum màn đã đăng ký + scheme `onekangaroo://` (Select thay Input)                                                                            | `constants/deeplinkTargets.ts` (mới), `campaignSchemas.ts` (refine), `CampaignWizard.tsx`, campaigns locales             |
 | **D6** (#1)  | Ảnh upload → data URL (mock, không gửi server), kiểm PNG/JPG/WebP ≤2MB; bỏ input URL ngoài                                                            | `CampaignWizard.tsx` (`ImageUploadField`), `campaignSchemas.ts` (refine), campaigns locales                              |
 
-## Còn lại (D7–D14) — xếp theo ưu tiên
+## Đã áp tiếp (D7–D14) — theo thứ tự ưu tiên
 
 | Delta                  | Nội dung                                                                                                                                                                                                                                      | Vị trí gợi ý                                                                                                           |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
@@ -59,6 +57,19 @@
 - Bắt buộc mỗi delta: `pnpm typecheck && pnpm lint` (và `pnpm format:check`, `pnpm build` trước khi kết thúc).
 - Thủ công (MSW): vào `/campaigns`, tạo chiến dịch (2 nội dung, Select deeplink, upload ảnh), preview số KH (opt-out bị loại, tên mask với role không có `device.pii.full`), chạy luồng Nháp→…→Kết thúc; role sales không thấy nút Cho chạy/Dừng (chỉ super/admin có `campaign.send`); kiểm `/system/audit` có bản ghi module `campaigns`.
 
-## Bước kế tiếp đang chờ quyết
+## Kết quả lượt tiếp tục (2026-10-22)
 
-Đang ở ngã ba: **verify browser flow tạo** / **commit checkpoint D1–D6** / **tiếp D7 (tenantId)**. Chưa có lựa chọn nào được chốt.
+- D7: tenant mặc định `water_purifier`, giữ cùng industry model reference; input từ chối tenant khác, wizard/detail hiển thị ngành; chuyển tenant vẫn backlog.
+- D8–D9: priority cao trước, cùng priority thì tạo sớm trước; ledger gửi dùng chung mọi kênh/campaign, định danh lượt gửi theo tenant/campaign/customer/lần gửi. Metrics lấy từ ledger, có failed/failureReason/sendId và không tăng khi đọc lại.
+- D10: mã dùng chung hoặc riêng từng khách; mặc định riêng từng khách. Ledger mock giữ mã phát hành, không gọi storefront thật.
+- D11–D12: sửa sau duyệt/chạy/tạm dừng trả Chờ duyệt, xóa phê duyệt hiện hành; dấu bảo vệ voucher đã duyệt được giữ riêng để không lách quyền bằng hai lần sửa. Pause và emergency stop đều sang paused, resume khôi phục running. Metrics vẫn xem được khi paused hoặc chờ duyệt lại.
+- D12: wizard/transition yêu cầu lý do; create/update có before/after; gắn/sửa voucher ghi audit riêng, scheduler ghi audit khi tự đổi trạng thái.
+- D13: System settings chứa 9 tham số campaigns (core days, quiet start/end, frequency limit/window, attribution window, cooldown, hai hệ số doanh thu). Handler đọc config hiện tại; TDS/bảo hành dùng tham số chung đã có. Trần tần suất yêu cầu campaign.frequency.config ở UI và mock backend.
+- D14: tenure từ first_activated_at; đơn mock khử trùng theo customer/type, gán cho click thành công gần nhất trong cửa sổ cấu hình (mặc định 7 ngày), VND net; UI ghi rõ dữ liệu mock.
+- Mỗi delta đã chạy typecheck + lint; cuối lượt format:check + build đều pass. Lint còn warning có sẵn public/mockServiceWorker.js; build cảnh báo chunk >500 kB.
+- Browser/MSW: 27 assertions pass về tenant, quyền duyệt, priority + cap, idempotency, pause/stop/resume, duyệt lại, bảo vệ voucher, audit, cấu hình có hiệu lực không reload, trigger TDS, quiet hours, attribution, opt-out/mask và tenure. Đã tạo chiến dịch và gửi duyệt bằng wizard thật, render detail/metrics, đổi sang tiếng Việt và kiểm screenshot mobile 390px.
+- Review độc lập phát hiện 3 lỗi (submit thiếu reason, voucher bypass sau reset approval, paused ẩn metrics); cả 3 đã sửa và kiểm tra lại.
+
+### Giới hạn giữ nguyên
+
+Mock in-memory reset khi reload, scheduler chạy khi đọc; không gửi push thật, không có worker bền vững. Voucher/đơn hàng/loyalty/provider thật và chuyển tenant vẫn backlog/assumption theo supplement. Không thêm framework hay test file vào repo; self-check chạy bằng Playwright đã cài, script tạm ở TEMP.

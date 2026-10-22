@@ -59,10 +59,12 @@ export function CampaignDetailPage({ campaignId }: CampaignDetailPageProps) {
   );
   const [editOpen, setEditOpen] = useState(false);
 
-  const editable =
-    campaign.status === 'draft' || campaign.status === 'rejected';
+  const editable = campaign.status !== 'ended';
   const showMetrics =
-    campaign.status === 'running' || campaign.status === 'ended';
+    campaign.status === 'running' ||
+    campaign.status === 'paused' ||
+    campaign.status === 'ended' ||
+    campaign.status === 'pending_approval';
 
   const audience = campaign.audience;
   const audienceRows = buildAudienceRows(audience, t);
@@ -112,6 +114,12 @@ export function CampaignDetailPage({ campaignId }: CampaignDetailPageProps) {
         extra={<CampaignStatusTag status={campaign.status} />}
       >
         <Descriptions column={{ xs: 1, sm: 2 }} size="small">
+          <Descriptions.Item label={t('fields.priority')}>
+            {campaign.priority}
+          </Descriptions.Item>
+          <Descriptions.Item label={t('fields.tenant')}>
+            {t(`tenant.${campaign.tenantId}`)}
+          </Descriptions.Item>
           <Descriptions.Item label={t('fields.contentVi')} span={2}>
             {campaign.contentVi}
           </Descriptions.Item>
@@ -190,6 +198,11 @@ export function CampaignDetailPage({ campaignId }: CampaignDetailPageProps) {
             </Descriptions.Item>
             {campaign.offer.type === 'voucher' ? (
               <>
+                <Descriptions.Item label={t('fields.codeMode')}>
+                  {t(
+                    `offer.codeMode.${campaign.offer.codeMode ?? 'per_customer'}`
+                  )}
+                </Descriptions.Item>
                 <Descriptions.Item label={t('fields.voucherCode')}>
                   {campaign.offer.voucherCode ?? '—'}
                 </Descriptions.Item>

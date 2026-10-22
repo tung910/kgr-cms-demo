@@ -2,6 +2,9 @@ import type { Campaign, CampaignMetrics } from '../schemas/campaignSchemas';
 
 export interface CampaignMetricLabels {
   campaign: string;
+  sendId: string;
+  failed: string;
+  failureReason: string;
   sent: string;
   delivered: string;
   opened: string;
@@ -21,6 +24,9 @@ export function exportCampaignMetricsToCsv(
 ): void {
   const rows: Array<[string, string | number]> = [
     [labels.campaign, campaign.name],
+    [labels.sendId, metrics.sendId],
+    [labels.failed, metrics.failed],
+    [labels.failureReason, metrics.failureReason ?? ''],
     [labels.sent, metrics.sent],
     [labels.delivered, metrics.delivered],
     [labels.opened, metrics.opened],

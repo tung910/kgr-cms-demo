@@ -19,6 +19,10 @@ const REASON_ACTIONS = new Set<CampaignTransition>([
   'approve',
   'reject',
   'stop',
+  'pause',
+  'resume',
+  'run',
+  'submit',
 ]);
 
 export function CampaignApprovalActions({
@@ -76,7 +80,9 @@ export function CampaignApprovalActions({
   } else if (campaign.status === 'approved') {
     if (canSend) actions.push('run');
   } else if (campaign.status === 'running') {
-    if (canSend) actions.push('stop');
+    if (canSend) actions.push('pause', 'stop');
+  } else if (campaign.status === 'paused') {
+    if (canSend) actions.push('resume');
   }
 
   if (actions.length === 0) return null;

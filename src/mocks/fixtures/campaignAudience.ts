@@ -25,17 +25,24 @@ export const campaignAudienceFixtures: AudienceCustomerDto[] = Array.from(
     return {
       customer_id: `CUS-${padded}`,
       name: `Khách hàng ${padded}`,
-      region: regions[index % regions.length]!,
-      model_name: models[index % models.length]!,
-      firmware_version: firmwareVersions[index % firmwareVersions.length]!,
-      // 0..179 remaining core days.
-      core_remaining_days: (index * 7) % 180,
-      warranty_status: warrantyStatuses[index % warrantyStatuses.length]!,
-      // 0..999 loyalty points.
+      devices: Array.from({ length: 1 + (index % 3) }, (_, deviceIndex) => {
+        const seed = index + deviceIndex * 17;
+        return {
+          device_id: `DEV-${padded}-${deviceIndex + 1}`,
+          region: regions[seed % regions.length]!,
+          model_name: models[seed % models.length]!,
+          firmware_version: firmwareVersions[seed % firmwareVersions.length]!,
+          core_remaining_days: (seed * 7) % 180,
+          warranty_status: warrantyStatuses[seed % warrantyStatuses.length]!,
+          warranty_remaining_days: ((seed * 13) % 400) - 30,
+          region_tds: 20 + ((seed * 3) % 60),
+        };
+      }),
       loyalty_points: (index * 37) % 1000,
-      // 20..79 ppm regional TDS (threshold default 55).
-      region_tds: 20 + ((index * 3) % 60),
       // 30..929 days of tenure.
+      first_activated_at: new Date(
+        Date.now() - (30 + ((index * 11) % 900)) * 86_400_000
+      ).toISOString(),
       tenure_days: 30 + ((index * 11) % 900),
       // Marketing consent: every 9th customer has opted out and is hard-
       // excluded from all send sets (spec 7.7.a).

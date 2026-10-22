@@ -30,3 +30,29 @@ export type AppDeeplinkTarget = (typeof APP_DEEPLINK_TARGETS)[number]['value'];
 export const APP_DEEPLINK_VALUES: readonly string[] = APP_DEEPLINK_TARGETS.map(
   (target) => target.value
 );
+
+// Targets that open a screen scoped to one specific device (spec 7.3): the core
+// replacement and warranty renewal screens must address the exact machine the
+// campaign matched, so the deeplink carries that device's id. The other targets
+// (home, loyalty, shop, promo) are account-level and stay as-is.
+export const DEVICE_SCOPED_DEEPLINK_VALUES: ReadonlySet<string> = new Set([
+  'onekangaroo://core/replace',
+  'onekangaroo://warranty/renew',
+]);
+
+export function isDeviceScopedDeeplink(
+  deeplink: string | null | undefined
+): boolean {
+  return !!deeplink && DEVICE_SCOPED_DEEPLINK_VALUES.has(deeplink);
+}
+
+// Binds a device-scoped deeplink to a concrete device (`?device=<id>`); returns
+// account-level targets (and null) unchanged. The same rule applies wherever a
+// per-customer send is materialized so the notification opens the right machine.
+export function resolveDeviceDeeplink(
+  deeplink: string | null,
+  deviceId: string
+): string | null {
+  if (!isDeviceScopedDeeplink(deeplink)) return deeplink;
+  return `${deeplink}?device=${encodeURIComponent(deviceId)}`;
+}

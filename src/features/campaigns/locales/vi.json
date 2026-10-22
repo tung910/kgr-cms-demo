@@ -5,7 +5,8 @@
     "approved": "Đã duyệt",
     "running": "Đang chạy",
     "ended": "Kết thúc",
-    "rejected": "Bị từ chối"
+    "rejected": "Bị từ chối",
+    "paused": "Tạm dừng"
   },
   "kind": {
     "manual": "Thủ công",
@@ -27,6 +28,10 @@
     "discount": {
       "percent": "Giảm theo %",
       "amount": "Giảm số tiền"
+    },
+    "codeMode": {
+      "shared": "Mã dùng chung",
+      "per_customer": "Mã riêng từng khách"
     }
   },
   "trigger": {
@@ -34,9 +39,9 @@
     "warranty_expiring": "Bảo hành sắp hết",
     "high_tds": "TDS khu vực cao",
     "hint": {
-      "core_due": "Lõi còn ≤ N ngày → nhắc thay lõi kèm link mua/đặt lịch.",
-      "warranty_expiring": "Bảo hành còn ≤ 30 ngày → nhắc gia hạn.",
-      "high_tds": "TDS khu vực vượt ngưỡng → gợi ý nâng cấp/upsell lõi."
+      "core_due": "Ngưỡng áp dụng theo cấu hình hệ thống hiện tại.",
+      "warranty_expiring": "Ngưỡng áp dụng theo cấu hình hệ thống hiện tại.",
+      "high_tds": "Ngưỡng áp dụng theo cấu hình hệ thống hiện tại."
     }
   },
   "warranty": {
@@ -106,7 +111,7 @@
     "coreRemainingDays": "Số ngày lõi còn lại",
     "loyaltyPoints": "Điểm loyalty",
     "regionTds": "TDS khu vực (ppm)",
-    "tenureDays": "Thời gian tham gia (ngày)",
+    "tenureDays": "Số ngày từ khi kích hoạt thiết bị đầu tiên",
     "min": "Tối thiểu",
     "max": "Tối đa",
     "triggerPreset": "Điều kiện kích hoạt",
@@ -120,7 +125,10 @@
     "usageLimitTotal": "Giới hạn tổng lượt",
     "points": "Số điểm thưởng",
     "usageLimitPerCustomer": "Giới hạn lượt/KH",
-    "validUntil": "Hiệu lực đến"
+    "validUntil": "Hiệu lực đến",
+    "tenant": "Ngành",
+    "priority": "Ưu tiên (số lớn hơn gửi trước)",
+    "codeMode": "Chế độ mã voucher"
   },
   "wizard": {
     "createTitle": "Tạo chiến dịch",
@@ -159,14 +167,18 @@
       "approve": "Duyệt",
       "reject": "Từ chối",
       "run": "Cho chạy",
-      "stop": "Dừng"
+      "stop": "Dừng khẩn cấp",
+      "pause": "Tạm dừng",
+      "resume": "Tiếp tục"
     },
     "done": {
       "submit": "Đã gửi đi phê duyệt.",
       "approve": "Đã duyệt chiến dịch.",
       "reject": "Đã từ chối chiến dịch.",
       "run": "Chiến dịch đã bắt đầu chạy.",
-      "stop": "Đã dừng chiến dịch."
+      "stop": "Đã dừng khẩn cấp; có thể tiếp tục",
+      "pause": "Đã tạm dừng",
+      "resume": "Đã tiếp tục"
     },
     "reasonLabel": "Lý do",
     "reasonRequired": "Vui lòng nhập lý do."
@@ -184,13 +196,19 @@
     "openRate": "{{rate}} so với gửi thành công",
     "clickRate": "{{rate}} so với lượt mở",
     "export": "Xuất CSV",
-    "fileLabel": "do-luong-chien-dich"
+    "fileLabel": "do-luong-chien-dich",
+    "sendId": "Mã lượt gửi",
+    "failed": "Gửi thất bại",
+    "failureReason": "Lý do lỗi",
+    "mockFailure": "Nhà cung cấp mô phỏng không khả dụng",
+    "attribution": "Last-click trong {{days}} ngày · Doanh thu net VND từ đơn e-commerce mô phỏng"
   },
   "history": {
     "created": "Tạo chiến dịch",
     "approved": "Đã duyệt",
     "rejected": "Bị từ chối",
-    "auditNote": "Mọi thao tác đổi trạng thái đều được ghi vào Nhật ký hệ thống (module Chiến dịch) kèm người thực hiện, thời điểm và lý do, không thể sửa/xóa."
+    "auditNote": "Mọi thao tác đổi trạng thái đều được ghi vào Nhật ký hệ thống (module Chiến dịch) kèm người thực hiện, thời điểm và lý do, không thể sửa/xóa.",
+    "scheduler": "Lịch hệ thống"
   },
   "detail": {
     "back": "Quay lại",
@@ -231,5 +249,42 @@
     "imageType": "Chỉ chấp nhận ảnh PNG, JPG hoặc WebP.",
     "imageSize": "Ảnh phải nhỏ hơn 2MB.",
     "transitionFailed": "Chuyển trạng thái thất bại."
+  },
+  "tenant": {
+    "water_purifier": "Máy lọc nước"
+  },
+  "phonePreview": {
+    "title": "Mô phỏng điện thoại",
+    "language": "Ngôn ngữ nội dung",
+    "vi": "Tiếng Việt",
+    "en": "Tiếng Anh",
+    "hint": "Bấm Gửi thử để thấy chiến dịch xuất hiện trên điện thoại mô phỏng.",
+    "waiting": "Đang chờ gửi thử…",
+    "now": "Bây giờ",
+    "tap": "Chạm để xem",
+    "points": "{{count}} điểm thưởng",
+    "personalCode": "Mã riêng sẽ được cấp khi gửi cho khách.",
+    "target": "Màn hình đích mô phỏng: {{screen}}",
+    "deviceScoped": "Màn hình gắn theo máy: deeplink tự thêm mã máy khớp điều kiện của từng khách ({{deeplink}}).",
+    "disclaimer": "Giao diện minh họa, không gửi Push thật. Nội dung tiếng Anh dùng tiếng Việt khi chưa có bản dịch."
+  },
+  "audienceHelp": {
+    "logic": "Trong cùng trường: HOẶC · Giữa các trường: VÀ",
+    "example": "Ví dụ: (Hà Nội HOẶC Hải Phòng) VÀ model đã chọn VÀ lõi còn tối đa 15 ngày. Để trống một trường nghĩa là không giới hạn theo trường đó.",
+    "core": "Đơn vị: ngày. Chỉ nhập tối đa 15 để chọn lõi còn từ 0–15 ngày.",
+    "loyalty": "Đơn vị: điểm. Chỉ nhập tối thiểu 100 để chọn khách có từ 100 điểm.",
+    "tds": "Đơn vị: ppm. Nhập tối thiểu để chọn khu vực có TDS từ ngưỡng đó trở lên.",
+    "tenure": "Đơn vị: ngày, tính từ lần kích hoạt thiết bị đầu tiên; không phải ngày tạo tài khoản.",
+    "checkedAt": "Kết quả được kiểm tra lúc {{time}}.",
+    "snapshot": "Đếm khách hàng duy nhất, không phải số thiết bị. Tự loại khách từ chối marketing hoặc đã chạm trần tần suất gửi chung. Đây là kết quả tại thời điểm xem; khi gửi hệ thống kiểm tra lại và áp dụng thêm điều kiện của chiến dịch.",
+    "empty": "Không có khách đủ điều kiện nhận tin. Hãy kiểm tra hoặc nới các điều kiện rồi xem trước lại.",
+    "invalidRange": "Tối đa phải lớn hơn hoặc bằng tối thiểu.",
+    "invalidNumber": "Nhập số không âm; ngày và điểm phải là số nguyên.",
+    "summary": "Nhóm khách đang chọn",
+    "all": "Toàn bộ khách trong ngành hiện tại đủ điều kiện nhận tin; chưa giới hạn theo bộ lọc nào.",
+    "or": " HOẶC ",
+    "and": " VÀ ",
+    "days": "ngày",
+    "points": "điểm"
   }
 }

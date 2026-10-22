@@ -11,6 +11,7 @@ import type {
   TriggerPreset,
 } from '../constants/campaignEnums';
 import type { CampaignStatus } from '../constants/campaignStatus';
+import { CAMPAIGN_TENANT_ID } from '../constants/campaignTenant';
 import { APP_DEEPLINK_VALUES } from '../constants/deeplinkTargets';
 import {
   audienceConditionsSchema,
@@ -22,6 +23,7 @@ const campaignStatusSchema = z.enum([
   'pending_approval',
   'approved',
   'running',
+  'paused',
   'ended',
   'rejected',
 ]) satisfies z.ZodType<CampaignStatus>;
@@ -61,6 +63,7 @@ const discountTypeSchema = z.enum([
 // cap and validity window. Passed through unchanged between API and domain.
 export const campaignOfferSchema = z.object({
   type: offerTypeSchema,
+  codeMode: z.enum(['shared', 'per_customer']).optional(),
   voucherCode: z.string().optional(),
   discountType: discountTypeSchema.optional(),
   discountValue: z.number().nonnegative().optional(),
@@ -72,6 +75,8 @@ export const campaignOfferSchema = z.object({
 export type CampaignOffer = z.infer<typeof campaignOfferSchema>;
 
 export const campaignDtoSchema = z.object({
+  priority: z.number().int().nonnegative(),
+  tenant_id: z.string().min(1),
   id: z.string().min(1),
   name: z.string().min(1),
   kind: campaignKindSchema,
@@ -116,12 +121,18 @@ export const campaignCountsDtoSchema = z.object({
   pending_approval: z.number().int().nonnegative(),
   approved: z.number().int().nonnegative(),
   running: z.number().int().nonnegative(),
+  paused: z.number().int().nonnegative(),
   ended: z.number().int().nonnegative(),
   rejected: z.number().int().nonnegative(),
 });
 export type CampaignCountsDto = z.infer<typeof campaignCountsDtoSchema>;
 
 export const campaignMetricsDtoSchema = z.object({
+  attribution_model: z.literal('last_click'),
+  attribution_window_days: z.number().int().positive(),
+  send_id: z.string(),
+  failed: z.number().int().nonnegative(),
+  failure_reason: z.string().nullable(),
   sent: z.number().int().nonnegative(),
   delivered: z.number().int().nonnegative(),
   opened: z.number().int().nonnegative(),
@@ -136,6 +147,8 @@ export type CampaignMetricsDto = z.infer<typeof campaignMetricsDtoSchema>;
 
 export interface Campaign {
   id: string;
+  priority: number;
+  tenantId: string;
   name: string;
   kind: CampaignKind;
   channel: CampaignChannel;
@@ -163,6 +176,11 @@ export interface Campaign {
 }
 
 export interface CampaignMetrics {
+  attributionModel: 'last_click';
+  attributionWindowDays: number;
+  sendId: string;
+  failed: number;
+  failureReason: string | null;
   sent: number;
   delivered: number;
   opened: number;
@@ -178,6 +196,7 @@ export interface CampaignCounts {
   pendingApproval: number;
   approved: number;
   running: number;
+  paused: number;
   ended: number;
   rejected: number;
 }
@@ -197,6 +216,9 @@ export type CampaignCountFilters = Pick<CampaignListFilters, 'search' | 'kind'>;
 
 // Everything an author edits in the wizard before any lifecycle transition.
 export interface CampaignDraftInput {
+  reason: string;
+  priority: number;
+  tenantId: string;
   name: string;
   kind: CampaignKind;
   channel: CampaignChannel;
@@ -219,6 +241,8 @@ export const CAMPAIGN_TRANSITIONS = [
   'approve',
   'reject',
   'run',
+  'pause',
+  'resume',
   'stop',
 ] as const;
 export type CampaignTransition = (typeof CAMPAIGN_TRANSITIONS)[number];
@@ -226,6 +250,9 @@ export type CampaignTransition = (typeof CAMPAIGN_TRANSITIONS)[number];
 // Request body shape for creating/saving a draft (camelCase), used by the
 // mock backend to validate what the wizard sends.
 export const campaignDraftInputSchema = z.object({
+  reason: z.string().trim().min(1),
+  priority: z.number().int().nonnegative(),
+  tenantId: z.literal(CAMPAIGN_TENANT_ID),
   name: z.string().min(1),
   kind: campaignKindSchema,
   channel: campaignChannelSchema,

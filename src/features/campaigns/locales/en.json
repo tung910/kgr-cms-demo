@@ -5,7 +5,8 @@
     "approved": "Approved",
     "running": "Running",
     "ended": "Ended",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "paused": "Paused"
   },
   "kind": {
     "manual": "Manual",
@@ -27,6 +28,10 @@
     "discount": {
       "percent": "Percent off",
       "amount": "Amount off"
+    },
+    "codeMode": {
+      "shared": "Shared code",
+      "per_customer": "Per-customer code"
     }
   },
   "trigger": {
@@ -34,9 +39,9 @@
     "warranty_expiring": "Warranty expiring",
     "high_tds": "High regional TDS",
     "hint": {
-      "core_due": "Core ≤ N days left → replacement reminder with buy/booking link.",
-      "warranty_expiring": "Warranty ≤ 30 days left → renewal reminder.",
-      "high_tds": "Regional TDS above threshold → core upsell suggestion."
+      "core_due": "Uses the current system configuration threshold.",
+      "warranty_expiring": "Uses the current system configuration threshold.",
+      "high_tds": "Uses the current system configuration threshold."
     }
   },
   "warranty": {
@@ -106,7 +111,7 @@
     "coreRemainingDays": "Core days remaining",
     "loyaltyPoints": "Loyalty points",
     "regionTds": "Regional TDS (ppm)",
-    "tenureDays": "Tenure (days)",
+    "tenureDays": "Days since first device activation",
     "min": "Min",
     "max": "Max",
     "triggerPreset": "Trigger condition",
@@ -120,7 +125,10 @@
     "usageLimitTotal": "Total usage limit",
     "points": "Reward points",
     "usageLimitPerCustomer": "Usage limit / customer",
-    "validUntil": "Valid until"
+    "validUntil": "Valid until",
+    "tenant": "Industry",
+    "priority": "Priority (higher sends first)",
+    "codeMode": "Voucher code mode"
   },
   "wizard": {
     "createTitle": "New campaign",
@@ -159,14 +167,18 @@
       "approve": "Approve",
       "reject": "Reject",
       "run": "Run",
-      "stop": "Stop"
+      "stop": "Emergency stop",
+      "pause": "Pause",
+      "resume": "Resume"
     },
     "done": {
       "submit": "Submitted for approval.",
       "approve": "Campaign approved.",
       "reject": "Campaign rejected.",
       "run": "Campaign is now running.",
-      "stop": "Campaign stopped."
+      "stop": "Emergency stopped; can resume",
+      "pause": "Paused",
+      "resume": "Resumed"
     },
     "reasonLabel": "Reason",
     "reasonRequired": "Please enter a reason."
@@ -184,13 +196,19 @@
     "openRate": "{{rate}} of delivered",
     "clickRate": "{{rate}} of opened",
     "export": "Export CSV",
-    "fileLabel": "campaign-metrics"
+    "fileLabel": "campaign-metrics",
+    "sendId": "Send ID",
+    "failed": "Failed",
+    "failureReason": "Failure reason",
+    "mockFailure": "Mock provider unavailable",
+    "attribution": "Last-click within {{days}} days · Mock e-commerce net revenue in VND"
   },
   "history": {
     "created": "Created",
     "approved": "Approved",
     "rejected": "Rejected",
-    "auditNote": "Every status change is written to the system audit log (Campaigns module) with actor, timestamp and reason, and cannot be edited or deleted."
+    "auditNote": "Every status change is written to the system audit log (Campaigns module) with actor, timestamp and reason, and cannot be edited or deleted.",
+    "scheduler": "System scheduler"
   },
   "detail": {
     "back": "Back",
@@ -231,5 +249,42 @@
     "imageType": "Only PNG, JPG or WebP images are allowed.",
     "imageSize": "The image must be smaller than 2MB.",
     "transitionFailed": "Could not change the status."
+  },
+  "tenant": {
+    "water_purifier": "Water purifiers"
+  },
+  "phonePreview": {
+    "title": "Phone simulation",
+    "language": "Content language",
+    "vi": "Vietnamese",
+    "en": "English",
+    "hint": "Send a test to see the campaign arrive on the simulated phone.",
+    "waiting": "Waiting for a test send…",
+    "now": "Now",
+    "tap": "Tap to open",
+    "points": "{{count}} reward points",
+    "personalCode": "A personal code is assigned on delivery.",
+    "target": "Simulated destination: {{screen}}",
+    "deviceScoped": "Device-scoped screen: the deeplink auto-appends each customer's matched device id ({{deeplink}}).",
+    "disclaimer": "Illustrative preview only. No real push is sent. English falls back to Vietnamese when unavailable."
+  },
+  "audienceHelp": {
+    "logic": "Within a field: OR · Between fields: AND",
+    "example": "Example: (Hanoi OR Hai Phong) AND the selected model AND at most 15 core days remaining. Leave a field blank to apply no restriction for that field.",
+    "core": "Unit: days. Enter only a maximum of 15 to select cores with 0–15 days remaining.",
+    "loyalty": "Unit: points. Enter only a minimum of 100 to select customers with at least 100 points.",
+    "tds": "Unit: ppm. Enter a minimum to select regions at or above that TDS threshold.",
+    "tenure": "Unit: days since the first device activation, rather than account creation.",
+    "checkedAt": "Results checked at {{time}}.",
+    "snapshot": "Counts unique customers, rather than devices. Customers who opted out of marketing or reached the shared send-frequency cap are excluded. This is a snapshot; eligibility is checked again at send time, including campaign-specific conditions.",
+    "empty": "No customers are eligible. Check or broaden the conditions, then preview again.",
+    "invalidRange": "Maximum must be greater than or equal to minimum.",
+    "invalidNumber": "Enter a nonnegative number; days and points must be whole numbers.",
+    "summary": "Selected customer group",
+    "all": "All eligible customers in the current industry; no filters applied.",
+    "or": " OR ",
+    "and": " AND ",
+    "days": "days",
+    "points": "points"
   }
 }

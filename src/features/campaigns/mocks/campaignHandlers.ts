@@ -6,15 +6,20 @@ import {
   hasCapability,
   type Capability,
 } from '@/core/permissions/capabilities';
-import { recordAudit } from '@/features/system/mocks/systemHandlers';
+import {
+  getSystemConfigParams,
+  recordAudit,
+} from '@/features/system/mocks/systemHandlers';
 import { campaignAudienceFixtures } from '@/mocks/fixtures/campaignAudience';
 import { campaignFixtures } from '@/mocks/fixtures/campaigns';
 import { randomId } from '@/shared/lib/id';
 import { maskName } from '@/shared/lib/mask';
 
+import { resolveDeviceDeeplink } from '../constants/deeplinkTargets';
 import type {
   AudienceConditions,
   AudienceCustomerDto,
+  AudienceDeviceDto,
   NumberRange,
 } from '../schemas/audienceSchemas';
 import {
@@ -33,6 +38,10 @@ const userKey = 'cms-portal:mock-auth-user'; // shared with systemHandlers.ts
 
 let campaignStore: CampaignDto[] = structuredClone(campaignFixtures);
 const audience: AudienceCustomerDto[] = campaignAudienceFixtures;
+// Historical issuance protection survives approval reset and subsequent edits.
+const protectedOffers = new Set(
+  campaignFixtures.filter((c) => c.approved_at !== null).map((c) => c.id)
+);
 
 function allowed(capability: Capability): boolean {
   const role = localStorage.getItem(roleKey);
@@ -63,6 +72,7 @@ function actor(): { id: string; fullName: string } {
 // its window opens, and a running one ends after its window closes.
 function materialize(campaign: CampaignDto): CampaignDto {
   const now = Date.now();
+  const before = campaign.status;
   if (
     campaign.status === 'approved' &&
     campaign.schedule_type === 'scheduled' &&
@@ -80,11 +90,30 @@ function materialize(campaign: CampaignDto): CampaignDto {
     campaign.status = 'ended';
     campaign.updated_at = new Date().toISOString();
   }
+  if (before !== campaign.status)
+    recordAudit(null, {
+      module: 'campaigns',
+      action: 'schedule',
+      target: campaign.id,
+      before: { status: before },
+      after: { status: campaign.status },
+      reason: i18n.t('campaigns:history.scheduler'),
+      actorName: i18n.t('campaigns:history.scheduler'),
+    });
   return campaign;
 }
 
 function materializeAll(): CampaignDto[] {
-  return campaignStore.map(materialize);
+  const campaigns = campaignStore.map(materialize);
+  // Higher priority wins; oldest campaign wins a tie, independently of read order.
+  campaigns
+    .filter((c) => c.status === 'running')
+    .sort(
+      (a, b) =>
+        b.priority - a.priority || a.created_at.localeCompare(b.created_at)
+    )
+    .forEach(dispatch);
+  return campaigns;
 }
 
 // ---- audience segmentation (spec 7.2) --------------------------------------
@@ -96,29 +125,30 @@ function inRange(value: number, range?: NumberRange): boolean {
   return true;
 }
 
-function matchesConditions(
+function matchingDevices(
   customer: AudienceCustomerDto,
   c: AudienceConditions
-): boolean {
-  if (c.regions.length && !c.regions.includes(customer.region)) return false;
-  if (c.models.length && !c.models.includes(customer.model_name)) return false;
+): AudienceDeviceDto[] {
+  const tenureDays = Math.max(
+    0,
+    Math.floor((Date.now() - Date.parse(customer.first_activated_at)) / DAY_MS)
+  );
   if (
-    c.firmwareVersions.length &&
-    !c.firmwareVersions.includes(customer.firmware_version)
-  ) {
-    return false;
-  }
-  if (
-    c.warrantyStatuses.length &&
-    !c.warrantyStatuses.includes(customer.warranty_status)
-  ) {
-    return false;
-  }
-  return (
-    inRange(customer.core_remaining_days, c.coreRemainingDays) &&
-    inRange(customer.loyalty_points, c.loyaltyPoints) &&
-    inRange(customer.region_tds, c.regionTds) &&
-    inRange(customer.tenure_days, c.tenureDays)
+    !inRange(customer.loyalty_points, c.loyaltyPoints) ||
+    !inRange(tenureDays, c.tenureDays)
+  )
+    return [];
+  // All installation/device conditions must hold on the same owned device.
+  return customer.devices.filter(
+    (device) =>
+      (!c.regions.length || c.regions.includes(device.region)) &&
+      (!c.models.length || c.models.includes(device.model_name)) &&
+      (!c.firmwareVersions.length ||
+        c.firmwareVersions.includes(device.firmware_version)) &&
+      (!c.warrantyStatuses.length ||
+        c.warrantyStatuses.includes(device.warranty_status)) &&
+      inRange(device.core_remaining_days, c.coreRemainingDays) &&
+      inRange(device.region_tds, c.regionTds)
   );
 }
 
@@ -131,8 +161,116 @@ function isContactable(customer: AudienceCustomerDto): boolean {
 function countAudience(conditions: AudienceConditions): AudienceCustomerDto[] {
   return audience.filter(
     (customer) =>
-      isContactable(customer) && matchesConditions(customer, conditions)
+      isContactable(customer) &&
+      matchingDevices(customer, conditions).length > 0 &&
+      sends.filter(
+        (s) =>
+          s.customerId === customer.customer_id &&
+          s.sentAt >
+            Date.now() -
+              getSystemConfigParams().campaign_frequency_days * DAY_MS
+      ).length < getSystemConfigParams().campaign_frequency_limit
   );
+}
+
+// shortcut: lazy in-memory dispatch, replace with a durable scheduler for production.
+const sends: Array<{
+  campaignId: string;
+  customerId: string;
+  deviceId: string;
+  deeplink: string | null;
+  sentAt: number;
+  sendId: string;
+  failed: boolean;
+  clickedAt: number | null;
+  opened: boolean;
+  voucherCode: string | null;
+}> = [];
+const DAY_MS = 86_400_000;
+function dispatch(campaign: CampaignDto): void {
+  const now = Date.now();
+  const config = getSystemConfigParams();
+  const hour = Number(
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      hour: '2-digit',
+      hourCycle: 'h23',
+    }).format(now)
+  );
+  const start = config.campaign_quiet_start_hour,
+    end = config.campaign_quiet_end_hour;
+  if (
+    campaign.channel === 'push' &&
+    (start > end ? hour >= start || hour < end : hour >= start && hour < end)
+  )
+    return;
+  const recipients = countAudience(campaign.audience);
+  for (const customer of recipients) {
+    const device = matchingDevices(customer, campaign.audience)
+      .filter((candidate) => {
+        if (campaign.kind !== 'trigger') return true;
+        switch (campaign.trigger_preset) {
+          case 'core_due':
+            return candidate.core_remaining_days <= config.campaign_core_days;
+          case 'warranty_expiring':
+            return (
+              candidate.warranty_remaining_days >= 0 &&
+              candidate.warranty_remaining_days <= config.warranty_expiring_days
+            );
+          case 'high_tds':
+            return candidate.region_tds >= config.tds_threshold_region;
+          default:
+            return false;
+        }
+      })
+      .sort((a, b) => a.device_id.localeCompare(b.device_id))[0];
+    if (!device) continue;
+    const history = sends.filter(
+      (s) =>
+        s.customerId === customer.customer_id &&
+        s.sentAt > now - config.campaign_frequency_days * DAY_MS
+    );
+    const own = sends.filter(
+      (s) =>
+        s.campaignId === campaign.id && s.customerId === customer.customer_id
+    );
+    if (
+      history.length >= config.campaign_frequency_limit ||
+      own.filter(
+        (s) => s.sentAt > now - config.campaign_frequency_days * DAY_MS
+      ).length >= campaign.frequency_cap_per_customer
+    )
+      continue;
+    // Manual campaigns send once; trigger repeats are separated by cooldown.
+    if (
+      own.some(
+        (s) =>
+          campaign.kind === 'manual' ||
+          s.sentAt > now - config.campaign_cooldown_days * DAY_MS
+      )
+    )
+      continue;
+    sends.push({
+      campaignId: campaign.id,
+      customerId: customer.customer_id,
+      deviceId: device.device_id,
+      deeplink: resolveDeviceDeeplink(campaign.deeplink, device.device_id),
+      sentAt: now,
+      opened: hashId(campaign.id + ':' + customer.customer_id) % 10 < 6,
+      clickedAt:
+        hashId(campaign.id + ':' + customer.customer_id) % 10 < 3 ? now : null,
+      voucherCode:
+        campaign.offer?.type === 'voucher'
+          ? campaign.offer.codeMode === 'shared'
+            ? (campaign.offer.voucherCode ?? null)
+            : (campaign.offer.voucherCode ?? campaign.id) +
+              '-' +
+              customer.customer_id
+          : null,
+      sendId: `${campaign.tenant_id}:${campaign.id}:${customer.customer_id}:${own.length}`,
+      failed: hashId(`${campaign.id}:${customer.customer_id}`) % 20 === 0,
+    });
+  }
 }
 
 // ---- metrics (spec 7.6) ----------------------------------------------------
@@ -147,16 +285,64 @@ function hashId(id: string): number {
 
 // Deterministic metrics so the same campaign always reports the same figures.
 function metricsFor(campaign: CampaignDto): CampaignMetricsDto {
-  const seed = hashId(campaign.id);
-  const base = campaign.audience_count ?? 30 + (seed % 70);
-  const sent = base * (8 + (seed % 5)); // several sends per matched customer
-  const delivered = Math.round(sent * (0.95 + (seed % 4) / 100));
-  const opened = Math.round(delivered * (0.45 + (seed % 20) / 100));
-  const clicked = Math.round(opened * (0.3 + (seed % 15) / 100));
-  const conversionsBooking = Math.round(clicked * (0.18 + (seed % 8) / 100));
-  const conversionsQr = Math.round(clicked * (0.12 + (seed % 6) / 100));
-  const revenue = conversionsBooking * 450_000 + conversionsQr * 320_000;
+  const attempts = sends.filter((s) => s.campaignId === campaign.id);
+  const sent = attempts.length;
+  const failed = attempts.filter((s) => s.failed).length;
+  const delivered = sent - failed;
+  const opened = attempts.filter((s) => !s.failed && s.opened).length;
+  const clicked = attempts.filter(
+    (s) => !s.failed && s.clickedAt !== null
+  ).length;
+  const config = getSystemConfigParams();
+  // Fabricated net orders, deduped per customer/type; last successful click wins.
+  const orders = new Map<
+    string,
+    { customerId: string; at: number; kind: 'booking' | 'qr' }
+  >();
+  for (const send of sends) {
+    const seed = hashId(send.customerId);
+    if (seed % 3 !== 0) continue;
+    const kind = seed % 2 === 0 ? 'booking' : 'qr';
+    const key = send.customerId + ':' + kind;
+    if (!orders.has(key))
+      orders.set(key, {
+        customerId: send.customerId,
+        at: send.sentAt + (seed % 9) * DAY_MS,
+        kind,
+      });
+  }
+  let conversionsBooking = 0,
+    conversionsQr = 0;
+  for (const order of orders.values()) {
+    if (order.at > Date.now()) continue;
+    const lastClick = sends
+      .filter(
+        (s) =>
+          s.customerId === order.customerId &&
+          !s.failed &&
+          s.clickedAt !== null &&
+          s.clickedAt <= order.at &&
+          order.at - s.clickedAt <= config.campaign_attribution_days * DAY_MS
+      )
+      .sort(
+        (a, b) =>
+          (b.clickedAt ?? 0) - (a.clickedAt ?? 0) ||
+          b.sendId.localeCompare(a.sendId)
+      )[0];
+    if (lastClick?.campaignId !== campaign.id) continue;
+    if (order.kind === 'booking') conversionsBooking++;
+    else conversionsQr++;
+  }
+
+  const revenue =
+    conversionsBooking * config.campaign_booking_revenue +
+    conversionsQr * config.campaign_qr_revenue;
   return {
+    send_id: `${campaign.tenant_id}:${campaign.id}`,
+    attribution_model: 'last_click',
+    attribution_window_days: config.campaign_attribution_days,
+    failed,
+    failure_reason: failed ? 'mock_provider_unavailable' : null,
     sent,
     delivered,
     opened,
@@ -198,13 +384,14 @@ function pageOf<T>(url: URL, items: readonly T[]) {
 }
 
 function find(id: string): CampaignDto | undefined {
-  const campaign = campaignStore.find((item) => item.id === id);
+  const campaign = materializeAll().find((item) => item.id === id);
   return campaign ? materialize(campaign) : undefined;
 }
 
 // ---- transitions (spec 7.5) ------------------------------------------------
 
-type TransitionAction = 'submit' | 'approve' | 'reject' | 'run' | 'stop';
+type TransitionAction =
+  'submit' | 'approve' | 'reject' | 'run' | 'stop' | 'pause' | 'resume';
 
 // Spec 7.5 separates "duyệt" (approve/reject) from "cho chạy/dừng" (run/stop):
 // run and stop are gated by campaign.send, not campaign.approve.
@@ -214,6 +401,8 @@ const TRANSITION_CAPABILITY: Record<TransitionAction, Capability> = {
   reject: 'campaign.approve',
   run: 'campaign.send',
   stop: 'campaign.send',
+  pause: 'campaign.send',
+  resume: 'campaign.send',
 };
 
 // (action, fromStatus) -> toStatus. Any pair absent here is an invalid move.
@@ -232,8 +421,11 @@ function nextStatus(
       return from === 'pending_approval' ? 'rejected' : null;
     case 'run':
       return from === 'approved' ? 'running' : null;
+    case 'pause':
     case 'stop':
-      return from === 'running' ? 'ended' : null;
+      return from === 'running' ? 'paused' : null;
+    case 'resume':
+      return from === 'paused' ? 'running' : null;
   }
 }
 
@@ -266,6 +458,7 @@ export const campaignHandlers = [
       pending_approval: by('pending_approval'),
       approved: by('approved'),
       running: by('running'),
+      paused: by('paused'),
       ended: by('ended'),
       rejected: by('rejected'),
     });
@@ -278,10 +471,19 @@ export const campaignHandlers = [
     );
     if (!parsed.success) return error('validation', 422);
     const input = parsed.data;
+    if (input.offer && !allowed('campaign.voucher.create'))
+      return error('forbidden', 403);
+    if (
+      input.frequencyCapPerCustomer !== 1 &&
+      !allowed('campaign.frequency.config')
+    )
+      return error('forbidden', 403);
     const who = actor();
     const now = new Date().toISOString();
     const campaign: CampaignDto = {
       id: `CMP-${randomId().slice(0, 6).toUpperCase()}`,
+      priority: input.priority,
+      tenant_id: input.tenantId,
       name: input.name,
       kind: input.kind,
       channel: input.channel,
@@ -312,8 +514,19 @@ export const campaignHandlers = [
       module: 'campaigns',
       action: 'create',
       target: campaign.id,
-      after: { name: campaign.name, status: campaign.status },
+      before: null,
+      after: structuredClone(campaign),
+      reason: input.reason,
     });
+    if (campaign.offer)
+      recordAudit(who, {
+        module: 'campaigns',
+        action: 'voucher_attach',
+        target: campaign.id,
+        before: null,
+        after: { offer: structuredClone(campaign.offer) },
+        reason: input.reason,
+      });
     return HttpResponse.json(campaign, { status: 201 });
   }),
 
@@ -329,11 +542,16 @@ export const campaignHandlers = [
     // names masked in the preview sample — the same gate the device/owner
     // screens use, so API, UI and any export stay consistent.
     const piiFull = allowed('device.pii.full');
-    const sample = matched
-      .slice(0, 5)
-      .map((customer) =>
-        piiFull ? customer : { ...customer, name: maskName(customer.name) }
-      );
+    const sample = matched.slice(0, 5).map((customer) => ({
+      ...customer,
+      tenure_days: Math.max(
+        0,
+        Math.floor(
+          (Date.now() - Date.parse(customer.first_activated_at)) / DAY_MS
+        )
+      ),
+      name: piiFull ? customer.name : maskName(customer.name),
+    }));
     return HttpResponse.json({
       total: audience.length,
       matched: matched.length,
@@ -354,8 +572,7 @@ export const campaignHandlers = [
     const index = campaignStore.findIndex((item) => item.id === params.id);
     if (index === -1) return error('not_found', 404);
     const current = campaignStore[index]!;
-    // Only an editable (not-yet-approved) campaign may be changed.
-    if (current.status !== 'draft' && current.status !== 'rejected') {
+    if (current.status === 'ended') {
       return error('not_editable', 409);
     }
     const parsed = campaignDraftInputSchema.safeParse(
@@ -363,8 +580,34 @@ export const campaignHandlers = [
     );
     if (!parsed.success) return error('validation', 422);
     const input = parsed.data;
+    if (
+      input.frequencyCapPerCustomer !== current.frequency_cap_per_customer &&
+      !allowed('campaign.frequency.config')
+    )
+      return error('forbidden', 403);
+    const offerChanged =
+      JSON.stringify(current.offer) !== JSON.stringify(input.offer);
+    if (
+      offerChanged &&
+      !allowed(
+        current.offer &&
+          (protectedOffers.has(current.id) ||
+            sends.some((s) => s.campaignId === current.id))
+          ? 'campaign.voucher.update'
+          : 'campaign.voucher.create'
+      )
+    )
+      return error('forbidden', 403);
     const updated: CampaignDto = {
       ...current,
+      tenant_id: input.tenantId,
+      priority: input.priority,
+      status: ['approved', 'running', 'paused'].includes(current.status)
+        ? 'pending_approval'
+        : current.status,
+      approved_by: null,
+      approved_by_name: null,
+      approved_at: null,
       name: input.name,
       kind: input.kind,
       channel: input.channel,
@@ -387,8 +630,19 @@ export const campaignHandlers = [
       module: 'campaigns',
       action: 'update',
       target: updated.id,
-      after: { name: updated.name },
+      before: structuredClone(current),
+      after: structuredClone(updated),
+      reason: input.reason,
     });
+    if (offerChanged)
+      recordAudit(actor(), {
+        module: 'campaigns',
+        action: 'voucher_update',
+        target: updated.id,
+        before: { offer: structuredClone(current.offer) },
+        after: { offer: structuredClone(updated.offer) },
+        reason: input.reason,
+      });
     return HttpResponse.json(updated);
   }),
 
@@ -403,6 +657,8 @@ export const campaignHandlers = [
       action !== 'approve' &&
       action !== 'reject' &&
       action !== 'run' &&
+      action !== 'pause' &&
+      action !== 'resume' &&
       action !== 'stop'
     ) {
       return error('validation', 422);
@@ -418,10 +674,7 @@ export const campaignHandlers = [
 
     // Reason is mandatory when approving, rejecting or stopping.
     const reason = body?.reason?.trim() || null;
-    if (
-      (action === 'approve' || action === 'reject' || action === 'stop') &&
-      !reason
-    ) {
+    if (!reason) {
       return error('reason_required', 422);
     }
 
@@ -438,6 +691,7 @@ export const campaignHandlers = [
     current.status = to;
     current.updated_at = new Date().toISOString();
     if (action === 'approve') {
+      protectedOffers.add(current.id);
       current.approved_by = who.id;
       current.approved_by_name = who.fullName;
       current.approved_at = current.updated_at;
@@ -447,7 +701,7 @@ export const campaignHandlers = [
     if (action === 'run' && current.schedule_type === 'send_now') {
       current.starts_at = current.starts_at ?? current.updated_at;
     }
-    if (action === 'stop') current.ends_at = current.updated_at;
+
     campaignStore[index] = current;
 
     recordAudit(who, {

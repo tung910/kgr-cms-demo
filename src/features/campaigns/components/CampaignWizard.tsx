@@ -21,7 +21,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 
+import { useAuth } from '@/core/auth/useAuth';
+import { hasCapability } from '@/core/permissions/capabilities';
 import { modelReferenceQueries } from '@/core/reference/modelReferenceQueries';
+import { formatDateTimeInLocale } from '@/shared/lib/format';
 
 import {
   createCampaign,
@@ -33,9 +36,11 @@ import {
   CAMPAIGN_CHANNELS,
   DISCOUNT_TYPES,
   OFFER_TYPES,
+  VOUCHER_CODE_MODES,
   SEGMENT_WARRANTY_STATUSES,
   TRIGGER_PRESETS,
 } from '../constants/campaignEnums';
+import { CAMPAIGN_TENANT_ID } from '../constants/campaignTenant';
 import { APP_DEEPLINK_TARGETS } from '../constants/deeplinkTargets';
 import {
   SEGMENT_FIRMWARE_VERSIONS,
@@ -48,6 +53,7 @@ import type {
   CampaignDraftInput,
   CampaignOffer,
 } from '../schemas/campaignSchemas';
+import { AudienceSummary } from './AudienceSummary';
 
 export interface CampaignWizardProps {
   open: boolean;
@@ -56,6 +62,8 @@ export interface CampaignWizardProps {
 }
 
 interface WizardValues {
+  reason: string;
+  priority: number;
   name: string;
   kind: 'manual' | 'trigger';
   channel: 'push' | 'in_app';
@@ -81,6 +89,7 @@ interface WizardValues {
   tenureMax?: number;
   offerEnabled?: boolean;
   offerType?: 'voucher' | 'loyalty_points';
+  codeMode?: 'shared' | 'per_customer';
   voucherCode?: string;
   discountType?: 'percent' | 'amount';
   discountValue?: number;
@@ -116,6 +125,7 @@ function buildOffer(values: WizardValues): CampaignOffer | null {
   if (values.offerType === 'voucher') {
     return {
       type: 'voucher',
+      codeMode: values.codeMode ?? 'per_customer',
       ...(values.voucherCode ? { voucherCode: values.voucherCode } : {}),
       ...(values.discountType ? { discountType: values.discountType } : {}),
       ...(values.discountValue != null
@@ -152,6 +162,9 @@ function buildDraftInput(
   const scheduleType = isTrigger ? 'send_now' : values.scheduleType;
   const scheduled = !isTrigger && scheduleType === 'scheduled';
   return {
+    reason: values.reason,
+    priority: values.priority ?? 0,
+    tenantId: CAMPAIGN_TENANT_ID,
     name: values.name,
     kind: values.kind,
     channel: values.channel,
@@ -175,6 +188,8 @@ function buildDraftInput(
 function initialValues(campaign?: Campaign | null): Partial<WizardValues> {
   if (!campaign) {
     return {
+      codeMode: 'per_customer',
+      priority: 0,
       kind: 'manual',
       channel: 'push',
       scheduleType: 'send_now',
@@ -184,6 +199,7 @@ function initialValues(campaign?: Campaign | null): Partial<WizardValues> {
   const a = campaign.audience;
   const offer = campaign.offer;
   return {
+    priority: campaign.priority,
     name: campaign.name,
     kind: campaign.kind,
     channel: campaign.channel,
@@ -212,6 +228,7 @@ function initialValues(campaign?: Campaign | null): Partial<WizardValues> {
     tenureMax: a.tenureDays?.max,
     offerEnabled: offer != null,
     offerType: offer?.type,
+    codeMode: offer?.codeMode ?? 'per_customer',
     voucherCode: offer?.voucherCode,
     discountType: offer?.discountType,
     discountValue: offer?.discountValue,
@@ -224,7 +241,16 @@ function initialValues(campaign?: Campaign | null): Partial<WizardValues> {
 
 const STEP_FIELDS: Array<(keyof WizardValues)[]> = [
   ['name', 'channel', 'contentVi', 'scheduleType', 'runWindow'],
-  [],
+  [
+    'coreMin',
+    'coreMax',
+    'loyaltyMin',
+    'loyaltyMax',
+    'tdsMin',
+    'tdsMax',
+    'tenureMin',
+    'tenureMax',
+  ],
   ['offerType', 'triggerPreset'],
   [],
 ];
@@ -234,7 +260,10 @@ export function CampaignWizard({
   campaign,
   onClose,
 }: CampaignWizardProps) {
-  const { t } = useTranslation('campaigns');
+  const { t, i18n } = useTranslation('campaigns');
+  const { session } = useAuth();
+  const canConfigureFrequency =
+    !!session && hasCapability(session.role, 'campaign.frequency.config');
   const [form] = Form.useForm<WizardValues>();
   const queryClient = useQueryClient();
   const models = useQuery(modelReferenceQueries.list());
@@ -244,6 +273,7 @@ export function CampaignWizard({
     campaign?.audienceCount ?? null
   );
   const [previewKey, setPreviewKey] = useState<string | null>(null);
+  const [previewedAt, setPreviewedAt] = useState<Date | null>(null);
 
   const values = (Form.useWatch([], form) ?? {}) as Partial<WizardValues>;
   const isTrigger = values.kind === 'trigger';
@@ -251,10 +281,11 @@ export function CampaignWizard({
   const previewReady = matched !== null && previewKey === conditionsKey;
 
   const previewMutation = useMutation({
-    mutationFn: () => previewAudience(buildConditions(form.getFieldsValue())),
-    onSuccess: (data) => {
+    mutationFn: (conditions: AudienceConditions) => previewAudience(conditions),
+    onSuccess: (data, conditions) => {
       setMatched(data.matched);
-      setPreviewKey(JSON.stringify(buildConditions(form.getFieldsValue())));
+      setPreviewKey(JSON.stringify(conditions));
+      setPreviewedAt(new Date());
     },
     onError: () => void message.error(t('errors.previewFailed')),
   });
@@ -265,8 +296,11 @@ export function CampaignWizard({
     const saved = campaign
       ? await updateCampaign(campaign.id, input)
       : await createCampaign(input);
-    if (submitForApproval) {
-      await transitionCampaign(saved.id, 'submit');
+    if (
+      submitForApproval &&
+      (saved.status === 'draft' || saved.status === 'rejected')
+    ) {
+      await transitionCampaign(saved.id, 'submit', input.reason);
     }
     return saved;
   };
@@ -288,6 +322,7 @@ export function CampaignWizard({
     setStep(0);
     setMatched(null);
     setPreviewKey(null);
+    setPreviewedAt(null);
     onClose();
   };
 
@@ -360,6 +395,12 @@ export function CampaignWizard({
       >
         {/* Step 1 — content */}
         <div className={step === 0 ? '' : 'hidden'}>
+          <Form.Item name="priority" label={t('fields.priority')}>
+            <InputNumber min={0} precision={0} />
+          </Form.Item>
+          <Form.Item label={t('fields.tenant')}>
+            <Input value={t('tenant.water_purifier')} readOnly />
+          </Form.Item>
           <Form.Item
             name="name"
             label={t('fields.name')}
@@ -445,9 +486,13 @@ export function CampaignWizard({
 
         {/* Step 2 — audience */}
         <div className={step === 1 ? '' : 'hidden'}>
-          <p className="mb-4 text-sm text-[#636466]">
-            {t('wizard.audienceHint')}
-          </p>
+          <Alert
+            type="info"
+            showIcon
+            title={t('audienceHelp.logic')}
+            description={t('audienceHelp.example')}
+            className="mb-4"
+          />
           <div className="grid gap-4 sm:grid-cols-2">
             <Form.Item name="regions" label={t('fields.regions')}>
               <Select
@@ -506,31 +551,46 @@ export function CampaignWizard({
           <div className="grid gap-4 sm:grid-cols-2">
             <RangeField
               label={t('fields.coreRemainingDays')}
+              hint={t('audienceHelp.core')}
               minName="coreMin"
               maxName="coreMax"
             />
             <RangeField
               label={t('fields.loyaltyPoints')}
+              hint={t('audienceHelp.loyalty')}
               minName="loyaltyMin"
               maxName="loyaltyMax"
             />
             <RangeField
               label={t('fields.regionTds')}
+              hint={t('audienceHelp.tds')}
+              integer={false}
               minName="tdsMin"
               maxName="tdsMax"
             />
             <RangeField
               label={t('fields.tenureDays')}
+              hint={t('audienceHelp.tenure')}
               minName="tenureMin"
               maxName="tenureMax"
             />
           </div>
+          <AudienceSummary conditions={buildConditions(values)} />
           <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg bg-[#F3F4F4] p-4">
             <Button
               type="primary"
               ghost
               loading={previewMutation.isPending}
-              onClick={() => previewMutation.mutate()}
+              onClick={async () => {
+                try {
+                  await form.validateFields(STEP_FIELDS[1]);
+                  previewMutation.mutate(
+                    buildConditions(form.getFieldsValue())
+                  );
+                } catch {
+                  /* Field errors are displayed by Form. */
+                }
+              }}
             >
               {t('wizard.previewButton')}
             </Button>
@@ -549,6 +609,24 @@ export function CampaignWizard({
               </span>
             ) : null}
           </div>
+          {previewedAt ? (
+            <p className="mt-2 text-xs text-[#636466]">
+              {t('audienceHelp.checkedAt', {
+                time: formatDateTimeInLocale(previewedAt, i18n.language),
+              })}
+            </p>
+          ) : null}
+          {previewReady && matched === 0 ? (
+            <Alert
+              type="warning"
+              showIcon
+              title={t('audienceHelp.empty')}
+              className="mt-3"
+            />
+          ) : null}
+          <p className="mt-3 text-xs text-[#636466]">
+            {t('audienceHelp.snapshot')}
+          </p>
         </div>
 
         {/* Step 3 — offer or trigger */}
@@ -572,7 +650,12 @@ export function CampaignWizard({
             label={t('fields.frequencyCap')}
             tooltip={t('fields.frequencyCapHint')}
           >
-            <InputNumber min={0} max={30} className="w-full" />
+            <InputNumber
+              min={0}
+              max={30}
+              disabled={!canConfigureFrequency}
+              className="w-full"
+            />
           </Form.Item>
           <Divider titlePlacement="start" plain>
             {t('wizard.offerSection')}
@@ -596,6 +679,13 @@ export function CampaignWizard({
               </Form.Item>
               {values.offerType === 'voucher' ? (
                 <div className="grid gap-4 sm:grid-cols-2">
+                  <Form.Item name="codeMode" label={t('fields.codeMode')}>
+                    <Select
+                      options={VOUCHER_CODE_MODES.map(
+                        ({ value, labelKey }) => ({ value, label: t(labelKey) })
+                      )}
+                    />
+                  </Form.Item>
                   <Form.Item name="voucherCode" label={t('fields.voucherCode')}>
                     <Input />
                   </Form.Item>
@@ -645,6 +735,19 @@ export function CampaignWizard({
 
         {/* Step 4 — review */}
         <div className={step === 3 ? '' : 'hidden'}>
+          <Form.Item
+            name="reason"
+            label={t('transitions.reasonLabel')}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: t('transitions.reasonRequired'),
+              },
+            ]}
+          >
+            <Input.TextArea rows={2} maxLength={500} />
+          </Form.Item>
           <Descriptions column={1} size="small" bordered>
             <Descriptions.Item label={t('fields.name')}>
               {values.name}
@@ -753,31 +856,76 @@ function ImageUploadField({
 
 interface RangeFieldProps {
   label: string;
+  hint: string;
+  integer?: boolean;
   minName: keyof WizardValues;
   maxName: keyof WizardValues;
 }
 
-function RangeField({ label, minName, maxName }: RangeFieldProps) {
+function RangeField({
+  label,
+  hint,
+  integer = true,
+  minName,
+  maxName,
+}: RangeFieldProps) {
   const { t } = useTranslation('campaigns');
   return (
     <div>
       <div className="mb-1 text-sm">{label}</div>
-      <Space.Compact className="w-full">
-        <Form.Item name={minName} noStyle>
+      <p className="mb-2 text-xs text-[#636466]">{hint}</p>
+      <div className="grid grid-cols-2 gap-2">
+        <Form.Item
+          name={minName}
+          label={t('fields.min')}
+          className="mb-0 min-w-0 flex-1"
+          rules={[
+            {
+              type: 'number',
+              min: 0,
+              ...(integer ? { type: 'integer' as const } : {}),
+              message: t('audienceHelp.invalidNumber'),
+            },
+          ]}
+        >
           <InputNumber
             min={0}
+            precision={integer ? 0 : undefined}
+            aria-label={`${label} — ${t('fields.min')}`}
             placeholder={t('fields.min')}
-            className="w-full"
+            style={{ width: '100%' }}
           />
         </Form.Item>
-        <Form.Item name={maxName} noStyle>
+        <Form.Item
+          name={maxName}
+          label={t('fields.max')}
+          dependencies={[minName]}
+          className="mb-0 min-w-0 flex-1"
+          rules={[
+            {
+              type: integer ? 'integer' : 'number',
+              min: 0,
+              message: t('audienceHelp.invalidNumber'),
+            },
+            ({ getFieldValue }) => ({
+              validator: (_, value: number | null | undefined) => {
+                const min: unknown = getFieldValue(minName);
+                return value == null || typeof min !== 'number' || min <= value
+                  ? Promise.resolve()
+                  : Promise.reject(new Error(t('audienceHelp.invalidRange')));
+              },
+            }),
+          ]}
+        >
           <InputNumber
             min={0}
+            precision={integer ? 0 : undefined}
+            aria-label={`${label} — ${t('fields.max')}`}
             placeholder={t('fields.max')}
-            className="w-full"
+            style={{ width: '100%' }}
           />
         </Form.Item>
-      </Space.Compact>
+      </div>
     </div>
   );
 }

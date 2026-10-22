@@ -296,7 +296,16 @@
       "lockoutMinutes": "Lock duration (minutes)",
       "sessionTimeoutMinutes": "Idle session timeout (minutes)",
       "passwordMinLength": "Minimum password length",
-      "alertAutoClose": "Auto-close alerts when the device recovers"
+      "alertAutoClose": "Auto-close alerts when the device recovers",
+      "campaignCoreDays": "Core trigger remaining days",
+      "campaignQuietStartHour": "Quiet hours start (VN)",
+      "campaignQuietEndHour": "Quiet hours end (VN)",
+      "campaignFrequencyLimit": "Messages per customer (all channels)",
+      "campaignFrequencyDays": "Frequency window (days)",
+      "campaignAttributionDays": "Last-click window (days)",
+      "campaignCooldownDays": "Trigger cooldown (days)",
+      "campaignBookingRevenue": "Mock net revenue per booking (VND)",
+      "campaignQrRevenue": "Mock net revenue per QR (VND)"
     },
     "slaHint": "Minutes to resolve an alert. No default is defined yet, so these start unset.",
     "slaUnset": "Not configured",

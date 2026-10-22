@@ -1,3 +1,4 @@
+import { CAMPAIGN_TENANT_ID } from '@/features/campaigns/constants/campaignTenant';
 import type { CampaignDto } from '@/features/campaigns/schemas/campaignSchemas';
 
 // Seed campaigns covering every lifecycle state (spec 7.5) plus an automated
@@ -9,6 +10,8 @@ const iso = (offsetDays: number) =>
 
 export const campaignFixtures: CampaignDto[] = [
   {
+    priority: 0,
+    tenant_id: CAMPAIGN_TENANT_ID,
     id: 'CMP-0001',
     name: 'Nhắc thay lõi khu vực Hà Nội',
     kind: 'manual',
@@ -44,6 +47,8 @@ export const campaignFixtures: CampaignDto[] = [
     rejected_reason: null,
   },
   {
+    priority: 0,
+    tenant_id: CAMPAIGN_TENANT_ID,
     id: 'CMP-0002',
     name: 'Ưu đãi gia hạn bảo hành Q4',
     kind: 'manual',
@@ -67,6 +72,7 @@ export const campaignFixtures: CampaignDto[] = [
     audience_count: 27,
     offer: {
       type: 'voucher',
+      codeMode: 'shared',
       voucherCode: 'WARRANTY10',
       discountType: 'percent',
       discountValue: 10,
@@ -84,6 +90,8 @@ export const campaignFixtures: CampaignDto[] = [
     rejected_reason: null,
   },
   {
+    priority: 0,
+    tenant_id: CAMPAIGN_TENANT_ID,
     id: 'CMP-0003',
     name: 'Tặng điểm tri ân khách thân thiết',
     kind: 'manual',
@@ -123,6 +131,8 @@ export const campaignFixtures: CampaignDto[] = [
     rejected_reason: null,
   },
   {
+    priority: 0,
+    tenant_id: CAMPAIGN_TENANT_ID,
     id: 'CMP-0004',
     name: 'Khuyến mãi lõi mới toàn quốc',
     kind: 'manual',
@@ -146,6 +156,7 @@ export const campaignFixtures: CampaignDto[] = [
     audience_count: 44,
     offer: {
       type: 'voucher',
+      codeMode: 'shared',
       voucherCode: 'CORE15',
       discountType: 'percent',
       discountValue: 15,
@@ -163,6 +174,8 @@ export const campaignFixtures: CampaignDto[] = [
     rejected_reason: null,
   },
   {
+    priority: 0,
+    tenant_id: CAMPAIGN_TENANT_ID,
     id: 'CMP-0005',
     name: 'Chiến dịch Trung thu (đã kết thúc)',
     kind: 'manual',
@@ -195,6 +208,8 @@ export const campaignFixtures: CampaignDto[] = [
     rejected_reason: null,
   },
   {
+    priority: 0,
+    tenant_id: CAMPAIGN_TENANT_ID,
     id: 'CMP-0006',
     name: '[Tự động] Nhắc thay lõi khi còn ≤ 15 ngày',
     kind: 'trigger',
@@ -214,7 +229,6 @@ export const campaignFixtures: CampaignDto[] = [
       models: [],
       firmwareVersions: [],
       warrantyStatuses: [],
-      coreRemainingDays: { max: 15 },
     },
     audience_count: 23,
     offer: null,

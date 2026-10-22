@@ -54,3 +54,8 @@ export const SEGMENT_WARRANTY_STATUSES = [
 ] as const;
 export type SegmentWarrantyStatus =
   (typeof SEGMENT_WARRANTY_STATUSES)[number]['value'];
+
+export const VOUCHER_CODE_MODES = [
+  { value: 'per_customer', labelKey: 'offer.codeMode.per_customer' },
+  { value: 'shared', labelKey: 'offer.codeMode.shared' },
+] as const;

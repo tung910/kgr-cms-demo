@@ -112,6 +112,9 @@ const groupStore: GroupRecord[] = [
 ];
 
 let configStore: SystemConfigDto = structuredClone(configFixture);
+export function getSystemConfigParams() {
+  return configStore.params;
+}
 
 const auditStore: AuditEntryDto[] = [];
 const backupStore: BackupDto[] = [3, 2, 1].map((daysAgo) => ({
@@ -1158,6 +1161,14 @@ export const systemHandlers = [
     const body = await readBody(request, configBodySchema);
     if (body.error) return body.error;
 
+    if (
+      (body.data.params.campaign_frequency_limit !==
+        configStore.params.campaign_frequency_limit ||
+        body.data.params.campaign_frequency_days !==
+          configStore.params.campaign_frequency_days) &&
+      !activeCapabilities(auth.user).includes('campaign.frequency.config')
+    )
+      return fail(403, 'forbidden');
     const catalogKeys: CatalogKey[] = ['model', 'core', 'region'];
     for (const key of catalogKeys) {
       const codes = body.data.catalogs[key].map((item) => item.code);

@@ -18,8 +18,21 @@ export const numberRangeSchema = z
     min: z.number().nonnegative().optional(),
     max: z.number().nonnegative().optional(),
   })
+  .refine(
+    (value) => value.min == null || value.max == null || value.min <= value.max,
+    { message: 'invalid_range', path: ['max'] }
+  )
   .optional();
 export type NumberRange = NonNullable<z.infer<typeof numberRangeSchema>>;
+
+const integerRangeSchema = numberRangeSchema.refine(
+  (value) =>
+    !value ||
+    [value.min, value.max].every(
+      (bound) => bound == null || Number.isInteger(bound)
+    ),
+  { message: 'integer_required' }
+);
 
 export const audienceConditionsSchema = z.object({
   // Multi-select fields: an empty array means "no constraint on this field".
@@ -28,10 +41,10 @@ export const audienceConditionsSchema = z.object({
   firmwareVersions: z.array(z.string().min(1)).default([]),
   warrantyStatuses: z.array(segmentWarrantyStatusSchema).default([]),
   // Numeric range fields (undefined = no constraint).
-  coreRemainingDays: numberRangeSchema,
-  loyaltyPoints: numberRangeSchema,
+  coreRemainingDays: integerRangeSchema,
+  loyaltyPoints: integerRangeSchema,
   regionTds: numberRangeSchema,
-  tenureDays: numberRangeSchema,
+  tenureDays: integerRangeSchema,
 });
 export type AudienceConditions = z.infer<typeof audienceConditionsSchema>;
 
@@ -42,18 +55,24 @@ export const EMPTY_AUDIENCE_CONDITIONS: AudienceConditions = {
   warrantyStatuses: [],
 };
 
-// A single customer in the mock audience dataset built for this feature. It
-// carries every §7.2 segmentation field so "số KH thỏa điều kiện" is honest.
-export const audienceCustomerDtoSchema = z.object({
-  customer_id: z.string().min(1),
-  name: z.string().min(1),
+export const audienceDeviceDtoSchema = z.object({
+  device_id: z.string().min(1),
   region: z.string().min(1),
   model_name: z.string().min(1),
   firmware_version: z.string().min(1),
   core_remaining_days: z.number().int().nonnegative(),
   warranty_status: segmentWarrantyStatusSchema,
-  loyalty_points: z.number().int().nonnegative(),
   region_tds: z.number().nonnegative(),
+  warranty_remaining_days: z.number().int(),
+});
+export type AudienceDeviceDto = z.infer<typeof audienceDeviceDtoSchema>;
+
+export const audienceCustomerDtoSchema = z.object({
+  customer_id: z.string().min(1),
+  name: z.string().min(1),
+  devices: z.array(audienceDeviceDtoSchema),
+  loyalty_points: z.number().int().nonnegative(),
+  first_activated_at: z.string().datetime({ offset: true }),
   tenure_days: z.number().int().nonnegative(),
   // Marketing consent (Nghị định 13, spec 7.7.a). Opted-out customers are
   // hard-excluded from every send set — manual campaigns and triggers alike —
@@ -75,15 +94,21 @@ export type AudiencePreviewDto = z.infer<typeof audiencePreviewDtoSchema>;
 export interface AudienceCustomer {
   customerId: string;
   name: string;
+  devices: AudienceDevice[];
+  loyaltyPoints: number;
+  tenureDays: number;
+  optIn: boolean;
+}
+
+export interface AudienceDevice {
+  deviceId: string;
   region: string;
   modelName: string;
   firmwareVersion: string;
   coreRemainingDays: number;
   warrantyStatus: SegmentWarrantyStatus;
-  loyaltyPoints: number;
   regionTds: number;
-  tenureDays: number;
-  optIn: boolean;
+  warrantyRemainingDays: number;
 }
 
 export interface AudiencePreview {

@@ -18,6 +18,7 @@ const campaignListSearchSchema = z.object({
       'pending_approval',
       'approved',
       'running',
+      'paused',
       'ended',
       'rejected',
     ])

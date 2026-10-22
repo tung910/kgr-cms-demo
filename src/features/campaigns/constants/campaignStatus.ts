@@ -9,6 +9,7 @@ export const CAMPAIGN_STATUSES = [
   { value: 'pending_approval', labelKey: 'status.pending_approval' },
   { value: 'approved', labelKey: 'status.approved' },
   { value: 'running', labelKey: 'status.running' },
+  { value: 'paused', labelKey: 'status.paused' },
   { value: 'ended', labelKey: 'status.ended' },
   { value: 'rejected', labelKey: 'status.rejected' },
 ] as const;
@@ -24,6 +25,7 @@ export const CAMPAIGN_STATUS_TONES: Record<CampaignStatus, PortalTone> = {
   pending_approval: 'warning',
   approved: 'info',
   running: 'primary',
+  paused: 'warning',
   ended: 'water',
   rejected: 'danger',
 };
