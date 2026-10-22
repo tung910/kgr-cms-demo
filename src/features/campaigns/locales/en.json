@@ -38,10 +38,12 @@
     "core_due": "Core nearing replacement",
     "warranty_expiring": "Warranty expiring",
     "high_tds": "High regional TDS",
+    "repurchase_due": "Repurchase cycle due (non-IoT)",
     "hint": {
-      "core_due": "Uses the current system configuration threshold.",
-      "warranty_expiring": "Uses the current system configuration threshold.",
-      "high_tds": "Uses the current system configuration threshold."
+      "core_due": "Core sensor based — IoT devices only. Threshold from system configuration.",
+      "warranty_expiring": "Works for non-IoT too (from purchase date). Threshold from system configuration.",
+      "high_tds": "TDS sensor based — IoT devices only. Threshold from system configuration.",
+      "repurchase_due": "Purchase-cadence based, no sensor — applies to non-IoT too. Threshold from system configuration."
     }
   },
   "warranty": {
@@ -107,6 +109,7 @@
     "models": "Model",
     "firmwareVersions": "Firmware version",
     "warrantyStatuses": "Warranty status",
+    "connectivities": "Connectivity",
     "anyPlaceholder": "Any",
     "coreRemainingDays": "Core days remaining",
     "loyaltyPoints": "Loyalty points",
@@ -150,6 +153,8 @@
     "rangeConditions": "Range conditions",
     "previewButton": "Preview audience",
     "previewResult": "{{count}} matching customers",
+    "previewNonIot": "(incl. {{count}} non-IoT)",
+    "sampleTitle": "Matched sample (up to 5)",
     "previewPlaceholder": "Click \"Preview audience\" before continuing.",
     "previewStale": "Conditions changed — preview again.",
     "previewRequired": "You must preview the audience before continuing.",
@@ -275,6 +280,7 @@
     "loyalty": "Unit: points. Enter only a minimum of 100 to select customers with at least 100 points.",
     "tds": "Unit: ppm. Enter a minimum to select regions at or above that TDS threshold.",
     "tenure": "Unit: days since the first device activation, rather than account creation.",
+    "connectivity": "Pick Non-IoT to target products with no cloud link (no telemetry); leave blank to include both. Note: any sensor condition (core/FW/TDS) excludes non-IoT units.",
     "checkedAt": "Results checked at {{time}}.",
     "snapshot": "Counts unique customers, rather than devices. Customers who opted out of marketing or reached the shared send-frequency cap are excluded. This is a snapshot; eligibility is checked again at send time, including campaign-specific conditions.",
     "empty": "No customers are eligible. Check or broaden the conditions, then preview again.",

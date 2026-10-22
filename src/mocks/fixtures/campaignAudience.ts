@@ -36,6 +36,12 @@ export const campaignAudienceFixtures: AudienceCustomerDto[] = Array.from(
           warranty_status: warrantyStatuses[seed % warrantyStatuses.length]!,
           warranty_remaining_days: ((seed * 13) % 400) - 30,
           region_tds: 20 + ((seed * 3) % 60),
+          // Roughly 1 in 5 devices is a non-IoT product (no cloud link) — it can
+          // only be reached through registration/commerce conditions, never
+          // telemetry. Uses `% 5` so connectivity is decorrelated from region
+          // (which uses `% regions.length` = `% 4`).
+          connectivity: seed % 5 === 0 ? 'non_iot' : 'iot',
+          last_core_purchase_days_ago: (seed * 23) % 420,
         };
       }),
       loyalty_points: (index * 37) % 1000,

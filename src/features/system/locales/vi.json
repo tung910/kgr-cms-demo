@@ -304,6 +304,7 @@
       "campaignFrequencyDays": "Cửa sổ trần tần suất (ngày)",
       "campaignAttributionDays": "Cửa sổ last-click (ngày)",
       "campaignCooldownDays": "Cooldown trigger (ngày)",
+      "campaignRepurchaseDays": "Chu kỳ nhắc mua lại (ngày)",
       "campaignBookingRevenue": "Doanh thu net/đặt lịch mô phỏng (VND)",
       "campaignQrRevenue": "Doanh thu net/QR mô phỏng (VND)"
     },

@@ -21,6 +21,12 @@ export function AudienceSummary({
         t(`warranty.${value}`)
       ),
     },
+    {
+      label: t('fields.connectivities'),
+      values: conditions.connectivities.map((value) =>
+        t(`productConnectivity.${value}`, { ns: 'common' })
+      ),
+    },
   ];
   const ranges = [
     {

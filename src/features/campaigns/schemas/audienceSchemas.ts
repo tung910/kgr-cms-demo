@@ -1,6 +1,15 @@
 import { z } from 'zod';
 
+import type { ProductConnectivity } from '@/shared/constants/productConnectivity';
+
 import type { SegmentWarrantyStatus } from '../constants/campaignEnums';
+
+// Shared product-connectivity vocabulary (iot | non_iot), the same set the
+// device screens use, so campaigns and devices label connectivity identically.
+export const productConnectivitySchema = z.enum([
+  'iot',
+  'non_iot',
+]) satisfies z.ZodType<ProductConnectivity>;
 
 // Segmentation conditions (spec 7.2). This nested blob is passed through
 // unchanged between the API boundary and the domain (not flattened to
@@ -40,6 +49,9 @@ export const audienceConditionsSchema = z.object({
   models: z.array(z.string().min(1)).default([]),
   firmwareVersions: z.array(z.string().min(1)).default([]),
   warrantyStatuses: z.array(segmentWarrantyStatusSchema).default([]),
+  // Product connectivity: empty = no constraint. Picking only `non_iot` targets
+  // offline products; picking only `iot` keeps the audience to connected units.
+  connectivities: z.array(productConnectivitySchema).default([]),
   // Numeric range fields (undefined = no constraint).
   coreRemainingDays: integerRangeSchema,
   loyaltyPoints: integerRangeSchema,
@@ -53,6 +65,7 @@ export const EMPTY_AUDIENCE_CONDITIONS: AudienceConditions = {
   models: [],
   firmwareVersions: [],
   warrantyStatuses: [],
+  connectivities: [],
 };
 
 export const audienceDeviceDtoSchema = z.object({
@@ -64,6 +77,15 @@ export const audienceDeviceDtoSchema = z.object({
   warranty_status: segmentWarrantyStatusSchema,
   region_tds: z.number().nonnegative(),
   warranty_remaining_days: z.number().int(),
+  // 'non_iot' for products that never connect to the cloud (spec: e-warranty is
+  // auto-issued "on first cloud connection"). A non-IoT unit has no live
+  // firmware/core/TDS, so telemetry segmentation conditions cannot reach it;
+  // it is addressed through registration/commerce dimensions instead.
+  connectivity: productConnectivitySchema,
+  // Days since the customer last bought a consumable for this device (commerce
+  // signal, not a sensor) — powers the `repurchase_due` trigger for IoT and
+  // non-IoT alike.
+  last_core_purchase_days_ago: z.number().int().nonnegative(),
 });
 export type AudienceDeviceDto = z.infer<typeof audienceDeviceDtoSchema>;
 
@@ -84,6 +106,9 @@ export type AudienceCustomerDto = z.infer<typeof audienceCustomerDtoSchema>;
 export const audiencePreviewDtoSchema = z.object({
   total: z.number().int().nonnegative(),
   matched: z.number().int().nonnegative(),
+  // Of the matched customers, how many were reached through a non-IoT device —
+  // the on-screen signal that a segment includes offline products.
+  matched_non_iot: z.number().int().nonnegative(),
   sample: z.array(audienceCustomerDtoSchema),
   // True when the sample names were masked for the viewer's role (no
   // device.pii.full); mirrors the owner-profile pii_masked flag (NĐ 13).
@@ -109,11 +134,14 @@ export interface AudienceDevice {
   warrantyStatus: SegmentWarrantyStatus;
   regionTds: number;
   warrantyRemainingDays: number;
+  connectivity: ProductConnectivity;
+  lastCorePurchaseDaysAgo: number;
 }
 
 export interface AudiencePreview {
   total: number;
   matched: number;
+  matchedNonIot: number;
   sample: AudienceCustomer[];
   piiMasked: boolean;
 }

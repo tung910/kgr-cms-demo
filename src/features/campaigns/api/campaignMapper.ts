@@ -102,6 +102,8 @@ export function mapAudienceCustomer(
       warrantyStatus: device.warranty_status,
       regionTds: device.region_tds,
       warrantyRemainingDays: device.warranty_remaining_days,
+      connectivity: device.connectivity,
+      lastCorePurchaseDaysAgo: device.last_core_purchase_days_ago,
     })),
     loyaltyPoints: dto.loyalty_points,
     tenureDays: dto.tenure_days,
@@ -113,6 +115,7 @@ export function mapAudiencePreview(dto: AudiencePreviewDto): AudiencePreview {
   return {
     total: dto.total,
     matched: dto.matched,
+    matchedNonIot: dto.matched_non_iot,
     sample: dto.sample.map(mapAudienceCustomer),
     piiMasked: dto.pii_masked,
   };

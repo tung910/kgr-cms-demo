@@ -285,6 +285,14 @@ function buildAudienceRows(
         .join(', '),
     });
   }
+  if (audience.connectivities.length) {
+    rows.push({
+      label: t('fields.connectivities'),
+      value: audience.connectivities
+        .map((value) => t(`productConnectivity.${value}`, { ns: 'common' }))
+        .join(', '),
+    });
+  }
   const ranges: Array<[string, { min?: number; max?: number } | undefined]> = [
     [t('fields.coreRemainingDays'), audience.coreRemainingDays],
     [t('fields.loyaltyPoints'), audience.loyaltyPoints],

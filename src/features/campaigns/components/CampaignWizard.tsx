@@ -13,6 +13,7 @@ import {
   Space,
   Steps,
   Switch,
+  Tag,
   Upload,
   message,
 } from 'antd';
@@ -24,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/core/auth/useAuth';
 import { hasCapability } from '@/core/permissions/capabilities';
 import { modelReferenceQueries } from '@/core/reference/modelReferenceQueries';
+import { PRODUCT_CONNECTIVITIES } from '@/shared/constants/productConnectivity';
 import { formatDateTimeInLocale } from '@/shared/lib/format';
 
 import {
@@ -47,7 +49,10 @@ import {
   SEGMENT_REGIONS,
 } from '../constants/segmentOptions';
 import { campaignQueries } from '../queries/campaignQueries';
-import type { AudienceConditions } from '../schemas/audienceSchemas';
+import type {
+  AudienceConditions,
+  AudienceCustomer,
+} from '../schemas/audienceSchemas';
 import type {
   Campaign,
   CampaignDraftInput,
@@ -73,12 +78,14 @@ interface WizardValues {
   deeplink?: string;
   scheduleType: 'send_now' | 'scheduled';
   runWindow?: [dayjs.Dayjs, dayjs.Dayjs];
-  triggerPreset?: 'core_due' | 'warranty_expiring' | 'high_tds';
+  triggerPreset?:
+    'core_due' | 'warranty_expiring' | 'high_tds' | 'repurchase_due';
   frequencyCapPerCustomer: number;
   regions?: string[];
   models?: string[];
   firmwareVersions?: string[];
   warrantyStatuses?: Array<'active' | 'expiring' | 'expired' | 'none'>;
+  connectivities?: Array<'iot' | 'non_iot'>;
   coreMin?: number;
   coreMax?: number;
   loyaltyMin?: number;
@@ -113,6 +120,7 @@ function buildConditions(values: Partial<WizardValues>): AudienceConditions {
     models: values.models ?? [],
     firmwareVersions: values.firmwareVersions ?? [],
     warrantyStatuses: values.warrantyStatuses ?? [],
+    connectivities: values.connectivities ?? [],
     coreRemainingDays: range(values.coreMin, values.coreMax),
     loyaltyPoints: range(values.loyaltyMin, values.loyaltyMax),
     regionTds: range(values.tdsMin, values.tdsMax),
@@ -218,6 +226,7 @@ function initialValues(campaign?: Campaign | null): Partial<WizardValues> {
     models: a.models,
     firmwareVersions: a.firmwareVersions,
     warrantyStatuses: a.warrantyStatuses,
+    connectivities: a.connectivities,
     coreMin: a.coreRemainingDays?.min,
     coreMax: a.coreRemainingDays?.max,
     loyaltyMin: a.loyaltyPoints?.min,
@@ -242,6 +251,7 @@ function initialValues(campaign?: Campaign | null): Partial<WizardValues> {
 const STEP_FIELDS: Array<(keyof WizardValues)[]> = [
   ['name', 'channel', 'contentVi', 'scheduleType', 'runWindow'],
   [
+    'connectivities',
     'coreMin',
     'coreMax',
     'loyaltyMin',
@@ -272,6 +282,8 @@ export function CampaignWizard({
   const [matched, setMatched] = useState<number | null>(
     campaign?.audienceCount ?? null
   );
+  const [matchedNonIot, setMatchedNonIot] = useState<number | null>(null);
+  const [sample, setSample] = useState<AudienceCustomer[]>([]);
   const [previewKey, setPreviewKey] = useState<string | null>(null);
   const [previewedAt, setPreviewedAt] = useState<Date | null>(null);
 
@@ -284,6 +296,8 @@ export function CampaignWizard({
     mutationFn: (conditions: AudienceConditions) => previewAudience(conditions),
     onSuccess: (data, conditions) => {
       setMatched(data.matched);
+      setMatchedNonIot(data.matchedNonIot);
+      setSample(data.sample);
       setPreviewKey(JSON.stringify(conditions));
       setPreviewedAt(new Date());
     },
@@ -321,6 +335,8 @@ export function CampaignWizard({
     form.resetFields();
     setStep(0);
     setMatched(null);
+    setMatchedNonIot(null);
+    setSample([]);
     setPreviewKey(null);
     setPreviewedAt(null);
     onClose();
@@ -544,6 +560,21 @@ export function CampaignWizard({
                 )}
               />
             </Form.Item>
+            <Form.Item
+              name="connectivities"
+              label={t('fields.connectivities')}
+              tooltip={t('audienceHelp.connectivity')}
+            >
+              <Select
+                mode="multiple"
+                allowClear
+                placeholder={t('fields.anyPlaceholder')}
+                options={PRODUCT_CONNECTIVITIES.map(({ value, labelKey }) => ({
+                  value,
+                  label: t(labelKey, { ns: 'common' }),
+                }))}
+              />
+            </Form.Item>
           </div>
           <Divider titlePlacement="start" plain>
             {t('wizard.rangeConditions')}
@@ -597,6 +628,11 @@ export function CampaignWizard({
             {matched !== null ? (
               <span className="text-sm font-semibold text-[#020204]">
                 {t('wizard.previewResult', { count: matched })}
+                {matchedNonIot !== null ? (
+                  <span className="ml-2 font-normal text-[#636466]">
+                    {t('wizard.previewNonIot', { count: matchedNonIot })}
+                  </span>
+                ) : null}
               </span>
             ) : (
               <span className="text-sm text-[#636466]">
@@ -609,6 +645,36 @@ export function CampaignWizard({
               </span>
             ) : null}
           </div>
+          {previewReady && sample.length ? (
+            <div className="mt-3 rounded-lg border border-[#E5E6E6] p-3">
+              <p className="mb-2 text-xs font-semibold text-[#636466]">
+                {t('wizard.sampleTitle')}
+              </p>
+              <ul className="m-0 list-none space-y-1 p-0">
+                {sample.map((customer) => {
+                  const hasNonIot = customer.devices.some(
+                    (device) => device.connectivity === 'non_iot'
+                  );
+                  return (
+                    <li
+                      key={customer.customerId}
+                      className="flex items-center justify-between gap-2 text-sm"
+                    >
+                      <span className="truncate">{customer.name}</span>
+                      <Tag color={hasNonIot ? 'default' : 'green'}>
+                        {t(
+                          hasNonIot
+                            ? 'productConnectivity.non_iot'
+                            : 'productConnectivity.iot',
+                          { ns: 'common' }
+                        )}
+                      </Tag>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ) : null}
           {previewedAt ? (
             <p className="mt-2 text-xs text-[#636466]">
               {t('audienceHelp.checkedAt', {

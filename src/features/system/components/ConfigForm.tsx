@@ -49,6 +49,7 @@ const numberFields: NumberField[] = [
   { name: 'campaignFrequencyDays', min: 1, max: 365 },
   { name: 'campaignAttributionDays', min: 1, max: 365 },
   { name: 'campaignCooldownDays', min: 1, max: 365 },
+  { name: 'campaignRepurchaseDays', min: 1, max: 730 },
   { name: 'campaignBookingRevenue', min: 0, max: 100000000 },
   { name: 'campaignQrRevenue', min: 0, max: 100000000 },
   { name: 'tdsThresholdRegion', min: 1, max: 1000 },

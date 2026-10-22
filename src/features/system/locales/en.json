@@ -304,6 +304,7 @@
       "campaignFrequencyDays": "Frequency window (days)",
       "campaignAttributionDays": "Last-click window (days)",
       "campaignCooldownDays": "Trigger cooldown (days)",
+      "campaignRepurchaseDays": "Repurchase reminder cycle (days)",
       "campaignBookingRevenue": "Mock net revenue per booking (VND)",
       "campaignQrRevenue": "Mock net revenue per QR (VND)"
     },

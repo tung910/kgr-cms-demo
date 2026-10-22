@@ -38,10 +38,12 @@
     "core_due": "Lõi sắp đến hạn thay",
     "warranty_expiring": "Bảo hành sắp hết",
     "high_tds": "TDS khu vực cao",
+    "repurchase_due": "Đến chu kỳ mua lại (non-IoT)",
     "hint": {
-      "core_due": "Ngưỡng áp dụng theo cấu hình hệ thống hiện tại.",
-      "warranty_expiring": "Ngưỡng áp dụng theo cấu hình hệ thống hiện tại.",
-      "high_tds": "Ngưỡng áp dụng theo cấu hình hệ thống hiện tại."
+      "core_due": "Theo cảm biến lõi — chỉ máy IoT. Ngưỡng theo cấu hình hệ thống.",
+      "warranty_expiring": "Dùng cho cả máy non-IoT (tính theo ngày mua). Ngưỡng theo cấu hình hệ thống.",
+      "high_tds": "Theo cảm biến TDS — chỉ máy IoT. Ngưỡng theo cấu hình hệ thống.",
+      "repurchase_due": "Theo nhịp mua, không cần cảm biến — áp dụng cho cả non-IoT. Ngưỡng theo cấu hình hệ thống."
     }
   },
   "warranty": {
@@ -107,6 +109,7 @@
     "models": "Model",
     "firmwareVersions": "Phiên bản FW",
     "warrantyStatuses": "Trạng thái bảo hành",
+    "connectivities": "Loại kết nối",
     "anyPlaceholder": "Tất cả",
     "coreRemainingDays": "Số ngày lõi còn lại",
     "loyaltyPoints": "Điểm loyalty",
@@ -150,6 +153,8 @@
     "rangeConditions": "Điều kiện theo khoảng",
     "previewButton": "Xem trước số KH",
     "previewResult": "{{count}} khách hàng thỏa điều kiện",
+    "previewNonIot": "(trong đó {{count}} non-IoT)",
+    "sampleTitle": "Mẫu khách khớp (tối đa 5)",
     "previewPlaceholder": "Bấm \"Xem trước số KH\" để kiểm tra trước khi tiếp tục.",
     "previewStale": "Điều kiện đã thay đổi — hãy xem trước lại.",
     "previewRequired": "Bạn cần xem trước số KH trước khi tiếp tục.",
@@ -275,6 +280,7 @@
     "loyalty": "Đơn vị: điểm. Chỉ nhập tối thiểu 100 để chọn khách có từ 100 điểm.",
     "tds": "Đơn vị: ppm. Nhập tối thiểu để chọn khu vực có TDS từ ngưỡng đó trở lên.",
     "tenure": "Đơn vị: ngày, tính từ lần kích hoạt thiết bị đầu tiên; không phải ngày tạo tài khoản.",
+    "connectivity": "Chọn Non-IoT để nhắm sản phẩm không kết nối cloud (không có telemetry); để trống là gồm cả hai. Lưu ý: đặt điều kiện cảm biến (lõi/FW/TDS) sẽ tự loại máy non-IoT.",
     "checkedAt": "Kết quả được kiểm tra lúc {{time}}.",
     "snapshot": "Đếm khách hàng duy nhất, không phải số thiết bị. Tự loại khách từ chối marketing hoặc đã chạm trần tần suất gửi chung. Đây là kết quả tại thời điểm xem; khi gửi hệ thống kiểm tra lại và áp dụng thêm điều kiện của chiến dịch.",
     "empty": "Không có khách đủ điều kiện nhận tin. Hãy kiểm tra hoặc nới các điều kiện rồi xem trước lại.",

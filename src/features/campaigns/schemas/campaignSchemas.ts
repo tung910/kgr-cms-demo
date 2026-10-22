@@ -47,6 +47,7 @@ const triggerPresetSchema = z.enum([
   'core_due',
   'warranty_expiring',
   'high_tds',
+  'repurchase_due',
 ]) satisfies z.ZodType<TriggerPreset>;
 
 const offerTypeSchema = z.enum([

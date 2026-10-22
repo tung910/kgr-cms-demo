@@ -139,17 +139,35 @@ function matchingDevices(
   )
     return [];
   // All installation/device conditions must hold on the same owned device.
-  return customer.devices.filter(
-    (device) =>
-      (!c.regions.length || c.regions.includes(device.region)) &&
-      (!c.models.length || c.models.includes(device.model_name)) &&
-      (!c.firmwareVersions.length ||
-        c.firmwareVersions.includes(device.firmware_version)) &&
-      (!c.warrantyStatuses.length ||
-        c.warrantyStatuses.includes(device.warranty_status)) &&
-      inRange(device.core_remaining_days, c.coreRemainingDays) &&
-      inRange(device.region_tds, c.regionTds)
-  );
+  // Telemetry conditions (firmware, core days, regional TDS) come from a live
+  // cloud link, so a non-IoT unit can never satisfy them: setting any of these
+  // conditions excludes non-IoT devices, while registration/commerce conditions
+  // (region, model, warranty by purchase date) still reach them.
+  return customer.devices.filter((device) => {
+    if (c.regions.length && !c.regions.includes(device.region)) return false;
+    if (c.models.length && !c.models.includes(device.model_name)) return false;
+    if (
+      c.connectivities.length &&
+      !c.connectivities.includes(device.connectivity)
+    )
+      return false;
+    if (
+      c.warrantyStatuses.length &&
+      !c.warrantyStatuses.includes(device.warranty_status)
+    )
+      return false;
+    const telemetryConstrained =
+      c.firmwareVersions.length > 0 || !!c.coreRemainingDays || !!c.regionTds;
+    if (telemetryConstrained && device.connectivity !== 'iot') return false;
+    if (
+      c.firmwareVersions.length &&
+      !c.firmwareVersions.includes(device.firmware_version)
+    )
+      return false;
+    if (!inRange(device.core_remaining_days, c.coreRemainingDays)) return false;
+    if (!inRange(device.region_tds, c.regionTds)) return false;
+    return true;
+  });
 }
 
 // Opted-out customers (spec 7.7.a) are hard-excluded from every audience —
@@ -210,15 +228,28 @@ function dispatch(campaign: CampaignDto): void {
       .filter((candidate) => {
         if (campaign.kind !== 'trigger') return true;
         switch (campaign.trigger_preset) {
+          // Sensor-driven triggers only fire on connected (IoT) devices.
           case 'core_due':
-            return candidate.core_remaining_days <= config.campaign_core_days;
+            return (
+              candidate.connectivity === 'iot' &&
+              candidate.core_remaining_days <= config.campaign_core_days
+            );
+          case 'high_tds':
+            return (
+              candidate.connectivity === 'iot' &&
+              candidate.region_tds >= config.tds_threshold_region
+            );
+          // Date/commerce-driven triggers reach non-IoT products too.
           case 'warranty_expiring':
             return (
               candidate.warranty_remaining_days >= 0 &&
               candidate.warranty_remaining_days <= config.warranty_expiring_days
             );
-          case 'high_tds':
-            return candidate.region_tds >= config.tds_threshold_region;
+          case 'repurchase_due':
+            return (
+              candidate.last_core_purchase_days_ago >=
+              config.campaign_repurchase_days
+            );
           default:
             return false;
         }
@@ -538,6 +569,13 @@ export const campaignHandlers = [
     if (!parsed.success) return error('validation', 422);
     await delay(300);
     const matched = countAudience(parsed.data);
+    // How many matched customers were reached through a non-IoT device — the
+    // breakdown shown next to the total so the segment's offline reach is visible.
+    const matchedNonIot = matched.filter((customer) =>
+      matchingDevices(customer, parsed.data).some(
+        (device) => device.connectivity === 'non_iot'
+      )
+    ).length;
     // PII mask (NĐ 13, spec 7.7.b): roles without device.pii.full see customer
     // names masked in the preview sample — the same gate the device/owner
     // screens use, so API, UI and any export stay consistent.
@@ -555,6 +593,7 @@ export const campaignHandlers = [
     return HttpResponse.json({
       total: audience.length,
       matched: matched.length,
+      matched_non_iot: matchedNonIot,
       sample,
       pii_masked: !piiFull,
     });

@@ -35,12 +35,16 @@ export const DISCOUNT_TYPES = [
 ] as const;
 export type DiscountType = (typeof DISCOUNT_TYPES)[number]['value'];
 
-// The three speced automated triggers (spec 7.3). Thresholds are read from the
-// system config at evaluation time, not hard-coded here.
+// The speced automated triggers (spec 7.3). Thresholds are read from the system
+// config at evaluation time, not hard-coded here. `core_due`/`high_tds` rely on
+// live telemetry so they only fire on IoT devices; `warranty_expiring` (from the
+// registration date) and `repurchase_due` (from purchase cadence) need no sensor,
+// so they also reach non-IoT products.
 export const TRIGGER_PRESETS = [
   { value: 'core_due', labelKey: 'trigger.core_due' },
   { value: 'warranty_expiring', labelKey: 'trigger.warranty_expiring' },
   { value: 'high_tds', labelKey: 'trigger.high_tds' },
+  { value: 'repurchase_due', labelKey: 'trigger.repurchase_due' },
 ] as const;
 export type TriggerPreset = (typeof TRIGGER_PRESETS)[number]['value'];
 

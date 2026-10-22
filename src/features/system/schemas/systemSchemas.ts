@@ -212,6 +212,7 @@ export const configParamsDtoSchema = z.object({
   campaign_frequency_days: z.number().int().min(1).max(365),
   campaign_attribution_days: z.number().int().min(1).max(365),
   campaign_cooldown_days: z.number().int().min(1).max(365),
+  campaign_repurchase_days: z.number().int().min(1).max(730),
   campaign_booking_revenue: z.number().int().min(0).max(100000000),
   campaign_qr_revenue: z.number().int().min(0).max(100000000),
   tds_threshold_region: z.number().int().min(1).max(1000),
@@ -264,6 +265,7 @@ export interface ConfigParams {
   campaignFrequencyDays: number;
   campaignAttributionDays: number;
   campaignCooldownDays: number;
+  campaignRepurchaseDays: number;
   campaignBookingRevenue: number;
   campaignQrRevenue: number;
   tdsThresholdRegion: number;
