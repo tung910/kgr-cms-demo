@@ -28,6 +28,7 @@ export function mapCampaign(dto: CampaignDto): Campaign {
     contentEn: dto.content_en,
     imageUrl: dto.image_url,
     deeplink: dto.deeplink,
+    secondaryDeeplink: dto.secondary_deeplink,
     scheduleType: dto.schedule_type,
     startsAt: dto.starts_at,
     endsAt: dto.ends_at,

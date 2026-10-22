@@ -32,7 +32,9 @@
     "codeMode": {
       "shared": "Mã dùng chung",
       "per_customer": "Mã riêng từng khách"
-    }
+    },
+    "autoUpsellBadge": "Ưu đãi upsell tự động",
+    "autoUpsellHint": "Trigger tự gắn ưu đãi lõi, không cần người tạo đính kèm thủ công."
   },
   "trigger": {
     "core_due": "Lõi sắp đến hạn thay",
@@ -103,6 +105,8 @@
     "imageRemove": "Xóa ảnh",
     "deeplink": "Deeplink",
     "deeplinkPlaceholder": "Chọn màn hình trong ứng dụng",
+    "secondaryDeeplink": "Nút phụ (CTA thứ 2)",
+    "secondaryDeeplinkHint": "Tùy chọn — ví dụ: nút chính \"Đặt lịch thay\", nút phụ \"Mua lõi\".",
     "scheduleType": "Thời điểm gửi",
     "runWindow": "Thời gian bắt đầu/kết thúc",
     "regions": "Khu vực",

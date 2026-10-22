@@ -1,8 +1,8 @@
 import { CAMPAIGN_TENANT_ID } from '@/features/campaigns/constants/campaignTenant';
 import type { CampaignDto } from '@/features/campaigns/schemas/campaignSchemas';
 
-// Seed campaigns covering every lifecycle state (spec 7.5) plus an automated
-// trigger (7.3) and an offer (7.4). In-memory only; resets on reload.
+// Seed campaigns covering every lifecycle state (spec 7.5) plus the automated
+// triggers (7.3) and an offer (7.4). In-memory only; resets on reload.
 
 const dayMs = 86_400_000;
 const iso = (offsetDays: number) =>
@@ -22,6 +22,7 @@ export const campaignFixtures: CampaignDto[] = [
       'Your filter core is due for replacement. Book now to get an offer.',
     image_url: null,
     deeplink: 'onekangaroo://core/replace',
+    secondary_deeplink: null,
     schedule_type: 'send_now',
     starts_at: null,
     ends_at: null,
@@ -58,6 +59,7 @@ export const campaignFixtures: CampaignDto[] = [
     content_en: null,
     image_url: null,
     deeplink: 'onekangaroo://warranty/renew',
+    secondary_deeplink: null,
     schedule_type: 'scheduled',
     starts_at: iso(1),
     ends_at: iso(14),
@@ -102,6 +104,7 @@ export const campaignFixtures: CampaignDto[] = [
     content_en: null,
     image_url: null,
     deeplink: 'onekangaroo://loyalty',
+    secondary_deeplink: null,
     schedule_type: 'scheduled',
     // Scheduled window already open: lazy activation flips this to running on read.
     starts_at: iso(-1),
@@ -144,6 +147,7 @@ export const campaignFixtures: CampaignDto[] = [
     content_en: null,
     image_url: null,
     deeplink: 'onekangaroo://shop/cores',
+    secondary_deeplink: null,
     schedule_type: 'scheduled',
     starts_at: iso(-1),
     ends_at: iso(5),
@@ -188,6 +192,7 @@ export const campaignFixtures: CampaignDto[] = [
     content_en: null,
     image_url: null,
     deeplink: 'onekangaroo://promo/midautumn',
+    secondary_deeplink: null,
     schedule_type: 'scheduled',
     starts_at: iso(-30),
     ends_at: iso(-5),
@@ -219,10 +224,14 @@ export const campaignFixtures: CampaignDto[] = [
     name: '[Tự động] Nhắc thay lõi khi còn ≤ 15 ngày',
     kind: 'trigger',
     channel: 'push',
-    content_vi: 'Lõi lọc còn ít ngày sử dụng. Đặt mua hoặc đặt lịch thay ngay.',
+    content_vi:
+      'Lõi lọc còn ít ngày sử dụng. Mua lõi chính hãng hoặc đặt lịch kỹ thuật viên thay ngay.',
     content_en: null,
     image_url: null,
+    // Two device-scoped CTAs: book a replacement (primary) and buy a core
+    // (secondary); both bind to the exact machine whose core is due.
     deeplink: 'onekangaroo://core/replace',
+    secondary_deeplink: 'onekangaroo://shop/cores',
     schedule_type: 'send_now',
     starts_at: null,
     ends_at: null,
@@ -260,6 +269,7 @@ export const campaignFixtures: CampaignDto[] = [
     image_url: null,
     // Account-level deeplink: non-IoT products carry no device id to bind.
     deeplink: 'onekangaroo://shop/cores',
+    secondary_deeplink: null,
     schedule_type: 'send_now',
     starts_at: null,
     ends_at: null,
@@ -282,6 +292,92 @@ export const campaignFixtures: CampaignDto[] = [
     approved_by: 'u-admin',
     approved_by_name: 'Admin Demo',
     approved_at: iso(-6),
+    rejected_reason: null,
+  },
+  {
+    priority: 0,
+    tenant_id: CAMPAIGN_TENANT_ID,
+    id: 'CMP-0008',
+    name: '[Tự động] Cảnh báo TDS cao kèm ưu đãi lõi',
+    kind: 'trigger',
+    channel: 'push',
+    content_vi:
+      'Chất lượng nước khu vực của bạn đang ở mức TDS cao. Nâng cấp lõi lọc để bảo vệ sức khỏe gia đình.',
+    content_en: null,
+    image_url: null,
+    // Upsell CTA opens the core shop; the offer below is attached automatically
+    // by the `high_tds` trigger, not by the author (see triggerOffers.ts).
+    deeplink: 'onekangaroo://shop/cores',
+    secondary_deeplink: null,
+    schedule_type: 'send_now',
+    starts_at: null,
+    ends_at: null,
+    status: 'running',
+    trigger_preset: 'high_tds',
+    frequency_cap_per_customer: 1,
+    audience: {
+      regions: [],
+      models: [],
+      firmwareVersions: [],
+      connectivities: [],
+      warrantyStatuses: [],
+    },
+    audience_count: 16,
+    offer: null,
+    created_by: 'u-admin',
+    created_by_name: 'Admin Demo',
+    created_at: iso(-8),
+    updated_at: iso(-8),
+    approved_by: 'u-admin',
+    approved_by_name: 'Admin Demo',
+    approved_at: iso(-8),
+    rejected_reason: null,
+  },
+  {
+    priority: 0,
+    tenant_id: CAMPAIGN_TENANT_ID,
+    id: 'CMP-0009',
+    name: '[Tự động] Nhắc gia hạn bảo hành sắp hết (gồm máy non-IoT)',
+    kind: 'trigger',
+    channel: 'push',
+    content_vi:
+      'Bảo hành thiết bị của bạn sắp hết hạn. Gia hạn ngay để tiếp tục được hỗ trợ và nhận ưu đãi.',
+    content_en: null,
+    image_url: null,
+    // Device-scoped renewal screen; the trigger reaches non-IoT products too
+    // because it is computed from the registration date, not telemetry.
+    deeplink: 'onekangaroo://warranty/renew',
+    secondary_deeplink: null,
+    schedule_type: 'send_now',
+    starts_at: null,
+    ends_at: null,
+    status: 'running',
+    trigger_preset: 'warranty_expiring',
+    frequency_cap_per_customer: 1,
+    audience: {
+      regions: [],
+      models: [],
+      firmwareVersions: [],
+      connectivities: [],
+      warrantyStatuses: [],
+    },
+    audience_count: 34,
+    offer: {
+      type: 'voucher',
+      codeMode: 'per_customer',
+      voucherCode: 'RENEW15',
+      discountType: 'percent',
+      discountValue: 15,
+      usageLimitPerCustomer: 1,
+      validUntil: iso(45),
+    },
+    created_by: 'u-sales',
+    created_by_name: 'KD Demo',
+    created_at: iso(-5),
+    updated_at: iso(-5),
+    approved_by: 'u-admin',
+    approved_by_name: 'Admin Demo',
+    approved_at: iso(-5),
     rejected_reason: null,
   },
 ];

@@ -32,7 +32,9 @@
     "codeMode": {
       "shared": "Shared code",
       "per_customer": "Per-customer code"
-    }
+    },
+    "autoUpsellBadge": "Automatic upsell offer",
+    "autoUpsellHint": "The trigger attaches a filter-core offer automatically; no manual attachment needed."
   },
   "trigger": {
     "core_due": "Core nearing replacement",
@@ -103,6 +105,8 @@
     "imageRemove": "Remove image",
     "deeplink": "Deeplink",
     "deeplinkPlaceholder": "Pick an in-app screen",
+    "secondaryDeeplink": "Secondary CTA",
+    "secondaryDeeplinkHint": "Optional — e.g. primary \"Book replacement\", secondary \"Buy a core\".",
     "scheduleType": "Send timing",
     "runWindow": "Start/end time",
     "regions": "Region",

@@ -87,6 +87,10 @@ export const campaignDtoSchema = z.object({
   content_en: z.string().nullable(),
   image_url: z.string().nullable(),
   deeplink: z.string().nullable(),
+  // Optional second CTA (spec 7.3): a `core_due` reminder carries both "mua lõi"
+  // (shop) and "đặt lịch thay" (booking) so the app can render two buttons. Null
+  // means the notification has a single CTA (the primary deeplink).
+  secondary_deeplink: z.string().nullable(),
   schedule_type: campaignScheduleSchema,
   starts_at: z.string().datetime({ offset: true }).nullable(),
   ends_at: z.string().datetime({ offset: true }).nullable(),
@@ -157,6 +161,7 @@ export interface Campaign {
   contentEn: string | null;
   imageUrl: string | null;
   deeplink: string | null;
+  secondaryDeeplink: string | null;
   scheduleType: CampaignSchedule;
   startsAt: string | null;
   endsAt: string | null;
@@ -227,6 +232,7 @@ export interface CampaignDraftInput {
   contentEn: string | null;
   imageUrl: string | null;
   deeplink: string | null;
+  secondaryDeeplink: string | null;
   scheduleType: CampaignSchedule;
   startsAt: string | null;
   endsAt: string | null;
@@ -270,6 +276,13 @@ export const campaignDraftInputSchema = z.object({
   // Deeplink must be a registered app screen (spec 7.1.c) — enum membership,
   // not free text; null means "no CTA target".
   deeplink: z
+    .string()
+    .nullable()
+    .refine((value) => value === null || APP_DEEPLINK_VALUES.includes(value), {
+      message: 'invalid_deeplink',
+    }),
+  // Optional second CTA; same registered-screen constraint as the primary one.
+  secondaryDeeplink: z
     .string()
     .nullable()
     .refine((value) => value === null || APP_DEEPLINK_VALUES.includes(value), {

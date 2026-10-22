@@ -16,6 +16,7 @@ import { randomId } from '@/shared/lib/id';
 import { maskName } from '@/shared/lib/mask';
 
 import { resolveDeviceDeeplink } from '../constants/deeplinkTargets';
+import { effectiveOfferDto } from '../constants/triggerOffers';
 import type {
   AudienceConditions,
   AudienceCustomerDto,
@@ -197,6 +198,7 @@ const sends: Array<{
   customerId: string;
   deviceId: string;
   deeplink: string | null;
+  secondaryDeeplink: string | null;
   sentAt: number;
   sendId: string;
   failed: boolean;
@@ -281,22 +283,27 @@ function dispatch(campaign: CampaignDto): void {
       )
     )
       continue;
+    // The offer that ships: the author's, or the trigger's automatic upsell
+    // (e.g. a `high_tds` core voucher) when none was attached by hand.
+    const offer = effectiveOfferDto(campaign);
     sends.push({
       campaignId: campaign.id,
       customerId: customer.customer_id,
       deviceId: device.device_id,
       deeplink: resolveDeviceDeeplink(campaign.deeplink, device.device_id),
+      secondaryDeeplink: resolveDeviceDeeplink(
+        campaign.secondary_deeplink,
+        device.device_id
+      ),
       sentAt: now,
       opened: hashId(campaign.id + ':' + customer.customer_id) % 10 < 6,
       clickedAt:
         hashId(campaign.id + ':' + customer.customer_id) % 10 < 3 ? now : null,
       voucherCode:
-        campaign.offer?.type === 'voucher'
-          ? campaign.offer.codeMode === 'shared'
-            ? (campaign.offer.voucherCode ?? null)
-            : (campaign.offer.voucherCode ?? campaign.id) +
-              '-' +
-              customer.customer_id
+        offer?.type === 'voucher'
+          ? offer.codeMode === 'shared'
+            ? (offer.voucherCode ?? null)
+            : (offer.voucherCode ?? campaign.id) + '-' + customer.customer_id
           : null,
       sendId: `${campaign.tenant_id}:${campaign.id}:${customer.customer_id}:${own.length}`,
       failed: hashId(`${campaign.id}:${customer.customer_id}`) % 20 === 0,
@@ -522,6 +529,7 @@ export const campaignHandlers = [
       content_en: input.contentEn,
       image_url: input.imageUrl,
       deeplink: input.deeplink,
+      secondary_deeplink: input.secondaryDeeplink,
       schedule_type: input.scheduleType,
       starts_at: input.startsAt,
       ends_at: input.endsAt,
@@ -654,6 +662,7 @@ export const campaignHandlers = [
       content_en: input.contentEn,
       image_url: input.imageUrl,
       deeplink: input.deeplink,
+      secondary_deeplink: input.secondaryDeeplink,
       schedule_type: input.scheduleType,
       starts_at: input.startsAt,
       ends_at: input.endsAt,

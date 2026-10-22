@@ -15,6 +15,7 @@ import { CampaignMetricsPanel } from '../components/CampaignMetricsPanel';
 import { CampaignStatusTag } from '../components/CampaignStatusTag';
 import { CampaignWizard } from '../components/CampaignWizard';
 import { TestSendDialog } from '../components/TestSendDialog';
+import { effectiveOffer } from '../constants/triggerOffers';
 import { campaignQueries } from '../queries/campaignQueries';
 import type { AudienceConditions } from '../schemas/audienceSchemas';
 
@@ -68,6 +69,8 @@ export function CampaignDetailPage({ campaignId }: CampaignDetailPageProps) {
 
   const audience = campaign.audience;
   const audienceRows = buildAudienceRows(audience, t);
+  // Offer that actually ships: the author's, or the trigger's automatic upsell.
+  const { offer, auto: autoOffer } = effectiveOffer(campaign);
 
   return (
     <div className="space-y-6">
@@ -143,6 +146,9 @@ export function CampaignDetailPage({ campaignId }: CampaignDetailPageProps) {
           <Descriptions.Item label={t('fields.deeplink')}>
             {campaign.deeplink ?? '—'}
           </Descriptions.Item>
+          <Descriptions.Item label={t('fields.secondaryDeeplink')}>
+            {campaign.secondaryDeeplink ?? '—'}
+          </Descriptions.Item>
           <Descriptions.Item label={t('fields.frequencyCap')}>
             {t('detail.frequencyCapValue', {
               count: campaign.frequencyCapPerCustomer,
@@ -191,43 +197,49 @@ export function CampaignDetailPage({ campaignId }: CampaignDetailPageProps) {
             </span>
           </p>
         ) : null}
-        {campaign.offer ? (
-          <Descriptions column={{ xs: 1, sm: 2 }} size="small">
-            <Descriptions.Item label={t('fields.offerType')}>
-              {t(`offer.type.${campaign.offer.type}`)}
-            </Descriptions.Item>
-            {campaign.offer.type === 'voucher' ? (
-              <>
-                <Descriptions.Item label={t('fields.codeMode')}>
-                  {t(
-                    `offer.codeMode.${campaign.offer.codeMode ?? 'per_customer'}`
-                  )}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('fields.voucherCode')}>
-                  {campaign.offer.voucherCode ?? '—'}
-                </Descriptions.Item>
-                <Descriptions.Item label={t('fields.discountValue')}>
-                  {campaign.offer.discountValue != null
-                    ? campaign.offer.discountType === 'percent'
-                      ? `${campaign.offer.discountValue}%`
-                      : `${campaign.offer.discountValue}`
-                    : '—'}
-                </Descriptions.Item>
-              </>
-            ) : (
-              <Descriptions.Item label={t('fields.points')}>
-                {campaign.offer.points ?? '—'}
+        {offer ? (
+          <>
+            {autoOffer ? (
+              <p className="mb-3 text-sm">
+                <Tag color="green">{t('offer.autoUpsellBadge')}</Tag>
+                <span className="text-[#636466]">
+                  {t('offer.autoUpsellHint')}
+                </span>
+              </p>
+            ) : null}
+            <Descriptions column={{ xs: 1, sm: 2 }} size="small">
+              <Descriptions.Item label={t('fields.offerType')}>
+                {t(`offer.type.${offer.type}`)}
               </Descriptions.Item>
-            )}
-            <Descriptions.Item label={t('fields.usageLimitPerCustomer')}>
-              {campaign.offer.usageLimitPerCustomer ?? '—'}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('fields.validUntil')}>
-              {campaign.offer.validUntil
-                ? formatDate(campaign.offer.validUntil)
-                : '—'}
-            </Descriptions.Item>
-          </Descriptions>
+              {offer.type === 'voucher' ? (
+                <>
+                  <Descriptions.Item label={t('fields.codeMode')}>
+                    {t(`offer.codeMode.${offer.codeMode ?? 'per_customer'}`)}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('fields.voucherCode')}>
+                    {offer.voucherCode ?? '—'}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('fields.discountValue')}>
+                    {offer.discountValue != null
+                      ? offer.discountType === 'percent'
+                        ? `${offer.discountValue}%`
+                        : `${offer.discountValue}`
+                      : '—'}
+                  </Descriptions.Item>
+                </>
+              ) : (
+                <Descriptions.Item label={t('fields.points')}>
+                  {offer.points ?? '—'}
+                </Descriptions.Item>
+              )}
+              <Descriptions.Item label={t('fields.usageLimitPerCustomer')}>
+                {offer.usageLimitPerCustomer ?? '—'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('fields.validUntil')}>
+                {offer.validUntil ? formatDate(offer.validUntil) : '—'}
+              </Descriptions.Item>
+            </Descriptions>
+          </>
         ) : campaign.kind !== 'trigger' ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}

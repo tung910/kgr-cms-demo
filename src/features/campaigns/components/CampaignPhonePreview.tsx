@@ -7,6 +7,7 @@ import {
   APP_DEEPLINK_TARGETS,
   isDeviceScopedDeeplink,
 } from '../constants/deeplinkTargets';
+import { effectiveOffer } from '../constants/triggerOffers';
 import type { Campaign } from '../schemas/campaignSchemas';
 
 export function CampaignPhonePreview({
@@ -30,7 +31,14 @@ export function CampaignPhonePreview({
   const target = APP_DEEPLINK_TARGETS.find(
     (item) => item.value === campaign.deeplink
   );
-  const deviceScoped = isDeviceScopedDeeplink(campaign.deeplink);
+  const secondaryTarget = APP_DEEPLINK_TARGETS.find(
+    (item) => item.value === campaign.secondaryDeeplink
+  );
+  const deviceScoped =
+    isDeviceScopedDeeplink(campaign.deeplink) ||
+    isDeviceScopedDeeplink(campaign.secondaryDeeplink);
+  // What actually ships: the author's offer, or the trigger's automatic upsell.
+  const { offer, auto: autoOffer } = effectiveOffer(campaign);
 
   return (
     <section aria-label={t('phonePreview.title')} className="min-w-0">
@@ -98,18 +106,23 @@ export function CampaignPhonePreview({
                 <p className="whitespace-pre-wrap break-words text-sm">
                   {content}
                 </p>
-                {campaign.offer ? (
+                {offer ? (
                   <div className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
-                    {campaign.offer.type === 'loyalty_points' ? (
+                    {autoOffer ? (
+                      <p className="mb-1 text-xs font-medium text-emerald-700">
+                        {t('offer.autoUpsellBadge')}
+                      </p>
+                    ) : null}
+                    {offer.type === 'loyalty_points' ? (
                       t('phonePreview.points', {
-                        count: campaign.offer.points ?? 0,
+                        count: offer.points ?? 0,
                       })
                     ) : (
                       <>
                         <strong>{t('offer.type.voucher')}</strong>
                         <p className="mb-0 break-words">
-                          {campaign.offer.codeMode === 'shared'
-                            ? campaign.offer.voucherCode
+                          {offer.codeMode === 'shared'
+                            ? offer.voucherCode
                             : t('phonePreview.personalCode')}
                         </p>
                       </>
@@ -123,6 +136,11 @@ export function CampaignPhonePreview({
                     onClick={() => setTargetOpened(true)}
                   >
                     {t(target.labelKey)}
+                  </Button>
+                ) : null}
+                {secondaryTarget ? (
+                  <Button block onClick={() => setTargetOpened(true)}>
+                    {t(secondaryTarget.labelKey)}
                   </Button>
                 ) : null}
                 {targetOpened && target ? (

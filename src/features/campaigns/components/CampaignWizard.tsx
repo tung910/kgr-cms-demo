@@ -76,6 +76,7 @@ interface WizardValues {
   contentEn?: string;
   imageUrl?: string;
   deeplink?: string;
+  secondaryDeeplink?: string;
   scheduleType: 'send_now' | 'scheduled';
   runWindow?: [dayjs.Dayjs, dayjs.Dayjs];
   triggerPreset?:
@@ -180,6 +181,7 @@ function buildDraftInput(
     contentEn: values.contentEn?.trim() || null,
     imageUrl: values.imageUrl?.trim() || null,
     deeplink: values.deeplink?.trim() || null,
+    secondaryDeeplink: values.secondaryDeeplink?.trim() || null,
     scheduleType,
     startsAt:
       scheduled && values.runWindow ? values.runWindow[0].toISOString() : null,
@@ -215,6 +217,7 @@ function initialValues(campaign?: Campaign | null): Partial<WizardValues> {
     contentEn: campaign.contentEn ?? undefined,
     imageUrl: campaign.imageUrl ?? undefined,
     deeplink: campaign.deeplink ?? undefined,
+    secondaryDeeplink: campaign.secondaryDeeplink ?? undefined,
     scheduleType: campaign.scheduleType,
     runWindow:
       campaign.startsAt && campaign.endsAt
@@ -465,6 +468,22 @@ export function CampaignWizard({
                 allowClear
                 placeholder={t('fields.deeplinkPlaceholder')}
                 options={APP_DEEPLINK_TARGETS.map(({ value, labelKey }) => ({
+                  value,
+                  label: t(labelKey),
+                }))}
+              />
+            </Form.Item>
+            <Form.Item
+              name="secondaryDeeplink"
+              label={t('fields.secondaryDeeplink')}
+              extra={t('fields.secondaryDeeplinkHint')}
+            >
+              <Select
+                allowClear
+                placeholder={t('fields.deeplinkPlaceholder')}
+                options={APP_DEEPLINK_TARGETS.filter(
+                  ({ value }) => value !== values.deeplink
+                ).map(({ value, labelKey }) => ({
                   value,
                   label: t(labelKey),
                 }))}
