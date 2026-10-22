@@ -23,8 +23,9 @@ const warrantyStatuses: readonly DeviceWarrantyStatus[] = [
 ];
 
 const iotDeviceCount = 39;
-// The last units were activated but never reported in ("Chưa kết nối").
+// The last units were bound to a customer but never reported in (plain offline).
 const firstNeverConnectedIndex = 35;
+const noOwnerIndex = 11;
 
 const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
   { length: iotDeviceCount },
@@ -39,6 +40,9 @@ const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
     const warrantyStatus = warrantyStatuses[index % warrantyStatuses.length]!;
     const number = index + 1;
     const neverConnected = index >= firstNeverConnectedIndex;
+    // Connected before, then reset to change owner: no owner until the next
+    // customer binds it.
+    const noOwner = index === noOwnerIndex;
     const customer = customerMockData[index % customerMockData.length]!;
     const ownerId = customer.id;
     const activatedAt = `2025-${String((index % 11) + 1).padStart(2, '0')}-01T08:00:00.000Z`;
@@ -69,12 +73,14 @@ const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
       powered: true,
       module_firmware_version: `2.${index % 4}.${number}`,
       mainboard_firmware_version: `1.${index % 3}.${number}`,
-      owner: {
-        id: ownerId,
-        name: customer.name,
-        phone_masked: customer.phone,
-        address: customer.address,
-      },
+      ...(!noOwner && {
+        owner: {
+          id: ownerId,
+          name: customer.name,
+          phone_masked: customer.phone,
+          address: customer.address,
+        },
+      }),
       latest_telemetry: neverConnected
         ? []
         : [
@@ -147,6 +153,10 @@ const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
           owner_id: ownerId,
           owner_name: customer.name,
           started_at: activatedAt,
+          ...(noOwner && {
+            ended_at: '2026-09-10T08:00:00.000Z',
+            reason: 'Reset thiết bị để đổi chủ sở hữu',
+          }),
         },
       ],
       operation_log: [],

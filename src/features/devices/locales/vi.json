@@ -1,6 +1,6 @@
 {
   "statusCell": {
-    "neverActivated": "Chưa kích hoạt",
+    "noOwner": "Chưa có chủ",
     "error": "Lỗi"
   },
   "listTabs": {

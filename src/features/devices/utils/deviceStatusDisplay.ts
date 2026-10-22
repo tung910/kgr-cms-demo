@@ -4,15 +4,15 @@ import type { Device } from '../schemas/deviceSchemas';
 // header and the CSV export all derive from this, so they cannot drift apart.
 //
 // Main status, checked in order:
-//   non-IoT → "Không IoT" · IoT never connected to the cloud → "Chưa kích hoạt"
-//   · otherwise Online / Offline. "Chưa kích hoạt" still counts as `offline`
-//   for filters and counts.
+//   non-IoT → "Không IoT" · no owner → "Chưa có chủ" (e.g. the device was
+//   reset to change owner) · otherwise Online / Offline. "Chưa có chủ" does not
+//   change how the device is counted: filters and counts use the real
+//   connection state.
 // Tags, in display order:
 //   decommissioned (everyone; hides the error tag) · locked (needs
-//   device.control.read, §3.4c) · error (IoT device that is online and reports
-//   a fault).
-export type DeviceMainStatus =
-  'nonIot' | 'neverActivated' | 'online' | 'offline';
+//   device.control.read, §3.4c) · error (device that is really online and
+//   reports a fault, even when the main status is "Chưa có chủ").
+export type DeviceMainStatus = 'nonIot' | 'noOwner' | 'online' | 'offline';
 
 export type DeviceStatusTag = 'decommissioned' | 'locked' | 'error';
 
@@ -23,7 +23,7 @@ export interface DeviceStatusDisplay {
 
 type StatusSource = Pick<
   Device,
-  'connectivity' | 'status' | 'hasError' | 'lastOnlineAt' | 'lifecycleState'
+  'connectivity' | 'status' | 'hasError' | 'owner' | 'lifecycleState'
 >;
 
 export function getDeviceStatusDisplay(
@@ -33,8 +33,8 @@ export function getDeviceStatusDisplay(
   const main: DeviceMainStatus =
     device.connectivity !== 'iot' || device.status === null
       ? 'nonIot'
-      : device.lastOnlineAt === null
-        ? 'neverActivated'
+      : device.owner === undefined
+        ? 'noOwner'
         : device.status;
 
   if (device.lifecycleState === 'decommissioned')
@@ -42,6 +42,6 @@ export function getDeviceStatusDisplay(
 
   const tags: DeviceStatusTag[] = [];
   if (canSeeLock && device.lifecycleState === 'locked') tags.push('locked');
-  if (main === 'online' && device.hasError) tags.push('error');
+  if (device.status === 'online' && device.hasError) tags.push('error');
   return { main, tags };
 }

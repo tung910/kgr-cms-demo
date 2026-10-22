@@ -20,10 +20,10 @@ const TAG_TONES = {
 export function DeviceMainStatusBadge({ main }: { main: DeviceMainStatus }) {
   const { t } = useTranslation('devices');
 
-  if (main === 'neverActivated') {
+  if (main === 'noOwner') {
     return (
       <span className="inline-flex items-center whitespace-nowrap rounded-full border border-dashed border-[#B5B6B8] px-2.5 py-0.5 text-xs font-medium text-[#636466]">
-        {t('statusCell.neverActivated')}
+        {t('statusCell.noOwner')}
       </span>
     );
   }
