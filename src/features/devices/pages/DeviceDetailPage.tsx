@@ -45,8 +45,7 @@ export function DeviceDetailPage({ deviceId }: DeviceDetailPageProps) {
     !device.activatedAt &&
     !device.lastOnlineAt &&
     device.latestTelemetry.length === 0 &&
-    device.status !== 'online' &&
-    device.status !== 'warning';
+    device.status !== 'online';
   // Non-IoT products have no module: no telemetry, diagnostics or commands.
   const iot = device.connectivity === 'iot';
 

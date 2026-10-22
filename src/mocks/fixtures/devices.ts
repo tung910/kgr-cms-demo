@@ -1,14 +1,14 @@
 import { customerMockData } from '@/features/customers/mocks/customerMockData';
 import type {
   DeviceDto,
-  DeviceStatus,
   DeviceWarrantyStatus,
 } from '@/features/devices/schemas/deviceSchemas';
 
 import { nonIotProductsEnabled } from './nonIotProducts';
 
 const models = ['KGR-A100', 'KGR-B200', 'KGR-C300'] as const;
-const statuses: readonly DeviceStatus[] = ['online', 'offline', 'warning'];
+// `warning` is the online-with-error group: online connection, `has_error`.
+const statuses = ['online', 'offline', 'warning'] as const;
 const regions = ['Hà Nội', 'Hải Phòng', 'Đà Nẵng', 'Hồ Chí Minh'] as const;
 const wardsByRegion: Record<(typeof regions)[number], readonly string[]> = {
   'Hà Nội': ['Phường Hoàng Mai', 'Phường Cầu Giấy', 'Phường Ba Đình'],
@@ -51,7 +51,13 @@ const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
       connectivity: 'iot',
       ward: wardsByRegion[region][index % 3],
       // #20 is decommissioned, the last four never connected: all offline.
-      status: neverConnected || index === 20 ? 'offline' : status,
+      status:
+        neverConnected || index === 20
+          ? 'offline'
+          : status === 'offline'
+            ? 'offline'
+            : 'online',
+      has_error: !neverConnected && index !== 20 && status === 'warning',
       last_online_at: neverConnected
         ? null
         : new Date(Date.now() - index * 17 * 60_000).toISOString(),
@@ -172,6 +178,7 @@ const nonIotDeviceFixtures: readonly DeviceDto[] = Array.from(
       ward: wardsByRegion[region][index % 3],
       connectivity: 'non_iot',
       status: null,
+      has_error: false,
       last_online_at: null,
       manufactured_at: `2025-${String((index % 12) + 1).padStart(2, '0')}-05T00:00:00.000Z`,
       batch_code: `LOT-${model.replace('KGR-', '')}-${String(Math.floor(index / 2) + 1).padStart(3, '0')}`,

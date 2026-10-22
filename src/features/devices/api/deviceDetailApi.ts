@@ -333,6 +333,7 @@ export async function getDeviceOwnerProfile(
       displayName: item.display_name,
       modelName: item.model_name,
       status: item.status,
+      hasError: item.has_error,
       warrantyStatus: item.warranty_status,
       ...(item.warranty_expires_at && {
         warrantyExpiresAt: item.warranty_expires_at,

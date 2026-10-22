@@ -26,6 +26,7 @@ export function mapDevice(dto: DeviceDto): Device {
     ...(dto.ward && { ward: dto.ward }),
     connectivity: dto.connectivity,
     status: dto.status,
+    hasError: dto.has_error,
     lastOnlineAt: dto.last_online_at,
     manufacturedAt: dto.manufactured_at,
     batchCode: dto.batch_code,

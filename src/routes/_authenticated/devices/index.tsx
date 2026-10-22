@@ -11,7 +11,7 @@ import { deviceListTabSchema } from '@/features/devices/schemas/productConnectiv
 import { deviceQueries } from '@/features/devices/queries/deviceQueries';
 import { RouteErrorState } from '@/shared/components/RouteErrorState';
 import {
-  deviceStatusSchema,
+  deviceStatusFilterSchema,
   type CoreLifeRange,
   type DeviceListFilters,
 } from '@/features/devices/schemas/deviceSchemas';
@@ -33,7 +33,7 @@ const deviceListSearchSchema = z.object({
   search: z.string().catch(''),
   // Added tab: omitted = in use (bound to a customer).
   tab: deviceListTabSchema.optional().catch(undefined),
-  status: deviceStatusSchema.optional().catch(undefined),
+  status: deviceStatusFilterSchema.optional().catch(undefined),
   model: z.string().trim().min(1).optional().catch(undefined),
   region: z.string().trim().min(1).optional().catch(undefined),
   customerId: z.string().trim().min(1).optional().catch(undefined),

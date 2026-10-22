@@ -1,6 +1,7 @@
 {
   "statusCell": {
-    "neverConnected": "Chưa kết nối"
+    "neverActivated": "Chưa kích hoạt",
+    "error": "Lỗi"
   },
   "listTabs": {
     "inUse": "Đang sử dụng",
@@ -219,7 +220,8 @@
     "justNow": "Vừa xong"
   },
   "stats": {
-    "total": "Tổng thiết bị"
+    "total": "Tổng thiết bị",
+    "errorWithinOnline": "Nằm trong nhóm Online"
   },
   "listPage": {
     "title": "Quản lý thiết bị",

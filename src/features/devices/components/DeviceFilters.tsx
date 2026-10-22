@@ -33,7 +33,6 @@ import type {
   CoreLifeRange,
   DeviceErrorType,
   DeviceListFilters,
-  DeviceStatus,
   OfflineDurationRange,
 } from '../schemas/deviceSchemas';
 
@@ -571,7 +570,7 @@ export function DeviceFilters({
                       ? 'bg-white font-semibold text-brand-ink shadow-sm'
                       : 'text-brand-gray hover:text-brand-ink'
                   }`}
-                  onClick={() => onChange({ status: value as DeviceStatus })}
+                  onClick={() => onChange({ status: value })}
                 >
                   <span
                     className="size-2 rounded-full"

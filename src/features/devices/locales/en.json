@@ -1,6 +1,7 @@
 {
   "statusCell": {
-    "neverConnected": "Never connected"
+    "neverActivated": "Not activated",
+    "error": "Error"
   },
   "listTabs": {
     "inUse": "In use",
@@ -219,7 +220,8 @@
     "justNow": "Just now"
   },
   "stats": {
-    "total": "Total devices"
+    "total": "Total devices",
+    "errorWithinOnline": "Part of Online"
   },
   "listPage": {
     "title": "Device management",
