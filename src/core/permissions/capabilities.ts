@@ -63,7 +63,9 @@ export const CAPABILITIES = [
   'campaign.voucher.create',
   'campaign.voucher.update',
   'campaign.approve',
+  'campaign.send',
   'campaign.export',
+  'campaign.frequency.config',
   // Analytics and reporting (8.x).
   'analytics.read',
   'analytics.export',
@@ -157,7 +159,9 @@ export type Capability = (typeof CAPABILITIES)[number];
 // campaign.voucher.create      |   ✓   |   ✓   |         |         |   ✓   |           | 7.4
 // campaign.voucher.update      |   ✓   |   ✓   |         |         |       |           | 7.4 note
 // campaign.approve             |   ✓   |   ✓   |         |         |       |           | 7.5
+// campaign.send                |   ✓   |   ✓   |         |         |       |           | 7.5 run/stop
 // campaign.export              |   ✓   |   ✓   |         |         |   ✓   |           | 7.6
+// campaign.frequency.config    |   ✓   |   ✓   |         |         |       |           | 7.5b cap
 // analytics.read               |   ✓   |   ✓   |    ✓    |    ✓    |   ✓   |     ✓     | 8.1–8.2
 // analytics.export             |   ✓   |   ✓   |    ✓    |    ✓    |   ✓   |     ✓     | 8.1–8.2
 // analytics.reliability.read   |   ✓   |   ✓   |    ✓    |    ✓    |   ✓   |           | 8.3/8.5
@@ -246,7 +250,9 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'campaign.voucher.create',
     'campaign.voucher.update',
     'campaign.approve',
+    'campaign.send',
     'campaign.export',
+    'campaign.frequency.config',
     'analytics.read',
     'analytics.export',
     'analytics.reliability.read',
@@ -386,6 +392,7 @@ export const PORTAL_MENU_KEYS = [
   'alerts',
   'device_map',
   'customers',
+  'campaigns',
   'serials',
   'analytics',
   'members',
@@ -411,6 +418,7 @@ export const MENU_CAPABILITY: Record<PortalMenuKey, Capability | null> = {
   alerts: 'alerts.read',
   device_map: 'device_map.read',
   customers: 'customers.read',
+  campaigns: 'campaign.read',
   serials: 'serial.read',
   analytics: 'analytics.read',
   members: 'member.read',

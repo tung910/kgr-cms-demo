@@ -1,0 +1,235 @@
+{
+  "status": {
+    "draft": "Nháp",
+    "pending_approval": "Chờ duyệt",
+    "approved": "Đã duyệt",
+    "running": "Đang chạy",
+    "ended": "Kết thúc",
+    "rejected": "Bị từ chối"
+  },
+  "kind": {
+    "manual": "Thủ công",
+    "trigger": "Tự động"
+  },
+  "channel": {
+    "push": "Push notification",
+    "in_app": "Banner/popup trong app"
+  },
+  "schedule": {
+    "send_now": "Gửi ngay",
+    "scheduled": "Hẹn giờ"
+  },
+  "offer": {
+    "type": {
+      "voucher": "Voucher/Mã giảm giá",
+      "loyalty_points": "Điểm thưởng"
+    },
+    "discount": {
+      "percent": "Giảm theo %",
+      "amount": "Giảm số tiền"
+    }
+  },
+  "trigger": {
+    "core_due": "Lõi sắp đến hạn thay",
+    "warranty_expiring": "Bảo hành sắp hết",
+    "high_tds": "TDS khu vực cao",
+    "hint": {
+      "core_due": "Lõi còn ≤ N ngày → nhắc thay lõi kèm link mua/đặt lịch.",
+      "warranty_expiring": "Bảo hành còn ≤ 30 ngày → nhắc gia hạn.",
+      "high_tds": "TDS khu vực vượt ngưỡng → gợi ý nâng cấp/upsell lõi."
+    }
+  },
+  "warranty": {
+    "active": "Còn hiệu lực",
+    "expiring": "Sắp hết",
+    "expired": "Đã hết",
+    "none": "Không có"
+  },
+  "filters": {
+    "searchAriaLabel": "Tìm chiến dịch",
+    "searchPlaceholder": "Tìm theo tên hoặc mã chiến dịch",
+    "statusAriaLabel": "Lọc theo trạng thái",
+    "statusPlaceholder": "Trạng thái",
+    "kindAriaLabel": "Lọc theo loại",
+    "kindPlaceholder": "Loại",
+    "reset": "Đặt lại"
+  },
+  "table": {
+    "columns": {
+      "campaign": "Chiến dịch",
+      "status": "Trạng thái",
+      "audience": "Đối tượng",
+      "schedule": "Lịch gửi",
+      "updatedAt": "Cập nhật"
+    },
+    "audienceCount": "{{count}} KH",
+    "total": "Tổng {{total}} chiến dịch"
+  },
+  "listPage": {
+    "title": "Chiến dịch truyền thông",
+    "description": "Tạo, phân khúc, phê duyệt và đo lường các chiến dịch push/in-app gửi tới khách hàng.",
+    "create": "Tạo chiến dịch",
+    "empty": "Chưa có chiến dịch nào khớp bộ lọc.",
+    "stats": {
+      "total": "Tổng chiến dịch",
+      "running": "Đang chạy",
+      "pendingApproval": "Chờ duyệt",
+      "draft": "Bản nháp"
+    }
+  },
+  "deeplinkTargets": {
+    "home": "Trang chủ ứng dụng",
+    "coreReplace": "Thay lõi lọc",
+    "warrantyRenew": "Gia hạn bảo hành",
+    "loyalty": "Điểm thưởng",
+    "shopCores": "Cửa hàng lõi lọc",
+    "promoMidAutumn": "Khuyến mãi Trung thu"
+  },
+  "fields": {
+    "name": "Tên chiến dịch",
+    "kind": "Loại chiến dịch",
+    "channel": "Kênh gửi",
+    "contentVi": "Nội dung (Tiếng Việt)",
+    "contentEn": "Nội dung (Tiếng Anh, tùy chọn)",
+    "imageUrl": "Hình ảnh",
+    "imageUpload": "Tải ảnh lên",
+    "imageRemove": "Xóa ảnh",
+    "deeplink": "Deeplink",
+    "deeplinkPlaceholder": "Chọn màn hình trong ứng dụng",
+    "scheduleType": "Thời điểm gửi",
+    "runWindow": "Thời gian bắt đầu/kết thúc",
+    "regions": "Khu vực",
+    "models": "Model",
+    "firmwareVersions": "Phiên bản FW",
+    "warrantyStatuses": "Trạng thái bảo hành",
+    "anyPlaceholder": "Tất cả",
+    "coreRemainingDays": "Số ngày lõi còn lại",
+    "loyaltyPoints": "Điểm loyalty",
+    "regionTds": "TDS khu vực (ppm)",
+    "tenureDays": "Thời gian tham gia (ngày)",
+    "min": "Tối thiểu",
+    "max": "Tối đa",
+    "triggerPreset": "Điều kiện kích hoạt",
+    "frequencyCap": "Giới hạn tần suất gửi/KH",
+    "frequencyCapHint": "Số lần tối đa một khách nhận chiến dịch này.",
+    "offerEnabled": "Gắn ưu đãi",
+    "offerType": "Loại ưu đãi",
+    "voucherCode": "Mã voucher",
+    "discountType": "Hình thức giảm",
+    "discountValue": "Giá trị giảm",
+    "usageLimitTotal": "Giới hạn tổng lượt",
+    "points": "Số điểm thưởng",
+    "usageLimitPerCustomer": "Giới hạn lượt/KH",
+    "validUntil": "Hiệu lực đến"
+  },
+  "wizard": {
+    "createTitle": "Tạo chiến dịch",
+    "editTitle": "Sửa chiến dịch",
+    "cancel": "Hủy",
+    "back": "Quay lại",
+    "next": "Tiếp tục",
+    "saveDraft": "Lưu nháp",
+    "submit": "Gửi duyệt",
+    "steps": {
+      "content": "Thông tin & nội dung",
+      "audience": "Phân khúc đối tượng",
+      "offer": "Ưu đãi",
+      "trigger": "Trigger",
+      "review": "Xem lại"
+    },
+    "triggerScheduleHint": "Chiến dịch tự động chạy 24/7 theo điều kiện, không cần hẹn giờ.",
+    "audienceHint": "Chọn điều kiện phân khúc. Để trống một trường nghĩa là không ràng buộc theo trường đó. Các điều kiện kết hợp theo AND.",
+    "rangeConditions": "Điều kiện theo khoảng",
+    "previewButton": "Xem trước số KH",
+    "previewResult": "{{count}} khách hàng thỏa điều kiện",
+    "previewPlaceholder": "Bấm \"Xem trước số KH\" để kiểm tra trước khi tiếp tục.",
+    "previewStale": "Điều kiện đã thay đổi — hãy xem trước lại.",
+    "previewRequired": "Bạn cần xem trước số KH trước khi tiếp tục.",
+    "offerSection": "Ưu đãi",
+    "triggerAlways": "Tự động 24/7",
+    "audienceLabel": "Đối tượng",
+    "noOffer": "Không gắn ưu đãi",
+    "reviewHint": "Lưu nháp để chỉnh sửa tiếp, hoặc Gửi duyệt để chuyển sang bước phê duyệt.",
+    "savedDraft": "Đã lưu bản nháp chiến dịch.",
+    "submitted": "Đã gửi chiến dịch đi phê duyệt."
+  },
+  "transitions": {
+    "action": {
+      "submit": "Gửi duyệt",
+      "approve": "Duyệt",
+      "reject": "Từ chối",
+      "run": "Cho chạy",
+      "stop": "Dừng"
+    },
+    "done": {
+      "submit": "Đã gửi đi phê duyệt.",
+      "approve": "Đã duyệt chiến dịch.",
+      "reject": "Đã từ chối chiến dịch.",
+      "run": "Chiến dịch đã bắt đầu chạy.",
+      "stop": "Đã dừng chiến dịch."
+    },
+    "reasonLabel": "Lý do",
+    "reasonRequired": "Vui lòng nhập lý do."
+  },
+  "metrics": {
+    "sent": "Số gửi",
+    "delivered": "Gửi thành công",
+    "opened": "Lượt mở",
+    "clicked": "Lượt click",
+    "conversionsBooking": "Chuyển đổi: đặt lịch",
+    "conversionsQr": "Chuyển đổi: kích hoạt QR lõi",
+    "conversionRate": "Tỷ lệ chuyển đổi",
+    "revenue": "Doanh thu ghi nhận",
+    "deliveredRate": "{{rate}} so với số gửi",
+    "openRate": "{{rate}} so với gửi thành công",
+    "clickRate": "{{rate}} so với lượt mở",
+    "export": "Xuất CSV",
+    "fileLabel": "do-luong-chien-dich"
+  },
+  "history": {
+    "created": "Tạo chiến dịch",
+    "approved": "Đã duyệt",
+    "rejected": "Bị từ chối",
+    "auditNote": "Mọi thao tác đổi trạng thái đều được ghi vào Nhật ký hệ thống (module Chiến dịch) kèm người thực hiện, thời điểm và lý do, không thể sửa/xóa."
+  },
+  "detail": {
+    "back": "Quay lại",
+    "edit": "Sửa",
+    "notFoundTitle": "Không tìm thấy chiến dịch",
+    "sections": {
+      "overview": "Tổng quan",
+      "audience": "Phân khúc đối tượng",
+      "trigger": "Điều kiện tự động",
+      "offer": "Ưu đãi",
+      "metrics": "Đo lường hiệu quả",
+      "history": "Nhật ký"
+    },
+    "frequencyCapValue": "{{count}} lần/KH",
+    "notPreviewed": "Chưa xem trước",
+    "allCustomers": "Tất cả khách hàng (không ràng buộc điều kiện)."
+  },
+  "testSend": {
+    "button": "Gửi thử",
+    "title": "Gửi thử cho nhóm test",
+    "send": "Gửi thử",
+    "success": "Đã gửi thử tới nhóm test (môi trường demo không gửi thật).",
+    "error": "Gửi thử thất bại.",
+    "recipientsLabel": "Danh sách người nhận test",
+    "recipientsHint": "Nhập số điện thoại/ID, cách nhau bằng dấu phẩy."
+  },
+  "errors": {
+    "invalidResponse": "Máy chủ trả về dữ liệu không hợp lệ.",
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "validation": "Dữ liệu không hợp lệ.",
+    "not_found": "Không tìm thấy chiến dịch.",
+    "not_editable": "Chỉ chiến dịch ở trạng thái Nháp hoặc Bị từ chối mới sửa được.",
+    "invalid_transition": "Không thể chuyển trạng thái này.",
+    "reason_required": "Cần nhập lý do cho thao tác này.",
+    "self_approve": "Người tạo không thể tự duyệt chiến dịch của mình.",
+    "previewFailed": "Không xem trước được số KH.",
+    "saveFailed": "Lưu chiến dịch thất bại.",
+    "imageType": "Chỉ chấp nhận ảnh PNG, JPG hoặc WebP.",
+    "imageSize": "Ảnh phải nhỏ hơn 2MB.",
+    "transitionFailed": "Chuyển trạng thái thất bại."
+  }
+}

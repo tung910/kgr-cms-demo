@@ -16,6 +16,7 @@ import {
 import { isPortalRole, type PortalRole } from '@/core/auth/types';
 import { systemHandlers } from '@/features/system/mocks/systemHandlers';
 import { deviceExtraHandlers } from '@/features/devices/mocks/deviceExtraHandlers';
+import { campaignHandlers } from '@/features/campaigns/mocks/campaignHandlers';
 import type { DeviceDto } from '@/features/devices/schemas/deviceSchemas';
 import type { ConnectionStatus } from '@/shared/constants/connectionStatus';
 
@@ -713,6 +714,7 @@ async function mutateDevice(
 
 export const handlers = [
   ...systemHandlers,
+  ...campaignHandlers,
   ...deviceExtraHandlers,
   http.get('/api/dashboard/summary', ({ request }) => {
     if (hasServerError(new URL(request.url))) {

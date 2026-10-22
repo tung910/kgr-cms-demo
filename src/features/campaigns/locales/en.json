@@ -1,0 +1,235 @@
+{
+  "status": {
+    "draft": "Draft",
+    "pending_approval": "Pending approval",
+    "approved": "Approved",
+    "running": "Running",
+    "ended": "Ended",
+    "rejected": "Rejected"
+  },
+  "kind": {
+    "manual": "Manual",
+    "trigger": "Automated"
+  },
+  "channel": {
+    "push": "Push notification",
+    "in_app": "In-app banner/popup"
+  },
+  "schedule": {
+    "send_now": "Send now",
+    "scheduled": "Scheduled"
+  },
+  "offer": {
+    "type": {
+      "voucher": "Voucher/Discount code",
+      "loyalty_points": "Reward points"
+    },
+    "discount": {
+      "percent": "Percent off",
+      "amount": "Amount off"
+    }
+  },
+  "trigger": {
+    "core_due": "Core nearing replacement",
+    "warranty_expiring": "Warranty expiring",
+    "high_tds": "High regional TDS",
+    "hint": {
+      "core_due": "Core ≤ N days left → replacement reminder with buy/booking link.",
+      "warranty_expiring": "Warranty ≤ 30 days left → renewal reminder.",
+      "high_tds": "Regional TDS above threshold → core upsell suggestion."
+    }
+  },
+  "warranty": {
+    "active": "Active",
+    "expiring": "Expiring",
+    "expired": "Expired",
+    "none": "None"
+  },
+  "filters": {
+    "searchAriaLabel": "Search campaigns",
+    "searchPlaceholder": "Search by name or campaign ID",
+    "statusAriaLabel": "Filter by status",
+    "statusPlaceholder": "Status",
+    "kindAriaLabel": "Filter by kind",
+    "kindPlaceholder": "Kind",
+    "reset": "Reset"
+  },
+  "table": {
+    "columns": {
+      "campaign": "Campaign",
+      "status": "Status",
+      "audience": "Audience",
+      "schedule": "Schedule",
+      "updatedAt": "Updated"
+    },
+    "audienceCount": "{{count}} customers",
+    "total": "{{total}} campaigns total"
+  },
+  "listPage": {
+    "title": "Marketing campaigns",
+    "description": "Create, segment, approve and measure push/in-app campaigns to customers.",
+    "create": "New campaign",
+    "empty": "No campaigns match the filters.",
+    "stats": {
+      "total": "Total campaigns",
+      "running": "Running",
+      "pendingApproval": "Pending approval",
+      "draft": "Drafts"
+    }
+  },
+  "deeplinkTargets": {
+    "home": "App home",
+    "coreReplace": "Replace filter core",
+    "warrantyRenew": "Renew warranty",
+    "loyalty": "Reward points",
+    "shopCores": "Filter-core store",
+    "promoMidAutumn": "Mid-Autumn promotion"
+  },
+  "fields": {
+    "name": "Campaign name",
+    "kind": "Campaign kind",
+    "channel": "Channel",
+    "contentVi": "Content (Vietnamese)",
+    "contentEn": "Content (English, optional)",
+    "imageUrl": "Image",
+    "imageUpload": "Upload image",
+    "imageRemove": "Remove image",
+    "deeplink": "Deeplink",
+    "deeplinkPlaceholder": "Pick an in-app screen",
+    "scheduleType": "Send timing",
+    "runWindow": "Start/end time",
+    "regions": "Region",
+    "models": "Model",
+    "firmwareVersions": "Firmware version",
+    "warrantyStatuses": "Warranty status",
+    "anyPlaceholder": "Any",
+    "coreRemainingDays": "Core days remaining",
+    "loyaltyPoints": "Loyalty points",
+    "regionTds": "Regional TDS (ppm)",
+    "tenureDays": "Tenure (days)",
+    "min": "Min",
+    "max": "Max",
+    "triggerPreset": "Trigger condition",
+    "frequencyCap": "Send frequency cap / customer",
+    "frequencyCapHint": "Max times a customer may receive this campaign.",
+    "offerEnabled": "Attach offer",
+    "offerType": "Offer type",
+    "voucherCode": "Voucher code",
+    "discountType": "Discount type",
+    "discountValue": "Discount value",
+    "usageLimitTotal": "Total usage limit",
+    "points": "Reward points",
+    "usageLimitPerCustomer": "Usage limit / customer",
+    "validUntil": "Valid until"
+  },
+  "wizard": {
+    "createTitle": "New campaign",
+    "editTitle": "Edit campaign",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "saveDraft": "Save draft",
+    "submit": "Submit for approval",
+    "steps": {
+      "content": "Info & content",
+      "audience": "Audience",
+      "offer": "Offer",
+      "trigger": "Trigger",
+      "review": "Review"
+    },
+    "triggerScheduleHint": "Automated campaigns run 24/7 by condition; no scheduling needed.",
+    "audienceHint": "Pick segmentation conditions. An empty field means no constraint on it. Conditions combine with AND.",
+    "rangeConditions": "Range conditions",
+    "previewButton": "Preview audience",
+    "previewResult": "{{count}} matching customers",
+    "previewPlaceholder": "Click \"Preview audience\" before continuing.",
+    "previewStale": "Conditions changed — preview again.",
+    "previewRequired": "You must preview the audience before continuing.",
+    "offerSection": "Offer",
+    "triggerAlways": "Automated 24/7",
+    "audienceLabel": "Audience",
+    "noOffer": "No offer attached",
+    "reviewHint": "Save as draft to keep editing, or submit to move it into approval.",
+    "savedDraft": "Campaign draft saved.",
+    "submitted": "Campaign submitted for approval."
+  },
+  "transitions": {
+    "action": {
+      "submit": "Submit",
+      "approve": "Approve",
+      "reject": "Reject",
+      "run": "Run",
+      "stop": "Stop"
+    },
+    "done": {
+      "submit": "Submitted for approval.",
+      "approve": "Campaign approved.",
+      "reject": "Campaign rejected.",
+      "run": "Campaign is now running.",
+      "stop": "Campaign stopped."
+    },
+    "reasonLabel": "Reason",
+    "reasonRequired": "Please enter a reason."
+  },
+  "metrics": {
+    "sent": "Sent",
+    "delivered": "Delivered",
+    "opened": "Opened",
+    "clicked": "Clicked",
+    "conversionsBooking": "Conversions: bookings",
+    "conversionsQr": "Conversions: new-core QR",
+    "conversionRate": "Conversion rate",
+    "revenue": "Attributed revenue",
+    "deliveredRate": "{{rate}} of sent",
+    "openRate": "{{rate}} of delivered",
+    "clickRate": "{{rate}} of opened",
+    "export": "Export CSV",
+    "fileLabel": "campaign-metrics"
+  },
+  "history": {
+    "created": "Created",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "auditNote": "Every status change is written to the system audit log (Campaigns module) with actor, timestamp and reason, and cannot be edited or deleted."
+  },
+  "detail": {
+    "back": "Back",
+    "edit": "Edit",
+    "notFoundTitle": "Campaign not found",
+    "sections": {
+      "overview": "Overview",
+      "audience": "Audience",
+      "trigger": "Automated condition",
+      "offer": "Offer",
+      "metrics": "Effectiveness",
+      "history": "History"
+    },
+    "frequencyCapValue": "{{count}} / customer",
+    "notPreviewed": "Not previewed",
+    "allCustomers": "All customers (no conditions)."
+  },
+  "testSend": {
+    "button": "Test send",
+    "title": "Send to test group",
+    "send": "Send test",
+    "success": "Test sent to the test group (demo backend sends nothing).",
+    "error": "Test send failed.",
+    "recipientsLabel": "Test recipients",
+    "recipientsHint": "Enter phone numbers/IDs separated by commas."
+  },
+  "errors": {
+    "invalidResponse": "The server returned an invalid response.",
+    "forbidden": "You do not have permission for this action.",
+    "validation": "Invalid data.",
+    "not_found": "Campaign not found.",
+    "not_editable": "Only Draft or Rejected campaigns can be edited.",
+    "invalid_transition": "That status change is not allowed.",
+    "reason_required": "A reason is required for this action.",
+    "self_approve": "The creator cannot approve their own campaign.",
+    "previewFailed": "Could not preview the audience.",
+    "saveFailed": "Could not save the campaign.",
+    "imageType": "Only PNG, JPG or WebP images are allowed.",
+    "imageSize": "The image must be smaller than 2MB.",
+    "transitionFailed": "Could not change the status."
+  }
+}

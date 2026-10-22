@@ -3,6 +3,15 @@
 // today, backend later) so API and export payloads match the UI — never in
 // components.
 
+// Keeps the first character and masks the rest (spaces preserved) — a customer
+// name reduced to an initial, mirroring how the device list drops the owner
+// name for roles without device.pii.full.
+export function maskName(name: string): string {
+  const trimmed = name.trim();
+  if (trimmed.length <= 1) return trimmed;
+  return trimmed[0] + trimmed.slice(1).replace(/\S/g, '•');
+}
+
 export function maskPhone(phone: string): string {
   const digits = phone.trim();
   if (digits.length <= 4) return digits;

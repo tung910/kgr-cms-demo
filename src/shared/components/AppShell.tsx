@@ -9,6 +9,7 @@ import {
   EnvironmentOutlined,
   KeyOutlined,
   LogoutOutlined,
+  NotificationOutlined,
   QrcodeOutlined,
   SettingOutlined,
   TeamOutlined,
@@ -39,6 +40,7 @@ const pathLabelKeys: Record<string, string> = {
   devices: 'nav.devices',
   alerts: 'nav.alerts',
   customers: 'nav.customers',
+  campaigns: 'nav.campaigns',
   firmware: 'nav.ota',
   maps: 'nav.device_map',
   serials: 'nav.serials',
@@ -56,6 +58,7 @@ function getSelectedMenuKey(pathname: string): PortalMenuKey {
   if (pathname.startsWith('/alerts')) return 'alerts';
   if (pathname.startsWith('/maps')) return 'device_map';
   if (pathname.startsWith('/customers')) return 'customers';
+  if (pathname.startsWith('/campaigns')) return 'campaigns';
   if (pathname.startsWith('/serials')) return 'serials';
   if (pathname.startsWith('/analytics-reports')) return 'analytics';
   if (pathname.startsWith('/system/members')) return 'members';
@@ -104,6 +107,12 @@ export function AppShell() {
       key: 'customers',
       icon: <CustomerServiceOutlined />,
       label: t('nav.customers'),
+      group: 'business',
+    },
+    {
+      key: 'campaigns',
+      icon: <NotificationOutlined />,
+      label: t('nav.campaigns'),
       group: 'business',
     },
     {
@@ -223,6 +232,12 @@ export function AppShell() {
         break;
       case 'customers':
         void navigate({ to: '/customers' });
+        break;
+      case 'campaigns':
+        void navigate({
+          to: '/campaigns',
+          search: { search: '', page: 1, pageSize: 10 },
+        });
         break;
       case 'serials':
         void navigate({
