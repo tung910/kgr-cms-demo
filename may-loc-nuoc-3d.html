@@ -1,747 +1,1556 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Máy lọc nước nóng lạnh – mô hình 3D (Three.js)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#1c1d21; --muted:#6a6f78; --line:#d8dbe0;
-    --bg:#e9ecef; --paper:rgba(255,255,255,.86);
-    --red:#d9262c; --blue:#1d6fd6; --green:#1e9e4a;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);
-    font-family:'Be Vietnam Pro',system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:var(--ink)}
-  canvas{display:block;outline:none}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Máy lọc nước nóng lạnh – mô hình 3D (Three.js)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #1c1d21;
+        --muted: #6a6f78;
+        --line: #d8dbe0;
+        --bg: #e9ecef;
+        --paper: rgba(255, 255, 255, 0.86);
+        --red: #d9262c;
+        --blue: #1d6fd6;
+        --green: #1e9e4a;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        font-family:
+          'Be Vietnam Pro',
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Arial,
+          sans-serif;
+        color: var(--ink);
+      }
+      canvas {
+        display: block;
+        outline: none;
+      }
 
-  .panel{position:fixed;left:24px;top:24px;width:292px;padding:20px 20px 16px;
-    background:var(--paper);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    border:1px solid rgba(0,0,0,.06);border-radius:14px}
-  .brand{display:flex;align-items:center;gap:10px}
-  .brand .dot{width:30px;height:30px;border-radius:50%;background:var(--red);color:#fff;
-    font-size:8px;font-weight:700;display:grid;place-items:center;line-height:1;text-align:center}
-  h1{font-size:18px;line-height:1.25;margin:0;font-weight:700;letter-spacing:-.01em}
-  .sub{font-size:12.5px;color:var(--muted);margin:10px 0 16px;line-height:1.5}
+      .panel {
+        position: fixed;
+        left: 24px;
+        top: 24px;
+        width: 292px;
+        padding: 20px 20px 16px;
+        background: var(--paper);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 14px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .brand .dot {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--red);
+        color: #fff;
+        font-size: 8px;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+        line-height: 1;
+        text-align: center;
+      }
+      h1 {
+        font-size: 18px;
+        line-height: 1.25;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .sub {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin: 10px 0 16px;
+        line-height: 1.5;
+      }
 
-  .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  button{font:inherit;font-size:13px;font-weight:600;padding:10px;border-radius:9px;
-    border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;
-    transition:background .15s,border-color .15s,color .15s}
-  button:hover{border-color:#aeb3ba}
-  button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-  button.on{background:var(--ink);border-color:var(--ink);color:#fff}
-  button.hot.on{background:var(--red);border-color:var(--red)}
-  button.cold.on{background:var(--blue);border-color:var(--blue)}
+      .btns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      button {
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 10px;
+        border-radius: 9px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          border-color 0.15s,
+          color 0.15s;
+      }
+      button:hover {
+        border-color: #aeb3ba;
+      }
+      button:focus-visible {
+        outline: 2px solid var(--blue);
+        outline-offset: 2px;
+      }
+      button.on {
+        background: var(--ink);
+        border-color: var(--ink);
+        color: #fff;
+      }
+      button.hot.on {
+        background: var(--red);
+        border-color: var(--red);
+      }
+      button.cold.on {
+        background: var(--blue);
+        border-color: var(--blue);
+      }
 
-  .status{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-  .chip{font-size:11.5px;padding:4px 10px 4px 8px;border-radius:999px;background:#f0f1f3;
-    color:var(--muted);display:inline-flex;align-items:center;gap:6px}
-  .chip i{width:7px;height:7px;border-radius:50%;background:#b8bcc2}
-  .chip.ok{color:var(--ink)} .chip.ok i{background:var(--green)}
-  .hint{font-size:11.5px;color:var(--muted);margin:14px 0 0;line-height:1.55}
+      .status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 14px;
+      }
+      .chip {
+        font-size: 11.5px;
+        padding: 4px 10px 4px 8px;
+        border-radius: 999px;
+        background: #f0f1f3;
+        color: var(--muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .chip i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #b8bcc2;
+      }
+      .chip.ok {
+        color: var(--ink);
+      }
+      .chip.ok i {
+        background: var(--green);
+      }
+      .hint {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin: 14px 0 0;
+        line-height: 1.55;
+      }
 
-  #tip{position:fixed;left:0;top:0;pointer-events:none;padding:6px 10px;background:var(--ink);color:#fff;
-    font-size:12px;border-radius:7px;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:5}
-  #toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);background:var(--ink);color:#fff;
-    padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .25s,transform .25s;
-    pointer-events:none;max-width:90vw;text-align:center;z-index:6}
-  #toast.show{opacity:1;transform:translate(-50%,0)}
+      #tip {
+        position: fixed;
+        left: 0;
+        top: 0;
+        pointer-events: none;
+        padding: 6px 10px;
+        background: var(--ink);
+        color: #fff;
+        font-size: 12px;
+        border-radius: 7px;
+        opacity: 0;
+        transition: opacity 0.12s;
+        white-space: nowrap;
+        z-index: 5;
+      }
+      #toast {
+        position: fixed;
+        left: 50%;
+        bottom: 28px;
+        transform: translate(-50%, 16px);
+        background: var(--ink);
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        opacity: 0;
+        transition:
+          opacity 0.25s,
+          transform 0.25s;
+        pointer-events: none;
+        max-width: 90vw;
+        text-align: center;
+        z-index: 6;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
 
-  @media (max-width:640px){
-    .panel{left:10px;right:10px;top:auto;bottom:10px;width:auto;padding:14px}
-    .sub,.hint{display:none}
-    #toast{bottom:auto;top:16px}
-  }
-  @media (prefers-reduced-motion:reduce){ #toast,button{transition:none} }
-</style>
-<script type="importmap">
-{ "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-} }
-</script>
-</head>
-<body>
+      @media (max-width: 640px) {
+        .panel {
+          left: 10px;
+          right: 10px;
+          top: auto;
+          bottom: 10px;
+          width: auto;
+          padding: 14px;
+        }
+        .sub,
+        .hint {
+          display: none;
+        }
+        #toast {
+          bottom: auto;
+          top: 16px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #toast,
+        button {
+          transition: none;
+        }
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="panel">
+      <div class="brand">
+        <div class="dot">JAPAN<br />QUALITY</div>
+        <h1>Máy lọc nước nóng lạnh Hydrogen</h1>
+      </div>
+      <p class="sub">
+        Mô hình 3D dựng bằng Three.js theo ảnh tham khảo. Nhấn vào công tắc,
+        van, núm vặn hoặc cửa để tương tác.
+      </p>
+      <div class="btns">
+        <button id="bDoor">Mở cửa</button>
+        <button id="bRotate">Tự xoay</button>
+        <button id="bHot" class="hot">Lấy nước nóng</button>
+        <button id="bCold" class="cold">Lấy nước lạnh</button>
+      </div>
+      <div class="status">
+        <span class="chip" id="sCold"><i></i>Lạnh</span>
+        <span class="chip" id="sHot"><i></i>Nóng</span>
+        <span class="chip" id="sValve"><i></i>Van bình áp</span>
+      </div>
+      <p class="hint">
+        Kéo để xoay, cuộn để phóng to thu nhỏ, nhấn đúp vào nền để về góc nhìn
+        ban đầu.
+      </p>
+    </div>
+    <div id="tip"></div>
+    <div id="toast"></div>
 
-<div class="panel">
-  <div class="brand">
-    <div class="dot">JAPAN<br>QUALITY</div>
-    <h1>Máy lọc nước nóng lạnh Hydrogen</h1>
-  </div>
-  <p class="sub">Mô hình 3D dựng bằng Three.js theo ảnh tham khảo. Nhấn vào công tắc, van, núm vặn hoặc cửa để tương tác.</p>
-  <div class="btns">
-    <button id="bDoor">Mở cửa</button>
-    <button id="bRotate">Tự xoay</button>
-    <button id="bHot" class="hot">Lấy nước nóng</button>
-    <button id="bCold" class="cold">Lấy nước lạnh</button>
-  </div>
-  <div class="status">
-    <span class="chip" id="sCold"><i></i>Lạnh</span>
-    <span class="chip" id="sHot"><i></i>Nóng</span>
-    <span class="chip" id="sValve"><i></i>Van bình áp</span>
-  </div>
-  <p class="hint">Kéo để xoay, cuộn để phóng to thu nhỏ, nhấn đúp vào nền để về góc nhìn ban đầu.</p>
-</div>
-<div id="tip"></div>
-<div id="toast"></div>
+    <script type="module">
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+      import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-
-/* =========================================================
+      /* =========================================================
    KÍCH THƯỚC (đơn vị: mét)
    ========================================================= */
-const W = 0.32;            // rộng thân máy
-const D = 0.36;            // sâu thân máy
-const H = 1.0;             // cao thân máy (không tính đế)
-const Y0 = 0.035;          // cao đế
-const TOP = Y0 + H;        // mặt trên
-const DT = D + 0.014;      // mặt kính trên phủ luôn phần cửa
-const DW = W - 0.008;      // rộng cửa
-const DH = H - 0.014;      // cao cửa
-const FAUCET_Z = -0.125;   // vị trí vòi (gần phía sau)
-const KNOB_Z = -0.12;      // vị trí núm vặn
+      const W = 0.32; // rộng thân máy
+      const D = 0.36; // sâu thân máy
+      const H = 1.0; // cao thân máy (không tính đế)
+      const Y0 = 0.035; // cao đế
+      const TOP = Y0 + H; // mặt trên
+      const DT = D + 0.014; // mặt kính trên phủ luôn phần cửa
+      const DW = W - 0.008; // rộng cửa
+      const DH = H - 0.014; // cao cửa
+      const FAUCET_Z = -0.125; // vị trí vòi (gần phía sau)
+      const KNOB_Z = -0.12; // vị trí núm vặn
 
-/* =========================================================
+      /* =========================================================
    RENDERER / SCENE / CAMERA
    ========================================================= */
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
-document.body.appendChild(renderer.domElement);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      document.body.appendChild(renderer.domElement);
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xe9ecef);
-const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xe9ecef);
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      scene.environment = pmrem.fromScene(
+        new RoomEnvironment(renderer),
+        0.04
+      ).texture;
 
-const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 0.01, 50);
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.minDistance = 0.45;
-controls.maxDistance = 5;
-controls.maxPolarAngle = Math.PI * 0.53;
-controls.autoRotateSpeed = 1.2;
+      const camera = new THREE.PerspectiveCamera(
+        35,
+        innerWidth / innerHeight,
+        0.01,
+        50
+      );
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.minDistance = 0.45;
+      controls.maxDistance = 5;
+      controls.maxPolarAngle = Math.PI * 0.53;
+      controls.autoRotateSpeed = 1.2;
 
-function resetView() {
-  const dist = 2.35 * Math.max(1, 0.9 / camera.aspect);
-  const dir = new THREE.Vector3(0.48, 0.28, 0.83).normalize();
-  controls.target.set(0, 0.62, 0);
-  camera.position.copy(controls.target).addScaledVector(dir, dist);
-  controls.update();
-}
+      function resetView() {
+        const dist = 2.35 * Math.max(1, 0.9 / camera.aspect);
+        const dir = new THREE.Vector3(0.48, 0.28, 0.83).normalize();
+        controls.target.set(0, 0.62, 0);
+        camera.position.copy(controls.target).addScaledVector(dir, dist);
+        controls.update();
+      }
 
-// Ánh sáng
-scene.add(new THREE.HemisphereLight(0xffffff, 0xb0b4ba, 0.45));
-const key = new THREE.DirectionalLight(0xffffff, 2.0);
-key.position.set(1.6, 3.2, 2.2);
-key.castShadow = true;
-key.shadow.mapSize.set(2048, 2048);
-Object.assign(key.shadow.camera, { left: -1, right: 1, top: 1.6, bottom: -0.4, near: 0.5, far: 8 });
-key.shadow.bias = -0.0004;
-key.shadow.normalBias = 0.02;
-scene.add(key);
-const rim = new THREE.DirectionalLight(0xdfe8ff, 0.7);
-rim.position.set(-2, 1.5, -1.5);
-scene.add(rim);
+      // Ánh sáng
+      scene.add(new THREE.HemisphereLight(0xffffff, 0xb0b4ba, 0.45));
+      const key = new THREE.DirectionalLight(0xffffff, 2.0);
+      key.position.set(1.6, 3.2, 2.2);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      Object.assign(key.shadow.camera, {
+        left: -1,
+        right: 1,
+        top: 1.6,
+        bottom: -0.4,
+        near: 0.5,
+        far: 8,
+      });
+      key.shadow.bias = -0.0004;
+      key.shadow.normalBias = 0.02;
+      scene.add(key);
+      const rim = new THREE.DirectionalLight(0xdfe8ff, 0.7);
+      rim.position.set(-2, 1.5, -1.5);
+      scene.add(rim);
 
-// Sàn nhận bóng
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.ShadowMaterial({ opacity: 0.16 }));
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
+      // Sàn nhận bóng
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(12, 12),
+        new THREE.ShadowMaterial({ opacity: 0.16 })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      scene.add(floor);
 
-const machine = new THREE.Group();
-scene.add(machine);
+      const machine = new THREE.Group();
+      scene.add(machine);
 
-/* =========================================================
+      /* =========================================================
    TIỆN ÍCH
    ========================================================= */
-function canvasTex(w, h, draw, scale = 2) {
-  const c = document.createElement('canvas');
-  c.width = w * scale; c.height = h * scale;
-  const g = c.getContext('2d');
-  g.scale(scale, scale);
-  draw(g, w, h);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  return t;
-}
-function rr(g, x, y, w, h, r) {
-  g.beginPath(); g.moveTo(x + r, y);
-  g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
-  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
-}
-// Vân sọc chéo kiểu carbon trên mặt kính
-function stripes(g, w, h, a, step) {
-  g.save(); g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = 1;
-  for (let i = -h; i < w; i += step) { g.beginPath(); g.moveTo(i, h); g.lineTo(i + h, 0); g.stroke(); }
-  g.restore();
-}
-function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+      function canvasTex(w, h, draw, scale = 2) {
+        const c = document.createElement('canvas');
+        c.width = w * scale;
+        c.height = h * scale;
+        const g = c.getContext('2d');
+        g.scale(scale, scale);
+        draw(g, w, h);
+        const t = new THREE.CanvasTexture(c);
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        return t;
+      }
+      function rr(g, x, y, w, h, r) {
+        g.beginPath();
+        g.moveTo(x + r, y);
+        g.arcTo(x + w, y, x + w, y + h, r);
+        g.arcTo(x + w, y + h, x, y + h, r);
+        g.arcTo(x, y + h, x, y, r);
+        g.arcTo(x, y, x + w, y, r);
+        g.closePath();
+      }
+      // Vân sọc chéo kiểu carbon trên mặt kính
+      function stripes(g, w, h, a, step) {
+        g.save();
+        g.strokeStyle = `rgba(255,255,255,${a})`;
+        g.lineWidth = 1;
+        for (let i = -h; i < w; i += step) {
+          g.beginPath();
+          g.moveTo(i, h);
+          g.lineTo(i + h, 0);
+          g.stroke();
+        }
+        g.restore();
+      }
+      function mulberry(a) {
+        return () => {
+          a |= 0;
+          a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
 
-const mesh = (geo, mat) => new THREE.Mesh(geo, mat);
-function box(w, h, d, mat, x = 0, y = 0, z = 0, parent = machine) {
-  const m = mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); parent.add(m); return m;
-}
-const cyl = (rt, rb, h, mat, seg = 32) => mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
-function plane(w, h, map, x, y, z, parent = machine) {
-  const m = mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map, roughness: 0.45 }));
-  m.position.set(x, y, z); parent.add(m); return m;
-}
-function interactive(obj, label, action) { obj.userData.label = label; obj.userData.action = action; }
+      const mesh = (geo, mat) => new THREE.Mesh(geo, mat);
+      function box(w, h, d, mat, x = 0, y = 0, z = 0, parent = machine) {
+        const m = mesh(new THREE.BoxGeometry(w, h, d), mat);
+        m.position.set(x, y, z);
+        parent.add(m);
+        return m;
+      }
+      const cyl = (rt, rb, h, mat, seg = 32) =>
+        mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
+      function plane(w, h, map, x, y, z, parent = machine) {
+        const m = mesh(
+          new THREE.PlaneGeometry(w, h),
+          new THREE.MeshStandardMaterial({ map, roughness: 0.45 })
+        );
+        m.position.set(x, y, z);
+        parent.add(m);
+        return m;
+      }
+      function interactive(obj, label, action) {
+        obj.userData.label = label;
+        obj.userData.action = action;
+      }
 
-/* =========================================================
+      /* =========================================================
    VẬT LIỆU
    ========================================================= */
-const M = {
-  side:   new THREE.MeshStandardMaterial({ color: 0xc3c6c9, metalness: 0.55, roughness: 0.38 }),
-  trim:   new THREE.MeshStandardMaterial({ color: 0x151517, metalness: 0.3, roughness: 0.45 }),
-  base:   new THREE.MeshStandardMaterial({ color: 0x232325, metalness: 0.2, roughness: 0.6 }),
-  chrome: new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 0.07 }),
-  white:  new THREE.MeshStandardMaterial({ color: 0xf3f3f1, roughness: 0.55 }),
-  grey:   new THREE.MeshStandardMaterial({ color: 0xcfd2d5, roughness: 0.5 }),
-  inner:  new THREE.MeshStandardMaterial({ color: 0xe2e4e6, roughness: 0.75 }),
-  recess: new THREE.MeshStandardMaterial({ color: 0x0b0b0c, roughness: 0.85 }),
-  blue:   new THREE.MeshStandardMaterial({ color: 0x1f5fd1, roughness: 0.35 }),
-};
-const glassMat = map => new THREE.MeshPhysicalMaterial({
-  map, roughness: 0.2, metalness: 0.08, clearcoat: 1, clearcoatRoughness: 0.03,
-});
+      const M = {
+        side: new THREE.MeshStandardMaterial({
+          color: 0xc3c6c9,
+          metalness: 0.55,
+          roughness: 0.38,
+        }),
+        trim: new THREE.MeshStandardMaterial({
+          color: 0x151517,
+          metalness: 0.3,
+          roughness: 0.45,
+        }),
+        base: new THREE.MeshStandardMaterial({
+          color: 0x232325,
+          metalness: 0.2,
+          roughness: 0.6,
+        }),
+        chrome: new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          metalness: 1,
+          roughness: 0.07,
+        }),
+        white: new THREE.MeshStandardMaterial({
+          color: 0xf3f3f1,
+          roughness: 0.55,
+        }),
+        grey: new THREE.MeshStandardMaterial({
+          color: 0xcfd2d5,
+          roughness: 0.5,
+        }),
+        inner: new THREE.MeshStandardMaterial({
+          color: 0xe2e4e6,
+          roughness: 0.75,
+        }),
+        recess: new THREE.MeshStandardMaterial({
+          color: 0x0b0b0c,
+          roughness: 0.85,
+        }),
+        blue: new THREE.MeshStandardMaterial({
+          color: 0x1f5fd1,
+          roughness: 0.35,
+        }),
+      };
+      const glassMat = (map) =>
+        new THREE.MeshPhysicalMaterial({
+          map,
+          roughness: 0.2,
+          metalness: 0.08,
+          clearcoat: 1,
+          clearcoatRoughness: 0.03,
+        });
 
-/* =========================================================
+      /* =========================================================
    TEXTURE VẼ BẰNG CANVAS
    ========================================================= */
-// Mặt trước cửa: kính đen, nhãn COOLJET/Purion, logo, huy hiệu JAPAN
-const doorFrontTex = canvasTex(512, 1620, (g, w, h) => {
-  g.fillStyle = '#0f0f11'; g.fillRect(0, 0, w, h); stripes(g, w, h, 0.02, 7);
-  g.save(); g.beginPath(); g.moveTo(0, h * 0.62); g.lineTo(w, h * 0.30); g.lineTo(w, h); g.lineTo(0, h); g.closePath(); g.clip();
-  g.fillStyle = '#17181b'; g.fillRect(0, 0, w, h); stripes(g, w, h, 0.065, 5); g.restore();
-  g.strokeStyle = 'rgba(255,255,255,0.09)'; g.lineWidth = 1.5;
-  g.beginPath(); g.moveTo(0, h * 0.62); g.lineTo(w, h * 0.30); g.stroke();
+      // Mặt trước cửa: kính đen, nhãn COOLJET/Purion, logo, huy hiệu JAPAN
+      const doorFrontTex = canvasTex(512, 1620, (g, w, h) => {
+        g.fillStyle = '#0f0f11';
+        g.fillRect(0, 0, w, h);
+        stripes(g, w, h, 0.02, 7);
+        g.save();
+        g.beginPath();
+        g.moveTo(0, h * 0.62);
+        g.lineTo(w, h * 0.3);
+        g.lineTo(w, h);
+        g.lineTo(0, h);
+        g.closePath();
+        g.clip();
+        g.fillStyle = '#17181b';
+        g.fillRect(0, 0, w, h);
+        stripes(g, w, h, 0.065, 5);
+        g.restore();
+        g.strokeStyle = 'rgba(255,255,255,0.09)';
+        g.lineWidth = 1.5;
+        g.beginPath();
+        g.moveTo(0, h * 0.62);
+        g.lineTo(w, h * 0.3);
+        g.stroke();
 
-  // Nhãn bạc góc trái
-  const lx = 16, ly = 24, lw = 140, lh = 252;
-  g.fillStyle = '#2a2b2f'; rr(g, lx - 3, ly - 3, lw + 6, lh + 6, 6); g.fill();
-  const gr = g.createLinearGradient(lx, ly, lx + lw, ly + lh);
-  gr.addColorStop(0, '#f4f4f4'); gr.addColorStop(1, '#b7babd');
-  g.fillStyle = gr; rr(g, lx, ly, lw, lh, 4); g.fill();
-  g.textAlign = 'center'; g.fillStyle = '#333';
-  g.font = 'bold 8px Arial'; g.fillText('CÔNG NGHỆ LÀM LẠNH NHANH', lx + lw / 2, ly + 16);
-  g.font = '900 25px "Arial Black", Arial'; g.fillStyle = '#2a2a2a'; g.fillText('COOLJET', lx + lw / 2, ly + 45);
-  g.font = '6.5px Arial'; g.fillText('ĐÃ KHÁT, KHÔNG LO HẾT NƯỚC MÁT', lx + lw / 2, ly + 57);
-  [['LẠNH ×3', lx + 8], ['LỌC 5×', lx + 74]].forEach(([t, x]) => {
-    g.fillStyle = '#26272b'; rr(g, x, ly + 66, 58, 20, 4); g.fill();
-    g.fillStyle = '#fff'; g.font = 'bold 10px Arial'; g.fillText(t, x + 29, ly + 80);
-  });
-  g.fillStyle = '#26272b'; rr(g, lx + 8, ly + 92, 124, 20, 4); g.fill();
-  g.fillStyle = '#fff'; g.font = 'bold 10px Arial'; g.fillText('HIỆU NĂNG CAO 60 L', lx + lw / 2, ly + 106);
-  const gold = g.createLinearGradient(lx, 0, lx + lw, 0);
-  gold.addColorStop(0, '#b8923a'); gold.addColorStop(0.5, '#f1d98a'); gold.addColorStop(1, '#b8923a');
-  g.fillStyle = gold; rr(g, lx + 8, ly + 120, 124, 22, 4); g.fill();
-  g.fillStyle = '#3b2c08'; g.font = 'bold 11px Arial'; g.fillText('HYDROGEN', lx + lw / 2, ly + 135);
-  g.fillStyle = '#1d1e22'; rr(g, lx + 8, ly + 152, 124, 90, 5); g.fill();
-  g.fillStyle = '#cfd2d6'; g.font = 'bold 7px Arial'; g.fillText('LÕI LỌC NƯỚC ĐỘC QUYỀN', lx + lw / 2, ly + 172);
-  g.fillStyle = '#fff'; g.font = 'bold 30px Arial'; g.fillText('Purion', lx + lw / 2, ly + 212);
+        // Nhãn bạc góc trái
+        const lx = 16,
+          ly = 24,
+          lw = 140,
+          lh = 252;
+        g.fillStyle = '#2a2b2f';
+        rr(g, lx - 3, ly - 3, lw + 6, lh + 6, 6);
+        g.fill();
+        const gr = g.createLinearGradient(lx, ly, lx + lw, ly + lh);
+        gr.addColorStop(0, '#f4f4f4');
+        gr.addColorStop(1, '#b7babd');
+        g.fillStyle = gr;
+        rr(g, lx, ly, lw, lh, 4);
+        g.fill();
+        g.textAlign = 'center';
+        g.fillStyle = '#333';
+        g.font = 'bold 8px Arial';
+        g.fillText('CÔNG NGHỆ LÀM LẠNH NHANH', lx + lw / 2, ly + 16);
+        g.font = '900 25px "Arial Black", Arial';
+        g.fillStyle = '#2a2a2a';
+        g.fillText('COOLJET', lx + lw / 2, ly + 45);
+        g.font = '6.5px Arial';
+        g.fillText('ĐÃ KHÁT, KHÔNG LO HẾT NƯỚC MÁT', lx + lw / 2, ly + 57);
+        [
+          ['LẠNH ×3', lx + 8],
+          ['LỌC 5×', lx + 74],
+        ].forEach(([t, x]) => {
+          g.fillStyle = '#26272b';
+          rr(g, x, ly + 66, 58, 20, 4);
+          g.fill();
+          g.fillStyle = '#fff';
+          g.font = 'bold 10px Arial';
+          g.fillText(t, x + 29, ly + 80);
+        });
+        g.fillStyle = '#26272b';
+        rr(g, lx + 8, ly + 92, 124, 20, 4);
+        g.fill();
+        g.fillStyle = '#fff';
+        g.font = 'bold 10px Arial';
+        g.fillText('HIỆU NĂNG CAO 60 L', lx + lw / 2, ly + 106);
+        const gold = g.createLinearGradient(lx, 0, lx + lw, 0);
+        gold.addColorStop(0, '#b8923a');
+        gold.addColorStop(0.5, '#f1d98a');
+        gold.addColorStop(1, '#b8923a');
+        g.fillStyle = gold;
+        rr(g, lx + 8, ly + 120, 124, 22, 4);
+        g.fill();
+        g.fillStyle = '#3b2c08';
+        g.font = 'bold 11px Arial';
+        g.fillText('HYDROGEN', lx + lw / 2, ly + 135);
+        g.fillStyle = '#1d1e22';
+        rr(g, lx + 8, ly + 152, 124, 90, 5);
+        g.fill();
+        g.fillStyle = '#cfd2d6';
+        g.font = 'bold 7px Arial';
+        g.fillText('LÕI LỌC NƯỚC ĐỘC QUYỀN', lx + lw / 2, ly + 172);
+        g.fillStyle = '#fff';
+        g.font = 'bold 30px Arial';
+        g.fillText('Purion', lx + lw / 2, ly + 212);
 
-  // Logo & huy hiệu
-  g.textAlign = 'left'; g.fillStyle = '#fff'; g.font = 'italic bold 24px Arial'; g.fillText('Kangaroo', 176, 54);
-  g.fillStyle = '#d9262c'; g.beginPath(); g.arc(452, 50, 34, 0, Math.PI * 2); g.fill();
-  g.textAlign = 'center'; g.fillStyle = '#fff'; g.font = 'bold 13px Arial'; g.fillText('JAPAN', 452, 50);
-  g.font = 'bold 7px Arial'; g.fillText('QUALITY', 452, 63);
+        // Logo & huy hiệu
+        g.textAlign = 'left';
+        g.fillStyle = '#fff';
+        g.font = 'italic bold 24px Arial';
+        g.fillText('Kangaroo', 176, 54);
+        g.fillStyle = '#d9262c';
+        g.beginPath();
+        g.arc(452, 50, 34, 0, Math.PI * 2);
+        g.fill();
+        g.textAlign = 'center';
+        g.fillStyle = '#fff';
+        g.font = 'bold 13px Arial';
+        g.fillText('JAPAN', 452, 50);
+        g.font = 'bold 7px Arial';
+        g.fillText('QUALITY', 452, 63);
 
-  // Dòng chữ dọc
-  g.save(); g.translate(262, 110); g.rotate(Math.PI / 2); g.textAlign = 'left';
-  g.fillStyle = 'rgba(255,255,255,0.42)'; g.font = '12px Arial'; g.fillText('HYDROGEN   COOLJET   PURION', 0, 0);
-  g.fillStyle = 'rgba(255,255,255,0.22)'; g.font = '9px Arial'; g.fillText('Nước sạch tinh khiết cho cả gia đình', 0, 18);
-  g.restore();
-});
+        // Dòng chữ dọc
+        g.save();
+        g.translate(262, 110);
+        g.rotate(Math.PI / 2);
+        g.textAlign = 'left';
+        g.fillStyle = 'rgba(255,255,255,0.42)';
+        g.font = '12px Arial';
+        g.fillText('HYDROGEN   COOLJET   PURION', 0, 0);
+        g.fillStyle = 'rgba(255,255,255,0.22)';
+        g.font = '9px Arial';
+        g.fillText('Nước sạch tinh khiết cho cả gia đình', 0, 18);
+        g.restore();
+      });
 
-// Mặt trong cửa: tờ hướng dẫn sử dụng
-const doorInnerTex = canvasTex(512, 1620, (g, w, h) => {
-  g.fillStyle = '#0d0d0e'; g.fillRect(0, 0, w, h); stripes(g, w, h, 0.018, 7);
-  const sx = 60, sy = 70, sw = 392, sh = 560;
-  g.fillStyle = '#fbfbf8'; g.fillRect(sx, sy, sw, sh);
-  g.fillStyle = '#f2d93b'; g.fillRect(sx, sy, 150, 64);
-  g.fillStyle = '#111'; g.font = 'bold 15px Arial'; g.fillText('LƯU Ý', sx + 14, sy + 38);
-  g.fillStyle = '#1e9e4a'; g.font = 'italic bold 16px Arial'; g.fillText('Kangaroo', sx + 290, sy + 26);
-  const r = mulberry(7);
-  g.fillStyle = '#c3c3c3';
-  for (let y = sy + 90; y < sy + 330; y += 9) g.fillRect(sx + 18, y, 180 + r() * 170, 2.6);
-  g.strokeStyle = '#9a9a9a'; g.lineWidth = 1;
-  for (let i = 0; i < 7; i++) { g.beginPath(); g.moveTo(sx + 18, sy + 360 + i * 24); g.lineTo(sx + 230, sy + 360 + i * 24); g.stroke(); }
-  [sx + 275, sx + 335].forEach(cx => { g.beginPath(); g.arc(cx, sy + 385, 18, 0, Math.PI * 2); g.stroke(); });
-  g.fillStyle = '#2eaa4f'; g.fillRect(sx + 262, sy + 440, 90, 60);
-  g.fillStyle = '#fff'; g.font = 'bold 10px Arial'; g.fillText('HƯỚNG DẪN', sx + 274, sy + 475);
-});
+      // Mặt trong cửa: tờ hướng dẫn sử dụng
+      const doorInnerTex = canvasTex(512, 1620, (g, w, h) => {
+        g.fillStyle = '#0d0d0e';
+        g.fillRect(0, 0, w, h);
+        stripes(g, w, h, 0.018, 7);
+        const sx = 60,
+          sy = 70,
+          sw = 392,
+          sh = 560;
+        g.fillStyle = '#fbfbf8';
+        g.fillRect(sx, sy, sw, sh);
+        g.fillStyle = '#f2d93b';
+        g.fillRect(sx, sy, 150, 64);
+        g.fillStyle = '#111';
+        g.font = 'bold 15px Arial';
+        g.fillText('LƯU Ý', sx + 14, sy + 38);
+        g.fillStyle = '#1e9e4a';
+        g.font = 'italic bold 16px Arial';
+        g.fillText('Kangaroo', sx + 290, sy + 26);
+        const r = mulberry(7);
+        g.fillStyle = '#c3c3c3';
+        for (let y = sy + 90; y < sy + 330; y += 9)
+          g.fillRect(sx + 18, y, 180 + r() * 170, 2.6);
+        g.strokeStyle = '#9a9a9a';
+        g.lineWidth = 1;
+        for (let i = 0; i < 7; i++) {
+          g.beginPath();
+          g.moveTo(sx + 18, sy + 360 + i * 24);
+          g.lineTo(sx + 230, sy + 360 + i * 24);
+          g.stroke();
+        }
+        [sx + 275, sx + 335].forEach((cx) => {
+          g.beginPath();
+          g.arc(cx, sy + 385, 18, 0, Math.PI * 2);
+          g.stroke();
+        });
+        g.fillStyle = '#2eaa4f';
+        g.fillRect(sx + 262, sy + 440, 90, 60);
+        g.fillStyle = '#fff';
+        g.font = 'bold 10px Arial';
+        g.fillText('HƯỚNG DẪN', sx + 274, sy + 475);
+      });
 
-// Mặt kính trên: núm vặn, cảnh báo nước nóng, đèn báo
-const topTex = canvasTex(512, 600, (g, w, h) => {
-  const tx = x => (x + W / 2) / W * w;
-  const tz = z => (z - 0.007 + DT / 2) / DT * h;
-  g.fillStyle = '#0e0e10'; g.fillRect(0, 0, w, h); stripes(g, w, h, 0.02, 7);
-  g.save(); g.beginPath(); g.moveTo(0, h); g.lineTo(w, h * 0.08); g.lineTo(w, h); g.closePath(); g.clip();
-  g.fillStyle = '#16171a'; g.fillRect(0, 0, w, h); stripes(g, w, h, 0.07, 5); g.restore();
+      // Mặt kính trên: núm vặn, cảnh báo nước nóng, đèn báo
+      const topTex = canvasTex(512, 600, (g, w, h) => {
+        const tx = (x) => ((x + W / 2) / W) * w;
+        const tz = (z) => ((z - 0.007 + DT / 2) / DT) * h;
+        g.fillStyle = '#0e0e10';
+        g.fillRect(0, 0, w, h);
+        stripes(g, w, h, 0.02, 7);
+        g.save();
+        g.beginPath();
+        g.moveTo(0, h);
+        g.lineTo(w, h * 0.08);
+        g.lineTo(w, h);
+        g.closePath();
+        g.clip();
+        g.fillStyle = '#16171a';
+        g.fillRect(0, 0, w, h);
+        stripes(g, w, h, 0.07, 5);
+        g.restore();
 
-  const lock = (x, y) => {
-    g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect(x - 4, y - 1, 8, 6);
-    g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 1.2;
-    g.beginPath(); g.arc(x, y - 1, 3, Math.PI, 0); g.stroke();
-  };
-  g.textAlign = 'center';
-  for (const x of [-0.115, 0.115]) {
-    const cx = tx(x), cy = tz(KNOB_Z);
-    g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1.2;
-    g.beginPath(); g.arc(cx, cy, 34, Math.PI * 0.15, Math.PI * 0.85); g.stroke();
-    lock(cx - 38, cy + 18); lock(cx + 38, cy + 18);
-  }
-  g.fillStyle = 'rgba(255,255,255,0.6)'; g.font = '600 9px Arial';
-  g.fillText('NƯỚC NÓNG', tx(-0.115), tz(KNOB_Z) + 50);
-  g.fillText('NƯỚC LẠNH', tx(0.115), tz(KNOB_Z) + 50);
-  g.fillText('NƯỚC HYDROGEN', tx(0.115), tz(KNOB_Z) + 62);
+        const lock = (x, y) => {
+          g.fillStyle = 'rgba(255,255,255,0.5)';
+          g.fillRect(x - 4, y - 1, 8, 6);
+          g.strokeStyle = 'rgba(255,255,255,0.5)';
+          g.lineWidth = 1.2;
+          g.beginPath();
+          g.arc(x, y - 1, 3, Math.PI, 0);
+          g.stroke();
+        };
+        g.textAlign = 'center';
+        for (const x of [-0.115, 0.115]) {
+          const cx = tx(x),
+            cy = tz(KNOB_Z);
+          g.strokeStyle = 'rgba(255,255,255,0.35)';
+          g.lineWidth = 1.2;
+          g.beginPath();
+          g.arc(cx, cy, 34, Math.PI * 0.15, Math.PI * 0.85);
+          g.stroke();
+          lock(cx - 38, cy + 18);
+          lock(cx + 38, cy + 18);
+        }
+        g.fillStyle = 'rgba(255,255,255,0.6)';
+        g.font = '600 9px Arial';
+        g.fillText('NƯỚC NÓNG', tx(-0.115), tz(KNOB_Z) + 50);
+        g.fillText('NƯỚC LẠNH', tx(0.115), tz(KNOB_Z) + 50);
+        g.fillText('NƯỚC HYDROGEN', tx(0.115), tz(KNOB_Z) + 62);
 
-  const wx = tx(-0.105), wy = tz(0.0) + 12;
-  g.fillStyle = '#c9d600'; g.beginPath(); g.moveTo(wx, wy - 22); g.lineTo(wx + 26, wy + 20); g.lineTo(wx - 26, wy + 20); g.closePath(); g.fill();
-  g.fillStyle = '#111'; g.font = 'bold 18px Arial'; g.fillText('!', wx, wy + 14);
-  g.fillStyle = 'rgba(255,255,255,0.75)'; g.font = 'bold 7px Arial'; g.fillText('CẢNH BÁO NƯỚC NÓNG', wx, wy + 32);
-  g.font = '6px Arial'; g.fillText('Warning: Hot water', wx, wy + 41);
+        const wx = tx(-0.105),
+          wy = tz(0.0) + 12;
+        g.fillStyle = '#c9d600';
+        g.beginPath();
+        g.moveTo(wx, wy - 22);
+        g.lineTo(wx + 26, wy + 20);
+        g.lineTo(wx - 26, wy + 20);
+        g.closePath();
+        g.fill();
+        g.fillStyle = '#111';
+        g.font = 'bold 18px Arial';
+        g.fillText('!', wx, wy + 14);
+        g.fillStyle = 'rgba(255,255,255,0.75)';
+        g.font = 'bold 7px Arial';
+        g.fillText('CẢNH BÁO NƯỚC NÓNG', wx, wy + 32);
+        g.font = '6px Arial';
+        g.fillText('Warning: Hot water', wx, wy + 41);
 
-  g.fillStyle = 'rgba(255,255,255,0.6)'; g.font = '600 8px Arial';
-  [['NÓNG', -0.035], ['NGUỒN ĐIỆN', 0], ['LẠNH', 0.035]].forEach(([t, x]) => g.fillText(t, tx(x), tz(0.05) + 20));
-});
+        g.fillStyle = 'rgba(255,255,255,0.6)';
+        g.font = '600 8px Arial';
+        [
+          ['NÓNG', -0.035],
+          ['NGUỒN ĐIỆN', 0],
+          ['LẠNH', 0.035],
+        ].forEach(([t, x]) => g.fillText(t, tx(x), tz(0.05) + 20));
+      });
 
-// Bảng nhãn trong khoang trên
-const moduleLabelTex = canvasTex(512, 410, (g, w, h) => {
-  g.fillStyle = '#141518'; g.fillRect(0, 0, w, h);
-  g.fillStyle = '#fff'; g.font = 'bold 18px Arial'; g.fillText('CÔNG NGHỆ LÀM LẠNH NHANH', 24, 48);
-  g.font = '900 64px "Arial Black", Arial'; g.fillText('COOLJET', 20, 124);
-  g.font = '15px Arial'; g.fillStyle = '#bbb'; g.fillText('Đã khát, không lo hết nước mát', 24, 152);
-  [['LẠNH NHANH ×3', 24, 190], ['LỌC SÂU 5×', 24, 250], ['60 L/giờ', 24, 310]].forEach(([t, x, y]) => {
-    g.fillStyle = '#2a2b30'; rr(g, x, y, 190, 44, 8); g.fill();
-    g.fillStyle = '#fff'; g.font = 'bold 20px Arial'; g.fillText(t, x + 14, y + 29);
-  });
-  const s = g.createLinearGradient(290, 0, 490, 0); s.addColorStop(0, '#d7d9dc'); s.addColorStop(1, '#9ea2a7');
-  g.fillStyle = s; rr(g, 290, 180, 200, 200, 10); g.fill();
-  g.fillStyle = '#222'; g.font = 'bold 14px Arial'; g.fillText('LÕI LỌC NƯỚC', 310, 214); g.fillText('ĐỘC QUYỀN', 310, 234);
-  g.font = 'bold 46px Arial'; g.fillText('Purion', 304, 300);
-});
+      // Bảng nhãn trong khoang trên
+      const moduleLabelTex = canvasTex(512, 410, (g, w, h) => {
+        g.fillStyle = '#141518';
+        g.fillRect(0, 0, w, h);
+        g.fillStyle = '#fff';
+        g.font = 'bold 18px Arial';
+        g.fillText('CÔNG NGHỆ LÀM LẠNH NHANH', 24, 48);
+        g.font = '900 64px "Arial Black", Arial';
+        g.fillText('COOLJET', 20, 124);
+        g.font = '15px Arial';
+        g.fillStyle = '#bbb';
+        g.fillText('Đã khát, không lo hết nước mát', 24, 152);
+        [
+          ['LẠNH NHANH ×3', 24, 190],
+          ['LỌC SÂU 5×', 24, 250],
+          ['60 L/giờ', 24, 310],
+        ].forEach(([t, x, y]) => {
+          g.fillStyle = '#2a2b30';
+          rr(g, x, y, 190, 44, 8);
+          g.fill();
+          g.fillStyle = '#fff';
+          g.font = 'bold 20px Arial';
+          g.fillText(t, x + 14, y + 29);
+        });
+        const s = g.createLinearGradient(290, 0, 490, 0);
+        s.addColorStop(0, '#d7d9dc');
+        s.addColorStop(1, '#9ea2a7');
+        g.fillStyle = s;
+        rr(g, 290, 180, 200, 200, 10);
+        g.fill();
+        g.fillStyle = '#222';
+        g.font = 'bold 14px Arial';
+        g.fillText('LÕI LỌC NƯỚC', 310, 214);
+        g.fillText('ĐỘC QUYỀN', 310, 234);
+        g.font = 'bold 46px Arial';
+        g.fillText('Purion', 304, 300);
+      });
 
-// Nhãn lõi lọc (quấn quanh trụ)
-const cartridgeTex = canvasTex(512, 608, (g, w, h) => {
-  g.fillStyle = '#f5f5f3'; g.fillRect(0, 0, w, h);
-  g.fillStyle = '#8b8e92'; g.font = 'italic bold 20px Arial'; g.textAlign = 'center'; g.fillText('Kangaroo', w / 2, 150);
-  g.fillStyle = '#c4c6c8';
-  for (let i = 0; i < 6; i++) g.fillRect(w / 2 - 55, 180 + i * 14, 110 - (i % 3) * 18, 4);
-  g.fillStyle = '#6f7277'; g.fillRect(w / 2 - 14, 300, 28, 28);
-  g.fillStyle = '#f5f5f3'; g.fillRect(w / 2 - 8, 306, 6, 6); g.fillRect(w / 2 + 2, 316, 6, 6);
-  g.fillStyle = '#9da0a4'; g.font = '11px Arial'; g.fillText('LÕI LỌC', w / 2, 350);
-});
+      // Nhãn lõi lọc (quấn quanh trụ)
+      const cartridgeTex = canvasTex(512, 608, (g, w, h) => {
+        g.fillStyle = '#f5f5f3';
+        g.fillRect(0, 0, w, h);
+        g.fillStyle = '#8b8e92';
+        g.font = 'italic bold 20px Arial';
+        g.textAlign = 'center';
+        g.fillText('Kangaroo', w / 2, 150);
+        g.fillStyle = '#c4c6c8';
+        for (let i = 0; i < 6; i++)
+          g.fillRect(w / 2 - 55, 180 + i * 14, 110 - (i % 3) * 18, 4);
+        g.fillStyle = '#6f7277';
+        g.fillRect(w / 2 - 14, 300, 28, 28);
+        g.fillStyle = '#f5f5f3';
+        g.fillRect(w / 2 - 8, 306, 6, 6);
+        g.fillRect(w / 2 + 2, 316, 6, 6);
+        g.fillStyle = '#9da0a4';
+        g.font = '11px Arial';
+        g.fillText('LÕI LỌC', w / 2, 350);
+      });
 
-const greenBarTex = canvasTex(512, 48, (g, w, h) => {
-  g.fillStyle = '#fafafa'; g.fillRect(0, 0, w, h);
-  g.fillStyle = '#22a24a'; g.fillRect(0, 0, 70, h); g.fillRect(w - 110, 0, 110, h);
-  g.fillStyle = '#fff'; g.font = 'bold 10px Arial'; g.fillText('LÕI CHỨC', 10, 22); g.fillText('NĂNG', 18, 36);
-  g.fillStyle = '#1e9e4a'; g.font = 'italic bold 28px Arial'; g.textAlign = 'center'; g.fillText('Kangaroo', w / 2 - 10, 34);
-});
+      const greenBarTex = canvasTex(512, 48, (g, w, h) => {
+        g.fillStyle = '#fafafa';
+        g.fillRect(0, 0, w, h);
+        g.fillStyle = '#22a24a';
+        g.fillRect(0, 0, 70, h);
+        g.fillRect(w - 110, 0, 110, h);
+        g.fillStyle = '#fff';
+        g.font = 'bold 10px Arial';
+        g.fillText('LÕI CHỨC', 10, 22);
+        g.fillText('NĂNG', 18, 36);
+        g.fillStyle = '#1e9e4a';
+        g.font = 'italic bold 28px Arial';
+        g.textAlign = 'center';
+        g.fillText('Kangaroo', w / 2 - 10, 34);
+      });
 
-const steamTex = canvasTex(64, 64, (g) => {
-  const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-  gr.addColorStop(0, 'rgba(255,255,255,0.9)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
-}, 1);
+      const steamTex = canvasTex(
+        64,
+        64,
+        (g) => {
+          const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+          gr.addColorStop(0, 'rgba(255,255,255,0.9)');
+          gr.addColorStop(1, 'rgba(255,255,255,0)');
+          g.fillStyle = gr;
+          g.fillRect(0, 0, 64, 64);
+        },
+        1
+      );
 
-/* =========================================================
+      /* =========================================================
    THÂN MÁY
    ========================================================= */
-box(W - 0.012, 0.027, D - 0.012, M.base, 0, 0.0215, 0);                    // đế
-for (const sx of [-1, 1]) for (const sz of [-1, 1]) {                      // chân
-  const f = cyl(0.012, 0.013, 0.008, M.base); f.position.set(sx * (W / 2 - 0.03), 0.004, sz * (D / 2 - 0.03)); machine.add(f);
-}
-box(0.006, H, D, M.side, -W / 2 + 0.003, Y0 + H / 2, 0);                   // hông trái
-box(0.006, H, D, M.side,  W / 2 - 0.003, Y0 + H / 2, 0);                   // hông phải
-box(W - 0.012, H, 0.006, M.inner, 0, Y0 + H / 2, -D / 2 + 0.003);          // lưng
-box(W - 0.012, 0.008, D - 0.006, M.inner, 0, Y0 + 0.004, 0);               // đáy
-for (const s of [-1, 1]) box(0.004, H, 0.014, M.trim, s * (W / 2 - 0.002), Y0 + H / 2, D / 2 + 0.007); // viền cửa
+      box(W - 0.012, 0.027, D - 0.012, M.base, 0, 0.0215, 0); // đế
+      for (const sx of [-1, 1])
+        for (const sz of [-1, 1]) {
+          // chân
+          const f = cyl(0.012, 0.013, 0.008, M.base);
+          f.position.set(sx * (W / 2 - 0.03), 0.004, sz * (D / 2 - 0.03));
+          machine.add(f);
+        }
+      box(0.006, H, D, M.side, -W / 2 + 0.003, Y0 + H / 2, 0); // hông trái
+      box(0.006, H, D, M.side, W / 2 - 0.003, Y0 + H / 2, 0); // hông phải
+      box(W - 0.012, H, 0.006, M.inner, 0, Y0 + H / 2, -D / 2 + 0.003); // lưng
+      box(W - 0.012, 0.008, D - 0.006, M.inner, 0, Y0 + 0.004, 0); // đáy
+      for (const s of [-1, 1])
+        box(
+          0.004,
+          H,
+          0.014,
+          M.trim,
+          s * (W / 2 - 0.002),
+          Y0 + H / 2,
+          D / 2 + 0.007
+        ); // viền cửa
 
-// Tay nắm lõm hai bên hông
-for (const s of [-1, 1]) {
-  box(0.003, 0.03, 0.07, M.recess, s * (W / 2 + 0.0005), Y0 + 0.58, -0.01);
-  box(0.0035, 0.004, 0.072, M.side, s * (W / 2 + 0.0006), Y0 + 0.597, -0.01);
-}
+      // Tay nắm lõm hai bên hông
+      for (const s of [-1, 1]) {
+        box(
+          0.003,
+          0.03,
+          0.07,
+          M.recess,
+          s * (W / 2 + 0.0005),
+          Y0 + 0.58,
+          -0.01
+        );
+        box(
+          0.0035,
+          0.004,
+          0.072,
+          M.side,
+          s * (W / 2 + 0.0006),
+          Y0 + 0.597,
+          -0.01
+        );
+      }
 
-// Mặt kính trên
-const topMat = new THREE.MeshPhysicalMaterial({ map: topTex, roughness: 0.16, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0.03 });
-const topPanel = mesh(new THREE.BoxGeometry(W, 0.012, DT), [M.trim, M.trim, topMat, M.trim, M.trim, M.trim]);
-topPanel.position.set(0, TOP - 0.006, 0.007);
-machine.add(topPanel);
+      // Mặt kính trên
+      const topMat = new THREE.MeshPhysicalMaterial({
+        map: topTex,
+        roughness: 0.16,
+        metalness: 0.1,
+        clearcoat: 1,
+        clearcoatRoughness: 0.03,
+      });
+      const topPanel = mesh(new THREE.BoxGeometry(W, 0.012, DT), [
+        M.trim,
+        M.trim,
+        topMat,
+        M.trim,
+        M.trim,
+        M.trim,
+      ]);
+      topPanel.position.set(0, TOP - 0.006, 0.007);
+      machine.add(topPanel);
 
-/* =========================================================
+      /* =========================================================
    BÊN TRONG
    ========================================================= */
-// Khoang trên: module làm lạnh + bảng nhãn + công tắc
-const IW = W - 0.024;
-box(IW, 0.2, 0.24, M.white, 0, 0.918, -D / 2 + 0.006 + 0.12);
-plane(0.15, 0.12, moduleLabelTex, -0.045, 0.925, 0.0665);
-box(0.04, 0.062, 0.006, M.white, 0.1, 0.9, 0.069);
+      // Khoang trên: module làm lạnh + bảng nhãn + công tắc
+      const IW = W - 0.024;
+      box(IW, 0.2, 0.24, M.white, 0, 0.918, -D / 2 + 0.006 + 0.12);
+      plane(0.15, 0.12, moduleLabelTex, -0.045, 0.925, 0.0665);
+      box(0.04, 0.062, 0.006, M.white, 0.1, 0.9, 0.069);
 
-function makeRocker(y, color, label, onClick) {
-  box(0.028, 0.02, 0.004, M.trim, 0.1, y, 0.073);
-  const mat = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 1.2, roughness: 0.3 });
-  const r = box(0.022, 0.014, 0.008, mat, 0.1, y, 0.077);
-  interactive(r, label, onClick);
-  return r;
-}
-const rockerCold = makeRocker(0.915, 0x1fc25e, () => `Công tắc nước lạnh (${state.cold ? 'đang bật' : 'đang tắt'})`, () => { state.cold = !state.cold; refreshUI(); });
-const rockerHot  = makeRocker(0.885, 0xe3262b, () => `Công tắc nước nóng (${state.hot ? 'đang bật' : 'đang tắt'})`,  () => { state.hot = !state.hot; refreshUI(); });
+      function makeRocker(y, color, label, onClick) {
+        box(0.028, 0.02, 0.004, M.trim, 0.1, y, 0.073);
+        const mat = new THREE.MeshStandardMaterial({
+          color,
+          emissive: color,
+          emissiveIntensity: 1.2,
+          roughness: 0.3,
+        });
+        const r = box(0.022, 0.014, 0.008, mat, 0.1, y, 0.077);
+        interactive(r, label, onClick);
+        return r;
+      }
+      const rockerCold = makeRocker(
+        0.915,
+        0x1fc25e,
+        () => `Công tắc nước lạnh (${state.cold ? 'đang bật' : 'đang tắt'})`,
+        () => {
+          state.cold = !state.cold;
+          refreshUI();
+        }
+      );
+      const rockerHot = makeRocker(
+        0.885,
+        0xe3262b,
+        () => `Công tắc nước nóng (${state.hot ? 'đang bật' : 'đang tắt'})`,
+        () => {
+          state.hot = !state.hot;
+          refreshUI();
+        }
+      );
 
-// Cụm 8 lõi chức năng
-const heads = new THREE.Group(); machine.add(heads);
-box(IW, 0.09, 0.07, M.white, 0, 0.77, -0.09, heads);
-for (const y of [0.79, 0.748]) for (const x of [-0.075, -0.025, 0.025, 0.075]) {
-  const c = cyl(0.019, 0.019, 0.05, M.white, 28); c.rotation.x = Math.PI / 2; c.position.set(x, y, -0.03); heads.add(c);
-  const inset = cyl(0.012, 0.012, 0.004, M.grey, 24); inset.rotation.x = Math.PI / 2; inset.position.set(x, y, -0.004); heads.add(inset);
-  const cross = box(0.016, 0.003, 0.002, M.white, x, y, -0.0015, heads); cross.rotation.z = Math.PI / 4;
-}
-box(0.25, 0.022, 0.03, M.white, 0, 0.715, -0.01, heads);
-plane(0.24, 0.02, greenBarTex, 0, 0.715, 0.0055, heads);
-interactive(heads, 'Cụm lõi chức năng (khoáng, Hydrogen, Purion)', () => toast('Cụm lõi chức năng: bổ sung khoáng, tạo nước Hydrogen, diệt khuẩn.'));
+      // Cụm 8 lõi chức năng
+      const heads = new THREE.Group();
+      machine.add(heads);
+      box(IW, 0.09, 0.07, M.white, 0, 0.77, -0.09, heads);
+      for (const y of [0.79, 0.748])
+        for (const x of [-0.075, -0.025, 0.025, 0.075]) {
+          const c = cyl(0.019, 0.019, 0.05, M.white, 28);
+          c.rotation.x = Math.PI / 2;
+          c.position.set(x, y, -0.03);
+          heads.add(c);
+          const inset = cyl(0.012, 0.012, 0.004, M.grey, 24);
+          inset.rotation.x = Math.PI / 2;
+          inset.position.set(x, y, -0.004);
+          heads.add(inset);
+          const cross = box(0.016, 0.003, 0.002, M.white, x, y, -0.0015, heads);
+          cross.rotation.z = Math.PI / 4;
+        }
+      box(0.25, 0.022, 0.03, M.white, 0, 0.715, -0.01, heads);
+      plane(0.24, 0.02, greenBarTex, 0, 0.715, 0.0055, heads);
+      interactive(heads, 'Cụm lõi chức năng (khoáng, Hydrogen, Purion)', () =>
+        toast(
+          'Cụm lõi chức năng: bổ sung khoáng, tạo nước Hydrogen, diệt khuẩn.'
+        )
+      );
 
-// 3 lõi lọc thô
-const cartMat = new THREE.MeshStandardMaterial({ map: cartridgeTex, roughness: 0.5 });
-['PP 5 micron', 'than hoạt tính', 'PP 1 micron'].forEach((name, i) => {
-  const x = (i - 1) * 0.092;
-  const g = new THREE.Group(); machine.add(g);
-  const c = cyl(0.036, 0.036, 0.27, cartMat, 48); c.rotation.y = Math.PI; c.position.set(x, 0.545, -0.03); g.add(c);
-  const cap = cyl(0.036, 0.034, 0.012, M.white, 48); cap.position.set(x, 0.416, -0.03); g.add(cap);
-  const collar = cyl(0.026, 0.03, 0.022, M.grey, 32); collar.position.set(x, 0.691, -0.03); g.add(collar);
-  interactive(g, `Lõi lọc số ${i + 1} (${name})`, () => toast(`Lõi lọc số ${i + 1}: ${name}.`));
-});
+      // 3 lõi lọc thô
+      const cartMat = new THREE.MeshStandardMaterial({
+        map: cartridgeTex,
+        roughness: 0.5,
+      });
+      ['PP 5 micron', 'than hoạt tính', 'PP 1 micron'].forEach((name, i) => {
+        const x = (i - 1) * 0.092;
+        const g = new THREE.Group();
+        machine.add(g);
+        const c = cyl(0.036, 0.036, 0.27, cartMat, 48);
+        c.rotation.y = Math.PI;
+        c.position.set(x, 0.545, -0.03);
+        g.add(c);
+        const cap = cyl(0.036, 0.034, 0.012, M.white, 48);
+        cap.position.set(x, 0.416, -0.03);
+        g.add(cap);
+        const collar = cyl(0.026, 0.03, 0.022, M.grey, 32);
+        collar.position.set(x, 0.691, -0.03);
+        g.add(collar);
+        interactive(g, `Lõi lọc số ${i + 1} (${name})`, () =>
+          toast(`Lõi lọc số ${i + 1}: ${name}.`)
+        );
+      });
 
-// Kệ ngăn + bình áp
-box(IW, 0.006, D - 0.02, M.white, 0, 0.335, -0.004);
-const tank = box(IW, 0.29, 0.3, M.white, 0, Y0 + 0.008 + 0.145, -0.024);
-interactive(tank, 'Khoang bình áp', () => toast('Bình áp chứa nước RO đã lọc, giữ áp để nước ra đều.'));
-const fitting = cyl(0.01, 0.01, 0.018, M.chrome, 24); fitting.rotation.x = Math.PI / 2; fitting.position.set(0.105, 0.2, 0.135); machine.add(fitting);
-const valve = new THREE.Group(); valve.position.set(0.105, 0.2, 0.146); machine.add(valve);
-box(0.01, 0.038, 0.006, M.blue, 0, 0.004, 0, valve);
-const hub = cyl(0.0095, 0.0095, 0.01, M.blue, 24); hub.rotation.x = Math.PI / 2; valve.add(hub);
-valve.userData.target = 0;
-interactive(valve, () => `Van đóng/mở bình áp (${state.valveOpen ? 'đang mở' : 'đang đóng'})`, toggleValve);
+      // Kệ ngăn + bình áp
+      box(IW, 0.006, D - 0.02, M.white, 0, 0.335, -0.004);
+      const tank = box(IW, 0.29, 0.3, M.white, 0, Y0 + 0.008 + 0.145, -0.024);
+      interactive(tank, 'Khoang bình áp', () =>
+        toast('Bình áp chứa nước RO đã lọc, giữ áp để nước ra đều.')
+      );
+      const fitting = cyl(0.01, 0.01, 0.018, M.chrome, 24);
+      fitting.rotation.x = Math.PI / 2;
+      fitting.position.set(0.105, 0.2, 0.135);
+      machine.add(fitting);
+      const valve = new THREE.Group();
+      valve.position.set(0.105, 0.2, 0.146);
+      machine.add(valve);
+      box(0.01, 0.038, 0.006, M.blue, 0, 0.004, 0, valve);
+      const hub = cyl(0.0095, 0.0095, 0.01, M.blue, 24);
+      hub.rotation.x = Math.PI / 2;
+      valve.add(hub);
+      valve.userData.target = 0;
+      interactive(
+        valve,
+        () =>
+          `Van đóng/mở bình áp (${state.valveOpen ? 'đang mở' : 'đang đóng'})`,
+        toggleValve
+      );
 
-/* =========================================================
+      /* =========================================================
    CỬA (bản lề bên phải, mở ra như ảnh 1)
    ========================================================= */
-const doorPivot = new THREE.Group();
-doorPivot.position.set(W / 2 - 0.004, Y0 + 0.001 + DH / 2, D / 2);
-machine.add(doorPivot);
-const door = mesh(new THREE.BoxGeometry(DW, DH, 0.014),
-  [M.trim, M.trim, M.trim, M.trim, glassMat(doorFrontTex), new THREE.MeshStandardMaterial({ map: doorInnerTex, roughness: 0.5 })]);
-door.position.set(-DW / 2, 0, 0.007);
-doorPivot.add(door);
-doorPivot.userData.target = 0;
-interactive(door, () => state.doorOpen ? 'Cửa máy (nhấn để đóng)' : 'Cửa máy (nhấn để mở)', toggleDoor);
+      const doorPivot = new THREE.Group();
+      doorPivot.position.set(W / 2 - 0.004, Y0 + 0.001 + DH / 2, D / 2);
+      machine.add(doorPivot);
+      const door = mesh(new THREE.BoxGeometry(DW, DH, 0.014), [
+        M.trim,
+        M.trim,
+        M.trim,
+        M.trim,
+        glassMat(doorFrontTex),
+        new THREE.MeshStandardMaterial({ map: doorInnerTex, roughness: 0.5 }),
+      ]);
+      door.position.set(-DW / 2, 0, 0.007);
+      doorPivot.add(door);
+      doorPivot.userData.target = 0;
+      interactive(
+        door,
+        () =>
+          state.doorOpen ? 'Cửa máy (nhấn để đóng)' : 'Cửa máy (nhấn để mở)',
+        toggleDoor
+      );
 
-/* =========================================================
+      /* =========================================================
    VÒI & NÚM VẶN
    ========================================================= */
-const faucetCurve = new THREE.CatmullRomCurve3([
-  new THREE.Vector3(0, 0.035, 0), new THREE.Vector3(0, 0.17, 0), new THREE.Vector3(0, 0.238, 0.005),
-  new THREE.Vector3(0, 0.266, 0.032), new THREE.Vector3(0, 0.258, 0.064),
-  new THREE.Vector3(0, 0.228, 0.076), new THREE.Vector3(0, 0.212, 0.077),
-], false, 'centripetal');
-const TIP = faucetCurve.getPoint(1);
-const tubeGeo = new THREE.TubeGeometry(faucetCurve, 90, 0.0055, 14, false);
+      const faucetCurve = new THREE.CatmullRomCurve3(
+        [
+          new THREE.Vector3(0, 0.035, 0),
+          new THREE.Vector3(0, 0.17, 0),
+          new THREE.Vector3(0, 0.238, 0.005),
+          new THREE.Vector3(0, 0.266, 0.032),
+          new THREE.Vector3(0, 0.258, 0.064),
+          new THREE.Vector3(0, 0.228, 0.076),
+          new THREE.Vector3(0, 0.212, 0.077),
+        ],
+        false,
+        'centripetal'
+      );
+      const TIP = faucetCurve.getPoint(1);
+      const tubeGeo = new THREE.TubeGeometry(
+        faucetCurve,
+        90,
+        0.0055,
+        14,
+        false
+      );
 
-function makeFaucet(x, label, action) {
-  const f = new THREE.Group(); f.position.set(x, TOP, FAUCET_Z);
-  const flange = cyl(0.015, 0.017, 0.006, M.chrome, 40); flange.position.y = 0.003; f.add(flange);
-  const collar = cyl(0.0095, 0.011, 0.035, M.chrome, 32); collar.position.y = 0.0205; f.add(collar);
-  f.add(mesh(tubeGeo, M.chrome));
-  const nozzle = cyl(0.0068, 0.0068, 0.012, M.chrome, 24); nozzle.position.set(0, TIP.y + 0.004, TIP.z); f.add(nozzle);
-  machine.add(f); interactive(f, label, action); return f;
-}
-function makeKnob(x, label, action) {
-  const k = new THREE.Group(); k.position.set(x, TOP, KNOB_Z);
-  const ring = cyl(0.021, 0.022, 0.006, M.chrome, 48); ring.position.y = 0.003; k.add(ring);
-  const spin = new THREE.Group(); k.add(spin);
-  const body = cyl(0.0175, 0.0175, 0.024, M.chrome, 48); body.position.y = 0.018; spin.add(body);
-  const cap = cyl(0.016, 0.0175, 0.006, M.chrome, 48); cap.position.y = 0.033; spin.add(cap);
-  for (let i = 0; i < 18; i++) {
-    const a = i / 18 * Math.PI * 2;
-    const rib = mesh(new THREE.BoxGeometry(0.003, 0.02, 0.002), M.chrome);
-    rib.position.set(Math.sin(a) * 0.0178, 0.018, Math.cos(a) * 0.0178); rib.rotation.y = a; spin.add(rib);
-  }
-  const mark = mesh(new THREE.BoxGeometry(0.003, 0.0015, 0.011), M.trim); mark.position.set(0, 0.0362, 0.005); spin.add(mark);
-  k.userData.spin = spin; k.userData.target = 0;
-  machine.add(k); interactive(k, label, action); return k;
-}
+      function makeFaucet(x, label, action) {
+        const f = new THREE.Group();
+        f.position.set(x, TOP, FAUCET_Z);
+        const flange = cyl(0.015, 0.017, 0.006, M.chrome, 40);
+        flange.position.y = 0.003;
+        f.add(flange);
+        const collar = cyl(0.0095, 0.011, 0.035, M.chrome, 32);
+        collar.position.y = 0.0205;
+        f.add(collar);
+        f.add(mesh(tubeGeo, M.chrome));
+        const nozzle = cyl(0.0068, 0.0068, 0.012, M.chrome, 24);
+        nozzle.position.set(0, TIP.y + 0.004, TIP.z);
+        f.add(nozzle);
+        machine.add(f);
+        interactive(f, label, action);
+        return f;
+      }
+      function makeKnob(x, label, action) {
+        const k = new THREE.Group();
+        k.position.set(x, TOP, KNOB_Z);
+        const ring = cyl(0.021, 0.022, 0.006, M.chrome, 48);
+        ring.position.y = 0.003;
+        k.add(ring);
+        const spin = new THREE.Group();
+        k.add(spin);
+        const body = cyl(0.0175, 0.0175, 0.024, M.chrome, 48);
+        body.position.y = 0.018;
+        spin.add(body);
+        const cap = cyl(0.016, 0.0175, 0.006, M.chrome, 48);
+        cap.position.y = 0.033;
+        spin.add(cap);
+        for (let i = 0; i < 18; i++) {
+          const a = (i / 18) * Math.PI * 2;
+          const rib = mesh(new THREE.BoxGeometry(0.003, 0.02, 0.002), M.chrome);
+          rib.position.set(Math.sin(a) * 0.0178, 0.018, Math.cos(a) * 0.0178);
+          rib.rotation.y = a;
+          spin.add(rib);
+        }
+        const mark = mesh(new THREE.BoxGeometry(0.003, 0.0015, 0.011), M.trim);
+        mark.position.set(0, 0.0362, 0.005);
+        spin.add(mark);
+        k.userData.spin = spin;
+        k.userData.target = 0;
+        machine.add(k);
+        interactive(k, label, action);
+        return k;
+      }
 
-const knobs = {
-  hot:  makeKnob(-0.115, 'Núm nước nóng (có khoá an toàn)', () => togglePour('hot')),
-  cold: makeKnob( 0.115, 'Núm nước lạnh / Hydrogen', () => togglePour('cold')),
-};
-makeFaucet(-0.065, 'Vòi nước nóng', () => togglePour('hot'));
-makeFaucet( 0.065, 'Vòi nước lạnh / Hydrogen', () => togglePour('cold'));
+      const knobs = {
+        hot: makeKnob(-0.115, 'Núm nước nóng (có khoá an toàn)', () =>
+          togglePour('hot')
+        ),
+        cold: makeKnob(0.115, 'Núm nước lạnh / Hydrogen', () =>
+          togglePour('cold')
+        ),
+      };
+      makeFaucet(-0.065, 'Vòi nước nóng', () => togglePour('hot'));
+      makeFaucet(0.065, 'Vòi nước lạnh / Hydrogen', () => togglePour('cold'));
 
-// Đèn báo trên mặt kính
-const ledMat = c => new THREE.MeshStandardMaterial({ color: 0x222222, emissive: c, emissiveIntensity: 1.5 });
-const leds = { hot: ledMat(0xff2d2d), power: ledMat(0x3cff7a), cold: ledMat(0x3a8dff) };
-[['hot', -0.035], ['power', 0], ['cold', 0.035]].forEach(([k, x]) => {
-  const l = cyl(0.0035, 0.0035, 0.001, leds[k], 20); l.position.set(x, TOP + 0.0005, 0.05); machine.add(l);
-});
+      // Đèn báo trên mặt kính
+      const ledMat = (c) =>
+        new THREE.MeshStandardMaterial({
+          color: 0x222222,
+          emissive: c,
+          emissiveIntensity: 1.5,
+        });
+      const leds = {
+        hot: ledMat(0xff2d2d),
+        power: ledMat(0x3cff7a),
+        cold: ledMat(0x3a8dff),
+      };
+      [
+        ['hot', -0.035],
+        ['power', 0],
+        ['cold', 0.035],
+      ].forEach(([k, x]) => {
+        const l = cyl(0.0035, 0.0035, 0.001, leds[k], 20);
+        l.position.set(x, TOP + 0.0005, 0.05);
+        machine.add(l);
+      });
 
-/* =========================================================
+      /* =========================================================
    CỐC, DÒNG NƯỚC, HƠI NÓNG
    ========================================================= */
-const cupGeo = new THREE.LatheGeometry([
-  [0, 0], [0.03, 0], [0.034, 0.095], [0.0315, 0.095], [0.028, 0.004], [0, 0.004],
-].map(([x, y]) => new THREE.Vector2(x, y)), 48);
-const cupMat = new THREE.MeshPhysicalMaterial({
-  color: 0xffffff, transmission: 1, thickness: 0.004, roughness: 0.04, ior: 1.5,
-  transparent: true, side: THREE.DoubleSide,
-});
-const waterGeo = new THREE.CylinderGeometry(0.0306, 0.0279, 1, 40); waterGeo.translate(0, 0.5, 0);
-const streamGeo = new THREE.CylinderGeometry(0.0022, 0.0026, 1, 10, 1, true); streamGeo.translate(0, -0.5, 0);
+      const cupGeo = new THREE.LatheGeometry(
+        [
+          [0, 0],
+          [0.03, 0],
+          [0.034, 0.095],
+          [0.0315, 0.095],
+          [0.028, 0.004],
+          [0, 0.004],
+        ].map(([x, y]) => new THREE.Vector2(x, y)),
+        48
+      );
+      const cupMat = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transmission: 1,
+        thickness: 0.004,
+        roughness: 0.04,
+        ior: 1.5,
+        transparent: true,
+        side: THREE.DoubleSide,
+      });
+      const waterGeo = new THREE.CylinderGeometry(0.0306, 0.0279, 1, 40);
+      waterGeo.translate(0, 0.5, 0);
+      const streamGeo = new THREE.CylinderGeometry(
+        0.0022,
+        0.0026,
+        1,
+        10,
+        1,
+        true
+      );
+      streamGeo.translate(0, -0.5, 0);
 
-function makePour(type, x) {
-  const tip = new THREE.Vector3(x, TOP + TIP.y - 0.002, FAUCET_Z + TIP.z);
-  const cup = new THREE.Group(); cup.position.set(tip.x, TOP, tip.z); cup.visible = false; machine.add(cup);
-  const glass = mesh(cupGeo, cupMat); glass.userData.noShadow = true; cup.add(glass);
-  const water = mesh(waterGeo, new THREE.MeshStandardMaterial({
-    color: type === 'hot' ? 0xe6f4ff : 0x86ccff, transparent: true, opacity: 0.6, roughness: 0.08, depthWrite: false,
-  }));
-  water.position.y = 0.004; water.visible = false; water.userData.noShadow = true; cup.add(water);
-  const stream = mesh(streamGeo, new THREE.MeshStandardMaterial({
-    color: 0xcfeaff, transparent: true, opacity: 0.6, roughness: 0.05, emissive: 0x335577, emissiveIntensity: 0.25,
-  }));
-  stream.position.copy(tip); stream.visible = false;
-  stream.userData.noPick = true; stream.userData.noShadow = true; machine.add(stream);
-  const p = { type, tip, cup, water, stream, active: false, level: 0, steam: [], spawnT: 0 };
-  interactive(cup, 'Cốc nước (nhấn để đổ bỏ)', () => {
-    if (p.active) return;
-    p.level = 0; cup.visible = false; toast('Đã đổ cốc nước.');
-  });
-  return p;
-}
-const pours = { hot: makePour('hot', -0.065), cold: makePour('cold', 0.065) };
+      function makePour(type, x) {
+        const tip = new THREE.Vector3(x, TOP + TIP.y - 0.002, FAUCET_Z + TIP.z);
+        const cup = new THREE.Group();
+        cup.position.set(tip.x, TOP, tip.z);
+        cup.visible = false;
+        machine.add(cup);
+        const glass = mesh(cupGeo, cupMat);
+        glass.userData.noShadow = true;
+        cup.add(glass);
+        const water = mesh(
+          waterGeo,
+          new THREE.MeshStandardMaterial({
+            color: type === 'hot' ? 0xe6f4ff : 0x86ccff,
+            transparent: true,
+            opacity: 0.6,
+            roughness: 0.08,
+            depthWrite: false,
+          })
+        );
+        water.position.y = 0.004;
+        water.visible = false;
+        water.userData.noShadow = true;
+        cup.add(water);
+        const stream = mesh(
+          streamGeo,
+          new THREE.MeshStandardMaterial({
+            color: 0xcfeaff,
+            transparent: true,
+            opacity: 0.6,
+            roughness: 0.05,
+            emissive: 0x335577,
+            emissiveIntensity: 0.25,
+          })
+        );
+        stream.position.copy(tip);
+        stream.visible = false;
+        stream.userData.noPick = true;
+        stream.userData.noShadow = true;
+        machine.add(stream);
+        const p = {
+          type,
+          tip,
+          cup,
+          water,
+          stream,
+          active: false,
+          level: 0,
+          steam: [],
+          spawnT: 0,
+        };
+        interactive(cup, 'Cốc nước (nhấn để đổ bỏ)', () => {
+          if (p.active) return;
+          p.level = 0;
+          cup.visible = false;
+          toast('Đã đổ cốc nước.');
+        });
+        return p;
+      }
+      const pours = {
+        hot: makePour('hot', -0.065),
+        cold: makePour('cold', 0.065),
+      };
 
-const steamPool = [];
-function spawnSteam(p) {
-  let s = steamPool.pop();
-  if (!s) {
-    s = new THREE.Sprite(new THREE.SpriteMaterial({ map: steamTex, transparent: true, depthWrite: false, opacity: 0 }));
-    s.userData.noPick = true; machine.add(s);
-  }
-  s.visible = true;
-  s.position.set(p.tip.x + (Math.random() - 0.5) * 0.03, TOP + 0.004 + p.level * 0.088, p.tip.z + (Math.random() - 0.5) * 0.03);
-  p.steam.push({ s, life: 0, max: 1.4 + Math.random() * 0.6, drift: (Math.random() - 0.5) * 0.02 });
-}
+      const steamPool = [];
+      function spawnSteam(p) {
+        let s = steamPool.pop();
+        if (!s) {
+          s = new THREE.Sprite(
+            new THREE.SpriteMaterial({
+              map: steamTex,
+              transparent: true,
+              depthWrite: false,
+              opacity: 0,
+            })
+          );
+          s.userData.noPick = true;
+          machine.add(s);
+        }
+        s.visible = true;
+        s.position.set(
+          p.tip.x + (Math.random() - 0.5) * 0.03,
+          TOP + 0.004 + p.level * 0.088,
+          p.tip.z + (Math.random() - 0.5) * 0.03
+        );
+        p.steam.push({
+          s,
+          life: 0,
+          max: 1.4 + Math.random() * 0.6,
+          drift: (Math.random() - 0.5) * 0.02,
+        });
+      }
 
-/* =========================================================
+      /* =========================================================
    TRẠNG THÁI & HÀNH ĐỘNG
    ========================================================= */
-const state = { doorOpen: false, cold: true, hot: true, valveOpen: true };
+      const state = { doorOpen: false, cold: true, hot: true, valveOpen: true };
 
-function toggleDoor() {
-  state.doorOpen = !state.doorOpen;
-  doorPivot.userData.target = state.doorOpen ? 1.95 : 0;
-  refreshUI();
-}
-function toggleValve() {
-  state.valveOpen = !state.valveOpen;
-  valve.userData.target = state.valveOpen ? 0 : Math.PI / 2;
-  if (!state.valveOpen) for (const t of ['hot', 'cold']) if (pours[t].active) stopPour(t);
-  toast(state.valveOpen ? 'Đã mở van bình áp.' : 'Đã đóng van bình áp. Vòi sẽ không ra nước.');
-  refreshUI();
-}
-function stopPour(type) {
-  pours[type].active = false; knobs[type].userData.target = 0;
-}
-function togglePour(type) {
-  const p = pours[type];
-  if (p.active) { stopPour(type); refreshUI(); return; }
-  if (!state.valveOpen) { toast('Van bình áp đang đóng. Mở cửa và xoay van màu xanh để mở.'); return; }
-  if (p.level >= 0.87) p.level = 0;
-  p.active = true; p.cup.visible = true;
-  knobs[type].userData.target = type === 'hot' ? Math.PI / 2 : -Math.PI / 2;
-  if (type === 'hot' && !state.hot) toast('Công tắc nước nóng đang tắt, nước ra ở nhiệt độ thường.');
-  if (type === 'cold' && !state.cold) toast('Công tắc nước lạnh đang tắt, nước ra ở nhiệt độ thường.');
-  refreshUI();
-}
+      function toggleDoor() {
+        state.doorOpen = !state.doorOpen;
+        doorPivot.userData.target = state.doorOpen ? 1.95 : 0;
+        refreshUI();
+      }
+      function toggleValve() {
+        state.valveOpen = !state.valveOpen;
+        valve.userData.target = state.valveOpen ? 0 : Math.PI / 2;
+        if (!state.valveOpen)
+          for (const t of ['hot', 'cold']) if (pours[t].active) stopPour(t);
+        toast(
+          state.valveOpen
+            ? 'Đã mở van bình áp.'
+            : 'Đã đóng van bình áp. Vòi sẽ không ra nước.'
+        );
+        refreshUI();
+      }
+      function stopPour(type) {
+        pours[type].active = false;
+        knobs[type].userData.target = 0;
+      }
+      function togglePour(type) {
+        const p = pours[type];
+        if (p.active) {
+          stopPour(type);
+          refreshUI();
+          return;
+        }
+        if (!state.valveOpen) {
+          toast('Van bình áp đang đóng. Mở cửa và xoay van màu xanh để mở.');
+          return;
+        }
+        if (p.level >= 0.87) p.level = 0;
+        p.active = true;
+        p.cup.visible = true;
+        knobs[type].userData.target =
+          type === 'hot' ? Math.PI / 2 : -Math.PI / 2;
+        if (type === 'hot' && !state.hot)
+          toast('Công tắc nước nóng đang tắt, nước ra ở nhiệt độ thường.');
+        if (type === 'cold' && !state.cold)
+          toast('Công tắc nước lạnh đang tắt, nước ra ở nhiệt độ thường.');
+        refreshUI();
+      }
 
-const $ = id => document.getElementById(id);
-function refreshUI() {
-  $('bDoor').textContent = state.doorOpen ? 'Đóng cửa' : 'Mở cửa';
-  $('bDoor').classList.toggle('on', state.doorOpen);
-  $('bHot').textContent = pours.hot.active ? 'Dừng nước nóng' : 'Lấy nước nóng';
-  $('bHot').classList.toggle('on', pours.hot.active);
-  $('bCold').textContent = pours.cold.active ? 'Dừng nước lạnh' : 'Lấy nước lạnh';
-  $('bCold').classList.toggle('on', pours.cold.active);
-  $('bRotate').classList.toggle('on', controls.autoRotate);
-  $('sCold').classList.toggle('ok', state.cold);
-  $('sHot').classList.toggle('ok', state.hot);
-  $('sValve').classList.toggle('ok', state.valveOpen);
-  $('sCold').lastChild.textContent = state.cold ? 'Lạnh bật' : 'Lạnh tắt';
-  $('sHot').lastChild.textContent = state.hot ? 'Nóng bật' : 'Nóng tắt';
-  $('sValve').lastChild.textContent = state.valveOpen ? 'Van mở' : 'Van đóng';
+      const $ = (id) => document.getElementById(id);
+      function refreshUI() {
+        $('bDoor').textContent = state.doorOpen ? 'Đóng cửa' : 'Mở cửa';
+        $('bDoor').classList.toggle('on', state.doorOpen);
+        $('bHot').textContent = pours.hot.active
+          ? 'Dừng nước nóng'
+          : 'Lấy nước nóng';
+        $('bHot').classList.toggle('on', pours.hot.active);
+        $('bCold').textContent = pours.cold.active
+          ? 'Dừng nước lạnh'
+          : 'Lấy nước lạnh';
+        $('bCold').classList.toggle('on', pours.cold.active);
+        $('bRotate').classList.toggle('on', controls.autoRotate);
+        $('sCold').classList.toggle('ok', state.cold);
+        $('sHot').classList.toggle('ok', state.hot);
+        $('sValve').classList.toggle('ok', state.valveOpen);
+        $('sCold').lastChild.textContent = state.cold ? 'Lạnh bật' : 'Lạnh tắt';
+        $('sHot').lastChild.textContent = state.hot ? 'Nóng bật' : 'Nóng tắt';
+        $('sValve').lastChild.textContent = state.valveOpen
+          ? 'Van mở'
+          : 'Van đóng';
 
-  rockerCold.material.emissiveIntensity = state.cold ? 1.2 : 0.02;
-  rockerHot.material.emissiveIntensity = state.hot ? 1.2 : 0.02;
-  rockerCold.rotation.x = state.cold ? -0.2 : 0.2;
-  rockerHot.rotation.x = state.hot ? -0.2 : 0.2;
-  leds.cold.emissiveIntensity = state.cold ? 1.5 : 0;
-  leds.hot.emissiveIntensity = state.hot ? 1.5 : 0;
-  emitToRN();
-}
+        rockerCold.material.emissiveIntensity = state.cold ? 1.2 : 0.02;
+        rockerHot.material.emissiveIntensity = state.hot ? 1.2 : 0.02;
+        rockerCold.rotation.x = state.cold ? -0.2 : 0.2;
+        rockerHot.rotation.x = state.hot ? -0.2 : 0.2;
+        leds.cold.emissiveIntensity = state.cold ? 1.5 : 0;
+        leds.hot.emissiveIntensity = state.hot ? 1.5 : 0;
+        emitToRN();
+      }
 
-let toastTimer;
-function toast(msg) {
-  const t = $('toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
-}
+      let toastTimer;
+      function toast(msg) {
+        const t = $('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+      }
 
-$('bDoor').onclick = toggleDoor;
-$('bHot').onclick = () => togglePour('hot');
-$('bCold').onclick = () => togglePour('cold');
-$('bRotate').onclick = () => { controls.autoRotate = !controls.autoRotate; refreshUI(); };
+      $('bDoor').onclick = toggleDoor;
+      $('bHot').onclick = () => togglePour('hot');
+      $('bCold').onclick = () => togglePour('cold');
+      $('bRotate').onclick = () => {
+        controls.autoRotate = !controls.autoRotate;
+        refreshUI();
+      };
 
-/* =========================================================
+      /* =========================================================
    CẦU NỐI REACT NATIVE (WebView)
    - RN gửi lệnh:  webRef.injectJavaScript("window.purifier('door');true;")
    - Web gửi trạng thái về RN qua window.ReactNativeWebView.postMessage
    - Chế độ nhúng (ẩn bảng điều khiển HTML): ?embed=1 hoặc window.__EMBED__ = true
    ========================================================= */
-const EMBED = window.__EMBED__ === true || new URLSearchParams(location.search).has('embed');
-if (EMBED) document.querySelector('.panel').style.display = 'none';
+      const EMBED =
+        window.__EMBED__ === true ||
+        new URLSearchParams(location.search).has('embed');
+      if (EMBED) document.querySelector('.panel').style.display = 'none';
 
-function emitToRN(extra = {}) {
-  window.ReactNativeWebView?.postMessage(JSON.stringify({
-    type: 'state',
-    doorOpen: state.doorOpen, cold: state.cold, hot: state.hot, valveOpen: state.valveOpen,
-    pouringHot: pours.hot.active, pouringCold: pours.cold.active,
-    autoRotate: controls.autoRotate, ...extra,
-  }));
-}
-window.purifier = (cmd, value) => {
-  switch (cmd) {
-    case 'door': toggleDoor(); break;
-    case 'hot': togglePour('hot'); break;
-    case 'cold': togglePour('cold'); break;
-    case 'valve': toggleValve(); break;
-    case 'switchHot': state.hot = !state.hot; refreshUI(); break;
-    case 'switchCold': state.cold = !state.cold; refreshUI(); break;
-    case 'rotate': controls.autoRotate = value ?? !controls.autoRotate; refreshUI(); break;
-    case 'reset': resetView(); break;
-  }
-};
+      function emitToRN(extra = {}) {
+        window.ReactNativeWebView?.postMessage(
+          JSON.stringify({
+            type: 'state',
+            doorOpen: state.doorOpen,
+            cold: state.cold,
+            hot: state.hot,
+            valveOpen: state.valveOpen,
+            pouringHot: pours.hot.active,
+            pouringCold: pours.cold.active,
+            autoRotate: controls.autoRotate,
+            ...extra,
+          })
+        );
+      }
+      window.purifier = (cmd, value) => {
+        switch (cmd) {
+          case 'door':
+            toggleDoor();
+            break;
+          case 'hot':
+            togglePour('hot');
+            break;
+          case 'cold':
+            togglePour('cold');
+            break;
+          case 'valve':
+            toggleValve();
+            break;
+          case 'switchHot':
+            state.hot = !state.hot;
+            refreshUI();
+            break;
+          case 'switchCold':
+            state.cold = !state.cold;
+            refreshUI();
+            break;
+          case 'rotate':
+            controls.autoRotate = value ?? !controls.autoRotate;
+            refreshUI();
+            break;
+          case 'reset':
+            resetView();
+            break;
+        }
+      };
 
-/* =========================================================
+      /* =========================================================
    CHỌN ĐỐI TƯỢNG BẰNG CHUỘT / CHẠM
    ========================================================= */
-const raycaster = new THREE.Raycaster();
-const ptr = new THREE.Vector2();
-const visibleChain = o => { while (o) { if (!o.visible) return false; o = o.parent; } return true; };
-function pick(e) {
-  const r = renderer.domElement.getBoundingClientRect();
-  ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  raycaster.setFromCamera(ptr, camera);
-  for (const h of raycaster.intersectObject(machine, true)) {
-    if (h.object.userData.noPick || !visibleChain(h.object)) continue;
-    let o = h.object;
-    while (o && !o.userData.action) o = o.parent;
-    return o || null;
-  }
-  return null;
-}
-const tip = $('tip');
-renderer.domElement.addEventListener('pointermove', e => {
-  if (e.pointerType !== 'mouse') return;
-  const o = pick(e);
-  renderer.domElement.style.cursor = o ? 'pointer' : 'grab';
-  if (o) {
-    const l = o.userData.label;
-    tip.textContent = typeof l === 'function' ? l() : l;
-    tip.style.transform = `translate(${e.clientX + 14}px, ${e.clientY + 14}px)`;
-    tip.style.opacity = 1;
-  } else tip.style.opacity = 0;
-});
-let down = null;
-renderer.domElement.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY }; });
-renderer.domElement.addEventListener('pointerup', e => {
-  if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
-  const o = pick(e);
-  if (o) { o.userData.action(); tip.style.opacity = 0; }
-});
-renderer.domElement.addEventListener('dblclick', e => { if (!pick(e)) resetView(); });
+      const raycaster = new THREE.Raycaster();
+      const ptr = new THREE.Vector2();
+      const visibleChain = (o) => {
+        while (o) {
+          if (!o.visible) return false;
+          o = o.parent;
+        }
+        return true;
+      };
+      function pick(e) {
+        const r = renderer.domElement.getBoundingClientRect();
+        ptr.set(
+          ((e.clientX - r.left) / r.width) * 2 - 1,
+          -((e.clientY - r.top) / r.height) * 2 + 1
+        );
+        raycaster.setFromCamera(ptr, camera);
+        for (const h of raycaster.intersectObject(machine, true)) {
+          if (h.object.userData.noPick || !visibleChain(h.object)) continue;
+          let o = h.object;
+          while (o && !o.userData.action) o = o.parent;
+          return o || null;
+        }
+        return null;
+      }
+      const tip = $('tip');
+      renderer.domElement.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        const o = pick(e);
+        renderer.domElement.style.cursor = o ? 'pointer' : 'grab';
+        if (o) {
+          const l = o.userData.label;
+          tip.textContent = typeof l === 'function' ? l() : l;
+          tip.style.transform = `translate(${e.clientX + 14}px, ${e.clientY + 14}px)`;
+          tip.style.opacity = 1;
+        } else tip.style.opacity = 0;
+      });
+      let down = null;
+      renderer.domElement.addEventListener('pointerdown', (e) => {
+        down = { x: e.clientX, y: e.clientY };
+      });
+      renderer.domElement.addEventListener('pointerup', (e) => {
+        if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6)
+          return;
+        const o = pick(e);
+        if (o) {
+          o.userData.action();
+          tip.style.opacity = 0;
+        }
+      });
+      renderer.domElement.addEventListener('dblclick', (e) => {
+        if (!pick(e)) resetView();
+      });
 
-/* =========================================================
+      /* =========================================================
    BÓNG ĐỔ, VÒNG LẶP
    ========================================================= */
-machine.traverse(o => { if (o.isMesh) { o.castShadow = !o.userData.noShadow; o.receiveShadow = true; } });
+      machine.traverse((o) => {
+        if (o.isMesh) {
+          o.castShadow = !o.userData.noShadow;
+          o.receiveShadow = true;
+        }
+      });
 
-addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
+      addEventListener('resize', () => {
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(innerWidth, innerHeight);
+      });
 
-const clock = new THREE.Clock();
-const ease = (cur, target, k) => cur + (target - cur) * k;
-function tick() {
-  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
-  const k = Math.min(1, dt * 6);
+      const clock = new THREE.Clock();
+      const ease = (cur, target, k) => cur + (target - cur) * k;
+      function tick() {
+        const dt = Math.min(clock.getDelta(), 0.05),
+          t = clock.elapsedTime;
+        const k = Math.min(1, dt * 6);
 
-  doorPivot.rotation.y = ease(doorPivot.rotation.y, doorPivot.userData.target, k);
-  valve.rotation.z = ease(valve.rotation.z, valve.userData.target, Math.min(1, dt * 10));
-  for (const kn of Object.values(knobs)) kn.userData.spin.rotation.y = ease(kn.userData.spin.rotation.y, kn.userData.target, Math.min(1, dt * 10));
+        doorPivot.rotation.y = ease(
+          doorPivot.rotation.y,
+          doorPivot.userData.target,
+          k
+        );
+        valve.rotation.z = ease(
+          valve.rotation.z,
+          valve.userData.target,
+          Math.min(1, dt * 10)
+        );
+        for (const kn of Object.values(knobs))
+          kn.userData.spin.rotation.y = ease(
+            kn.userData.spin.rotation.y,
+            kn.userData.target,
+            Math.min(1, dt * 10)
+          );
 
-  for (const p of Object.values(pours)) {
-    if (p.active) {
-      p.level = Math.min(0.88, p.level + dt * 0.11);
-      if (p.level >= 0.88) { stopPour(p.type); toast('Cốc đã đầy.'); refreshUI(); }
-    }
-    const h = p.level * 0.088;
-    p.water.visible = p.level > 0.001;
-    p.water.scale.y = Math.max(h, 0.0001);
-    p.stream.visible = p.active;
-    if (p.active) {
-      const len = p.tip.y - (TOP + 0.004 + h);
-      p.stream.scale.set(1 + Math.sin(t * 40) * 0.08, len, 1 + Math.cos(t * 37) * 0.08);
-    }
-    if (p.type === 'hot' && state.hot && p.cup.visible && p.level > 0.02) {
-      p.spawnT -= dt;
-      if (p.spawnT <= 0) { p.spawnT = 0.09; spawnSteam(p); }
-    }
-    for (let i = p.steam.length - 1; i >= 0; i--) {
-      const s = p.steam[i];
-      s.life += dt;
-      const u = s.life / s.max;
-      if (u >= 1) { s.s.visible = false; steamPool.push(s.s); p.steam.splice(i, 1); continue; }
-      s.s.position.y += dt * 0.07;
-      s.s.position.x += dt * s.drift;
-      s.s.scale.setScalar(0.02 + u * 0.06);
-      s.s.material.opacity = 0.3 * Math.sin(Math.PI * u);
-    }
-  }
+        for (const p of Object.values(pours)) {
+          if (p.active) {
+            p.level = Math.min(0.88, p.level + dt * 0.11);
+            if (p.level >= 0.88) {
+              stopPour(p.type);
+              toast('Cốc đã đầy.');
+              refreshUI();
+            }
+          }
+          const h = p.level * 0.088;
+          p.water.visible = p.level > 0.001;
+          p.water.scale.y = Math.max(h, 0.0001);
+          p.stream.visible = p.active;
+          if (p.active) {
+            const len = p.tip.y - (TOP + 0.004 + h);
+            p.stream.scale.set(
+              1 + Math.sin(t * 40) * 0.08,
+              len,
+              1 + Math.cos(t * 37) * 0.08
+            );
+          }
+          if (
+            p.type === 'hot' &&
+            state.hot &&
+            p.cup.visible &&
+            p.level > 0.02
+          ) {
+            p.spawnT -= dt;
+            if (p.spawnT <= 0) {
+              p.spawnT = 0.09;
+              spawnSteam(p);
+            }
+          }
+          for (let i = p.steam.length - 1; i >= 0; i--) {
+            const s = p.steam[i];
+            s.life += dt;
+            const u = s.life / s.max;
+            if (u >= 1) {
+              s.s.visible = false;
+              steamPool.push(s.s);
+              p.steam.splice(i, 1);
+              continue;
+            }
+            s.s.position.y += dt * 0.07;
+            s.s.position.x += dt * s.drift;
+            s.s.scale.setScalar(0.02 + u * 0.06);
+            s.s.material.opacity = 0.3 * Math.sin(Math.PI * u);
+          }
+        }
 
-  controls.update();
-  renderer.render(scene, camera);
-  requestAnimationFrame(tick);
-}
+        controls.update();
+        renderer.render(scene, camera);
+        requestAnimationFrame(tick);
+      }
 
-resetView();
-refreshUI();
-emitToRN({ ready: true });
-tick();
-</script>
-</body>
+      resetView();
+      refreshUI();
+      emitToRN({ ready: true });
+      tick();
+    </script>
+  </body>
 </html>
