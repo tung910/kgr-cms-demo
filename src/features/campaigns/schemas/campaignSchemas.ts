@@ -2,11 +2,19 @@ import { z } from 'zod';
 
 import type { PageResponse } from '@/shared/types/pagination';
 
+import {
+  MAX_BUTTON_LABEL_LENGTH,
+  MAX_CAMPAIGN_BUTTONS,
+  type ButtonType,
+  type CoreMode,
+} from '../constants/campaignCta';
 import type {
-  CampaignChannel,
   CampaignKind,
   CampaignSchedule,
+  DedupeMode,
   DiscountType,
+  DisplayType,
+  NotificationGroup,
   OfferType,
   TriggerPreset,
 } from '../constants/campaignEnums';
@@ -15,7 +23,10 @@ import { CAMPAIGN_TENANT_ID } from '../constants/campaignTenant';
 import { APP_DEEPLINK_VALUES } from '../constants/deeplinkTargets';
 import {
   audienceConditionsSchema,
+  dedupeModeSchema,
+  suppressionSchema,
   type AudienceConditions,
+  type Suppression,
 } from './audienceSchemas';
 
 const campaignStatusSchema = z.enum([
@@ -25,7 +36,6 @@ const campaignStatusSchema = z.enum([
   'running',
   'paused',
   'ended',
-  'rejected',
 ]) satisfies z.ZodType<CampaignStatus>;
 
 const campaignKindSchema = z.enum([
@@ -33,10 +43,19 @@ const campaignKindSchema = z.enum([
   'trigger',
 ]) satisfies z.ZodType<CampaignKind>;
 
-const campaignChannelSchema = z.enum([
+const displayTypeSchema = z.enum([
   'push',
-  'in_app',
-]) satisfies z.ZodType<CampaignChannel>;
+  'banner',
+  'popup',
+]) satisfies z.ZodType<DisplayType>;
+
+const notificationGroupSchema = z.enum([
+  'core',
+  'water_quality',
+  'device_error',
+  'promotion',
+  'service',
+]) satisfies z.ZodType<NotificationGroup>;
 
 const campaignScheduleSchema = z.enum([
   'send_now',
@@ -47,8 +66,54 @@ const triggerPresetSchema = z.enum([
   'core_due',
   'warranty_expiring',
   'high_tds',
-  'repurchase_due',
 ]) satisfies z.ZodType<TriggerPreset>;
+
+const buttonTypeSchema = z.enum([
+  'buy_core',
+  'book_technician',
+  'renew_warranty',
+  'open_screen',
+]) satisfies z.ZodType<ButtonType>;
+
+const coreModeSchema = z.enum([
+  'auto',
+  'specific',
+]) satisfies z.ZodType<CoreMode>;
+
+// One call-to-action button (spec 7.1): its type decides the parameters.
+// "Mua lõi" targets the customer's own device (`auto`) or the SKUs picked from
+// the core catalogue (`specific`); "Mở màn hình khác" names a registered app
+// screen. Everything else only needs a label.
+export const campaignButtonSchema = z
+  .object({
+    type: buttonTypeSchema,
+    label: z.string().trim().min(1).max(MAX_BUTTON_LABEL_LENGTH),
+    coreMode: coreModeSchema.optional(),
+    coreSkus: z.array(z.string().min(1)).optional(),
+    screen: z.string().optional(),
+  })
+  .refine(
+    (button) =>
+      button.type !== 'buy_core' ||
+      button.coreMode !== 'specific' ||
+      (button.coreSkus?.length ?? 0) > 0,
+    { message: 'core_required', path: ['coreSkus'] }
+  )
+  .refine(
+    (button) =>
+      button.type !== 'open_screen' ||
+      (!!button.screen && APP_DEEPLINK_VALUES.includes(button.screen)),
+    { message: 'invalid_deeplink', path: ['screen'] }
+  );
+export type CampaignButton = z.infer<typeof campaignButtonSchema>;
+const buttonsSchema = z.array(campaignButtonSchema).max(MAX_CAMPAIGN_BUTTONS);
+
+export const coreOptionDtoSchema = z.object({
+  sku: z.string().min(1),
+  name: z.string().min(1),
+});
+export const coreOptionListDtoSchema = z.array(coreOptionDtoSchema);
+export type CoreOption = z.infer<typeof coreOptionDtoSchema>;
 
 const offerTypeSchema = z.enum([
   'voucher',
@@ -61,19 +126,56 @@ const discountTypeSchema = z.enum([
 ]) satisfies z.ZodType<DiscountType>;
 
 // Embedded offer (spec 7.4): a discount voucher OR reward points, with a usage
-// cap and validity window. Passed through unchanged between API and domain.
+// cap, a validity window and an optional product/error-code binding (synced to
+// the storefront). Passed through unchanged between API and domain.
 export const campaignOfferSchema = z.object({
   type: offerTypeSchema,
-  codeMode: z.enum(['shared', 'per_customer']).optional(),
   voucherCode: z.string().optional(),
   discountType: discountTypeSchema.optional(),
   discountValue: z.number().nonnegative().optional(),
   points: z.number().int().nonnegative().optional(),
   usageLimitTotal: z.number().int().positive().optional(),
-  usageLimitPerCustomer: z.number().int().positive().optional(),
   validUntil: z.string().optional(),
+  // Product SKU or error code the offer is bound to, e.g. "ER00051".
+  appliesTo: z.string().optional(),
 });
 export type CampaignOffer = z.infer<typeof campaignOfferSchema>;
+
+const timeOfDaySchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+
+// Run rules of an always-on trigger campaign (spec 7.3).
+export const triggerConfigSchema = z.object({
+  // "Lõi còn ≤ N ngày"; only used by the core_due preset.
+  coreDays: z.number().int().min(1).max(365).optional(),
+  exitOnPurchase: z.boolean(),
+  exitOnWarrantyRenewed: z.boolean(),
+  cooldownDays: z.number().int().min(0).max(365),
+  maxSends: z.number().int().min(1).max(100),
+  quietFrom: timeOfDaySchema,
+  quietTo: timeOfDaySchema,
+  fallbackSmsZalo: z.boolean(),
+});
+export type TriggerConfig = z.infer<typeof triggerConfigSchema>;
+
+export const DEFAULT_TRIGGER_CONFIG: TriggerConfig = {
+  coreDays: 15,
+  exitOnPurchase: true,
+  exitOnWarrantyRenewed: false,
+  cooldownDays: 3,
+  maxSends: 3,
+  quietFrom: '22:00',
+  quietTo: '07:00',
+  fallbackSmsZalo: false,
+};
+
+// A/B test of the content (spec 7.1): variant B replaces title/body for the
+// `splitB` percent of recipients.
+export const abTestSchema = z.object({
+  titleB: z.string(),
+  bodyB: z.string(),
+  splitB: z.number().int().min(1).max(99),
+});
+export type AbTest = z.infer<typeof abTestSchema>;
 
 export const campaignDtoSchema = z.object({
   priority: z.number().int().nonnegative(),
@@ -81,30 +183,33 @@ export const campaignDtoSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   kind: campaignKindSchema,
-  channel: campaignChannelSchema,
-  // Multi-language content (spec 7.1.d): Vietnamese required, English optional.
-  content_vi: z.string(),
-  content_en: z.string().nullable(),
-  image_url: z.string().nullable(),
-  deeplink: z.string().nullable(),
-  // Optional second CTA (spec 7.3): a `core_due` reminder carries both "mua lõi"
-  // (shop) and "đặt lịch thay" (booking) so the app can render two buttons. Null
-  // means the notification has a single CTA (the primary deeplink).
-  secondary_deeplink: z.string().nullable(),
+  display_type: displayTypeSchema,
+  notification_group: notificationGroupSchema,
+  title: z.string(),
+  content: z.string(),
+  buttons: buttonsSchema,
   schedule_type: campaignScheduleSchema,
   starts_at: z.string().datetime({ offset: true }).nullable(),
   ends_at: z.string().datetime({ offset: true }).nullable(),
   status: campaignStatusSchema,
   trigger_preset: triggerPresetSchema.nullable(),
+  trigger_config: triggerConfigSchema.nullable(),
   frequency_cap_per_customer: z.number().int().nonnegative(),
   audience: audienceConditionsSchema,
-  // Last previewed matching-customer count; null until the author previews.
+  dedupe: dedupeModeSchema,
+  suppression: suppressionSchema,
+  // Last previewed number of customers who would receive it; null until the
+  // author previews.
   audience_count: z.number().int().nonnegative().nullable(),
+  ab_test: abTestSchema.nullable(),
   offer: campaignOfferSchema.nullable(),
+  test_recipients: z.array(z.string()),
   created_by: z.string(),
   created_by_name: z.string(),
   created_at: z.string().datetime({ offset: true }),
   updated_at: z.string().datetime({ offset: true }),
+  approver_id: z.string().nullable(),
+  approver_name: z.string().nullable(),
   approved_by: z.string().nullable(),
   approved_by_name: z.string().nullable(),
   approved_at: z.string().datetime({ offset: true }).nullable(),
@@ -128,7 +233,6 @@ export const campaignCountsDtoSchema = z.object({
   running: z.number().int().nonnegative(),
   paused: z.number().int().nonnegative(),
   ended: z.number().int().nonnegative(),
-  rejected: z.number().int().nonnegative(),
 });
 export type CampaignCountsDto = z.infer<typeof campaignCountsDtoSchema>;
 
@@ -144,9 +248,19 @@ export const campaignMetricsDtoSchema = z.object({
   clicked: z.number().int().nonnegative(),
   conversions_booking: z.number().int().nonnegative(),
   conversions_qr: z.number().int().nonnegative(),
+  orders: z.number().int().nonnegative(),
   revenue: z.number().nonnegative(),
+  // Customers who turned this notification group off (APP-060) and therefore
+  // never received the campaign.
+  suppressed_opt_out: z.number().int().nonnegative(),
 });
 export type CampaignMetricsDto = z.infer<typeof campaignMetricsDtoSchema>;
+
+export const approverDtoSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+});
+export const approverListDtoSchema = z.array(approverDtoSchema);
 
 // ---- domain ----------------------------------------------------------------
 
@@ -156,25 +270,31 @@ export interface Campaign {
   tenantId: string;
   name: string;
   kind: CampaignKind;
-  channel: CampaignChannel;
-  contentVi: string;
-  contentEn: string | null;
-  imageUrl: string | null;
-  deeplink: string | null;
-  secondaryDeeplink: string | null;
+  displayType: DisplayType;
+  notificationGroup: NotificationGroup;
+  title: string;
+  content: string;
+  buttons: CampaignButton[];
   scheduleType: CampaignSchedule;
   startsAt: string | null;
   endsAt: string | null;
   status: CampaignStatus;
   triggerPreset: TriggerPreset | null;
+  triggerConfig: TriggerConfig | null;
   frequencyCapPerCustomer: number;
   audience: AudienceConditions;
+  dedupe: DedupeMode;
+  suppression: Suppression;
   audienceCount: number | null;
+  abTest: AbTest | null;
   offer: CampaignOffer | null;
+  testRecipients: string[];
   createdBy: string;
   createdByName: string;
   createdAt: string;
   updatedAt: string;
+  approverId: string | null;
+  approverName: string | null;
   approvedBy: string | null;
   approvedByName: string | null;
   approvedAt: string | null;
@@ -193,7 +313,9 @@ export interface CampaignMetrics {
   clicked: number;
   conversionsBooking: number;
   conversionsQr: number;
+  orders: number;
   revenue: number;
+  suppressedOptOut: number;
 }
 
 export interface CampaignCounts {
@@ -204,7 +326,11 @@ export interface CampaignCounts {
   running: number;
   paused: number;
   ended: number;
-  rejected: number;
+}
+
+export interface CampaignApprover {
+  id: string;
+  name: string;
 }
 
 export interface CampaignListFilters {
@@ -227,20 +353,24 @@ export interface CampaignDraftInput {
   tenantId: string;
   name: string;
   kind: CampaignKind;
-  channel: CampaignChannel;
-  contentVi: string;
-  contentEn: string | null;
-  imageUrl: string | null;
-  deeplink: string | null;
-  secondaryDeeplink: string | null;
+  displayType: DisplayType;
+  notificationGroup: NotificationGroup;
+  title: string;
+  content: string;
+  buttons: CampaignButton[];
   scheduleType: CampaignSchedule;
   startsAt: string | null;
   endsAt: string | null;
   triggerPreset: TriggerPreset | null;
+  triggerConfig: TriggerConfig | null;
   frequencyCapPerCustomer: number;
   audience: AudienceConditions;
+  dedupe: DedupeMode;
+  suppression: Suppression;
   audienceCount: number | null;
+  abTest: AbTest | null;
   offer: CampaignOffer | null;
+  testRecipients: string[];
 }
 
 export const CAMPAIGN_TRANSITIONS = [
@@ -254,48 +384,40 @@ export const CAMPAIGN_TRANSITIONS = [
 ] as const;
 export type CampaignTransition = (typeof CAMPAIGN_TRANSITIONS)[number];
 
+export interface CampaignTransitionInput {
+  action: CampaignTransition;
+  reason: string;
+  // Only for `submit`: the reviewer the campaign is sent to.
+  approverId?: string;
+}
+
 // Request body shape for creating/saving a draft (camelCase), used by the
-// mock backend to validate what the wizard sends.
+// mock backend to validate what the wizard sends. Content is only checked for
+// completeness when the draft is submitted for approval.
 export const campaignDraftInputSchema = z.object({
   reason: z.string().trim().min(1),
   priority: z.number().int().nonnegative(),
   tenantId: z.literal(CAMPAIGN_TENANT_ID),
-  name: z.string().min(1),
+  name: z.string().trim().min(1),
   kind: campaignKindSchema,
-  channel: campaignChannelSchema,
-  contentVi: z.string().min(1),
-  contentEn: z.string().nullable(),
-  // Image is an uploaded inline data URL (spec 7.1.a, decision #1) — never an
-  // external URL.
-  imageUrl: z
-    .string()
-    .nullable()
-    .refine((value) => value === null || value.startsWith('data:image/'), {
-      message: 'invalid_image',
-    }),
-  // Deeplink must be a registered app screen (spec 7.1.c) — enum membership,
-  // not free text; null means "no CTA target".
-  deeplink: z
-    .string()
-    .nullable()
-    .refine((value) => value === null || APP_DEEPLINK_VALUES.includes(value), {
-      message: 'invalid_deeplink',
-    }),
-  // Optional second CTA; same registered-screen constraint as the primary one.
-  secondaryDeeplink: z
-    .string()
-    .nullable()
-    .refine((value) => value === null || APP_DEEPLINK_VALUES.includes(value), {
-      message: 'invalid_deeplink',
-    }),
+  displayType: displayTypeSchema,
+  notificationGroup: notificationGroupSchema,
+  title: z.string(),
+  content: z.string(),
+  buttons: buttonsSchema,
   scheduleType: campaignScheduleSchema,
   startsAt: z.string().nullable(),
   endsAt: z.string().nullable(),
   triggerPreset: triggerPresetSchema.nullable(),
+  triggerConfig: triggerConfigSchema.nullable(),
   frequencyCapPerCustomer: z.number().int().nonnegative(),
   audience: audienceConditionsSchema,
+  dedupe: dedupeModeSchema,
+  suppression: suppressionSchema,
   audienceCount: z.number().int().nonnegative().nullable(),
+  abTest: abTestSchema.nullable(),
   offer: campaignOfferSchema.nullable(),
+  testRecipients: z.array(z.string()),
 });
 
 export type CampaignPage = PageResponse<Campaign>;

@@ -2,8 +2,10 @@ import { queryOptions } from '@tanstack/react-query';
 
 import {
   getCampaign,
+  getCampaignApprovers,
   getCampaignCounts,
   getCampaignMetrics,
+  getCoreOptions,
   getCampaigns,
 } from '../api/campaignApi';
 import type { CampaignListFilters } from '../schemas/campaignSchemas';
@@ -31,5 +33,15 @@ export const campaignQueries = {
     queryOptions({
       queryKey: [...campaignQueries.all, 'metrics', id] as const,
       queryFn: ({ signal }) => getCampaignMetrics(id, signal),
+    }),
+  approvers: () =>
+    queryOptions({
+      queryKey: [...campaignQueries.all, 'approvers'] as const,
+      queryFn: ({ signal }) => getCampaignApprovers(signal),
+    }),
+  coreOptions: () =>
+    queryOptions({
+      queryKey: [...campaignQueries.all, 'core-options'] as const,
+      queryFn: ({ signal }) => getCoreOptions(signal),
     }),
 };

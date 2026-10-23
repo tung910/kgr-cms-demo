@@ -1,26 +1,52 @@
 // Fixed value sets for the campaigns feature. Every `labelKey` lives in the
 // `campaigns` namespace; translate with `t(labelKey, { ns: 'campaigns' })`.
 
-// Manual campaign vs an always-on automated trigger (spec 7.1 vs 7.3).
+// One-off (manual / scheduled) vs an always-on automated trigger (spec 7.1/7.3).
 export const CAMPAIGN_KINDS = [
   { value: 'manual', labelKey: 'kind.manual' },
   { value: 'trigger', labelKey: 'kind.trigger' },
 ] as const;
 export type CampaignKind = (typeof CAMPAIGN_KINDS)[number]['value'];
 
-// Delivery channel (spec 7.1).
-export const CAMPAIGN_CHANNELS = [
-  { value: 'push', labelKey: 'channel.push' },
-  { value: 'in_app', labelKey: 'channel.in_app' },
+// How the notification is shown in the app (spec 7.1).
+export const DISPLAY_TYPES = [
+  { value: 'push', labelKey: 'displayType.push' },
+  { value: 'banner', labelKey: 'displayType.banner' },
+  { value: 'popup', labelKey: 'displayType.popup' },
 ] as const;
-export type CampaignChannel = (typeof CAMPAIGN_CHANNELS)[number]['value'];
+export type DisplayType = (typeof DISPLAY_TYPES)[number]['value'];
 
-// Send immediately vs schedule a window (spec 7.1).
+// Notification group: the opt-out unit the customer controls in the app
+// (APP-060). `priority` is the auto-assigned tier (spec 7.1: "tầng ưu tiên tự
+// gán"); a higher tier wins when several campaigns compete for one customer.
+export const NOTIFICATION_GROUPS = [
+  { value: 'core', labelKey: 'group.core', priority: 2 },
+  { value: 'water_quality', labelKey: 'group.water_quality', priority: 2 },
+  { value: 'device_error', labelKey: 'group.device_error', priority: 3 },
+  { value: 'promotion', labelKey: 'group.promotion', priority: 1 },
+  { value: 'service', labelKey: 'group.service', priority: 1 },
+] as const;
+export type NotificationGroup = (typeof NOTIFICATION_GROUPS)[number]['value'];
+
+export function priorityOfGroup(group: NotificationGroup): number {
+  return NOTIFICATION_GROUPS.find((item) => item.value === group)!.priority;
+}
+
+// Send immediately vs schedule a time (spec 7.1).
 export const CAMPAIGN_SCHEDULES = [
   { value: 'send_now', labelKey: 'schedule.send_now' },
   { value: 'scheduled', labelKey: 'schedule.scheduled' },
 ] as const;
 export type CampaignSchedule = (typeof CAMPAIGN_SCHEDULES)[number]['value'];
+
+// The speced automated triggers (spec 7.3). Thresholds beyond the per-campaign
+// "core days" come from the system config at evaluation time.
+export const TRIGGER_PRESETS = [
+  { value: 'core_due', labelKey: 'trigger.core_due' },
+  { value: 'warranty_expiring', labelKey: 'trigger.warranty_expiring' },
+  { value: 'high_tds', labelKey: 'trigger.high_tds' },
+] as const;
+export type TriggerPreset = (typeof TRIGGER_PRESETS)[number]['value'];
 
 // Offer attached to a campaign (spec 7.4): a discount voucher or reward points.
 export const OFFER_TYPES = [
@@ -35,19 +61,6 @@ export const DISCOUNT_TYPES = [
 ] as const;
 export type DiscountType = (typeof DISCOUNT_TYPES)[number]['value'];
 
-// The speced automated triggers (spec 7.3). Thresholds are read from the system
-// config at evaluation time, not hard-coded here. `core_due`/`high_tds` rely on
-// live telemetry so they only fire on IoT devices; `warranty_expiring` (from the
-// registration date) and `repurchase_due` (from purchase cadence) need no sensor,
-// so they also reach non-IoT products.
-export const TRIGGER_PRESETS = [
-  { value: 'core_due', labelKey: 'trigger.core_due' },
-  { value: 'warranty_expiring', labelKey: 'trigger.warranty_expiring' },
-  { value: 'high_tds', labelKey: 'trigger.high_tds' },
-  { value: 'repurchase_due', labelKey: 'trigger.repurchase_due' },
-] as const;
-export type TriggerPreset = (typeof TRIGGER_PRESETS)[number]['value'];
-
 // Warranty states usable as a segmentation condition (spec 7.2), mirroring
 // DeviceWarrantyStatus so the audience mock stays consistent with device data.
 export const SEGMENT_WARRANTY_STATUSES = [
@@ -59,7 +72,23 @@ export const SEGMENT_WARRANTY_STATUSES = [
 export type SegmentWarrantyStatus =
   (typeof SEGMENT_WARRANTY_STATUSES)[number]['value'];
 
-export const VOUCHER_CODE_MODES = [
-  { value: 'per_customer', labelKey: 'offer.codeMode.per_customer' },
-  { value: 'shared', labelKey: 'offer.codeMode.shared' },
+// Personal-owned vs rental units (spec 7.2).
+export const USAGE_TYPES = [
+  { value: 'personal', labelKey: 'usageType.personal' },
+  { value: 'rental', labelKey: 'usageType.rental' },
 ] as const;
+export type UsageType = (typeof USAGE_TYPES)[number]['value'];
+
+// How several matching conditions combine.
+export const AUDIENCE_LOGICS = [
+  { value: 'and', labelKey: 'logic.and' },
+  { value: 'or', labelKey: 'logic.or' },
+] as const;
+export type AudienceLogic = (typeof AUDIENCE_LOGICS)[number]['value'];
+
+// De-duplication when one customer owns several matching devices.
+export const DEDUPE_MODES = [
+  { value: 'account', labelKey: 'dedupe.account' },
+  { value: 'device', labelKey: 'dedupe.device' },
+] as const;
+export type DedupeMode = (typeof DEDUPE_MODES)[number]['value'];

@@ -30,6 +30,20 @@ export function CampaignAuditPanel({ campaign }: CampaignAuditPanelProps) {
     },
   ];
 
+  if (campaign.approverName) {
+    items.push({
+      color: 'gray',
+      children: (
+        <div>
+          <div className="font-medium">{t('history.submitted')}</div>
+          <div className="text-xs text-[#636466]">
+            {t('history.approverIs', { name: campaign.approverName })}
+          </div>
+        </div>
+      ),
+    });
+  }
+
   if (campaign.approvedAt && campaign.approvedByName) {
     items.push({
       color: 'green',
@@ -44,7 +58,7 @@ export function CampaignAuditPanel({ campaign }: CampaignAuditPanelProps) {
     });
   }
 
-  if (campaign.status === 'rejected' && campaign.rejectedReason) {
+  if (campaign.status === 'draft' && campaign.rejectedReason) {
     items.push({
       color: 'red',
       children: (
@@ -61,7 +75,7 @@ export function CampaignAuditPanel({ campaign }: CampaignAuditPanelProps) {
   return (
     <div className="space-y-4">
       <Timeline items={items} />
-      <Alert type="info" showIcon message={t('history.auditNote')} />
+      <Alert type="info" showIcon title={t('history.auditNote')} />
     </div>
   );
 }

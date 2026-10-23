@@ -28,6 +28,7 @@ import { Route as AuthenticatedSystemIntegrationsRouteImport } from './routes/_a
 import { Route as AuthenticatedWarrantiesRouteImport } from './routes/_authenticated/warranties'
 import { Route as AuthenticatedCampaignsIndexRouteImport } from './routes/_authenticated/campaigns/index'
 import { Route as AuthenticatedCampaignsCampaignIdRouteImport } from './routes/_authenticated/campaigns/$campaignId'
+import { Route as AuthenticatedCampaignsNewRouteImport } from './routes/_authenticated/campaigns/new'
 import { Route as AuthenticatedDevicesIndexRouteImport } from './routes/_authenticated/devices/index'
 import { Route as AuthenticatedDevicesDeviceIdRouteImport } from './routes/_authenticated/devices/$deviceId'
 import { Route as AuthenticatedSerialsIndexRouteImport } from './routes/_authenticated/serials/index'
@@ -137,6 +138,12 @@ const AuthenticatedCampaignsCampaignIdRoute =
     path: '/campaigns/$campaignId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedCampaignsNewRoute =
+  AuthenticatedCampaignsNewRouteImport.update({
+    id: '/campaigns/new',
+    path: '/campaigns/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDevicesIndexRoute =
   AuthenticatedDevicesIndexRouteImport.update({
     id: '/devices/',
@@ -198,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/system-integrations': typeof AuthenticatedSystemIntegrationsRoute
   '/warranties': typeof AuthenticatedWarrantiesRoute
   '/campaigns/$campaignId': typeof AuthenticatedCampaignsCampaignIdRoute
+  '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/serials/core-config': typeof AuthenticatedSerialsCoreConfigRoute
   '/system/audit': typeof AuthenticatedSystemAuditRoute
@@ -225,6 +233,7 @@ export interface FileRoutesByTo {
   '/warranties': typeof AuthenticatedWarrantiesRoute
   '/': typeof AuthenticatedIndexRoute
   '/campaigns/$campaignId': typeof AuthenticatedCampaignsCampaignIdRoute
+  '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/serials/core-config': typeof AuthenticatedSerialsCoreConfigRoute
   '/system/audit': typeof AuthenticatedSystemAuditRoute
@@ -254,6 +263,7 @@ export interface FileRoutesById {
   '/_authenticated/warranties': typeof AuthenticatedWarrantiesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/campaigns/$campaignId': typeof AuthenticatedCampaignsCampaignIdRoute
+  '/_authenticated/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/_authenticated/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/_authenticated/serials/core-config': typeof AuthenticatedSerialsCoreConfigRoute
   '/_authenticated/system/audit': typeof AuthenticatedSystemAuditRoute
@@ -283,6 +293,7 @@ export interface FileRouteTypes {
     | '/system-integrations'
     | '/warranties'
     | '/campaigns/$campaignId'
+    | '/campaigns/new'
     | '/devices/$deviceId'
     | '/serials/core-config'
     | '/system/audit'
@@ -310,6 +321,7 @@ export interface FileRouteTypes {
     | '/warranties'
     | '/'
     | '/campaigns/$campaignId'
+    | '/campaigns/new'
     | '/devices/$deviceId'
     | '/serials/core-config'
     | '/system/audit'
@@ -338,6 +350,7 @@ export interface FileRouteTypes {
     | '/_authenticated/warranties'
     | '/_authenticated/'
     | '/_authenticated/campaigns/$campaignId'
+    | '/_authenticated/campaigns/new'
     | '/_authenticated/devices/$deviceId'
     | '/_authenticated/serials/core-config'
     | '/_authenticated/system/audit'
@@ -490,6 +503,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCampaignsCampaignIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/campaigns/new': {
+      id: '/_authenticated/campaigns/new'
+      path: '/campaigns/new'
+      fullPath: '/campaigns/new'
+      preLoaderRoute: typeof AuthenticatedCampaignsNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/devices/': {
       id: '/_authenticated/devices/'
       path: '/devices'
@@ -557,6 +577,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedWarrantiesRoute: typeof AuthenticatedWarrantiesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCampaignsCampaignIdRoute: typeof AuthenticatedCampaignsCampaignIdRoute
+  AuthenticatedCampaignsNewRoute: typeof AuthenticatedCampaignsNewRoute
   AuthenticatedDevicesDeviceIdRoute: typeof AuthenticatedDevicesDeviceIdRoute
   AuthenticatedSerialsCoreConfigRoute: typeof AuthenticatedSerialsCoreConfigRoute
   AuthenticatedSystemAuditRoute: typeof AuthenticatedSystemAuditRoute
@@ -582,6 +603,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedWarrantiesRoute: AuthenticatedWarrantiesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCampaignsCampaignIdRoute: AuthenticatedCampaignsCampaignIdRoute,
+  AuthenticatedCampaignsNewRoute: AuthenticatedCampaignsNewRoute,
   AuthenticatedDevicesDeviceIdRoute: AuthenticatedDevicesDeviceIdRoute,
   AuthenticatedSerialsCoreConfigRoute: AuthenticatedSerialsCoreConfigRoute,
   AuthenticatedSystemAuditRoute: AuthenticatedSystemAuditRoute,

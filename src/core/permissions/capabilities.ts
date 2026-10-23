@@ -56,8 +56,7 @@ export const CAPABILITIES = [
   'alerts.handle',
   'alerts.notify',
   'alerts.config',
-  // Marketing campaigns (7.x). No route yet — the matrix is seeded ahead of
-  // the module so role groups do not have to be re-cut when it lands.
+  // Marketing campaigns (7.x).
   'campaign.read',
   'campaign.write',
   'campaign.voucher.create',

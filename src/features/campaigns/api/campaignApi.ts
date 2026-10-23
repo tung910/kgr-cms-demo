@@ -4,22 +4,26 @@ import { apiClient } from '@/core/api/apiClient';
 import type { PageResponse } from '@/shared/types/pagination';
 
 import type {
-  AudienceConditions,
+  AudienceDefinition,
   AudiencePreview,
 } from '../schemas/audienceSchemas';
 import { audiencePreviewDtoSchema } from '../schemas/audienceSchemas';
 import {
+  approverListDtoSchema,
   campaignCountsDtoSchema,
   campaignDtoSchema,
   campaignMetricsDtoSchema,
   campaignPageDtoSchema,
+  coreOptionListDtoSchema,
   type Campaign,
+  type CampaignApprover,
   type CampaignCountFilters,
   type CampaignCounts,
   type CampaignDraftInput,
   type CampaignListFilters,
   type CampaignMetrics,
-  type CampaignTransition,
+  type CampaignTransitionInput,
+  type CoreOption,
 } from '../schemas/campaignSchemas';
 import {
   mapAudiencePreview,
@@ -116,12 +120,11 @@ export async function updateCampaign(
 
 export async function transitionCampaign(
   id: string,
-  action: CampaignTransition,
-  reason?: string
+  input: CampaignTransitionInput
 ): Promise<Campaign> {
   const response = await apiClient.post<unknown>(
     `/campaigns/${id}/transition`,
-    { action, reason }
+    input
   );
   const parsed = campaignDtoSchema.safeParse(response);
   if (!parsed.success) throw invalidResponse(parsed.error);
@@ -129,17 +132,39 @@ export async function transitionCampaign(
 }
 
 export async function previewAudience(
-  conditions: AudienceConditions,
+  definition: AudienceDefinition,
   signal?: AbortSignal
 ): Promise<AudiencePreview> {
   const response = await apiClient.post<unknown>(
     '/campaigns/audience/preview',
-    conditions,
+    definition,
     { signal }
   );
   const parsed = audiencePreviewDtoSchema.safeParse(response);
   if (!parsed.success) throw invalidResponse(parsed.error);
   return mapAudiencePreview(parsed.data);
+}
+
+export async function getCampaignApprovers(
+  signal?: AbortSignal
+): Promise<CampaignApprover[]> {
+  const response = await apiClient.get<unknown>('/campaigns/approvers', {
+    signal,
+  });
+  const parsed = approverListDtoSchema.safeParse(response);
+  if (!parsed.success) throw invalidResponse(parsed.error);
+  return parsed.data;
+}
+
+export async function getCoreOptions(
+  signal?: AbortSignal
+): Promise<CoreOption[]> {
+  const response = await apiClient.get<unknown>('/campaigns/core-options', {
+    signal,
+  });
+  const parsed = coreOptionListDtoSchema.safeParse(response);
+  if (!parsed.success) throw invalidResponse(parsed.error);
+  return parsed.data;
 }
 
 export async function getCampaignMetrics(
@@ -154,6 +179,10 @@ export async function getCampaignMetrics(
   return mapCampaignMetrics(parsed.data);
 }
 
-export async function testSendCampaign(id: string): Promise<void> {
-  await apiClient.post<unknown>(`/campaigns/${id}/test-send`, {});
+export async function testSendCampaign(input: {
+  recipients: string[];
+  title: string;
+  content: string;
+}): Promise<void> {
+  await apiClient.post<unknown>('/campaigns/test-send', input);
 }

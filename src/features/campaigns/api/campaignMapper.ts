@@ -2,7 +2,6 @@ import type { PageResponse } from '@/shared/types/pagination';
 
 import type {
   AudienceCustomer,
-  AudienceCustomerDto,
   AudiencePreview,
   AudiencePreviewDto,
 } from '../schemas/audienceSchemas';
@@ -23,25 +22,31 @@ export function mapCampaign(dto: CampaignDto): Campaign {
     priority: dto.priority,
     name: dto.name,
     kind: dto.kind,
-    channel: dto.channel,
-    contentVi: dto.content_vi,
-    contentEn: dto.content_en,
-    imageUrl: dto.image_url,
-    deeplink: dto.deeplink,
-    secondaryDeeplink: dto.secondary_deeplink,
+    displayType: dto.display_type,
+    notificationGroup: dto.notification_group,
+    title: dto.title,
+    content: dto.content,
+    buttons: dto.buttons,
     scheduleType: dto.schedule_type,
     startsAt: dto.starts_at,
     endsAt: dto.ends_at,
     status: dto.status,
     triggerPreset: dto.trigger_preset,
+    triggerConfig: dto.trigger_config,
     frequencyCapPerCustomer: dto.frequency_cap_per_customer,
     audience: dto.audience,
+    dedupe: dto.dedupe,
+    suppression: dto.suppression,
     audienceCount: dto.audience_count,
+    abTest: dto.ab_test,
     offer: dto.offer,
+    testRecipients: dto.test_recipients,
     createdBy: dto.created_by,
     createdByName: dto.created_by_name,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
+    approverId: dto.approver_id,
+    approverName: dto.approver_name,
     approvedBy: dto.approved_by,
     approvedByName: dto.approved_by_name,
     approvedAt: dto.approved_at,
@@ -67,7 +72,6 @@ export function mapCampaignCounts(dto: CampaignCountsDto): CampaignCounts {
     running: dto.running,
     paused: dto.paused,
     ended: dto.ended,
-    rejected: dto.rejected,
   };
 }
 
@@ -84,12 +88,14 @@ export function mapCampaignMetrics(dto: CampaignMetricsDto): CampaignMetrics {
     clicked: dto.clicked,
     conversionsBooking: dto.conversions_booking,
     conversionsQr: dto.conversions_qr,
+    orders: dto.orders,
     revenue: dto.revenue,
+    suppressedOptOut: dto.suppressed_opt_out,
   };
 }
 
 export function mapAudienceCustomer(
-  dto: AudienceCustomerDto
+  dto: AudiencePreviewDto['sample'][number]
 ): AudienceCustomer {
   return {
     customerId: dto.customer_id,
@@ -103,11 +109,11 @@ export function mapAudienceCustomer(
       warrantyStatus: device.warranty_status,
       regionTds: device.region_tds,
       warrantyRemainingDays: device.warranty_remaining_days,
+      usageType: device.usage_type,
       connectivity: device.connectivity,
       lastCorePurchaseDaysAgo: device.last_core_purchase_days_ago,
     })),
     loyaltyPoints: dto.loyalty_points,
-    tenureDays: dto.tenure_days,
     optIn: dto.opt_in,
   };
 }
@@ -115,6 +121,7 @@ export function mapAudienceCustomer(
 export function mapAudiencePreview(dto: AudiencePreviewDto): AudiencePreview {
   return {
     total: dto.total,
+    eligible: dto.eligible,
     matched: dto.matched,
     matchedNonIot: dto.matched_non_iot,
     sample: dto.sample.map(mapAudienceCustomer),

@@ -20,7 +20,6 @@ const campaignListSearchSchema = z.object({
       'running',
       'paused',
       'ended',
-      'rejected',
     ])
     .optional()
     .catch(undefined),

@@ -2,7 +2,7 @@ import { Pagination, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 
-import { formatDate, formatDateTime } from '@/shared/lib/format';
+import { formatDateTime } from '@/shared/lib/format';
 import type { PageResponse } from '@/shared/types/pagination';
 
 import type { Campaign, CampaignListFilters } from '../schemas/campaignSchemas';
@@ -26,11 +26,11 @@ export function CampaignTable({
   const { t } = useTranslation('campaigns');
 
   const scheduleLabel = (campaign: Campaign) => {
+    if (campaign.kind === 'trigger') return t('kind.trigger');
     if (campaign.scheduleType === 'send_now') return t('schedule.send_now');
-    if (campaign.startsAt && campaign.endsAt) {
-      return `${formatDate(campaign.startsAt)} – ${formatDate(campaign.endsAt)}`;
-    }
-    return t('schedule.scheduled');
+    return campaign.startsAt
+      ? formatDateTime(campaign.startsAt)
+      : t('schedule.scheduled');
   };
 
   const columns: ColumnsType<Campaign> = [
@@ -45,7 +45,9 @@ export function CampaignTable({
           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-[#636466]">
             <span>{campaign.id}</span>
             <Tag className="m-0">{t(`kind.${campaign.kind}`)}</Tag>
-            <Tag className="m-0">{t(`channel.${campaign.channel}`)}</Tag>
+            <Tag className="m-0">
+              {t(`displayType.${campaign.displayType}`)}
+            </Tag>
           </div>
         </div>
       ),

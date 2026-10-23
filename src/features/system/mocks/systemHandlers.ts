@@ -116,6 +116,21 @@ export function getSystemConfigParams() {
   return configStore.params;
 }
 
+// Active members who hold a capability — e.g. the people a campaign can be
+// sent to for approval. Mirrors what a real backend would resolve.
+export function listMembersWithCapability(
+  capability: Capability
+): Array<{ id: string; name: string }> {
+  return memberStore
+    .filter(
+      (member) =>
+        !member.deleted &&
+        member.status === 'active' &&
+        effectiveCapabilities(member).includes(capability)
+    )
+    .map((member) => ({ id: member.id, name: member.fullName }));
+}
+
 const auditStore: AuditEntryDto[] = [];
 const backupStore: BackupDto[] = [3, 2, 1].map((daysAgo) => ({
   id: `bk-seed-${daysAgo}`,

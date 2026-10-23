@@ -45,7 +45,9 @@ void i18n
         analytics: analyticsEn,
         serials: serialsEn,
         customers: customersEn,
-        campaigns: campaignsEn,
+        // Campaigns ships Vietnamese only for now: English falls back to it
+        // until en.json is translated (shallow merge — flatten before adding).
+        campaigns: { ...campaignsVi, ...campaignsEn },
         firmware: firmwareEn,
         maps: mapsEn,
         portal: portalEn,

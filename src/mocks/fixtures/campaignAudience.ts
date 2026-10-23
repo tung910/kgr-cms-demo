@@ -40,19 +40,20 @@ export const campaignAudienceFixtures: AudienceCustomerDto[] = Array.from(
           // only be reached through registration/commerce conditions, never
           // telemetry. Uses `% 5` so connectivity is decorrelated from region
           // (which uses `% regions.length` = `% 4`).
+          usage_type: seed % 7 === 0 ? 'rental' : 'personal',
           connectivity: seed % 5 === 0 ? 'non_iot' : 'iot',
           last_core_purchase_days_ago: (seed * 23) % 420,
         };
       }),
       loyalty_points: (index * 37) % 1000,
-      // 30..929 days of tenure.
       first_activated_at: new Date(
         Date.now() - (30 + ((index * 11) % 900)) * 86_400_000
       ).toISOString(),
-      tenure_days: 30 + ((index * 11) % 900),
       // Marketing consent: every 9th customer has opted out and is hard-
       // excluded from all send sets (spec 7.7.a).
       opt_in: index % 9 !== 0,
+      // Every 25th account is an internal test account.
+      is_test: index % 25 === 24,
     };
   }
 );

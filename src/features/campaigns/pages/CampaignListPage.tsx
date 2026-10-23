@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useDeferredValue } from 'react';
 import {
   CheckCircleOutlined,
@@ -22,7 +21,6 @@ import { PageState } from '@/shared/components/PageState';
 
 import { CampaignFilters } from '../components/CampaignFilters';
 import { CampaignTable } from '../components/CampaignTable';
-import { CampaignWizard } from '../components/CampaignWizard';
 import { campaignQueries } from '../queries/campaignQueries';
 import type { CampaignListFilters } from '../schemas/campaignSchemas';
 
@@ -33,7 +31,6 @@ export interface CampaignListPageProps {
 export function CampaignListPage({ filters }: CampaignListPageProps) {
   const { t } = useTranslation('campaigns');
   const navigate = useNavigate({ from: '/campaigns/' });
-  const [wizardOpen, setWizardOpen] = useState(false);
   const deferredFilters = useDeferredValue(filters);
   const { data } = useSuspenseQuery(campaignQueries.list(deferredFilters));
   const { data: counts } = useSuspenseQuery(
@@ -55,7 +52,9 @@ export function CampaignListPage({ filters }: CampaignListPageProps) {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => setWizardOpen(true)}
+              onClick={() =>
+                void navigate({ to: '/campaigns/new', search: {} })
+              }
             >
               {t('listPage.create')}
             </Button>
@@ -119,7 +118,6 @@ export function CampaignListPage({ filters }: CampaignListPageProps) {
           />
         )}
       </PortalCard>
-      <CampaignWizard open={wizardOpen} onClose={() => setWizardOpen(false)} />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { EditOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Space, message } from 'antd';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/core/auth/useAuth';
@@ -10,41 +12,25 @@ import { transitionCampaign } from '../api/campaignApi';
 import { campaignQueries } from '../queries/campaignQueries';
 import type { Campaign, CampaignTransition } from '../schemas/campaignSchemas';
 
-export interface CampaignApprovalActionsProps {
+export interface CampaignActionsProps {
   campaign: Campaign;
 }
 
-// Actions that require a mandatory reason (spec 7.5 audit).
-const REASON_ACTIONS = new Set<CampaignTransition>([
-  'approve',
-  'reject',
-  'stop',
-  'pause',
-  'resume',
-  'run',
-  'submit',
-]);
-
-export function CampaignApprovalActions({
-  campaign,
-}: CampaignApprovalActionsProps) {
+// Lifecycle buttons for the campaign detail page (spec 7.5). Each transition
+// asks for a reason that is written to the immutable audit log. Submitting for
+// approval happens in the wizard, where the approver is chosen.
+export function CampaignActions({ campaign }: CampaignActionsProps) {
   const { t } = useTranslation('campaigns');
   const { session } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [reasonFor, setReasonFor] = useState<CampaignTransition | null>(null);
   const [form] = Form.useForm<{ reason: string }>();
 
-  const canWrite = session
-    ? hasCapability(session.role, 'campaign.write')
-    : false;
-  const canApprove = session
-    ? hasCapability(session.role, 'campaign.approve')
-    : false;
-  // Spec 7.5: running/stopping a campaign is "cho chạy/dừng" (campaign.send),
-  // separate from approving it (campaign.approve).
-  const canSend = session
-    ? hasCapability(session.role, 'campaign.send')
-    : false;
+  const can = (capability: Parameters<typeof hasCapability>[1]) =>
+    !!session && hasCapability(session.role, capability);
+  // Creator ≠ approver (spec 7.5): the author never sees approve/reject.
+  const isAuthor = session?.user.id === campaign.createdBy;
 
   const mutation = useMutation({
     mutationFn: ({
@@ -52,8 +38,8 @@ export function CampaignApprovalActions({
       reason,
     }: {
       action: CampaignTransition;
-      reason?: string;
-    }) => transitionCampaign(campaign.id, action, reason),
+      reason: string;
+    }) => transitionCampaign(campaign.id, { action, reason }),
     onSuccess: (_data, variables) => {
       void message.success(t(`transitions.done.${variables.action}`));
       void queryClient.invalidateQueries({ queryKey: campaignQueries.all });
@@ -64,45 +50,47 @@ export function CampaignApprovalActions({
       void message.error(error.message || t('errors.transitionFailed')),
   });
 
-  const run = (action: CampaignTransition) => {
-    if (REASON_ACTIONS.has(action)) {
-      setReasonFor(action);
-      return;
-    }
-    mutation.mutate({ action });
-  };
-
   const actions: CampaignTransition[] = [];
-  if (campaign.status === 'draft' || campaign.status === 'rejected') {
-    if (canWrite) actions.push('submit');
-  } else if (campaign.status === 'pending_approval') {
-    if (canApprove) actions.push('approve', 'reject');
+  if (campaign.status === 'pending_approval') {
+    if (can('campaign.approve') && !isAuthor) actions.push('approve', 'reject');
   } else if (campaign.status === 'approved') {
-    if (canSend) actions.push('run');
+    if (can('campaign.send')) actions.push('run');
   } else if (campaign.status === 'running') {
-    if (canSend) actions.push('pause', 'stop');
+    if (can('campaign.send')) actions.push('pause', 'stop');
   } else if (campaign.status === 'paused') {
-    if (canSend) actions.push('resume');
+    if (can('campaign.send')) actions.push('resume', 'stop');
   }
+  const canEdit = campaign.status === 'draft' && can('campaign.write');
 
-  if (actions.length === 0) return null;
+  if (actions.length === 0 && !canEdit) return null;
+
+  const danger = reasonFor === 'reject' || reasonFor === 'stop';
 
   return (
     <>
       <Space wrap>
+        {canEdit ? (
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() =>
+              void navigate({
+                to: '/campaigns/new',
+                search: { draftId: campaign.id },
+              })
+            }
+          >
+            {t('detail.editAndSubmit')}
+          </Button>
+        ) : null}
         {actions.map((action) => (
           <Button
             key={action}
             type={
-              action === 'approve' || action === 'submit' || action === 'run'
-                ? 'primary'
-                : 'default'
+              action === 'approve' || action === 'run' ? 'primary' : 'default'
             }
             danger={action === 'reject' || action === 'stop'}
-            loading={
-              mutation.isPending && mutation.variables?.action === action
-            }
-            onClick={() => run(action)}
+            onClick={() => setReasonFor(action)}
           >
             {t(`transitions.action.${action}`)}
           </Button>
@@ -117,9 +105,7 @@ export function CampaignApprovalActions({
         }}
         onOk={() => form.submit()}
         confirmLoading={mutation.isPending}
-        okButtonProps={{
-          danger: reasonFor === 'reject' || reasonFor === 'stop',
-        }}
+        okButtonProps={{ danger }}
         destroyOnHidden
       >
         <Form

@@ -73,6 +73,11 @@ export function CampaignMetricsPanel({ campaign }: CampaignMetricsPanelProps) {
           })}
         />
         <PortalStatCard
+          label={t('metrics.orders')}
+          tone="water"
+          value={data.orders}
+        />
+        <PortalStatCard
           label={t('metrics.conversionsBooking')}
           tone="water"
           value={data.conversionsBooking}
@@ -93,6 +98,9 @@ export function CampaignMetricsPanel({ campaign }: CampaignMetricsPanelProps) {
           value={currency.format(data.revenue)}
         />
       </div>
+      <p className="text-sm">
+        {t('metrics.suppressedOptOut', { count: data.suppressedOptOut })}
+      </p>
       <p className="text-sm">
         {t('metrics.failed')}: {data.failed} · {t('metrics.sendId')}:{' '}
         {data.sendId}

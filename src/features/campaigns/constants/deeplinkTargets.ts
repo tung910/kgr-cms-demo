@@ -38,6 +38,8 @@ export const APP_DEEPLINK_VALUES: readonly string[] = APP_DEEPLINK_TARGETS.map(
 export const DEVICE_SCOPED_DEEPLINK_VALUES: ReadonlySet<string> = new Set([
   'onekangaroo://core/replace',
   'onekangaroo://warranty/renew',
+  // "Mua lõi" in automatic mode: opens the core due on the matched device.
+  'onekangaroo://shop/cores',
 ]);
 
 export function isDeviceScopedDeeplink(

@@ -8,6 +8,7 @@ import {
 } from '@/core/permissions/capabilities';
 import {
   getSystemConfigParams,
+  listMembersWithCapability,
   recordAudit,
 } from '@/features/system/mocks/systemHandlers';
 import { campaignAudienceFixtures } from '@/mocks/fixtures/campaignAudience';
@@ -15,18 +16,22 @@ import { campaignFixtures } from '@/mocks/fixtures/campaigns';
 import { randomId } from '@/shared/lib/id';
 import { maskName } from '@/shared/lib/mask';
 
+import { buttonDeeplink } from '../constants/campaignCta';
 import { resolveDeviceDeeplink } from '../constants/deeplinkTargets';
-import { effectiveOfferDto } from '../constants/triggerOffers';
-import type {
-  AudienceConditions,
-  AudienceCustomerDto,
-  AudienceDeviceDto,
-  NumberRange,
+import {
+  audienceDefinitionSchema,
+  type AudienceConditions,
+  type AudienceCustomerDto,
+  type AudienceDefinition,
+  type AudienceDeviceDto,
+  type NumberRange,
 } from '../schemas/audienceSchemas';
 import {
+  CAMPAIGN_TRANSITIONS,
   campaignDraftInputSchema,
   type CampaignDto,
   type CampaignMetricsDto,
+  type CampaignTransition,
 } from '../schemas/campaignSchemas';
 
 // In-memory mock backend for the campaigns module (spec §7). Resets on reload.
@@ -37,12 +42,10 @@ import {
 const roleKey = 'cms-portal:mock-auth-role'; // shared with handlers.ts
 const userKey = 'cms-portal:mock-auth-user'; // shared with systemHandlers.ts
 
+const DAY_MS = 86_400_000;
+
 let campaignStore: CampaignDto[] = structuredClone(campaignFixtures);
 const audience: AudienceCustomerDto[] = campaignAudienceFixtures;
-// Historical issuance protection survives approval reset and subsequent edits.
-const protectedOffers = new Set(
-  campaignFixtures.filter((c) => c.approved_at !== null).map((c) => c.id)
-);
 
 function allowed(capability: Capability): boolean {
   const role = localStorage.getItem(roleKey);
@@ -65,6 +68,14 @@ function actor(): { id: string; fullName: string } {
       ? i18n.t(`roles.${role}`, { ns: 'common' })
       : '—';
   return { id, fullName };
+}
+
+function hashId(id: string): number {
+  let hash = 0;
+  for (let index = 0; index < id.length; index += 1) {
+    hash = (hash * 31 + id.charCodeAt(index)) | 0;
+  }
+  return Math.abs(hash);
 }
 
 // ---- lazy scheduling -------------------------------------------------------
@@ -126,69 +137,55 @@ function inRange(value: number, range?: NumberRange): boolean {
   return true;
 }
 
+type DevicePredicate = (
+  customer: AudienceCustomerDto,
+  device: AudienceDeviceDto
+) => boolean;
+
+// Telemetry conditions (firmware, core days, regional TDS) come from a live
+// cloud link, so a non-IoT unit can never satisfy them; registration/commerce
+// conditions (region, model, warranty by purchase date) still reach it.
+function predicatesOf(c: AudienceConditions): DevicePredicate[] {
+  const list: DevicePredicate[] = [];
+  if (c.regions.length) list.push((_, d) => c.regions.includes(d.region));
+  if (c.models.length) list.push((_, d) => c.models.includes(d.model_name));
+  if (c.warrantyStatuses.length)
+    list.push((_, d) => c.warrantyStatuses.includes(d.warranty_status));
+  if (c.usageTypes.length)
+    list.push((_, d) => c.usageTypes.includes(d.usage_type));
+  if (c.connectivities.length)
+    list.push((_, d) => c.connectivities.includes(d.connectivity));
+  if (c.firmwareVersions.length)
+    list.push(
+      (_, d) =>
+        d.connectivity === 'iot' &&
+        c.firmwareVersions.includes(d.firmware_version)
+    );
+  if (c.coreRemainingDays)
+    list.push(
+      (_, d) =>
+        d.connectivity === 'iot' &&
+        inRange(d.core_remaining_days, c.coreRemainingDays)
+    );
+  if (c.regionTds)
+    list.push(
+      (_, d) => d.connectivity === 'iot' && inRange(d.region_tds, c.regionTds)
+    );
+  if (c.loyaltyPoints)
+    list.push((customer) => inRange(customer.loyalty_points, c.loyaltyPoints));
+  return list;
+}
+
 function matchingDevices(
   customer: AudienceCustomerDto,
   c: AudienceConditions
 ): AudienceDeviceDto[] {
-  const tenureDays = Math.max(
-    0,
-    Math.floor((Date.now() - Date.parse(customer.first_activated_at)) / DAY_MS)
-  );
-  if (
-    !inRange(customer.loyalty_points, c.loyaltyPoints) ||
-    !inRange(tenureDays, c.tenureDays)
-  )
-    return [];
-  // All installation/device conditions must hold on the same owned device.
-  // Telemetry conditions (firmware, core days, regional TDS) come from a live
-  // cloud link, so a non-IoT unit can never satisfy them: setting any of these
-  // conditions excludes non-IoT devices, while registration/commerce conditions
-  // (region, model, warranty by purchase date) still reach them.
-  return customer.devices.filter((device) => {
-    if (c.regions.length && !c.regions.includes(device.region)) return false;
-    if (c.models.length && !c.models.includes(device.model_name)) return false;
-    if (
-      c.connectivities.length &&
-      !c.connectivities.includes(device.connectivity)
-    )
-      return false;
-    if (
-      c.warrantyStatuses.length &&
-      !c.warrantyStatuses.includes(device.warranty_status)
-    )
-      return false;
-    const telemetryConstrained =
-      c.firmwareVersions.length > 0 || !!c.coreRemainingDays || !!c.regionTds;
-    if (telemetryConstrained && device.connectivity !== 'iot') return false;
-    if (
-      c.firmwareVersions.length &&
-      !c.firmwareVersions.includes(device.firmware_version)
-    )
-      return false;
-    if (!inRange(device.core_remaining_days, c.coreRemainingDays)) return false;
-    if (!inRange(device.region_tds, c.regionTds)) return false;
-    return true;
-  });
-}
-
-// Opted-out customers (spec 7.7.a) are hard-excluded from every audience —
-// manual campaigns and triggers alike — before any condition is evaluated.
-function isContactable(customer: AudienceCustomerDto): boolean {
-  return customer.opt_in;
-}
-
-function countAudience(conditions: AudienceConditions): AudienceCustomerDto[] {
-  return audience.filter(
-    (customer) =>
-      isContactable(customer) &&
-      matchingDevices(customer, conditions).length > 0 &&
-      sends.filter(
-        (s) =>
-          s.customerId === customer.customer_id &&
-          s.sentAt >
-            Date.now() -
-              getSystemConfigParams().campaign_frequency_days * DAY_MS
-      ).length < getSystemConfigParams().campaign_frequency_limit
+  const predicates = predicatesOf(c);
+  if (predicates.length === 0) return customer.devices;
+  return customer.devices.filter((device) =>
+    c.logic === 'or'
+      ? predicates.some((p) => p(customer, device))
+      : predicates.every((p) => p(customer, device))
   );
 }
 
@@ -198,7 +195,6 @@ const sends: Array<{
   customerId: string;
   deviceId: string;
   deeplink: string | null;
-  secondaryDeeplink: string | null;
   sentAt: number;
   sendId: string;
   failed: boolean;
@@ -206,120 +202,170 @@ const sends: Array<{
   opened: boolean;
   voucherCode: string | null;
 }> = [];
-const DAY_MS = 86_400_000;
+
+function recentSends(customerId: string, windowMs: number) {
+  const since = Date.now() - windowMs;
+  return sends.filter((s) => s.customerId === customerId && s.sentAt > since);
+}
+
+// Customers who satisfy the conditions (`eligible`) and, of those, the ones who
+// will really get the message: opted-out customers (spec 7.7.a) are always
+// removed, then the author's exclusions and the global frequency cap apply.
+function evaluateAudience(definition: AudienceDefinition): {
+  eligible: AudienceCustomerDto[];
+  recipients: AudienceCustomerDto[];
+} {
+  const { conditions, suppression } = definition;
+  const config = getSystemConfigParams();
+  const eligible = audience.filter(
+    (customer) => matchingDevices(customer, conditions).length > 0
+  );
+  const recipients = eligible.filter((customer) => {
+    if (!customer.opt_in) return false;
+    if (suppression.testAccounts && customer.is_test) return false;
+    if (
+      suppression.recentCampaign &&
+      recentSends(customer.customer_id, DAY_MS).length
+    )
+      return false;
+    return (
+      recentSends(customer.customer_id, config.campaign_frequency_days * DAY_MS)
+        .length < config.campaign_frequency_limit
+    );
+  });
+  return { eligible, recipients };
+}
+
+function toMinutes(time: string): number {
+  const [hours = 0, minutes = 0] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+function nowMinutesInVietnam(): number {
+  const text = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(Date.now());
+  return toMinutes(text);
+}
+
+function inQuietHours(from: number, to: number): boolean {
+  const now = nowMinutesInVietnam();
+  return from > to ? now >= from || now < to : now >= from && now < to;
+}
+
 function dispatch(campaign: CampaignDto): void {
   const now = Date.now();
   const config = getSystemConfigParams();
-  const hour = Number(
-    new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Asia/Ho_Chi_Minh',
-      hour: '2-digit',
-      hourCycle: 'h23',
-    }).format(now)
-  );
-  const start = config.campaign_quiet_start_hour,
-    end = config.campaign_quiet_end_hour;
+  const trigger = campaign.trigger_config;
+  // Quiet hours only silence push; banners and popups show on app open.
+  const quiet = trigger
+    ? [toMinutes(trigger.quietFrom), toMinutes(trigger.quietTo)]
+    : [
+        config.campaign_quiet_start_hour * 60,
+        config.campaign_quiet_end_hour * 60,
+      ];
   if (
-    campaign.channel === 'push' &&
-    (start > end ? hour >= start || hour < end : hour >= start && hour < end)
+    campaign.display_type === 'push' &&
+    inQuietHours(quiet[0] ?? 0, quiet[1] ?? 0)
   )
     return;
-  const recipients = countAudience(campaign.audience);
+  const { recipients } = evaluateAudience({
+    conditions: campaign.audience,
+    dedupe: campaign.dedupe,
+    suppression: campaign.suppression,
+  });
+  const cooldownDays = trigger?.cooldownDays ?? config.campaign_cooldown_days;
   for (const customer of recipients) {
-    const device = matchingDevices(customer, campaign.audience)
+    const devices = matchingDevices(customer, campaign.audience)
       .filter((candidate) => {
         if (campaign.kind !== 'trigger') return true;
+        // Exit rule: a core bought recently means the reminder is moot.
+        if (
+          trigger?.exitOnPurchase &&
+          candidate.last_core_purchase_days_ago < cooldownDays + 7
+        )
+          return false;
         switch (campaign.trigger_preset) {
           // Sensor-driven triggers only fire on connected (IoT) devices.
           case 'core_due':
             return (
               candidate.connectivity === 'iot' &&
-              candidate.core_remaining_days <= config.campaign_core_days
+              candidate.core_remaining_days <=
+                (trigger?.coreDays ?? config.campaign_core_days)
             );
           case 'high_tds':
             return (
               candidate.connectivity === 'iot' &&
               candidate.region_tds >= config.tds_threshold_region
             );
-          // Date/commerce-driven triggers reach non-IoT products too.
+          // Date-driven trigger reaches non-IoT products too.
           case 'warranty_expiring':
             return (
               candidate.warranty_remaining_days >= 0 &&
               candidate.warranty_remaining_days <= config.warranty_expiring_days
             );
-          case 'repurchase_due':
-            return (
-              candidate.last_core_purchase_days_ago >=
-              config.campaign_repurchase_days
-            );
           default:
             return false;
         }
       })
-      .sort((a, b) => a.device_id.localeCompare(b.device_id))[0];
-    if (!device) continue;
-    const history = sends.filter(
-      (s) =>
-        s.customerId === customer.customer_id &&
-        s.sentAt > now - config.campaign_frequency_days * DAY_MS
-    );
-    const own = sends.filter(
-      (s) =>
-        s.campaignId === campaign.id && s.customerId === customer.customer_id
-    );
-    if (
-      history.length >= config.campaign_frequency_limit ||
-      own.filter(
-        (s) => s.sentAt > now - config.campaign_frequency_days * DAY_MS
-      ).length >= campaign.frequency_cap_per_customer
-    )
-      continue;
-    // Manual campaigns send once; trigger repeats are separated by cooldown.
-    if (
-      own.some(
+      .sort((a, b) => a.device_id.localeCompare(b.device_id));
+    // De-dupe: one message per account, or one per matching device.
+    const targets =
+      campaign.dedupe === 'device' ? devices : devices.slice(0, 1);
+    for (const device of targets) {
+      const history = recentSends(
+        customer.customer_id,
+        config.campaign_frequency_days * DAY_MS
+      );
+      const own = sends.filter(
         (s) =>
-          campaign.kind === 'manual' ||
-          s.sentAt > now - config.campaign_cooldown_days * DAY_MS
+          s.campaignId === campaign.id &&
+          s.customerId === customer.customer_id &&
+          (campaign.dedupe === 'account' || s.deviceId === device.device_id)
+      );
+      if (
+        history.length >= config.campaign_frequency_limit ||
+        own.filter(
+          (s) => s.sentAt > now - config.campaign_frequency_days * DAY_MS
+        ).length >= campaign.frequency_cap_per_customer
       )
-    )
-      continue;
-    // The offer that ships: the author's, or the trigger's automatic upsell
-    // (e.g. a `high_tds` core voucher) when none was attached by hand.
-    const offer = effectiveOfferDto(campaign);
-    sends.push({
-      campaignId: campaign.id,
-      customerId: customer.customer_id,
-      deviceId: device.device_id,
-      deeplink: resolveDeviceDeeplink(campaign.deeplink, device.device_id),
-      secondaryDeeplink: resolveDeviceDeeplink(
-        campaign.secondary_deeplink,
-        device.device_id
-      ),
-      sentAt: now,
-      opened: hashId(campaign.id + ':' + customer.customer_id) % 10 < 6,
-      clickedAt:
-        hashId(campaign.id + ':' + customer.customer_id) % 10 < 3 ? now : null,
-      voucherCode:
-        offer?.type === 'voucher'
-          ? offer.codeMode === 'shared'
-            ? (offer.voucherCode ?? null)
-            : (offer.voucherCode ?? campaign.id) + '-' + customer.customer_id
-          : null,
-      sendId: `${campaign.tenant_id}:${campaign.id}:${customer.customer_id}:${own.length}`,
-      failed: hashId(`${campaign.id}:${customer.customer_id}`) % 20 === 0,
-    });
+        continue;
+      // Manual campaigns send once; trigger repeats are separated by cooldown
+      // and stop at the author's maximum.
+      if (campaign.kind === 'manual' && own.length > 0) continue;
+      if (
+        campaign.kind === 'trigger' &&
+        (own.length >= (trigger?.maxSends ?? 1) ||
+          own.some((s) => s.sentAt > now - cooldownDays * DAY_MS))
+      )
+        continue;
+      const seed = hashId(campaign.id + ':' + customer.customer_id);
+      sends.push({
+        campaignId: campaign.id,
+        customerId: customer.customer_id,
+        deviceId: device.device_id,
+        deeplink: resolveDeviceDeeplink(
+          campaign.buttons[0] ? buttonDeeplink(campaign.buttons[0]) : null,
+          device.device_id
+        ),
+        sentAt: now,
+        opened: seed % 10 < 6,
+        clickedAt: seed % 10 < 3 ? now : null,
+        voucherCode:
+          campaign.offer?.type === 'voucher'
+            ? (campaign.offer.voucherCode ?? null)
+            : null,
+        sendId: `${campaign.tenant_id}:${campaign.id}:${customer.customer_id}:${own.length}`,
+        failed: hashId(`${campaign.id}:${customer.customer_id}`) % 20 === 0,
+      });
+    }
   }
 }
 
-// ---- metrics (spec 7.6) ----------------------------------------------------
-
-function hashId(id: string): number {
-  let hash = 0;
-  for (let index = 0; index < id.length; index += 1) {
-    hash = (hash * 31 + id.charCodeAt(index)) | 0;
-  }
-  return Math.abs(hash);
-}
+// ---- metrics (spec 7.7) ----------------------------------------------------
 
 // Deterministic metrics so the same campaign always reports the same figures.
 function metricsFor(campaign: CampaignDto): CampaignMetricsDto {
@@ -375,6 +421,11 @@ function metricsFor(campaign: CampaignDto): CampaignMetricsDto {
   const revenue =
     conversionsBooking * config.campaign_booking_revenue +
     conversionsQr * config.campaign_qr_revenue;
+  const suppressedOptOut = audience.filter(
+    (customer) =>
+      !customer.opt_in &&
+      matchingDevices(customer, campaign.audience).length > 0
+  ).length;
   return {
     send_id: `${campaign.tenant_id}:${campaign.id}`,
     attribution_model: 'last_click',
@@ -387,7 +438,9 @@ function metricsFor(campaign: CampaignDto): CampaignMetricsDto {
     clicked,
     conversions_booking: conversionsBooking,
     conversions_qr: conversionsQr,
+    orders: conversionsBooking + conversionsQr,
     revenue,
+    suppressed_opt_out: suppressedOptOut,
   };
 }
 
@@ -428,12 +481,9 @@ function find(id: string): CampaignDto | undefined {
 
 // ---- transitions (spec 7.5) ------------------------------------------------
 
-type TransitionAction =
-  'submit' | 'approve' | 'reject' | 'run' | 'stop' | 'pause' | 'resume';
-
 // Spec 7.5 separates "duyệt" (approve/reject) from "cho chạy/dừng" (run/stop):
 // run and stop are gated by campaign.send, not campaign.approve.
-const TRANSITION_CAPABILITY: Record<TransitionAction, Capability> = {
+const TRANSITION_CAPABILITY: Record<CampaignTransition, Capability> = {
   submit: 'campaign.write',
   approve: 'campaign.approve',
   reject: 'campaign.approve',
@@ -444,27 +494,36 @@ const TRANSITION_CAPABILITY: Record<TransitionAction, Capability> = {
 };
 
 // (action, fromStatus) -> toStatus. Any pair absent here is an invalid move.
+// A rejected campaign goes back to draft so its author can fix and resubmit.
 function nextStatus(
-  action: TransitionAction,
+  action: CampaignTransition,
   from: CampaignDto['status']
 ): CampaignDto['status'] | null {
   switch (action) {
     case 'submit':
-      return from === 'draft' || from === 'rejected'
-        ? 'pending_approval'
-        : null;
+      return from === 'draft' ? 'pending_approval' : null;
     case 'approve':
       return from === 'pending_approval' ? 'approved' : null;
     case 'reject':
-      return from === 'pending_approval' ? 'rejected' : null;
+      return from === 'pending_approval' ? 'draft' : null;
     case 'run':
       return from === 'approved' ? 'running' : null;
     case 'pause':
-    case 'stop':
       return from === 'running' ? 'paused' : null;
     case 'resume':
       return from === 'paused' ? 'running' : null;
+    case 'stop':
+      return from === 'running' || from === 'paused' ? 'ended' : null;
   }
+}
+
+// What a campaign needs before it can be sent for approval.
+function isComplete(campaign: CampaignDto): boolean {
+  if (!campaign.title.trim() || !campaign.content.trim()) return false;
+  if (campaign.audience_count === null) return false;
+  if (campaign.kind === 'trigger')
+    return !!campaign.trigger_preset && !!campaign.trigger_config;
+  return campaign.schedule_type === 'send_now' || !!campaign.starts_at;
 }
 
 export const campaignHandlers = [
@@ -498,8 +557,75 @@ export const campaignHandlers = [
       running: by('running'),
       paused: by('paused'),
       ended: by('ended'),
-      rejected: by('rejected'),
     });
+  }),
+
+  // Registered before `/campaigns/:id` so "approvers" is not read as an id.
+  http.get('/api/campaigns/approvers', () => {
+    if (!allowed('campaign.write')) return error('forbidden', 403);
+    const who = actor();
+    return HttpResponse.json(
+      listMembersWithCapability('campaign.approve').filter(
+        (member) => member.id !== who.id
+      )
+    );
+  }),
+
+  http.post('/api/campaigns/audience/preview', async ({ request }) => {
+    if (!allowed('campaign.read')) return error('forbidden', 403);
+    const parsed = audienceDefinitionSchema.safeParse(
+      (await request.json().catch(() => null)) as unknown
+    );
+    if (!parsed.success) return error('validation', 422);
+    await delay(300);
+    const { eligible, recipients } = evaluateAudience(parsed.data);
+    // How many recipients were reached through a non-IoT device — the
+    // breakdown shown next to the total so the segment's offline reach is visible.
+    const matchedNonIot = recipients.filter((customer) =>
+      matchingDevices(customer, parsed.data.conditions).some(
+        (device) => device.connectivity === 'non_iot'
+      )
+    ).length;
+    // PII mask (NĐ 13, spec 7.7.b): roles without device.pii.full see customer
+    // names masked in the preview sample — the same gate the device/owner
+    // screens use, so API, UI and any export stay consistent.
+    const piiFull = allowed('device.pii.full');
+    const sample = recipients.slice(0, 5).map((customer) => ({
+      customer_id: customer.customer_id,
+      devices: customer.devices,
+      loyalty_points: customer.loyalty_points,
+      opt_in: customer.opt_in,
+      is_test: customer.is_test,
+      name: piiFull ? customer.name : maskName(customer.name),
+    }));
+    return HttpResponse.json({
+      total: audience.length,
+      eligible: eligible.length,
+      matched: recipients.length,
+      matched_non_iot: matchedNonIot,
+      sample,
+      pii_masked: !piiFull,
+    });
+  }),
+
+  http.post('/api/campaigns/test-send', async ({ request }) => {
+    if (!allowed('campaign.write')) return error('forbidden', 403);
+    const body = (await request.json().catch(() => null)) as {
+      recipients?: unknown;
+    } | null;
+    const recipients = Array.isArray(body?.recipients)
+      ? body.recipients.filter(
+          (item): item is string => typeof item === 'string' && !!item.trim()
+        )
+      : [];
+    if (recipients.length === 0) return error('validation', 422);
+    await delay(400);
+    recordAudit(actor(), {
+      module: 'campaigns',
+      action: 'test_send',
+      target: recipients.join(', '),
+    });
+    return HttpResponse.json({ ok: true });
   }),
 
   http.post('/api/campaigns', async ({ request }) => {
@@ -524,25 +650,31 @@ export const campaignHandlers = [
       tenant_id: input.tenantId,
       name: input.name,
       kind: input.kind,
-      channel: input.channel,
-      content_vi: input.contentVi,
-      content_en: input.contentEn,
-      image_url: input.imageUrl,
-      deeplink: input.deeplink,
-      secondary_deeplink: input.secondaryDeeplink,
+      display_type: input.displayType,
+      notification_group: input.notificationGroup,
+      title: input.title,
+      content: input.content,
+      buttons: input.buttons,
       schedule_type: input.scheduleType,
       starts_at: input.startsAt,
       ends_at: input.endsAt,
       status: 'draft',
       trigger_preset: input.triggerPreset,
+      trigger_config: input.triggerConfig,
       frequency_cap_per_customer: input.frequencyCapPerCustomer,
       audience: input.audience,
+      dedupe: input.dedupe,
+      suppression: input.suppression,
       audience_count: input.audienceCount,
+      ab_test: input.abTest,
       offer: input.offer,
+      test_recipients: input.testRecipients,
       created_by: who.id,
       created_by_name: who.fullName,
       created_at: now,
       updated_at: now,
+      approver_id: null,
+      approver_name: null,
       approved_by: null,
       approved_by_name: null,
       approved_at: null,
@@ -569,44 +701,6 @@ export const campaignHandlers = [
     return HttpResponse.json(campaign, { status: 201 });
   }),
 
-  http.post('/api/campaigns/audience/preview', async ({ request }) => {
-    if (!allowed('campaign.read')) return error('forbidden', 403);
-    const parsed = campaignDraftInputSchema.shape.audience.safeParse(
-      (await request.json().catch(() => null)) as unknown
-    );
-    if (!parsed.success) return error('validation', 422);
-    await delay(300);
-    const matched = countAudience(parsed.data);
-    // How many matched customers were reached through a non-IoT device — the
-    // breakdown shown next to the total so the segment's offline reach is visible.
-    const matchedNonIot = matched.filter((customer) =>
-      matchingDevices(customer, parsed.data).some(
-        (device) => device.connectivity === 'non_iot'
-      )
-    ).length;
-    // PII mask (NĐ 13, spec 7.7.b): roles without device.pii.full see customer
-    // names masked in the preview sample — the same gate the device/owner
-    // screens use, so API, UI and any export stay consistent.
-    const piiFull = allowed('device.pii.full');
-    const sample = matched.slice(0, 5).map((customer) => ({
-      ...customer,
-      tenure_days: Math.max(
-        0,
-        Math.floor(
-          (Date.now() - Date.parse(customer.first_activated_at)) / DAY_MS
-        )
-      ),
-      name: piiFull ? customer.name : maskName(customer.name),
-    }));
-    return HttpResponse.json({
-      total: audience.length,
-      matched: matched.length,
-      matched_non_iot: matchedNonIot,
-      sample,
-      pii_masked: !piiFull,
-    });
-  }),
-
   http.get('/api/campaigns/:id', ({ params }) => {
     if (!allowed('campaign.read')) return error('forbidden', 403);
     const campaign = find(String(params.id));
@@ -619,9 +713,8 @@ export const campaignHandlers = [
     const index = campaignStore.findIndex((item) => item.id === params.id);
     if (index === -1) return error('not_found', 404);
     const current = campaignStore[index]!;
-    if (current.status === 'ended') {
-      return error('not_editable', 409);
-    }
+    // Only a draft is editable; a rejected campaign is already back in draft.
+    if (current.status !== 'draft') return error('not_editable', 409);
     const parsed = campaignDraftInputSchema.safeParse(
       await request.json().catch(() => null)
     );
@@ -634,43 +727,32 @@ export const campaignHandlers = [
       return error('forbidden', 403);
     const offerChanged =
       JSON.stringify(current.offer) !== JSON.stringify(input.offer);
-    if (
-      offerChanged &&
-      !allowed(
-        current.offer &&
-          (protectedOffers.has(current.id) ||
-            sends.some((s) => s.campaignId === current.id))
-          ? 'campaign.voucher.update'
-          : 'campaign.voucher.create'
-      )
-    )
+    if (offerChanged && !allowed('campaign.voucher.create'))
       return error('forbidden', 403);
     const updated: CampaignDto = {
       ...current,
       tenant_id: input.tenantId,
       priority: input.priority,
-      status: ['approved', 'running', 'paused'].includes(current.status)
-        ? 'pending_approval'
-        : current.status,
-      approved_by: null,
-      approved_by_name: null,
-      approved_at: null,
       name: input.name,
       kind: input.kind,
-      channel: input.channel,
-      content_vi: input.contentVi,
-      content_en: input.contentEn,
-      image_url: input.imageUrl,
-      deeplink: input.deeplink,
-      secondary_deeplink: input.secondaryDeeplink,
+      display_type: input.displayType,
+      notification_group: input.notificationGroup,
+      title: input.title,
+      content: input.content,
+      buttons: input.buttons,
       schedule_type: input.scheduleType,
       starts_at: input.startsAt,
       ends_at: input.endsAt,
       trigger_preset: input.triggerPreset,
+      trigger_config: input.triggerConfig,
       frequency_cap_per_customer: input.frequencyCapPerCustomer,
       audience: input.audience,
+      dedupe: input.dedupe,
+      suppression: input.suppression,
       audience_count: input.audienceCount,
+      ab_test: input.abTest,
       offer: input.offer,
+      test_recipients: input.testRecipients,
       updated_at: new Date().toISOString(),
     };
     campaignStore[index] = updated;
@@ -696,21 +778,12 @@ export const campaignHandlers = [
 
   http.post('/api/campaigns/:id/transition', async ({ params, request }) => {
     const body = (await request.json().catch(() => null)) as {
-      action?: TransitionAction;
+      action?: CampaignTransition;
       reason?: string;
+      approverId?: string;
     } | null;
-    const action = body?.action;
-    if (
-      action !== 'submit' &&
-      action !== 'approve' &&
-      action !== 'reject' &&
-      action !== 'run' &&
-      action !== 'pause' &&
-      action !== 'resume' &&
-      action !== 'stop'
-    ) {
-      return error('validation', 422);
-    }
+    const action = CAMPAIGN_TRANSITIONS.find((item) => item === body?.action);
+    if (!action) return error('validation', 422);
     if (!allowed(TRANSITION_CAPABILITY[action])) return error('forbidden', 403);
 
     const index = campaignStore.findIndex((item) => item.id === params.id);
@@ -720,32 +793,48 @@ export const campaignHandlers = [
     const to = nextStatus(action, current.status);
     if (!to) return error('invalid_transition', 409);
 
-    // Reason is mandatory when approving, rejecting or stopping.
+    // Every transition carries a reason for the immutable audit entry.
     const reason = body?.reason?.trim() || null;
-    if (!reason) {
-      return error('reason_required', 422);
-    }
+    if (!reason) return error('reason_required', 422);
 
     const who = actor();
     // Creator ≠ approver: the person who created it cannot approve/reject it.
     if (
       (action === 'approve' || action === 'reject') &&
       who.id === current.created_by
-    ) {
+    )
       return error('self_approve', 403);
+
+    // Validate a submit before touching the stored campaign.
+    let approver: { id: string; name: string } | undefined;
+    if (action === 'submit') {
+      if (!isComplete(current)) return error('incomplete', 422);
+      approver = listMembersWithCapability('campaign.approve').find(
+        (member) => member.id === body?.approverId
+      );
+      if (!approver || approver.id === current.created_by)
+        return error('invalid_approver', 422);
     }
 
     const before = { status: current.status };
     current.status = to;
     current.updated_at = new Date().toISOString();
+
+    if (approver) {
+      current.approver_id = approver.id;
+      current.approver_name = approver.name;
+      current.rejected_reason = null;
+    }
     if (action === 'approve') {
-      protectedOffers.add(current.id);
       current.approved_by = who.id;
       current.approved_by_name = who.fullName;
       current.approved_at = current.updated_at;
-      current.rejected_reason = null;
     }
-    if (action === 'reject') current.rejected_reason = reason;
+    if (action === 'reject') {
+      current.rejected_reason = reason;
+      current.approver_id = null;
+      current.approver_name = null;
+    }
     if (action === 'run' && current.schedule_type === 'send_now') {
       current.starts_at = current.starts_at ?? current.updated_at;
     }
@@ -768,18 +857,5 @@ export const campaignHandlers = [
     const campaign = find(String(params.id));
     if (!campaign) return error('not_found', 404);
     return HttpResponse.json(metricsFor(campaign));
-  }),
-
-  http.post('/api/campaigns/:id/test-send', async ({ params }) => {
-    if (!allowed('campaign.write')) return error('forbidden', 403);
-    const campaign = find(String(params.id));
-    if (!campaign) return error('not_found', 404);
-    await delay(400);
-    recordAudit(actor(), {
-      module: 'campaigns',
-      action: 'test_send',
-      target: campaign.id,
-    });
-    return HttpResponse.json({ ok: true });
   }),
 ];
