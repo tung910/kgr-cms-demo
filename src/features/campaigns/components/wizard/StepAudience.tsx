@@ -50,13 +50,23 @@ function RangeInputs({
 }) {
   const { t } = useTranslation('campaigns');
   return (
-    <div className="flex items-center gap-2">
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
       <Form.Item name={minName} noStyle>
-        <InputNumber min={0} placeholder={t('fields.min')} addonAfter={unit} />
+        <InputNumber
+          className="w-full"
+          min={0}
+          placeholder={t('fields.min')}
+          addonAfter={unit}
+        />
       </Form.Item>
       <span>–</span>
       <Form.Item name={maxName} noStyle>
-        <InputNumber min={0} placeholder={t('fields.max')} addonAfter={unit} />
+        <InputNumber
+          className="w-full"
+          min={0}
+          placeholder={t('fields.max')}
+          addonAfter={unit}
+        />
       </Form.Item>
     </div>
   );
@@ -70,6 +80,7 @@ function ConditionControl({ field }: { field: SegmentField }) {
       return (
         <Form.Item name="regions" noStyle>
           <Select
+            className="w-full"
             mode="multiple"
             allowClear
             placeholder={t('fields.pickPlaceholder')}
@@ -84,6 +95,7 @@ function ConditionControl({ field }: { field: SegmentField }) {
       return (
         <Form.Item name="models" noStyle>
           <Select
+            className="w-full"
             mode="multiple"
             allowClear
             loading={models.isFetching}
@@ -99,6 +111,7 @@ function ConditionControl({ field }: { field: SegmentField }) {
       return (
         <Form.Item name="warrantyStatuses" noStyle>
           <Select
+            className="w-full"
             mode="multiple"
             allowClear
             placeholder={t('fields.pickPlaceholder')}
@@ -113,6 +126,7 @@ function ConditionControl({ field }: { field: SegmentField }) {
       return (
         <Form.Item name="usageTypes" noStyle>
           <Select
+            className="w-full"
             mode="multiple"
             allowClear
             placeholder={t('fields.pickPlaceholder')}
@@ -127,6 +141,7 @@ function ConditionControl({ field }: { field: SegmentField }) {
       return (
         <Form.Item name="firmwareVersions" noStyle>
           <Select
+            className="w-full"
             mode="multiple"
             allowClear
             placeholder={t('fields.pickPlaceholder')}
@@ -141,6 +156,7 @@ function ConditionControl({ field }: { field: SegmentField }) {
       return (
         <Form.Item name="connectivities" noStyle>
           <Select
+            className="w-full"
             mode="multiple"
             allowClear
             placeholder={t('fields.pickPlaceholder')}
@@ -200,7 +216,7 @@ function SegmentBuilder() {
         <input type="hidden" />
       </Form.Item>
       {active.length === 0 ? (
-        <p className="m-0 text-sm text-[#636466]">
+        <p className="m-0 rounded-lg border border-dashed border-[#D5D7D8] bg-[#F7F8F8] p-4 text-sm text-[#636466]">
           {t('audience.noConditions')}
         </p>
       ) : null}
@@ -209,15 +225,16 @@ function SegmentBuilder() {
         return (
           <div
             key={field}
-            className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-[#D5D7D8] p-2"
+            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 rounded-lg border border-[#E7E8E9] bg-[#F7F8F8] p-3"
           >
-            <span className="w-40 shrink-0 text-sm font-medium">
+            <span className="text-sm font-medium">
               {meta ? t(meta.labelKey) : field}
             </span>
-            <div className="min-w-48 flex-1">
+            <div className="col-start-1 row-start-2 min-w-0">
               <ConditionControl field={field} />
             </div>
             <Button
+              className="col-start-2 row-span-2 row-start-1 self-start"
               type="text"
               aria-label={t('audience.remove')}
               icon={<CloseOutlined />}
@@ -246,6 +263,7 @@ function SegmentBuilder() {
       {active.length > 1 ? (
         <Form.Item name="logic" label={t('fields.logic')} className="mb-0">
           <Radio.Group
+            className="flex flex-col gap-2"
             options={AUDIENCE_LOGICS.map(({ value, labelKey }) => ({
               value,
               label: t(labelKey),
@@ -262,10 +280,10 @@ function PreviewPanel({ preview }: { preview: AudiencePreviewState }) {
   const { data } = preview;
   return (
     <div
-      className="mt-4 rounded-xl border border-[#E7E8E9] bg-[#F7F8F8] p-4"
+      className="rounded-xl border border-[#E7E8E9] bg-[#F7F8F8] p-4"
       aria-live="polite"
     >
-      <div className="mb-2 flex items-center justify-between gap-2">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <span className="text-sm font-semibold">
           {t('audience.previewTitle')}
         </span>
@@ -283,16 +301,23 @@ function PreviewPanel({ preview }: { preview: AudiencePreviewState }) {
       ) : !data ? (
         <Spin size="small" />
       ) : (
-        <div className="space-y-1 text-sm">
-          <p className="m-0">
-            {t('audience.eligible')}:{' '}
-            <b>{data.eligible.toLocaleString('vi')}</b>
-          </p>
-          <p className="m-0">
-            {t('audience.reach')}: <b>{data.matched.toLocaleString('vi')}</b>{' '}
-            <span className="text-xs text-[#636466]">
-              {t('audience.reachHint')}
-            </span>
+        <div className="space-y-3 text-sm">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-lg border border-[#E7E8E9] bg-white p-3">
+              <p className="m-0 text-[#636466]">{t('audience.eligible')}</p>
+              <p className="mb-0 mt-1 text-2xl font-semibold tabular-nums">
+                {data.eligible.toLocaleString('vi')}
+              </p>
+            </div>
+            <div className="rounded-lg border border-[#E7E8E9] bg-white p-3">
+              <p className="m-0 text-[#636466]">{t('audience.reach')}</p>
+              <p className="mb-0 mt-1 text-2xl font-semibold tabular-nums">
+                {data.matched.toLocaleString('vi')}
+              </p>
+            </div>
+          </div>
+          <p className="m-0 text-xs text-[#636466]">
+            {t('audience.reachHint')}
           </p>
           {data.matchedNonIot > 0 ? (
             <p className="m-0 text-xs text-[#636466]">
@@ -318,34 +343,42 @@ function PreviewPanel({ preview }: { preview: AudiencePreviewState }) {
 export function StepAudience({ preview }: { preview: AudiencePreviewState }) {
   const { t } = useTranslation('campaigns');
   return (
-    <>
-      <SegmentBuilder />
+    <div className="space-y-5">
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <h3 className="mb-3 mt-0 text-sm font-semibold">
+          {t('audienceConditionsTitle')}
+        </h3>
+        <SegmentBuilder />
+      </section>
 
-      <Form.Item
-        name="dedupe"
-        label={t('fields.dedupe')}
-        className="mt-4"
-        tooltip={t('fields.dedupeHint')}
-      >
-        <Radio.Group
-          options={DEDUPE_MODES.map(({ value, labelKey }) => ({
-            value,
-            label: t(labelKey),
-          }))}
-        />
-      </Form.Item>
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <Form.Item
+          name="dedupe"
+          label={t('fields.dedupe')}
+          className="mb-0"
+          tooltip={t('fields.dedupeHint')}
+        >
+          <Radio.Group
+            className="flex flex-col gap-3"
+            options={DEDUPE_MODES.map(({ value, labelKey }) => ({
+              value,
+              label: t(labelKey),
+            }))}
+          />
+        </Form.Item>
+      </section>
 
-      <fieldset className="mb-2 rounded-lg border border-[#E7E8E9] p-3">
+      <fieldset className="m-0 min-w-0 rounded-xl border border-[#E7E8E9] p-4">
         <legend className="px-1 text-sm font-medium">
           {t('fields.suppression')}
         </legend>
-        <Checkbox checked disabled className="mb-1">
+        <Checkbox checked disabled className="mb-3">
           {t('fields.suppressOptOut')}
         </Checkbox>
         <Form.Item
           name="suppressRecent"
           valuePropName="checked"
-          className="mb-1"
+          className="mb-3"
         >
           <Checkbox>{t('fields.suppressRecent')}</Checkbox>
         </Form.Item>
@@ -355,6 +388,6 @@ export function StepAudience({ preview }: { preview: AudiencePreviewState }) {
       </fieldset>
 
       <PreviewPanel preview={preview} />
-    </>
+    </div>
   );
 }

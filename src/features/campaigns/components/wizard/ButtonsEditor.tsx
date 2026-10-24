@@ -23,7 +23,11 @@ export function ButtonsEditor() {
   const cores = useQuery(campaignQueries.coreOptions());
 
   return (
-    <Form.Item label={t('fields.buttons')} tooltip={t('fields.buttonsHint')}>
+    <Form.Item
+      className="mb-0"
+      label={t('fields.buttons')}
+      tooltip={t('fields.buttonsHint')}
+    >
       <Form.List name="buttons">
         {(fields, { add, remove }) => (
           <div className="space-y-3">
@@ -35,7 +39,7 @@ export function ButtonsEditor() {
               return (
                 <div
                   key={field.key}
-                  className="rounded-xl border border-[#E7E8E9] p-3"
+                  className="min-w-0 rounded-lg border border-[#E7E8E9] bg-[#F7F8F8] p-3"
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-sm font-medium">
@@ -56,6 +60,7 @@ export function ButtonsEditor() {
                       label={t('button.typeLabel')}
                     >
                       <Select
+                        className="w-full"
                         options={BUTTON_TYPES.map(({ value, labelKey }) => ({
                           value,
                           label: t(labelKey),
@@ -104,6 +109,7 @@ export function ButtonsEditor() {
                           ]}
                         >
                           <Select
+                            className="w-full"
                             mode="multiple"
                             allowClear
                             loading={cores.isFetching}
@@ -128,6 +134,7 @@ export function ButtonsEditor() {
                       rules={[{ required: true }]}
                     >
                       <Select
+                        className="w-full"
                         placeholder={t('fields.pickPlaceholder')}
                         options={APP_DEEPLINK_TARGETS.map(
                           ({ value, labelKey }) => ({

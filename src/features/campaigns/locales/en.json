@@ -1,4 +1,5 @@
 {
+  "audienceConditionsTitle": "Audience conditions",
   "mechanism": {
     "firstSendTitle": "Existing matches are eligible when the campaign starts",
     "firstSendHint": "Once approved and activated, the campaign evaluates customers who already meet the trigger, not only new threshold crossings. Every send must still pass audience filters, exit rules, quiet hours and frequency limits.",

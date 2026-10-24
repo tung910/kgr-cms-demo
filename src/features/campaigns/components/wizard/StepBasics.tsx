@@ -33,18 +33,21 @@ const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 export function StepType() {
   const { t } = useTranslation('campaigns');
   return (
-    <div className="space-y-3">
-      <p className="m-0 text-sm text-[#636466]">{t('steps.type.hint')}</p>
+    <div className="grid gap-3">
+      <p className="m-0 rounded-xl border border-[#E7E8E9] bg-[#F7F8F8] p-4 text-sm text-[#636466]">
+        {t('steps.type.hint')}
+      </p>
       <Form.Item name="kind" noStyle>
-        <Radio.Group className="flex w-full flex-col gap-3">
+        <Radio.Group style={{ display: 'grid', gap: 12, width: '100%' }}>
           {CAMPAIGN_KINDS.map(({ value, labelKey }) => (
             <Radio
               key={value}
               value={value}
-              className="m-0 w-full rounded-xl border border-[#E7E8E9] p-3"
+              style={{ margin: 0, padding: 16 }}
+              className="m-0 w-full rounded-xl border border-[#E7E8E9] p-4"
             >
               <span className="font-medium">{t(labelKey)}</span>
-              <span className="block text-xs text-[#636466]">
+              <span className="mt-1 block text-sm text-[#636466]">
                 {t(`steps.type.${value}Hint`)}
               </span>
             </Radio>
@@ -59,37 +62,44 @@ export function StepType() {
 export function StepInfo() {
   const { t } = useTranslation('campaigns');
   return (
-    <>
-      <Form.Item
-        name="name"
-        label={t('fields.name')}
-        rules={[{ required: true, whitespace: true }]}
-      >
-        <Input maxLength={120} placeholder={t('fields.namePlaceholder')} />
-      </Form.Item>
-      <Form.Item name="displayType" label={t('fields.displayType')}>
-        <Radio.Group
-          optionType="button"
-          buttonStyle="solid"
-          options={DISPLAY_TYPES.map(({ value, labelKey }) => ({
-            value,
-            label: t(labelKey),
-          }))}
-        />
-      </Form.Item>
-      <Form.Item
-        name="notificationGroup"
-        label={t('fields.notificationGroup')}
-        tooltip={t('fields.notificationGroupHint')}
-      >
-        <Select
-          options={NOTIFICATION_GROUPS.map(({ value, labelKey }) => ({
-            value,
-            label: t(labelKey),
-          }))}
-        />
-      </Form.Item>
-    </>
+    <div className="grid gap-5">
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <Form.Item
+          name="name"
+          className="mb-0"
+          label={t('fields.name')}
+          rules={[{ required: true, whitespace: true }]}
+        >
+          <Input maxLength={120} placeholder={t('fields.namePlaceholder')} />
+        </Form.Item>
+      </section>
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <Form.Item name="displayType" label={t('fields.displayType')}>
+          <Radio.Group
+            optionType="button"
+            buttonStyle="solid"
+            options={DISPLAY_TYPES.map(({ value, labelKey }) => ({
+              value,
+              label: t(labelKey),
+            }))}
+          />
+        </Form.Item>
+        <Form.Item
+          name="notificationGroup"
+          className="mb-0"
+          label={t('fields.notificationGroup')}
+          tooltip={t('fields.notificationGroupHint')}
+        >
+          <Select
+            className="w-full"
+            options={NOTIFICATION_GROUPS.map(({ value, labelKey }) => ({
+              value,
+              label: t(labelKey),
+            }))}
+          />
+        </Form.Item>
+      </section>
+    </div>
   );
 }
 
@@ -129,7 +139,7 @@ export function StepMechanism() {
           extra={t('mechanism.cycleCapHint')}
           rules={[{ required: true, type: 'integer', min: 0 }]}
         >
-          <InputNumber min={0} precision={0} />
+          <InputNumber style={{ width: '100%' }} min={0} precision={0} />
         </Form.Item>
       </PermissionGuard>
     </>
@@ -153,85 +163,91 @@ export function StepMechanism() {
 
   if (kind !== 'trigger') {
     return (
-      <>
-        <Form.Item name="scheduleType" label={t('fields.sendTime')}>
-          <Radio.Group
-            options={[
-              { value: 'send_now', label: t('schedule.send_now') },
-              { value: 'scheduled', label: t('schedule.scheduled') },
-            ]}
-          />
-        </Form.Item>
-        {scheduleType === 'scheduled' ? (
-          <Form.Item
-            name="scheduledAt"
-            label={t('fields.scheduledAt')}
-            rules={[
-              { required: true },
-              {
-                validator: (_, value: dayjs.Dayjs | undefined) =>
-                  !value || value.isAfter(dayjs())
-                    ? Promise.resolve()
-                    : Promise.reject(new Error(t('errors.pastTime'))),
-              },
-            ]}
-          >
-            <DatePicker
-              showTime={{ format: 'HH:mm' }}
-              format="DD/MM/YYYY HH:mm"
+      <div className="grid gap-5">
+        <section className="rounded-xl border border-[#E7E8E9] p-4">
+          <Form.Item name="scheduleType" label={t('fields.sendTime')}>
+            <Radio.Group
+              options={[
+                { value: 'send_now', label: t('schedule.send_now') },
+                { value: 'scheduled', label: t('schedule.scheduled') },
+              ]}
             />
           </Form.Item>
-        ) : null}
-        <fieldset className="mb-4 rounded-lg border border-[#E7E8E9] p-3">
+          {scheduleType === 'scheduled' ? (
+            <Form.Item
+              name="scheduledAt"
+              label={t('fields.scheduledAt')}
+              rules={[
+                { required: true },
+                {
+                  validator: (_, value: dayjs.Dayjs | undefined) =>
+                    !value || value.isAfter(dayjs())
+                      ? Promise.resolve()
+                      : Promise.reject(new Error(t('errors.pastTime'))),
+                },
+              ]}
+            >
+              <DatePicker
+                className="w-full"
+                showTime={{ format: 'HH:mm' }}
+                format="DD/MM/YYYY HH:mm"
+              />
+            </Form.Item>
+          ) : null}
+        </section>
+        <fieldset className="m-0 min-w-0 rounded-xl border border-[#E7E8E9] p-4">
           <legend className="px-1 text-sm font-medium">
             {t('mechanism.frequencyTitle')}
           </legend>
           {frequencyCap}
         </fieldset>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="grid gap-5">
       <Alert
-        className="mb-4"
         type="info"
         showIcon
         title={t('mechanism.firstSendTitle')}
         description={t('mechanism.firstSendHint')}
       />
-      <Form.Item name="triggerPreset" label={t('fields.triggerPreset')}>
-        <Select
-          options={TRIGGER_PRESETS.map(({ value, labelKey }) => ({
-            value,
-            label: t(labelKey),
-          }))}
-        />
-      </Form.Item>
-      <p className="-mt-3 mb-4 text-xs text-[#636466]">
-        {preset ? t(`trigger.hint.${preset}`) : null}
-      </p>
-      {preset !== 'core_due' ? (
-        <p className="mb-4 text-sm" aria-live="polite">
-          {threshold}
-        </p>
-      ) : null}
-      {preset === 'core_due' ? (
-        <Form.Item
-          name="coreDays"
-          label={t('fields.coreDays')}
-          rules={[{ required: true, type: 'number', min: 1, max: 365 }]}
-        >
-          <InputNumber
-            min={1}
-            max={365}
-            precision={0}
-            addonAfter={t('unit.days')}
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <Form.Item name="triggerPreset" label={t('fields.triggerPreset')}>
+          <Select
+            className="w-full"
+            options={TRIGGER_PRESETS.map(({ value, labelKey }) => ({
+              value,
+              label: t(labelKey),
+            }))}
           />
         </Form.Item>
-      ) : null}
-      <fieldset className="mb-4 rounded-lg border border-[#E7E8E9] p-3">
+        <p className="-mt-3 mb-4 text-xs text-[#636466]">
+          {preset ? t(`trigger.hint.${preset}`) : null}
+        </p>
+        {preset !== 'core_due' ? (
+          <p className="mb-4 text-sm" aria-live="polite">
+            {threshold}
+          </p>
+        ) : null}
+        {preset === 'core_due' ? (
+          <Form.Item
+            name="coreDays"
+            label={t('fields.coreDays')}
+            rules={[{ required: true, type: 'number', min: 1, max: 365 }]}
+          >
+            <InputNumber
+              style={{ width: '100%' }}
+              min={1}
+              max={365}
+              precision={0}
+              addonAfter={t('unit.days')}
+            />
+          </Form.Item>
+        ) : null}
+      </section>
+      <fieldset className="m-0 min-w-0 rounded-xl border border-[#E7E8E9] p-4">
         <legend className="px-1 text-sm font-medium">{t('fields.exit')}</legend>
         <Form.Item
           name="exitOnPurchase"
@@ -250,7 +266,7 @@ export function StepMechanism() {
           <Checkbox>{t('fields.exitOnWarrantyRenewed')}</Checkbox>
         </Form.Item>
       </fieldset>
-      <fieldset className="mb-4 rounded-lg border border-[#E7E8E9] p-3">
+      <fieldset className="m-0 min-w-0 rounded-xl border border-[#E7E8E9] p-4">
         <legend className="px-1 text-sm font-medium">
           {t('mechanism.frequencyTitle')}
         </legend>
@@ -262,6 +278,7 @@ export function StepMechanism() {
             rules={[{ required: true, type: 'number', min: 0, max: 365 }]}
           >
             <InputNumber
+              style={{ width: '100%' }}
               min={0}
               max={365}
               precision={0}
@@ -274,18 +291,23 @@ export function StepMechanism() {
             extra={t('mechanism.reentryHint')}
             rules={[{ required: true, type: 'number', min: 1, max: 100 }]}
           >
-            <InputNumber min={1} max={100} precision={0} />
+            <InputNumber
+              style={{ width: '100%' }}
+              min={1}
+              max={100}
+              precision={0}
+            />
           </Form.Item>
         </div>
         {frequencyCap}
       </fieldset>
-      <div className="grid gap-x-4 sm:grid-cols-2">
+      <section className="grid gap-x-4 rounded-xl border border-[#E7E8E9] p-4 sm:grid-cols-2">
         <Form.Item
           name="startsOn"
           label={t('fields.startsOn')}
           extra={t('mechanism.startHint')}
         >
-          <DatePicker format="DD/MM/YYYY" />
+          <DatePicker className="w-full" format="DD/MM/YYYY" />
         </Form.Item>
         <Form.Item
           name="endsOn"
@@ -303,11 +325,10 @@ export function StepMechanism() {
             },
           ]}
         >
-          <DatePicker format="DD/MM/YYYY" />
+          <DatePicker className="w-full" format="DD/MM/YYYY" />
         </Form.Item>
-      </div>
+      </section>
       <Collapse
-        ghost
         items={[
           {
             key: 'advanced',
@@ -361,7 +382,6 @@ export function StepMechanism() {
         ]}
       />
       <Alert
-        className="mt-4"
         type="info"
         showIcon
         title={t('mechanism.summaryTitle')}
@@ -408,6 +428,6 @@ export function StepMechanism() {
           </div>
         }
       />
-    </>
+    </div>
   );
 }

@@ -31,46 +31,51 @@ export function StepReview({
   const approvers = useQuery(campaignQueries.approvers());
 
   return (
-    <>
-      <CampaignSummary data={draft} cores={cores} />
-      <Form.Item
-        name="approverId"
-        label={t('fields.approver')}
-        tooltip={t('fields.approverHint')}
-        className="mt-4"
-        rules={[{ required: true, message: t('errors.approverRequired') }]}
-      >
-        <Select
-          loading={approvers.isFetching}
-          placeholder={t('fields.approverPlaceholder')}
-          options={approvers.data?.map((approver) => ({
-            value: approver.id,
-            label: approver.name,
-          }))}
-          notFoundContent={t('fields.noApprovers')}
-        />
-      </Form.Item>
-      <Form.Item
-        name="testRecipients"
-        label={t('fields.testRecipients')}
-        extra={t('fields.testRecipientsHint')}
-      >
-        <Input.TextArea rows={2} placeholder="0901234567, tester@kangaroo.vn" />
-      </Form.Item>
-      <Button
-        icon={<ExperimentOutlined />}
-        loading={testSending}
-        disabled={splitRecipients(recipients).length === 0}
-        onClick={() => onTestSend(splitRecipients(recipients))}
-      >
-        {t('wizard.testSend')}
-      </Button>
-      <Alert
-        className="mt-4"
-        type="info"
-        showIcon
-        title={t('wizard.approvalNote')}
-      />
-    </>
+    <div className="grid gap-5">
+      <section className="min-w-0 overflow-x-auto rounded-xl border border-[#E7E8E9] bg-[#F7F8F8] p-4">
+        <CampaignSummary data={draft} cores={cores} />
+      </section>
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <Form.Item
+          name="approverId"
+          label={t('fields.approver')}
+          tooltip={t('fields.approverHint')}
+          className="mb-0"
+          rules={[{ required: true, message: t('errors.approverRequired') }]}
+        >
+          <Select
+            className="w-full"
+            loading={approvers.isFetching}
+            placeholder={t('fields.approverPlaceholder')}
+            options={approvers.data?.map((approver) => ({
+              value: approver.id,
+              label: approver.name,
+            }))}
+            notFoundContent={t('fields.noApprovers')}
+          />
+        </Form.Item>
+      </section>
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <Form.Item
+          name="testRecipients"
+          label={t('fields.testRecipients')}
+          extra={t('fields.testRecipientsHint')}
+        >
+          <Input.TextArea
+            rows={2}
+            placeholder="0901234567, tester@kangaroo.vn"
+          />
+        </Form.Item>
+        <Button
+          icon={<ExperimentOutlined />}
+          loading={testSending}
+          disabled={splitRecipients(recipients).length === 0}
+          onClick={() => onTestSend(splitRecipients(recipients))}
+        >
+          {t('wizard.testSend')}
+        </Button>
+      </section>
+      <Alert type="info" showIcon title={t('wizard.approvalNote')} />
+    </div>
   );
 }

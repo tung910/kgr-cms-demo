@@ -27,47 +27,50 @@ export function StepContent() {
   };
 
   return (
-    <>
-      <Form.Item
-        name="title"
-        label={t('fields.title')}
-        rules={[{ required: true, whitespace: true }]}
-      >
-        <Input
-          maxLength={80}
-          showCount
-          placeholder={t('fields.titlePlaceholder')}
-        />
-      </Form.Item>
-      <Form.Item
-        name="content"
-        label={t('fields.content')}
-        rules={[{ required: true, whitespace: true }]}
-        extra={
-          <span className="flex flex-wrap items-center gap-1 pt-1">
-            <span className="text-xs">{t('fields.variables')}</span>
-            {PERSONALIZATION_VARIABLES.map(({ token }) => (
-              <Tag
-                key={token}
-                className="m-0 cursor-pointer"
-                onClick={() => insertVariable(token)}
-              >
-                {token}
-              </Tag>
-            ))}
-          </span>
-        }
-      >
-        <Input.TextArea
-          rows={4}
-          maxLength={400}
-          showCount
-          placeholder={t('fields.contentPlaceholder')}
-        />
-      </Form.Item>
-      <ButtonsEditor />
+    <div className="grid gap-5">
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <Form.Item
+          name="title"
+          label={t('fields.title')}
+          rules={[{ required: true, whitespace: true }]}
+        >
+          <Input
+            maxLength={80}
+            showCount
+            placeholder={t('fields.titlePlaceholder')}
+          />
+        </Form.Item>
+        <Form.Item
+          name="content"
+          label={t('fields.content')}
+          rules={[{ required: true, whitespace: true }]}
+          extra={
+            <span className="flex flex-wrap items-center gap-1 pt-1">
+              <span className="text-xs">{t('fields.variables')}</span>
+              {PERSONALIZATION_VARIABLES.map(({ token }) => (
+                <Tag
+                  key={token}
+                  className="m-0 cursor-pointer"
+                  onClick={() => insertVariable(token)}
+                >
+                  {token}
+                </Tag>
+              ))}
+            </span>
+          }
+        >
+          <Input.TextArea
+            rows={4}
+            maxLength={400}
+            showCount
+            placeholder={t('fields.contentPlaceholder')}
+          />
+        </Form.Item>
+      </section>
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <ButtonsEditor />
+      </section>
       <Collapse
-        ghost
         items={[
           {
             key: 'advanced',
@@ -109,7 +112,7 @@ export function StepContent() {
           },
         ]}
       />
-    </>
+    </div>
   );
 }
 
@@ -122,81 +125,97 @@ export function StepOffer() {
   const values = Form.useWatch([], form) ?? {};
 
   return (
-    <>
-      <Form.Item
-        name="offerEnabled"
-        valuePropName="checked"
-        label={t('fields.offerEnabled')}
-      >
-        <Switch />
-      </Form.Item>
+    <div className="grid gap-5">
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <Form.Item
+          name="offerEnabled"
+          valuePropName="checked"
+          label={t('fields.offerEnabled')}
+          className="mb-0"
+        >
+          <Switch />
+        </Form.Item>
+      </section>
       {enabled ? (
         <>
-          <Form.Item name="offerKind" label={t('fields.offerKind')}>
-            <Select
-              options={[
-                {
-                  value: 'voucher_percent',
-                  label: t('offer.kind.voucher_percent'),
-                },
-                {
-                  value: 'voucher_amount',
-                  label: t('offer.kind.voucher_amount'),
-                },
-                { value: 'points', label: t('offer.kind.points') },
-              ]}
-            />
-          </Form.Item>
-          {kind === 'points' ? (
-            <Form.Item
-              name="points"
-              label={t('fields.points')}
-              rules={[{ required: true, type: 'number', min: 1 }]}
-            >
-              <InputNumber
-                min={1}
-                precision={0}
-                addonAfter={t('unit.points')}
+          <section className="rounded-xl border border-[#E7E8E9] p-4">
+            <Form.Item name="offerKind" label={t('fields.offerKind')}>
+              <Select
+                className="w-full"
+                options={[
+                  {
+                    value: 'voucher_percent',
+                    label: t('offer.kind.voucher_percent'),
+                  },
+                  {
+                    value: 'voucher_amount',
+                    label: t('offer.kind.voucher_amount'),
+                  },
+                  { value: 'points', label: t('offer.kind.points') },
+                ]}
               />
             </Form.Item>
-          ) : (
-            <div className="grid gap-x-4 sm:grid-cols-2">
+            {kind === 'points' ? (
               <Form.Item
-                name="voucherCode"
-                label={t('fields.voucherCode')}
-                rules={[{ required: true, whitespace: true }]}
-              >
-                <Input maxLength={30} placeholder="LOI10" />
-              </Form.Item>
-              <Form.Item
-                name="discountValue"
-                label={t('fields.discountValue')}
-                rules={[
-                  {
-                    required: true,
-                    type: 'number',
-                    min: 1,
-                    max: kind === 'voucher_percent' ? 100 : undefined,
-                  },
-                ]}
+                name="points"
+                label={t('fields.points')}
+                rules={[{ required: true, type: 'number', min: 1 }]}
               >
                 <InputNumber
+                  style={{ width: '100%' }}
                   min={1}
-                  max={kind === 'voucher_percent' ? 100 : undefined}
                   precision={0}
-                  addonAfter={kind === 'voucher_percent' ? '%' : t('unit.vnd')}
+                  addonAfter={t('unit.points')}
                 />
               </Form.Item>
-              <Form.Item name="usageLimitTotal" label={t('fields.usageLimit')}>
-                <InputNumber min={1} precision={0} />
-              </Form.Item>
-            </div>
-          )}
-          <Form.Item name="validUntil" label={t('fields.validUntil')}>
-            <DatePicker format="DD/MM/YYYY" />
-          </Form.Item>
+            ) : (
+              <div className="grid gap-x-4 sm:grid-cols-2">
+                <Form.Item
+                  name="voucherCode"
+                  label={t('fields.voucherCode')}
+                  rules={[{ required: true, whitespace: true }]}
+                >
+                  <Input maxLength={30} placeholder="LOI10" />
+                </Form.Item>
+                <Form.Item
+                  name="discountValue"
+                  label={t('fields.discountValue')}
+                  rules={[
+                    {
+                      required: true,
+                      type: 'number',
+                      min: 1,
+                      max: kind === 'voucher_percent' ? 100 : undefined,
+                    },
+                  ]}
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    min={1}
+                    max={kind === 'voucher_percent' ? 100 : undefined}
+                    precision={0}
+                    addonAfter={
+                      kind === 'voucher_percent' ? '%' : t('unit.vnd')
+                    }
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="usageLimitTotal"
+                  label={t('fields.usageLimit')}
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    min={1}
+                    precision={0}
+                  />
+                </Form.Item>
+              </div>
+            )}
+            <Form.Item name="validUntil" label={t('fields.validUntil')}>
+              <DatePicker className="w-full" format="DD/MM/YYYY" />
+            </Form.Item>
+          </section>
           <Collapse
-            ghost
             items={[
               {
                 key: 'advanced',
@@ -222,8 +241,10 @@ export function StepOffer() {
           />
         </>
       ) : (
-        <p className="m-0 text-sm text-[#636466]">{t('wizard.noOffer')}</p>
+        <p className="m-0 rounded-xl border border-dashed border-[#D5D7D8] bg-[#F7F8F8] p-4 text-sm text-[#636466]">
+          {t('wizard.noOffer')}
+        </p>
       )}
-    </>
+    </div>
   );
 }
