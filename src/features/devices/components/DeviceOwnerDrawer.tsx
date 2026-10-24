@@ -28,6 +28,7 @@ import type {
   DeviceOwnerProfileDevice,
 } from '../schemas/deviceDetailSchemas';
 import type { DeviceStatus } from '../schemas/deviceSchemas';
+import { DeviceStatusTags } from './DeviceStatusCell';
 
 export interface DeviceOwnerDrawerProps {
   deviceId: string;
@@ -36,11 +37,13 @@ export interface DeviceOwnerDrawerProps {
 }
 
 // Devices needing attention first so CSKH sees problems without scrolling.
-const statusOrder: Record<DeviceStatus, number> = {
-  warning: 0,
-  offline: 1,
-  online: 2,
-};
+function attentionRank(device: {
+  status: DeviceStatus | null;
+  hasError: boolean;
+}): number {
+  if (device.status === 'online' && device.hasError) return 0;
+  return device.status === 'offline' ? 1 : 2;
+}
 
 // M03.1: "từ thiết bị mở được sang hồ sơ khách hàng" — a quick profile view
 // without leaving the device screen. Read-only, like the ownership panel.
@@ -150,8 +153,7 @@ function OwnerProfileBody({
     if (b.id === currentDeviceId) return 1;
     // Non-IoT units have no connection state; list them after IoT ones.
     return (
-      (a.status ? statusOrder[a.status] : 3) -
-      (b.status ? statusOrder[b.status] : 3)
+      (a.status ? attentionRank(a) : 3) - (b.status ? attentionRank(b) : 3)
     );
   });
   const count = (predicate: (device: DeviceOwnerProfileDevice) => boolean) =>
@@ -223,7 +225,8 @@ function OwnerProfileBody({
           label={t('ownerDrawer.stats.needsAttention')}
           value={count(
             (device) =>
-              device.status === 'warning' || device.status === 'offline'
+              device.status === 'offline' ||
+              (device.status === 'online' && device.hasError)
           )}
           tone="danger"
         />
@@ -273,6 +276,9 @@ function OwnerProfileBody({
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <ConnectionStatusBadge status={device.status} />
+                    {device.status === 'online' && device.hasError ? (
+                      <DeviceStatusTags tags={['error']} />
+                    ) : null}
                     <PortalBadge
                       tone={WARRANTY_STATUS_TONES[device.warrantyStatus]}
                     >

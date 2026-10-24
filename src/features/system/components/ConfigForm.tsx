@@ -10,6 +10,8 @@ import {
 } from 'antd';
 import { useTranslation } from 'react-i18next';
 
+import { useAuth } from '@/core/auth/useAuth';
+import { hasCapability } from '@/core/permissions/capabilities';
 import { updateSystemConfig } from '../api/systemApi';
 import { systemQueries } from '../queries/systemQueries';
 import {
@@ -40,6 +42,16 @@ interface NumberField {
 
 // Ranges follow the plan (§3.1 SCR-35); the backend validates them again.
 const numberFields: NumberField[] = [
+  { name: 'campaignCoreDays', min: 1, max: 365 },
+  { name: 'campaignQuietStartHour', min: 0, max: 23 },
+  { name: 'campaignQuietEndHour', min: 0, max: 23 },
+  { name: 'campaignFrequencyLimit', min: 1, max: 100 },
+  { name: 'campaignFrequencyDays', min: 1, max: 365 },
+  { name: 'campaignAttributionDays', min: 1, max: 365 },
+  { name: 'campaignCooldownDays', min: 1, max: 365 },
+  { name: 'campaignRepurchaseDays', min: 1, max: 730 },
+  { name: 'campaignBookingRevenue', min: 0, max: 100000000 },
+  { name: 'campaignQrRevenue', min: 0, max: 100000000 },
   { name: 'tdsThresholdRegion', min: 1, max: 1000 },
   { name: 'otaAutoPauseRate', min: 0.1, max: 100, step: 0.1 },
   { name: 'deviceAckTimeout', min: 5, max: 300 },
@@ -55,6 +67,9 @@ const severities = ['critical', 'medium', 'low'] as const;
 
 export function ConfigForm({ config, canEdit }: ConfigFormProps) {
   const { t } = useTranslation('system');
+  const { session } = useAuth();
+  const canConfigureFrequency =
+    !!session && hasCapability(session.role, 'campaign.frequency.config');
   const [form] = Form.useForm<FormValues>();
   const queryClient = useQueryClient();
 
@@ -114,6 +129,12 @@ export function ConfigForm({ config, canEdit }: ConfigFormProps) {
           >
             <InputNumber
               className="!w-full"
+              disabled={
+                !canEdit ||
+                (!canConfigureFrequency &&
+                  (field.name === 'campaignFrequencyLimit' ||
+                    field.name === 'campaignFrequencyDays'))
+              }
               min={field.min}
               max={field.max}
               step={field.step ?? 1}

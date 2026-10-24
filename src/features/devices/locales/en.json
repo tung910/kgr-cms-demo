@@ -1,10 +1,11 @@
 {
   "statusCell": {
-    "neverConnected": "Never connected"
+    "noOwner": "No owner",
+    "error": "Error"
   },
   "listTabs": {
     "inUse": "In use",
-    "inventory": "Inventory (unused)"
+    "inventory": "In stock (unused)"
   },
   "nonIot": {
     "includedInTotal": "Includes {{count}} non-IoT products",
@@ -23,11 +24,11 @@
       "title": "Sync unused stock",
       "upload": {
         "title": "Upload a file",
-        "description": "Import devices from a file. Coming in a later release."
+        "description": "Importing devices from a file is not supported yet."
       },
       "auto": {
-        "title": "Automatic",
-        "description": "Pull newly received units from the warehouse system."
+        "title": "Sync from warehouse system",
+        "description": "Fetch newly received devices when you select this option."
       },
       "success": "Synced: {{added}} added, {{updated}} updated.",
       "upToDate": "Inventory is already up to date.",
@@ -40,22 +41,22 @@
     "stats": {
       "total": "Total devices in stock",
       "aged": "In stock over {{days}} days",
-      "fresh": "In stock under {{days}} days",
-      "aging": "In stock {{from}}–{{to}} days"
+      "fresh": "In stock up to {{days}} days",
+      "aging": "In stock over {{from}} and up to {{to}} days"
     },
     "table": {
       "columns": {
         "identity": "Serial / Model",
         "firmware": "Factory firmware",
-        "age": "Stock age",
-        "status": "Usage status"
+        "age": "Days in stock",
+        "status": "Activation status"
       },
       "firmwareOutdated": "Needs update",
       "firmwareOutdatedHint": "Firmware is older than the current release — the device will need OTA right after activation.",
       "ageDays_one": "{{count}} day",
       "ageDays_other": "{{count}} days",
       "total": "{{total}} devices in stock",
-      "receivedAt": "Received: {{date}}",
+      "receivedAt": "Received on: {{date}}",
       "notActivated": "Not activated"
     },
     "description": "{{total}} in-stock devices match the filters · Not activated"
@@ -219,7 +220,8 @@
     "justNow": "Just now"
   },
   "stats": {
-    "total": "Total devices"
+    "total": "Total devices",
+    "errorWithinOnline": "Part of Online"
   },
   "listPage": {
     "title": "Device management",

@@ -1,0 +1,440 @@
+{
+  "audienceConditionsTitle": "Điều kiện chọn đối tượng",
+  "status": {
+    "draft": "Nháp",
+    "pending_approval": "Chờ duyệt",
+    "approved": "Đã duyệt",
+    "running": "Đang chạy",
+    "paused": "Tạm dừng",
+    "ended": "Kết thúc"
+  },
+  "kind": {
+    "manual": "Một lần",
+    "trigger": "Tự động theo trigger"
+  },
+  "displayType": {
+    "push": "Push notification",
+    "banner": "In-app banner",
+    "popup": "Popup"
+  },
+  "group": {
+    "core": "Lõi lọc",
+    "water_quality": "Chất lượng nước",
+    "device_error": "Lỗi thiết bị",
+    "promotion": "Khuyến mãi",
+    "service": "Dịch vụ"
+  },
+  "schedule": {
+    "send_now": "Gửi ngay",
+    "scheduled": "Hẹn giờ"
+  },
+  "trigger": {
+    "core_due": "Lõi còn ≤ N ngày",
+    "warranty_expiring": "Bảo hành sắp hết",
+    "high_tds": "TDS vùng vượt ngưỡng",
+    "hint": {
+      "core_due": "Theo cảm biến lõi — chỉ máy IoT.",
+      "warranty_expiring": "Tính theo ngày mua, áp dụng cả máy non-IoT. Ngưỡng theo cấu hình hệ thống.",
+      "high_tds": "Theo cảm biến TDS — chỉ máy IoT. Ngưỡng theo cấu hình hệ thống."
+    }
+  },
+  "warranty": {
+    "active": "Còn hiệu lực",
+    "expiring": "Sắp hết",
+    "expired": "Đã hết",
+    "none": "Không có"
+  },
+  "usageType": {
+    "personal": "Cá nhân",
+    "rental": "Cho thuê"
+  },
+  "logic": {
+    "and": "Thỏa tất cả điều kiện (VÀ)",
+    "or": "Thỏa một trong các điều kiện (HOẶC)"
+  },
+  "dedupe": {
+    "account": "Theo tài khoản (gửi 1 lần)",
+    "device": "Theo từng thiết bị"
+  },
+  "offer": {
+    "type": {
+      "voucher": "Voucher",
+      "loyalty_points": "Điểm thưởng"
+    },
+    "discount": {
+      "percent": "Giảm theo %",
+      "amount": "Giảm số tiền"
+    },
+    "kind": {
+      "voucher_percent": "Voucher giảm theo %",
+      "voucher_amount": "Voucher giảm số tiền",
+      "points": "Điểm thưởng"
+    },
+    "pointsText": "+{{count}} điểm thưởng",
+    "voucherText": "giảm {{value}}"
+  },
+  "unit": {
+    "days": "ngày",
+    "points": "điểm",
+    "vnd": "đ"
+  },
+  "common": {
+    "on": "Bật",
+    "off": "Tắt"
+  },
+  "steps": {
+    "type": {
+      "title": "Loại chiến dịch",
+      "hint": "Lựa chọn này quyết định nội dung của bước Cơ chế chạy.",
+      "manualHint": "Gửi ngay hoặc hẹn một thời điểm cụ thể.",
+      "triggerHint": "Chạy 24/7, tự gửi khi khách hàng thỏa điều kiện kích hoạt."
+    },
+    "info": {
+      "title": "Thông tin"
+    },
+    "mechanism": {
+      "title": "Cơ chế chạy"
+    },
+    "audience": {
+      "title": "Đối tượng"
+    },
+    "content": {
+      "title": "Nội dung"
+    },
+    "offer": {
+      "title": "Ưu đãi"
+    },
+    "review": {
+      "title": "Duyệt & gửi"
+    }
+  },
+  "fields": {
+    "name": "Tên chiến dịch",
+    "namePlaceholder": "VD: Nhắc thay lõi Q4",
+    "kind": "Loại chiến dịch",
+    "displayType": "Loại hiển thị",
+    "notificationGroup": "Nhóm thông báo",
+    "notificationGroupHint": "Khách tắt nhóm nào trong app thì sẽ không nhận chiến dịch thuộc nhóm đó.",
+    "priority": "Tầng ưu tiên",
+    "sendTime": "Thời điểm gửi",
+    "scheduledAt": "Gửi lúc",
+    "triggerPreset": "Điều kiện vào (trigger)",
+    "coreDays": "Lõi còn ≤",
+    "exit": "Điều kiện thoát",
+    "exitOnPurchase": "Đã mua lõi / đặt lịch → dừng nhắc",
+    "exitOnWarrantyRenewed": "Đã gia hạn bảo hành → dừng nhắc",
+    "cooldownDays": "Cooldown giữa 2 lần nhắc",
+    "maxSends": "Số lần gửi tối đa / KH",
+    "startsOn": "Ngày bắt đầu",
+    "endsOn": "Ngày kết thúc (tùy chọn)",
+    "quietFrom": "Giờ yên lặng từ",
+    "quietTo": "Đến",
+    "fallbackSmsZalo": "Gửi SMS/Zalo thay thế khi push tắt hoặc lỗi",
+    "fallbackNote": "Hệ thống chưa kết nối SMS/Zalo: tùy chọn này chỉ được lưu cấu hình, chưa kích hoạt.",
+    "regions": "Khu vực",
+    "models": "Model",
+    "warrantyStatuses": "Trạng thái bảo hành",
+    "coreRemainingDays": "Số ngày lõi còn",
+    "regionTds": "TDS khu vực",
+    "loyaltyPoints": "Điểm loyalty",
+    "usageTypes": "Cá nhân / Cho thuê",
+    "firmwareVersions": "Firmware",
+    "connectivities": "Loại kết nối",
+    "min": "Từ",
+    "max": "Đến",
+    "pickPlaceholder": "Chọn giá trị",
+    "logic": "Gộp điều kiện bằng",
+    "dedupe": "Khi một khách có nhiều máy",
+    "dedupeHint": "Theo tài khoản: mỗi khách chỉ nhận 1 thông báo. Theo thiết bị: mỗi máy khớp điều kiện nhận 1 thông báo gắn đúng máy đó.",
+    "suppression": "Loại trừ",
+    "suppressOptOut": "Khách đã tắt nhóm thông báo này (bắt buộc)",
+    "suppressRecent": "Vừa nhận chiến dịch khác trong 24 giờ",
+    "suppressTest": "Tài khoản test",
+    "title": "Tiêu đề",
+    "titlePlaceholder": "VD: Lõi lọc của bạn sắp hết",
+    "content": "Nội dung",
+    "contentPlaceholder": "VD: Chào {ten}, lõi {model} còn {ngay_loi} ngày...",
+    "variables": "Chèn biến:",
+    "abTest": "A/B test nội dung",
+    "abTestHint": "Một phần khách nhận phiên bản B để so sánh hiệu quả.",
+    "titleB": "Tiêu đề phiên bản B",
+    "bodyB": "Nội dung phiên bản B",
+    "splitB": "Tỷ lệ khách nhận phiên bản B (%)",
+    "offerEnabled": "Gắn ưu đãi",
+    "offerKind": "Loại ưu đãi",
+    "voucherCode": "Mã voucher",
+    "discountValue": "Giá trị giảm",
+    "points": "Số điểm thưởng",
+    "usageLimit": "Giới hạn số lượt",
+    "validUntil": "Hết hạn",
+    "appliesTo": "Áp dụng cho mã sản phẩm / mã lỗi",
+    "appliesToHint": "Gắn ưu đãi đúng sản phẩm hoặc mã lỗi, đồng bộ sang thương mại điện tử.",
+    "approver": "Người duyệt",
+    "approverHint": "Phải khác người tạo và có quyền duyệt chiến dịch.",
+    "approverPlaceholder": "Chọn người duyệt",
+    "noApprovers": "Chưa có người nào có quyền duyệt",
+    "testRecipients": "Gửi thử cho nhóm test",
+    "testRecipientsHint": "Nhập số điện thoại hoặc email, cách nhau bằng dấu phẩy. Môi trường demo không gửi thật.",
+    "buttons": "Nút hành động",
+    "buttonsHint": "Tối đa 2 nút. Mỗi nút mở đúng màn hình tương ứng trong App."
+  },
+  "audience": {
+    "basicGroup": "Thông dụng",
+    "advancedGroup": "Nâng cao",
+    "add": "+ Thêm điều kiện",
+    "remove": "Xóa điều kiện",
+    "noConditions": "Chưa có điều kiện: chiến dịch gửi cho mọi khách đủ điều kiện nhận tin.",
+    "all": "Mọi khách hàng đủ điều kiện nhận tin",
+    "andJoin": " VÀ ",
+    "orJoin": " HOẶC ",
+    "previewTitle": "Số khách hàng nhận được",
+    "recalculate": "Tính lại",
+    "eligible": "Thỏa điều kiện",
+    "reach": "Thực sự nhận",
+    "reachHint": "(sau khi loại khách tắt thông báo và các mục loại trừ)",
+    "nonIot": "Trong đó {{count}} khách được tiếp cận qua máy không IoT.",
+    "sample": "Ví dụ: {{names}}",
+    "piiMasked": "tên đã được che",
+    "countText": "{{count}} khách sẽ nhận"
+  },
+  "preview": {
+    "title": "Hiển thị trên App",
+    "emptyTitle": "(Tiêu đề)",
+    "emptyContent": "(Nội dung)",
+    "now": "Bây giờ",
+    "sample": "Mẫu cá nhân hoá: {{values}}"
+  },
+  "summary": {
+    "mechanism": "Cơ chế chạy",
+    "audience": "Đối tượng",
+    "exclusions": "Loại trừ",
+    "content": "Nội dung",
+    "offer": "Ưu đãi",
+    "priority": "Tầng {{tier}} (tự gán theo nhóm thông báo)",
+    "scheduledAt": "Hẹn giờ gửi lúc {{time}}",
+    "coreDays": "lõi còn ≤ {{count}} ngày",
+    "cooldown": "cooldown {{days}} ngày, tối đa {{max}} lần",
+    "quiet": "yên lặng {{from}}–{{to}}",
+    "window": "từ {{from}} đến {{to}}",
+    "noEnd": "không giới hạn",
+    "abTest": "A/B test: {{percent}}% khách nhận phiên bản B",
+    "button": "Nút “{{label}}” → {{target}}"
+  },
+  "wizard": {
+    "createTitle": "Tạo chiến dịch",
+    "editTitle": "Sửa chiến dịch",
+    "description": "Đi lần lượt qua các bước, hệ thống tự điền giá trị mặc định. Có thể lưu nháp bất cứ lúc nào.",
+    "advanced": "Tùy chọn nâng cao",
+    "back": "Quay lại",
+    "next": "Tiếp tục",
+    "saveDraft": "Lưu nháp",
+    "submit": "Gửi duyệt",
+    "noOffer": "Chiến dịch này không kèm ưu đãi.",
+    "noOfferShort": "Không có",
+    "previewRequired": "Bạn cần xem số khách nhận được ở bước Đối tượng trước khi gửi duyệt.",
+    "savedDraft": "Đã lưu bản nháp chiến dịch.",
+    "submitted": "Đã gửi chiến dịch đi phê duyệt.",
+    "notEditable": "Chỉ chiến dịch ở trạng thái Nháp mới sửa được.",
+    "testSend": "Gửi thử",
+    "testSent": "Đã gửi thử tới nhóm test (môi trường demo không gửi thật).",
+    "testFailed": "Gửi thử thất bại.",
+    "approvalNote": "Sau khi gửi duyệt, chiến dịch chuyển sang Chờ duyệt. Chỉ khi người duyệt (khác người tạo) duyệt, chiến dịch mới được phép chạy.",
+    "reason": {
+      "create": "Tạo chiến dịch mới",
+      "update": "Cập nhật chiến dịch",
+      "submit": "Gửi chiến dịch đi phê duyệt"
+    }
+  },
+  "transitions": {
+    "action": {
+      "submit": "Gửi duyệt",
+      "approve": "Duyệt",
+      "reject": "Từ chối",
+      "run": "Cho chạy",
+      "stop": "Kết thúc",
+      "pause": "Tạm dừng",
+      "resume": "Tiếp tục"
+    },
+    "done": {
+      "submit": "Đã gửi đi phê duyệt.",
+      "approve": "Đã duyệt chiến dịch.",
+      "reject": "Đã từ chối, chiến dịch quay về Nháp.",
+      "run": "Chiến dịch đã bắt đầu chạy.",
+      "stop": "Đã kết thúc chiến dịch.",
+      "pause": "Đã tạm dừng.",
+      "resume": "Đã tiếp tục chạy."
+    },
+    "reasonLabel": "Lý do",
+    "reasonRequired": "Vui lòng nhập lý do."
+  },
+  "filters": {
+    "searchAriaLabel": "Tìm chiến dịch",
+    "searchPlaceholder": "Tìm theo tên hoặc mã chiến dịch",
+    "statusAriaLabel": "Lọc theo trạng thái",
+    "statusPlaceholder": "Trạng thái",
+    "kindAriaLabel": "Lọc theo loại",
+    "kindPlaceholder": "Loại",
+    "reset": "Đặt lại"
+  },
+  "table": {
+    "columns": {
+      "campaign": "Chiến dịch",
+      "status": "Trạng thái",
+      "audience": "Đối tượng",
+      "schedule": "Lịch gửi",
+      "updatedAt": "Cập nhật"
+    },
+    "audienceCount": "{{count}} KH",
+    "total": "Tổng {{total}} chiến dịch"
+  },
+  "listPage": {
+    "title": "Chiến dịch truyền thông",
+    "description": "Tạo, phê duyệt và đo lường các chiến dịch push/in-app gửi tới khách hàng.",
+    "create": "Tạo chiến dịch",
+    "empty": "Chưa có chiến dịch nào khớp bộ lọc.",
+    "stats": {
+      "total": "Tổng chiến dịch",
+      "running": "Đang chạy",
+      "pendingApproval": "Chờ duyệt",
+      "draft": "Bản nháp"
+    }
+  },
+  "deeplinkTargets": {
+    "home": "Trang chủ ứng dụng",
+    "coreReplace": "Thay lõi lọc",
+    "warrantyRenew": "Gia hạn bảo hành",
+    "loyalty": "Điểm thưởng",
+    "shopCores": "Cửa hàng lõi lọc",
+    "promoMidAutumn": "Khuyến mãi Trung thu"
+  },
+  "detail": {
+    "back": "Quay lại",
+    "editAndSubmit": "Sửa & gửi duyệt",
+    "notFoundTitle": "Không tìm thấy chiến dịch",
+    "rejectedTitle": "Chiến dịch bị từ chối, đã trả về Nháp",
+    "waitingApprover": "Đang chờ {{name}} duyệt.",
+    "notPreviewed": "Chưa xem trước số khách",
+    "sections": {
+      "overview": "Tổng quan",
+      "metrics": "Theo dõi & đo lường",
+      "history": "Nhật ký"
+    }
+  },
+  "metrics": {
+    "sent": "Số gửi",
+    "delivered": "Gửi thành công",
+    "opened": "Lượt mở",
+    "clicked": "Lượt click",
+    "orders": "Đơn hàng",
+    "conversionsBooking": "Chuyển đổi: đặt lịch",
+    "conversionsQr": "Chuyển đổi: kích hoạt QR lõi mới",
+    "conversionRate": "Tỷ lệ chuyển đổi",
+    "revenue": "Doanh thu ghi nhận",
+    "deliveredRate": "{{rate}} so với số gửi",
+    "openRate": "{{rate}} so với gửi thành công",
+    "clickRate": "{{rate}} so với lượt mở",
+    "suppressedOptOut": "{{count}} khách đã tắt nhóm thông báo này nên không nhận (APP-060).",
+    "export": "Xuất CSV",
+    "fileLabel": "do-luong-chien-dich",
+    "sendId": "Mã lượt gửi",
+    "failed": "Gửi thất bại",
+    "failureReason": "Lý do lỗi",
+    "mockFailure": "Nhà cung cấp mô phỏng không khả dụng",
+    "attribution": "Last-click trong {{days}} ngày · Doanh thu net VND từ đơn e-commerce mô phỏng"
+  },
+  "history": {
+    "created": "Tạo chiến dịch",
+    "submitted": "Gửi duyệt",
+    "approverIs": "Người duyệt: {{name}}",
+    "approved": "Đã duyệt",
+    "rejected": "Bị từ chối, trả về Nháp",
+    "auditNote": "Mọi thao tác đổi trạng thái đều được ghi vào Nhật ký hệ thống (module Chiến dịch) kèm người thực hiện, thời điểm và lý do, không thể sửa/xóa.",
+    "scheduler": "Lịch hệ thống"
+  },
+  "errors": {
+    "invalidResponse": "Máy chủ trả về dữ liệu không hợp lệ.",
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "validation": "Dữ liệu không hợp lệ.",
+    "not_found": "Không tìm thấy chiến dịch.",
+    "not_editable": "Chỉ chiến dịch ở trạng thái Nháp mới sửa được.",
+    "invalid_transition": "Không thể chuyển trạng thái này.",
+    "reason_required": "Cần nhập lý do cho thao tác này.",
+    "self_approve": "Người tạo không thể tự duyệt chiến dịch của mình.",
+    "incomplete": "Chiến dịch chưa đủ thông tin để gửi duyệt.",
+    "invalid_approver": "Người duyệt không hợp lệ hoặc trùng người tạo.",
+    "approverRequired": "Chọn người duyệt.",
+    "pastTime": "Thời điểm gửi phải ở tương lai.",
+    "time": "Nhập giờ dạng HH:mm.",
+    "previewFailed": "Không tính được số khách nhận.",
+    "saveFailed": "Lưu chiến dịch thất bại.",
+    "transitionFailed": "Chuyển trạng thái thất bại.",
+    "coreRequired": "Chọn ít nhất một lõi."
+  },
+  "button": {
+    "none": "Chưa có nút hành động.",
+    "add": "Thêm nút hành động",
+    "addSecondary": "Thêm nút phụ",
+    "primary": "Nút chính",
+    "secondary": "Nút phụ",
+    "remove": "Xóa nút",
+    "typeLabel": "Loại nút",
+    "label": "Chữ trên nút",
+    "coreModeLabel": "Mua lõi nào",
+    "coreSkus": "Chọn lõi",
+    "coreModeAutoHint": "App mở đúng lõi sắp hết của máy khách đang nhận tin.",
+    "screen": "Màn hình trong App",
+    "type": {
+      "buy_core": "Mua lõi",
+      "book_technician": "Đặt lịch kỹ thuật viên",
+      "renew_warranty": "Gia hạn bảo hành",
+      "open_screen": "Mở màn hình khác"
+    },
+    "defaultLabel": {
+      "buy_core": "Mua lõi thay thế",
+      "book_technician": "Đặt lịch kỹ thuật viên",
+      "renew_warranty": "Gia hạn bảo hành",
+      "open_screen": "Xem ngay"
+    },
+    "coreMode": {
+      "auto": "Tự động theo máy của khách",
+      "specific": "Chọn lõi cụ thể"
+    },
+    "suggest": {
+      "core": "Mua lõi {{name}}"
+    },
+    "target": {
+      "auto": "Mua lõi theo máy của khách",
+      "cores": "Mua lõi: {{names}}"
+    }
+  },
+  "mechanism": {
+    "firstSendTitle": "Khách đã đủ điều kiện được xét ngay khi bắt đầu chạy",
+    "firstSendHint": "Sau khi được duyệt và bật chạy, chiến dịch xét cả khách đã thỏa điều kiện, không chỉ khách mới vượt ngưỡng. Mỗi lần gửi vẫn phải thỏa bộ lọc đối tượng, điều kiện thoát, giờ yên lặng và giới hạn tần suất.",
+    "coreThreshold": "Kích hoạt khi lõi còn ≤ {{days}} ngày (chỉ máy IoT).",
+    "warrantyThreshold": "Kích hoạt khi bảo hành còn từ 0 đến {{days}} ngày. Ngưỡng lấy từ cấu hình hệ thống, có thể thay đổi.",
+    "tdsThreshold": "Kích hoạt khi TDS khu vực ≥ {{value}} ppm (chỉ máy IoT). Ngưỡng lấy từ cấu hình hệ thống, có thể thay đổi.",
+    "thresholdRestricted": "Ngưỡng áp dụng theo cấu hình hệ thống. Tài khoản này không có quyền xem cấu hình; liên hệ quản trị viên để xác nhận giá trị hiện hành.",
+    "thresholdError": "Không tải được ngưỡng hệ thống. Chưa thể xác nhận giá trị kích hoạt; vui lòng thử lại sau.",
+    "thresholdLoading": "Đang tải ngưỡng từ cấu hình hệ thống…",
+    "frequencyHint": "Đây là khoảng cách tối thiểu, không phải lịch gửi cố định. Chỉ gửi khi đồng thời thỏa tổng số lần, giới hạn mỗi chu kỳ và giới hạn chung của hệ thống. 0 ngày nghĩa là không chờ giữa hai lượt xét.",
+    "reentryHint": "Đếm trong toàn chiến dịch, theo tài khoản hoặc thiết bị đã chọn ở bước Đối tượng. Hiện không tự đặt lại số lần khi thay lõi hoặc gia hạn bảo hành.",
+    "startHint": "Bắt đầu từ 00:00 ngày đã chọn, sau khi được duyệt và bật chạy. Để trống: từ lúc bật chạy. Ngày giờ theo múi giờ trình duyệt; tại Việt Nam là UTC+7.",
+    "endHint": "Bao gồm hết ngày đã chọn (23:59). Để trống: không giới hạn ngày kết thúc; vẫn có thể dừng chiến dịch.",
+    "invalidWindow": "Ngày kết thúc phải cùng ngày hoặc sau ngày bắt đầu.",
+    "quietHint": "Giờ Việt Nam (UTC+7), chỉ áp dụng cho push. Trong khoảng này không gửi; sau đó xét lại điều kiện, không cộng dồn lượt bị hoãn. Hai mốc giờ giống nhau nghĩa là không có giờ yên lặng.",
+    "summaryTitle": "Tóm tắt cơ chế chạy",
+    "summaryWindow": "Hiệu lực: {{from}} → {{to}}, sau khi được duyệt và bật chạy.",
+    "afterActivation": "Từ lúc bật chạy",
+    "summaryRepeat": "Nhắc cách nhau ít nhất {{days}} ngày, tối đa {{max}} lần trong toàn chiến dịch cho mỗi tài khoản/thiết bị theo lựa chọn ở bước Đối tượng; vẫn chịu giới hạn tần suất chung.",
+    "summaryQuiet": "Push tạm ngừng trong {{from}}–{{to}} giờ Việt Nam (UTC+7); hai mốc bằng nhau thì không tạm ngừng.",
+    "summaryExit": "Điều kiện thoát đã chọn: {{condition}}.",
+    "noExit": "Không chọn điều kiện bổ sung; mỗi lượt vẫn phải thỏa điều kiện kích hoạt",
+    "frequencyTitle": "Tần suất & giới hạn gửi",
+    "totalCapLabel": "Tổng số lần tối đa trong chiến dịch",
+    "cycle": "Chu kỳ: {{days}} ngày liên tiếp tính lùi từ mỗi lần xét gửi. Giới hạn chung: tối đa {{limit}} lượt/KH từ tất cả chiến dịch trong khoảng này.",
+    "cycleUnavailable": "Chu kỳ và giới hạn chung theo cấu hình hệ thống. Giá trị hiện chưa hiển thị với tài khoản này; liên hệ quản trị viên để xác nhận.",
+    "currentCap": "Chiến dịch này: tối đa {{cap}} lượt trong mỗi chu kỳ, theo tài khoản hoặc thiết bị đã chọn ở bước Đối tượng.",
+    "cycleCapLabel": "Số lần tối đa trong mỗi chu kỳ",
+    "cycleCapHint": "Đây là giới hạn riêng của chiến dịch trong chu kỳ nêu trên, không phải tổng số lần của cả chiến dịch. 0 nghĩa là chặn mọi lượt gửi. Chỉ người có quyền mới chỉnh được."
+  }
+}

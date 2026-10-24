@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cms-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev", "--port", "5180", "--strictPort"],
+      "env": { "VITE_ENABLE_MOCKS": "true" },
+      "port": 5180
+    }
+  ]
+}

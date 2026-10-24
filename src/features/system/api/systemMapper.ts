@@ -92,6 +92,16 @@ export function toSystemConfig(dto: SystemConfigDto): SystemConfig {
   const p = dto.params;
   return {
     params: {
+      campaignCoreDays: p.campaign_core_days,
+      campaignQuietStartHour: p.campaign_quiet_start_hour,
+      campaignQuietEndHour: p.campaign_quiet_end_hour,
+      campaignFrequencyLimit: p.campaign_frequency_limit,
+      campaignFrequencyDays: p.campaign_frequency_days,
+      campaignAttributionDays: p.campaign_attribution_days,
+      campaignCooldownDays: p.campaign_cooldown_days,
+      campaignRepurchaseDays: p.campaign_repurchase_days,
+      campaignBookingRevenue: p.campaign_booking_revenue,
+      campaignQrRevenue: p.campaign_qr_revenue,
       tdsThresholdRegion: p.tds_threshold_region,
       otaAutoPauseRate: p.ota_auto_pause_rate,
       deviceAckTimeout: p.device_ack_timeout,
@@ -115,6 +125,16 @@ export function toSystemConfig(dto: SystemConfigDto): SystemConfig {
 
 export function toConfigParamsDto(p: ConfigParams): ConfigParamsDto {
   return {
+    campaign_core_days: p.campaignCoreDays,
+    campaign_quiet_start_hour: p.campaignQuietStartHour,
+    campaign_quiet_end_hour: p.campaignQuietEndHour,
+    campaign_frequency_limit: p.campaignFrequencyLimit,
+    campaign_frequency_days: p.campaignFrequencyDays,
+    campaign_attribution_days: p.campaignAttributionDays,
+    campaign_cooldown_days: p.campaignCooldownDays,
+    campaign_repurchase_days: p.campaignRepurchaseDays,
+    campaign_booking_revenue: p.campaignBookingRevenue,
+    campaign_qr_revenue: p.campaignQrRevenue,
     tds_threshold_region: p.tdsThresholdRegion,
     ota_auto_pause_rate: p.otaAutoPauseRate,
     device_ack_timeout: p.deviceAckTimeout,

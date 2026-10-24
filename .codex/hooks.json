@@ -1,0 +1,39 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node 'D:\\Workspace\\kgr-ecosystem-internal\\demo\\kgr-cms-demo\\.codex\\hooks\\block-dangerous.mjs'"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node 'D:\\Workspace\\kgr-ecosystem-internal\\demo\\kgr-cms-demo\\.codex\\hooks\\no-secrets.mjs'"
+          },
+          {
+            "type": "command",
+            "command": "node 'D:\\Workspace\\kgr-ecosystem-internal\\demo\\kgr-cms-demo\\.codex\\hooks\\protect-self.mjs'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node 'D:\\Workspace\\kgr-ecosystem-internal\\demo\\kgr-cms-demo\\.codex\\hooks\\format-on-edit.mjs'"
+          }
+        ]
+      }
+    ]
+  }
+}

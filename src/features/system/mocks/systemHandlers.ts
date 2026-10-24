@@ -112,6 +112,24 @@ const groupStore: GroupRecord[] = [
 ];
 
 let configStore: SystemConfigDto = structuredClone(configFixture);
+export function getSystemConfigParams() {
+  return configStore.params;
+}
+
+// Active members who hold a capability — e.g. the people a campaign can be
+// sent to for approval. Mirrors what a real backend would resolve.
+export function listMembersWithCapability(
+  capability: Capability
+): Array<{ id: string; name: string }> {
+  return memberStore
+    .filter(
+      (member) =>
+        !member.deleted &&
+        member.status === 'active' &&
+        effectiveCapabilities(member).includes(capability)
+    )
+    .map((member) => ({ id: member.id, name: member.fullName }));
+}
 
 const auditStore: AuditEntryDto[] = [];
 const backupStore: BackupDto[] = [3, 2, 1].map((daysAgo) => ({
@@ -1158,6 +1176,14 @@ export const systemHandlers = [
     const body = await readBody(request, configBodySchema);
     if (body.error) return body.error;
 
+    if (
+      (body.data.params.campaign_frequency_limit !==
+        configStore.params.campaign_frequency_limit ||
+        body.data.params.campaign_frequency_days !==
+          configStore.params.campaign_frequency_days) &&
+      !activeCapabilities(auth.user).includes('campaign.frequency.config')
+    )
+      return fail(403, 'forbidden');
     const catalogKeys: CatalogKey[] = ['model', 'core', 'region'];
     for (const key of catalogKeys) {
       const codes = body.data.catalogs[key].map((item) => item.code);

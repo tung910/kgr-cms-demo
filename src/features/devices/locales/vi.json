@@ -1,10 +1,11 @@
 {
   "statusCell": {
-    "neverConnected": "Chưa kết nối"
+    "noOwner": "Chưa có chủ",
+    "error": "Lỗi"
   },
   "listTabs": {
     "inUse": "Đang sử dụng",
-    "inventory": "Tồn kho (chưa sử dụng)"
+    "inventory": "Trong kho (chưa sử dụng)"
   },
   "nonIot": {
     "includedInTotal": "Gồm {{count}} sản phẩm không IoT",
@@ -17,48 +18,48 @@
     }
   },
   "inventory": {
-    "empty": "Không có thiết bị tồn kho phù hợp bộ lọc.",
+    "empty": "Không có thiết bị trong kho khớp với bộ lọc hiện tại.",
     "sync": {
       "action": "Đồng bộ",
-      "title": "Đồng bộ thiết bị tồn kho",
+      "title": "Đồng bộ danh sách thiết bị trong kho",
       "upload": {
         "title": "Tải file lên",
-        "description": "Nhập danh sách thiết bị từ file. Tính năng sẽ có ở phiên bản sau."
+        "description": "Chưa hỗ trợ nhập danh sách thiết bị từ file."
       },
       "auto": {
-        "title": "Tự động",
-        "description": "Lấy thiết bị mới nhập kho từ hệ thống kho."
+        "title": "Đồng bộ từ hệ thống kho",
+        "description": "Lấy danh sách thiết bị mới nhập kho khi bạn chọn mục này."
       },
       "success": "Đã đồng bộ: thêm {{added}}, cập nhật {{updated}} thiết bị.",
-      "upToDate": "Dữ liệu tồn kho đã mới nhất.",
-      "error": "Không thể đồng bộ tồn kho. Vui lòng thử lại."
+      "upToDate": "Danh sách thiết bị trong kho đã được cập nhật mới nhất.",
+      "error": "Không thể đồng bộ danh sách thiết bị trong kho. Vui lòng thử lại."
     },
     "filters": {
-      "searchAriaLabel": "Tìm thiết bị tồn kho",
+      "searchAriaLabel": "Tìm thiết bị trong kho theo serial",
       "searchPlaceholder": "Tìm theo serial"
     },
     "stats": {
-      "total": "Tổng thiết bị tồn kho",
-      "aged": "Tồn kho quá {{days}} ngày",
-      "fresh": "Tồn dưới {{days}} ngày",
-      "aging": "Tồn {{from}}–{{to}} ngày"
+      "total": "Tổng số thiết bị trong kho",
+      "aged": "Trong kho trên {{days}} ngày",
+      "fresh": "Trong kho không quá {{days}} ngày",
+      "aging": "Trong kho trên {{from}} đến {{to}} ngày"
     },
     "table": {
       "columns": {
         "identity": "Serial / Model",
         "firmware": "Firmware xuất xưởng",
-        "age": "Thời gian tồn kho",
-        "status": "Trạng thái sử dụng"
+        "age": "Số ngày trong kho",
+        "status": "Trạng thái kích hoạt"
       },
       "firmwareOutdated": "Cần cập nhật",
       "firmwareOutdatedHint": "Firmware cũ hơn bản phát hành hiện tại — thiết bị sẽ cần OTA ngay sau khi kích hoạt.",
       "ageDays_one": "{{count}} ngày",
       "ageDays_other": "{{count}} ngày",
-      "total": "Tổng cộng {{total}} thiết bị tồn kho",
-      "receivedAt": "Nhập kho: {{date}}",
+      "total": "Tổng cộng {{total}} thiết bị trong kho",
+      "receivedAt": "Ngày nhập kho: {{date}}",
       "notActivated": "Chưa kích hoạt"
     },
-    "description": "{{total}} thiết bị tồn kho phù hợp bộ lọc · Chưa kích hoạt"
+    "description": "{{total}} thiết bị trong kho khớp với bộ lọc hiện tại · Chưa kích hoạt"
   },
   "filters": {
     "searchAriaLabel": "Tìm thiết bị",
@@ -219,7 +220,8 @@
     "justNow": "Vừa xong"
   },
   "stats": {
-    "total": "Tổng thiết bị"
+    "total": "Tổng thiết bị",
+    "errorWithinOnline": "Nằm trong nhóm Online"
   },
   "listPage": {
     "title": "Quản lý thiết bị",

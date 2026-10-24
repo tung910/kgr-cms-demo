@@ -18,8 +18,10 @@ import {
 } from '@/shared/components/portal';
 import type { PortalTone } from '@/shared/components/portal';
 import { PageState } from '@/shared/components/PageState';
-import { CONNECTION_STATUSES } from '@/shared/constants/connectionStatus';
-import type { Device } from '../schemas/deviceSchemas';
+import {
+  CONNECTION_STATUSES,
+  type ConnectionStatus,
+} from '@/shared/constants/connectionStatus';
 
 import { getAllDevices } from '../api/deviceApi';
 import { DeviceFilters } from '../components/DeviceFilters';
@@ -27,6 +29,7 @@ import { DeviceListTabs } from '../components/DeviceListTabs';
 import { DeviceTable } from '../components/DeviceTable';
 import { deviceQueries } from '../queries/deviceQueries';
 import { downloadDevicesCsv } from '../utils/exportDevicesToCsv';
+import { useCanSeeLock } from '../utils/useCanSeeLock';
 import type { DeviceListFilters } from '../schemas/deviceSchemas';
 
 export interface DeviceListPageProps {
@@ -40,7 +43,7 @@ const defaultFilters: DeviceListFilters = {
 };
 
 const statCardConfig: Record<
-  NonNullable<Device['status']>,
+  ConnectionStatus,
   { icon: ReactNode; tone: PortalTone }
 > = {
   online: { icon: <WifiOutlined />, tone: 'primary' },
@@ -68,13 +71,14 @@ export function DeviceListPage({ filters }: DeviceListPageProps) {
   const { data: counts } = useSuspenseQuery(
     deviceQueries.statusCounts(deferredFilters)
   );
+  const canSeeLock = useCanSeeLock();
   const [exporting, setExporting] = useState(false);
 
   const handleExport = async () => {
     setExporting(true);
     try {
       const devices = await getAllDevices(filters);
-      downloadDevicesCsv(devices);
+      downloadDevicesCsv(devices, { canSeeLock });
       void message.success(
         t('listPage.exportSuccess', { count: devices.length })
       );
@@ -128,6 +132,9 @@ export function DeviceListPage({ filters }: DeviceListPageProps) {
             icon={statCardConfig[status].icon}
             tone={statCardConfig[status].tone}
             value={counts[status]}
+            detail={
+              status === 'warning' ? t('stats.errorWithinOnline') : undefined
+            }
           />
         ))}
       </div>

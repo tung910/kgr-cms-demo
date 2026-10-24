@@ -1,14 +1,14 @@
 import { customerMockData } from '@/features/customers/mocks/customerMockData';
 import type {
   DeviceDto,
-  DeviceStatus,
   DeviceWarrantyStatus,
 } from '@/features/devices/schemas/deviceSchemas';
 
 import { nonIotProductsEnabled } from './nonIotProducts';
 
 const models = ['KGR-A100', 'KGR-B200', 'KGR-C300'] as const;
-const statuses: readonly DeviceStatus[] = ['online', 'offline', 'warning'];
+// `warning` is the online-with-error group: online connection, `has_error`.
+const statuses = ['online', 'offline', 'warning'] as const;
 const regions = ['Hà Nội', 'Hải Phòng', 'Đà Nẵng', 'Hồ Chí Minh'] as const;
 const wardsByRegion: Record<(typeof regions)[number], readonly string[]> = {
   'Hà Nội': ['Phường Hoàng Mai', 'Phường Cầu Giấy', 'Phường Ba Đình'],
@@ -23,8 +23,9 @@ const warrantyStatuses: readonly DeviceWarrantyStatus[] = [
 ];
 
 const iotDeviceCount = 39;
-// The last units were activated but never reported in ("Chưa kết nối").
+// The last units were bound to a customer but never reported in (plain offline).
 const firstNeverConnectedIndex = 35;
+const noOwnerIndex = 11;
 
 const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
   { length: iotDeviceCount },
@@ -39,6 +40,9 @@ const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
     const warrantyStatus = warrantyStatuses[index % warrantyStatuses.length]!;
     const number = index + 1;
     const neverConnected = index >= firstNeverConnectedIndex;
+    // Connected before, then reset to change owner: no owner until the next
+    // customer binds it.
+    const noOwner = index === noOwnerIndex;
     const customer = customerMockData[index % customerMockData.length]!;
     const ownerId = customer.id;
     const activatedAt = `2025-${String((index % 11) + 1).padStart(2, '0')}-01T08:00:00.000Z`;
@@ -51,7 +55,13 @@ const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
       connectivity: 'iot',
       ward: wardsByRegion[region][index % 3],
       // #20 is decommissioned, the last four never connected: all offline.
-      status: neverConnected || index === 20 ? 'offline' : status,
+      status:
+        neverConnected || index === 20
+          ? 'offline'
+          : status === 'offline'
+            ? 'offline'
+            : 'online',
+      has_error: !neverConnected && index !== 20 && status === 'warning',
       last_online_at: neverConnected
         ? null
         : new Date(Date.now() - index * 17 * 60_000).toISOString(),
@@ -63,12 +73,14 @@ const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
       powered: true,
       module_firmware_version: `2.${index % 4}.${number}`,
       mainboard_firmware_version: `1.${index % 3}.${number}`,
-      owner: {
-        id: ownerId,
-        name: customer.name,
-        phone_masked: customer.phone,
-        address: customer.address,
-      },
+      ...(!noOwner && {
+        owner: {
+          id: ownerId,
+          name: customer.name,
+          phone_masked: customer.phone,
+          address: customer.address,
+        },
+      }),
       latest_telemetry: neverConnected
         ? []
         : [
@@ -141,6 +153,10 @@ const iotDeviceFixtures: readonly DeviceDto[] = Array.from(
           owner_id: ownerId,
           owner_name: customer.name,
           started_at: activatedAt,
+          ...(noOwner && {
+            ended_at: '2026-09-10T08:00:00.000Z',
+            reason: 'Reset thiết bị để đổi chủ sở hữu',
+          }),
         },
       ],
       operation_log: [],
@@ -172,6 +188,7 @@ const nonIotDeviceFixtures: readonly DeviceDto[] = Array.from(
       ward: wardsByRegion[region][index % 3],
       connectivity: 'non_iot',
       status: null,
+      has_error: false,
       last_online_at: null,
       manufactured_at: `2025-${String((index % 12) + 1).padStart(2, '0')}-05T00:00:00.000Z`,
       batch_code: `LOT-${model.replace('KGR-', '')}-${String(Math.floor(index / 2) + 1).padStart(3, '0')}`,

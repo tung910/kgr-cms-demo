@@ -1,0 +1,33 @@
+{
+  "audienceConditionsTitle": "Audience conditions",
+  "mechanism": {
+    "firstSendTitle": "Existing matches are eligible when the campaign starts",
+    "firstSendHint": "Once approved and activated, the campaign evaluates customers who already meet the trigger, not only new threshold crossings. Every send must still pass audience filters, exit rules, quiet hours and frequency limits.",
+    "coreThreshold": "Trigger when filter life is ≤ {{days}} days (IoT devices only).",
+    "warrantyThreshold": "Trigger when warranty has 0–{{days}} days remaining. This threshold follows system settings and may change.",
+    "tdsThreshold": "Trigger when regional TDS is ≥ {{value}} ppm (IoT devices only). This threshold follows system settings and may change.",
+    "thresholdRestricted": "The threshold follows system settings. This account cannot view those settings; ask an administrator to confirm the current value.",
+    "thresholdError": "Could not load the system threshold. The current trigger value cannot be confirmed; please try again later.",
+    "thresholdLoading": "Loading the system threshold…",
+    "frequencyHint": "This is a minimum interval, not a fixed schedule. Lifetime, per-window and system-wide caps must all allow the send. 0 days means no wait between evaluations.",
+    "reentryHint": "Counted across the entire campaign, per account or device as selected in Audience. Replacing a filter or renewing a warranty does not automatically reset the count.",
+    "startHint": "Starts at 00:00 on the selected date, after approval and activation. Leave blank to start on activation. Dates use the browser time zone (UTC+7 in Vietnam).",
+    "endHint": "Includes the entire selected day (23:59). Leave blank for no end date; the campaign can still be stopped.",
+    "invalidWindow": "The end date must be on or after the start date.",
+    "quietHint": "Vietnam time (UTC+7), push only. No sends during this interval; conditions are evaluated again afterwards, without accumulating deferred sends. Equal times disable quiet hours.",
+    "summaryTitle": "Run summary",
+    "summaryWindow": "Active: {{from}} → {{to}}, after approval and activation.",
+    "afterActivation": "On activation",
+    "summaryRepeat": "At least {{days}} days between reminders, up to {{max}} sends across this campaign per account/device selected in Audience, subject to frequency caps.",
+    "summaryQuiet": "Pause push during {{from}}–{{to}} Vietnam time (UTC+7); equal times disable the pause.",
+    "summaryExit": "Selected exit rule: {{condition}}.",
+    "noExit": "No additional rule; the trigger must still match at every evaluation",
+    "frequencyTitle": "Send frequency & limits",
+    "totalCapLabel": "Maximum sends across the campaign",
+    "cycle": "Window: the previous {{days}} consecutive days at each send evaluation. Global cap: {{limit}} attempts per customer across all campaigns in that window.",
+    "cycleUnavailable": "The window and global cap follow system settings. Their values are not currently available for this account; ask an administrator to confirm.",
+    "currentCap": "This campaign: up to {{cap}} attempts per window, per account or device as selected in Audience.",
+    "cycleCapLabel": "Maximum sends per window",
+    "cycleCapHint": "This limits this campaign within the window above, not across its entire lifetime. 0 blocks all sends. Only authorized users can edit it."
+  }
+}

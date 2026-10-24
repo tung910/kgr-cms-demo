@@ -16,10 +16,9 @@ import {
 import { isPortalRole, type PortalRole } from '@/core/auth/types';
 import { systemHandlers } from '@/features/system/mocks/systemHandlers';
 import { deviceExtraHandlers } from '@/features/devices/mocks/deviceExtraHandlers';
-import type {
-  DeviceDto,
-  DeviceStatus,
-} from '@/features/devices/schemas/deviceSchemas';
+import { campaignHandlers } from '@/features/campaigns/mocks/campaignHandlers';
+import type { DeviceDto } from '@/features/devices/schemas/deviceSchemas';
+import type { ConnectionStatus } from '@/shared/constants/connectionStatus';
 
 import {
   coreLifecycleConfigDtoSchema,
@@ -334,9 +333,16 @@ function deviceForRole(
   device: DeviceDto,
   role: PortalRole | undefined
 ): DeviceDto {
-  if (role && hasCapability(role, 'device.pii.full')) return device;
+  // §3.4c: the lock state is only visible with device.control.read, so other
+  // roles see a locked device as `active` in the API and in exports.
+  const visible: DeviceDto =
+    device.lifecycle_state === 'locked' &&
+    !(role && hasCapability(role, 'device.control.read'))
+      ? { ...device, lifecycle_state: 'active' }
+      : device;
+  if (role && hasCapability(role, 'device.pii.full')) return visible;
   return {
-    ...device,
+    ...visible,
     install_address: maskInstallAddress(device.install_address),
     ...(device.owner && { owner: { id: device.owner.id } }),
     shared_members: undefined,
@@ -452,8 +458,16 @@ function parsePositiveInteger(value: string | null, fallback: number): number {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-function isDeviceStatus(value: string | null): value is DeviceStatus {
+function isConnectionStatus(value: string | null): value is ConnectionStatus {
   return value === 'online' || value === 'offline' || value === 'warning';
+}
+
+// `warning` is not a connection state: it selects online devices that report
+// an error, so the list and the status counts share one definition.
+function matchesStatus(device: DeviceDto, status: ConnectionStatus): boolean {
+  if (status === 'warning')
+    return device.status === 'online' && device.has_error;
+  return device.status === status;
 }
 
 function matchesSearch(device: DeviceDto, search: string): boolean {
@@ -521,7 +535,7 @@ function matchesErrorType(device: DeviceDto, errorType: string): boolean {
   }
   if (errorType === 'connectivity' && device.status === 'offline') return true;
   if (errorType === 'filter' && device.filter_life_percent <= 10) return true;
-  if (errorType === 'hardware' && device.status === 'warning') return true;
+  if (errorType === 'hardware' && device.has_error) return true;
   return false;
 }
 
@@ -540,7 +554,11 @@ function filterDevices(url: URL, withStatus: boolean): DeviceDto[] {
 
   return deviceStore.filter((device) => {
     if (search && !matchesSearch(device, search)) return false;
-    if (withStatus && isDeviceStatus(status) && device.status !== status)
+    if (
+      withStatus &&
+      isConnectionStatus(status) &&
+      !matchesStatus(device, status)
+    )
       return false;
     if (model && device.model_name !== model) return false;
     if (region && device.region !== region) return false;
@@ -628,8 +646,7 @@ async function mutateDevice(
       current.activated_at ||
       current.last_online_at ||
       current.latest_telemetry.length > 0 ||
-      current.status === 'online' ||
-      current.status === 'warning'
+      current.status === 'online'
     )
       return deviceError('previouslyActive');
     updated = {
@@ -697,6 +714,17 @@ async function mutateDevice(
 
 export const handlers = [
   ...systemHandlers,
+  // Core SKU catalogue for the campaign "Mua lõi" button. Lives here because it
+  // reads the serials core store, which the campaigns slice must not import.
+  // Registered before campaignHandlers so it wins over `/campaigns/:id`.
+  http.get('/api/campaigns/core-options', () => {
+    if (!allowed('campaign.write'))
+      return HttpResponse.json({ message: 'forbidden' }, { status: 403 });
+    return HttpResponse.json(
+      coreLifecycleStore.cores.map(({ sku, name }) => ({ sku, name }))
+    );
+  }),
+  ...campaignHandlers,
   ...deviceExtraHandlers,
   http.get('/api/dashboard/summary', ({ request }) => {
     if (hasServerError(new URL(request.url))) {
@@ -789,8 +817,8 @@ export const handlers = [
       );
     }
     const devices = filterDevices(url, false);
-    const count = (status: DeviceStatus) =>
-      devices.filter((device) => device.status === status).length;
+    const count = (status: ConnectionStatus) =>
+      devices.filter((device) => matchesStatus(device, status)).length;
     return HttpResponse.json({
       total: devices.length,
       non_iot: devices.filter((device) => device.connectivity === 'non_iot')
@@ -858,6 +886,7 @@ export const handlers = [
           display_name: item.display_name,
           model_name: item.model_name,
           status: item.status,
+          has_error: item.has_error,
           warranty_status: item.warranty_status,
           warranty_expires_at: item.warranty_expires_at,
           last_online_at: item.last_online_at,

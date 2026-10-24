@@ -205,6 +205,16 @@ const slaMinutesSchema = z.number().int().positive().nullable();
 // Ranges per CMS_IMPLEMENTATION_PLAN.md §3.1 SCR-35. The mock backend parses
 // the PUT body with this same schema, so the ranges are enforced there too.
 export const configParamsDtoSchema = z.object({
+  campaign_core_days: z.number().int().min(1).max(365),
+  campaign_quiet_start_hour: z.number().int().min(0).max(23),
+  campaign_quiet_end_hour: z.number().int().min(0).max(23),
+  campaign_frequency_limit: z.number().int().min(1).max(100),
+  campaign_frequency_days: z.number().int().min(1).max(365),
+  campaign_attribution_days: z.number().int().min(1).max(365),
+  campaign_cooldown_days: z.number().int().min(1).max(365),
+  campaign_repurchase_days: z.number().int().min(1).max(730),
+  campaign_booking_revenue: z.number().int().min(0).max(100000000),
+  campaign_qr_revenue: z.number().int().min(0).max(100000000),
   tds_threshold_region: z.number().int().min(1).max(1000),
   ota_auto_pause_rate: z.number().min(0.1).max(100),
   device_ack_timeout: z.number().int().min(5).max(300),
@@ -248,6 +258,16 @@ export interface CatalogItem {
 }
 
 export interface ConfigParams {
+  campaignCoreDays: number;
+  campaignQuietStartHour: number;
+  campaignQuietEndHour: number;
+  campaignFrequencyLimit: number;
+  campaignFrequencyDays: number;
+  campaignAttributionDays: number;
+  campaignCooldownDays: number;
+  campaignRepurchaseDays: number;
+  campaignBookingRevenue: number;
+  campaignQrRevenue: number;
   tdsThresholdRegion: number;
   otaAutoPauseRate: number;
   deviceAckTimeout: number;

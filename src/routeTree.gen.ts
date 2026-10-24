@@ -26,6 +26,9 @@ import { Route as AuthenticatedInventoryAllocationRouteImport } from './routes/_
 import { Route as AuthenticatedMapsRouteImport } from './routes/_authenticated/maps'
 import { Route as AuthenticatedSystemIntegrationsRouteImport } from './routes/_authenticated/system-integrations'
 import { Route as AuthenticatedWarrantiesRouteImport } from './routes/_authenticated/warranties'
+import { Route as AuthenticatedCampaignsIndexRouteImport } from './routes/_authenticated/campaigns/index'
+import { Route as AuthenticatedCampaignsCampaignIdRouteImport } from './routes/_authenticated/campaigns/$campaignId'
+import { Route as AuthenticatedCampaignsNewRouteImport } from './routes/_authenticated/campaigns/new'
 import { Route as AuthenticatedDevicesIndexRouteImport } from './routes/_authenticated/devices/index'
 import { Route as AuthenticatedDevicesDeviceIdRouteImport } from './routes/_authenticated/devices/$deviceId'
 import { Route as AuthenticatedSerialsIndexRouteImport } from './routes/_authenticated/serials/index'
@@ -123,6 +126,24 @@ const AuthenticatedWarrantiesRoute = AuthenticatedWarrantiesRouteImport.update({
   path: '/warranties',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCampaignsIndexRoute =
+  AuthenticatedCampaignsIndexRouteImport.update({
+    id: '/campaigns/',
+    path: '/campaigns/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCampaignsCampaignIdRoute =
+  AuthenticatedCampaignsCampaignIdRouteImport.update({
+    id: '/campaigns/$campaignId',
+    path: '/campaigns/$campaignId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCampaignsNewRoute =
+  AuthenticatedCampaignsNewRouteImport.update({
+    id: '/campaigns/new',
+    path: '/campaigns/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDevicesIndexRoute =
   AuthenticatedDevicesIndexRouteImport.update({
     id: '/devices/',
@@ -183,11 +204,14 @@ export interface FileRoutesByFullPath {
   '/maps': typeof AuthenticatedMapsRoute
   '/system-integrations': typeof AuthenticatedSystemIntegrationsRoute
   '/warranties': typeof AuthenticatedWarrantiesRoute
+  '/campaigns/$campaignId': typeof AuthenticatedCampaignsCampaignIdRoute
+  '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/serials/core-config': typeof AuthenticatedSerialsCoreConfigRoute
   '/system/audit': typeof AuthenticatedSystemAuditRoute
   '/system/config': typeof AuthenticatedSystemConfigRoute
   '/system/members': typeof AuthenticatedSystemMembersRoute
+  '/campaigns/': typeof AuthenticatedCampaignsIndexRoute
   '/devices/': typeof AuthenticatedDevicesIndexRoute
   '/serials/': typeof AuthenticatedSerialsIndexRoute
 }
@@ -208,11 +232,14 @@ export interface FileRoutesByTo {
   '/system-integrations': typeof AuthenticatedSystemIntegrationsRoute
   '/warranties': typeof AuthenticatedWarrantiesRoute
   '/': typeof AuthenticatedIndexRoute
+  '/campaigns/$campaignId': typeof AuthenticatedCampaignsCampaignIdRoute
+  '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/serials/core-config': typeof AuthenticatedSerialsCoreConfigRoute
   '/system/audit': typeof AuthenticatedSystemAuditRoute
   '/system/config': typeof AuthenticatedSystemConfigRoute
   '/system/members': typeof AuthenticatedSystemMembersRoute
+  '/campaigns': typeof AuthenticatedCampaignsIndexRoute
   '/devices': typeof AuthenticatedDevicesIndexRoute
   '/serials': typeof AuthenticatedSerialsIndexRoute
 }
@@ -235,11 +262,14 @@ export interface FileRoutesById {
   '/_authenticated/system-integrations': typeof AuthenticatedSystemIntegrationsRoute
   '/_authenticated/warranties': typeof AuthenticatedWarrantiesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/campaigns/$campaignId': typeof AuthenticatedCampaignsCampaignIdRoute
+  '/_authenticated/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/_authenticated/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/_authenticated/serials/core-config': typeof AuthenticatedSerialsCoreConfigRoute
   '/_authenticated/system/audit': typeof AuthenticatedSystemAuditRoute
   '/_authenticated/system/config': typeof AuthenticatedSystemConfigRoute
   '/_authenticated/system/members': typeof AuthenticatedSystemMembersRoute
+  '/_authenticated/campaigns/': typeof AuthenticatedCampaignsIndexRoute
   '/_authenticated/devices/': typeof AuthenticatedDevicesIndexRoute
   '/_authenticated/serials/': typeof AuthenticatedSerialsIndexRoute
 }
@@ -262,11 +292,14 @@ export interface FileRouteTypes {
     | '/maps'
     | '/system-integrations'
     | '/warranties'
+    | '/campaigns/$campaignId'
+    | '/campaigns/new'
     | '/devices/$deviceId'
     | '/serials/core-config'
     | '/system/audit'
     | '/system/config'
     | '/system/members'
+    | '/campaigns/'
     | '/devices/'
     | '/serials/'
   fileRoutesByTo: FileRoutesByTo
@@ -287,11 +320,14 @@ export interface FileRouteTypes {
     | '/system-integrations'
     | '/warranties'
     | '/'
+    | '/campaigns/$campaignId'
+    | '/campaigns/new'
     | '/devices/$deviceId'
     | '/serials/core-config'
     | '/system/audit'
     | '/system/config'
     | '/system/members'
+    | '/campaigns'
     | '/devices'
     | '/serials'
   id:
@@ -313,11 +349,14 @@ export interface FileRouteTypes {
     | '/_authenticated/system-integrations'
     | '/_authenticated/warranties'
     | '/_authenticated/'
+    | '/_authenticated/campaigns/$campaignId'
+    | '/_authenticated/campaigns/new'
     | '/_authenticated/devices/$deviceId'
     | '/_authenticated/serials/core-config'
     | '/_authenticated/system/audit'
     | '/_authenticated/system/config'
     | '/_authenticated/system/members'
+    | '/_authenticated/campaigns/'
     | '/_authenticated/devices/'
     | '/_authenticated/serials/'
   fileRoutesById: FileRoutesById
@@ -450,6 +489,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWarrantiesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/campaigns/': {
+      id: '/_authenticated/campaigns/'
+      path: '/campaigns'
+      fullPath: '/campaigns/'
+      preLoaderRoute: typeof AuthenticatedCampaignsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/campaigns/$campaignId': {
+      id: '/_authenticated/campaigns/$campaignId'
+      path: '/campaigns/$campaignId'
+      fullPath: '/campaigns/$campaignId'
+      preLoaderRoute: typeof AuthenticatedCampaignsCampaignIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/campaigns/new': {
+      id: '/_authenticated/campaigns/new'
+      path: '/campaigns/new'
+      fullPath: '/campaigns/new'
+      preLoaderRoute: typeof AuthenticatedCampaignsNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/devices/': {
       id: '/_authenticated/devices/'
       path: '/devices'
@@ -516,11 +576,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSystemIntegrationsRoute: typeof AuthenticatedSystemIntegrationsRoute
   AuthenticatedWarrantiesRoute: typeof AuthenticatedWarrantiesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedCampaignsCampaignIdRoute: typeof AuthenticatedCampaignsCampaignIdRoute
+  AuthenticatedCampaignsNewRoute: typeof AuthenticatedCampaignsNewRoute
   AuthenticatedDevicesDeviceIdRoute: typeof AuthenticatedDevicesDeviceIdRoute
   AuthenticatedSerialsCoreConfigRoute: typeof AuthenticatedSerialsCoreConfigRoute
   AuthenticatedSystemAuditRoute: typeof AuthenticatedSystemAuditRoute
   AuthenticatedSystemConfigRoute: typeof AuthenticatedSystemConfigRoute
   AuthenticatedSystemMembersRoute: typeof AuthenticatedSystemMembersRoute
+  AuthenticatedCampaignsIndexRoute: typeof AuthenticatedCampaignsIndexRoute
   AuthenticatedDevicesIndexRoute: typeof AuthenticatedDevicesIndexRoute
   AuthenticatedSerialsIndexRoute: typeof AuthenticatedSerialsIndexRoute
 }
@@ -539,11 +602,14 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSystemIntegrationsRoute: AuthenticatedSystemIntegrationsRoute,
   AuthenticatedWarrantiesRoute: AuthenticatedWarrantiesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedCampaignsCampaignIdRoute: AuthenticatedCampaignsCampaignIdRoute,
+  AuthenticatedCampaignsNewRoute: AuthenticatedCampaignsNewRoute,
   AuthenticatedDevicesDeviceIdRoute: AuthenticatedDevicesDeviceIdRoute,
   AuthenticatedSerialsCoreConfigRoute: AuthenticatedSerialsCoreConfigRoute,
   AuthenticatedSystemAuditRoute: AuthenticatedSystemAuditRoute,
   AuthenticatedSystemConfigRoute: AuthenticatedSystemConfigRoute,
   AuthenticatedSystemMembersRoute: AuthenticatedSystemMembersRoute,
+  AuthenticatedCampaignsIndexRoute: AuthenticatedCampaignsIndexRoute,
   AuthenticatedDevicesIndexRoute: AuthenticatedDevicesIndexRoute,
   AuthenticatedSerialsIndexRoute: AuthenticatedSerialsIndexRoute,
 }

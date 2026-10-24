@@ -19,6 +19,8 @@ import { formatDate } from '@/shared/lib/format';
 import { referenceColors, softTones } from '@/theme/tokens';
 
 import type { Device } from '../schemas/deviceSchemas';
+import { getDeviceStatusDisplay } from '../utils/deviceStatusDisplay';
+import { DeviceMainStatusBadge, DeviceStatusTags } from './DeviceStatusCell';
 
 export interface DeviceOverviewProps {
   device: Device;
@@ -167,6 +169,11 @@ export function DeviceOverview({
   const tdsOut = metric('tds_out');
   const tdsIn = metric('tds_in');
   const nonIot = device.connectivity === 'non_iot';
+  // Same rules as the list's status column; the lock tag follows
+  // `showControlState` (device.control.read, §3.4c).
+  const statusDisplay = getDeviceStatusDisplay(device, {
+    canSeeLock: showControlState,
+  });
   const offline = device.status === 'offline';
   const quality = offline ? 'unknown' : signalQuality(device.wifiSignalDbm);
   // Offline trumps signal quality: an unreachable device is never 'stable'.
@@ -223,11 +230,10 @@ export function DeviceOverview({
                 </PortalBadge>
               ) : null}
             </div>
-            {device.lifecycleState === 'decommissioned' ||
-            (showControlState && device.lifecycleState === 'locked') ? (
-              <PortalBadge tone="warning">
-                {t('lifecycleState.' + device.lifecycleState)}
-              </PortalBadge>
+            {statusDisplay.tags.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <DeviceStatusTags tags={statusDisplay.tags} />
+              </div>
             ) : null}
             {showControlState && !nonIot ? (
               <div className="flex flex-wrap items-center gap-2">
@@ -338,7 +344,7 @@ export function DeviceOverview({
                   icon={<WifiOutlined />}
                   tone={connectionTone}
                   title={t('detailPage.cards.connectionTitle')}
-                  badge={<ConnectionStatusBadge status={device.status} />}
+                  badge={<DeviceMainStatusBadge main={statusDisplay.main} />}
                 />
                 <div className="flex flex-1 flex-col justify-center gap-1">
                   <p

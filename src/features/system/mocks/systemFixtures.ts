@@ -181,6 +181,16 @@ export const extraMemberSeeds: MemberSeed[] = [];
 
 export const configFixture: SystemConfigDto = {
   params: {
+    campaign_core_days: 15,
+    campaign_quiet_start_hour: 21,
+    campaign_quiet_end_hour: 8,
+    campaign_frequency_limit: 3,
+    campaign_frequency_days: 7,
+    campaign_attribution_days: 7,
+    campaign_cooldown_days: 30,
+    campaign_repurchase_days: 180,
+    campaign_booking_revenue: 450000,
+    campaign_qr_revenue: 320000,
     tds_threshold_region: 55,
     ota_auto_pause_rate: 5,
     device_ack_timeout: 30,

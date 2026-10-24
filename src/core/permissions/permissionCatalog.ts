@@ -172,6 +172,7 @@ export const PERMISSION_CATALOG: readonly PermissionFunction[] = [
       create: 'campaign.write',
       update: 'campaign.write',
       export: 'campaign.export',
+      send: 'campaign.send',
       approve: 'campaign.approve',
     },
   },
@@ -181,6 +182,13 @@ export const PERMISSION_CATALOG: readonly PermissionFunction[] = [
     cells: {
       create: 'campaign.voucher.create',
       update: 'campaign.voucher.update',
+    },
+  },
+  {
+    key: 'campaign_frequency',
+    module: 'campaigns',
+    cells: {
+      update: 'campaign.frequency.config',
     },
   },
   {

@@ -252,6 +252,7 @@ export const deviceOwnerProfileDeviceDtoSchema = z.object({
   display_name: z.string(),
   model_name: z.string().min(1),
   status: deviceStatusSchema.nullable(),
+  has_error: z.boolean(),
   warranty_status: deviceWarrantyStatusSchema,
   warranty_expires_at: z.string().datetime({ offset: true }).optional(),
   last_online_at: z.string().datetime({ offset: true }).nullable(),
@@ -273,6 +274,7 @@ export interface DeviceOwnerProfileDevice {
   modelName: string;
   /** `null` for non-IoT products. */
   status: DeviceStatus | null;
+  hasError: boolean;
   warrantyStatus: DeviceWarrantyStatus;
   warrantyExpiresAt?: string;
   lastOnlineAt: string | null;

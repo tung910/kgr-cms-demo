@@ -1,10 +1,13 @@
 import { z } from 'zod';
 
+import type { ConnectionStatus } from '@/shared/constants/connectionStatus';
 import type { ProductConnectivity } from '@/shared/constants/productConnectivity';
 
 import { productConnectivitySchema } from './productConnectivitySchema';
 
-export type DeviceStatus = 'online' | 'offline' | 'warning';
+// Connection state only. A device that reports a fault is still `online`;
+// the fault is the separate `hasError` flag.
+export type DeviceStatus = 'online' | 'offline';
 export type DeviceLifecycleState = 'active' | 'locked' | 'decommissioned';
 export type DeviceWarrantyStatus = 'active' | 'expiring' | 'expired' | 'none';
 
@@ -16,7 +19,8 @@ export type DeviceErrorType = 'connectivity' | 'waterLeak' | 'other';
 
 export interface DeviceListFilters {
   search: string;
-  status?: DeviceStatus;
+  // `warning` filters online devices that report an error (`hasError`).
+  status?: ConnectionStatus;
   model?: string;
   region?: string;
   // No UI control: set by the customer list's device-count link.
@@ -43,7 +47,8 @@ export type DeviceCountFilters = Omit<
 >;
 
 // online/warning/offline only count IoT devices; `total` also includes the
-// non-IoT units, which never report a connection.
+// non-IoT units, which never report a connection. `warning` is the subset of
+// `online` devices with an error, so the three do not add up to `total`.
 export interface DeviceStatusCounts {
   total: number;
   nonIot: number;
@@ -119,6 +124,8 @@ export interface Device {
   connectivity: ProductConnectivity;
   /** `null` for non-IoT products — they never report a connection. */
   status: DeviceStatus | null;
+  /** Platform-computed fault flag: device error code, sensor, expired core. */
+  hasError: boolean;
   lastOnlineAt: string | null;
   manufacturedAt: string;
   batchCode: string;
@@ -154,7 +161,13 @@ export interface Device {
   operationLog: DeviceOperationLogEntry[];
 }
 
-export const deviceStatusSchema = z.enum(['online', 'offline', 'warning']);
+export const deviceStatusSchema = z.enum(['online', 'offline']);
+// List filter: also accepts `warning` (online with an error); see DeviceListFilters.
+export const deviceStatusFilterSchema = z.enum([
+  'online',
+  'warning',
+  'offline',
+]);
 export const deviceLifecycleStateSchema = z.enum([
   'active',
   'locked',
@@ -215,6 +228,9 @@ export const deviceDtoSchema = z.object({
   ward: z.string().min(1).optional(),
   connectivity: productConnectivitySchema,
   status: deviceStatusSchema.nullable(),
+  // ⚠️ Assumption: the backend exposes the fault as a boolean next to
+  // `status`; confirm the contract before the real API lands.
+  has_error: z.boolean(),
   last_online_at: z.string().datetime({ offset: true }).nullable(),
   manufactured_at: z.string().datetime({ offset: true }),
   batch_code: z.string().min(1),
