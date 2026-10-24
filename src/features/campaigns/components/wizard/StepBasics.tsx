@@ -11,7 +11,13 @@ import {
   Switch,
 } from 'antd';
 import dayjs from 'dayjs';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+
+import { useAuth } from '@/core/auth/useAuth';
+import { hasCapability } from '@/core/permissions/capabilities';
+import { PermissionGuard } from '@/core/permissions/PermissionGuard';
+import { systemQueries } from '@/features/system/queries/systemQueries';
 
 import {
   CAMPAIGN_KINDS,
@@ -19,7 +25,7 @@ import {
   NOTIFICATION_GROUPS,
   TRIGGER_PRESETS,
 } from '../../constants/campaignEnums';
-import type { WizardValues } from './wizardValues';
+import { DEFAULT_WIZARD_VALUES, type WizardValues } from './wizardValues';
 
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -94,6 +100,56 @@ export function StepMechanism() {
   const kind = Form.useWatch('kind', form);
   const scheduleType = Form.useWatch('scheduleType', form);
   const preset = Form.useWatch('triggerPreset', form);
+  const watched = Form.useWatch([], form);
+  const values: WizardValues = { ...DEFAULT_WIZARD_VALUES, ...watched };
+  const { session } = useAuth();
+  const canReadConfig = !!session && hasCapability(session.role, 'config.read');
+  const config = useQuery({
+    ...systemQueries.config(),
+    enabled: canReadConfig,
+  });
+  const params = canReadConfig ? config.data?.params : undefined;
+  const frequencyCap = (
+    <>
+      <p className="mt-0 text-sm" aria-live="polite">
+        {params
+          ? t('mechanism.cycle', {
+              days: params.campaignFrequencyDays,
+              limit: params.campaignFrequencyLimit,
+            })
+          : t('mechanism.cycleUnavailable')}
+      </p>
+      <p className="text-sm" aria-live="polite">
+        {t('mechanism.currentCap', { cap: values.frequencyCap ?? '—' })}
+      </p>
+      <PermissionGuard capability="campaign.frequency.config">
+        <Form.Item
+          name="frequencyCap"
+          label={t('mechanism.cycleCapLabel')}
+          extra={t('mechanism.cycleCapHint')}
+          rules={[{ required: true, type: 'integer', min: 0 }]}
+        >
+          <InputNumber min={0} precision={0} />
+        </Form.Item>
+      </PermissionGuard>
+    </>
+  );
+  const threshold =
+    preset === 'core_due'
+      ? t('mechanism.coreThreshold', { days: values.coreDays ?? '—' })
+      : !canReadConfig
+        ? t('mechanism.thresholdRestricted')
+        : config.isError
+          ? t('mechanism.thresholdError')
+          : !params
+            ? t('mechanism.thresholdLoading')
+            : preset === 'warranty_expiring'
+              ? t('mechanism.warrantyThreshold', {
+                  days: params.warrantyExpiringDays,
+                })
+              : t('mechanism.tdsThreshold', {
+                  value: params.tdsThresholdRegion,
+                });
 
   if (kind !== 'trigger') {
     return (
@@ -126,12 +182,25 @@ export function StepMechanism() {
             />
           </Form.Item>
         ) : null}
+        <fieldset className="mb-4 rounded-lg border border-[#E7E8E9] p-3">
+          <legend className="px-1 text-sm font-medium">
+            {t('mechanism.frequencyTitle')}
+          </legend>
+          {frequencyCap}
+        </fieldset>
       </>
     );
   }
 
   return (
     <>
+      <Alert
+        className="mb-4"
+        type="info"
+        showIcon
+        title={t('mechanism.firstSendTitle')}
+        description={t('mechanism.firstSendHint')}
+      />
       <Form.Item name="triggerPreset" label={t('fields.triggerPreset')}>
         <Select
           options={TRIGGER_PRESETS.map(({ value, labelKey }) => ({
@@ -143,6 +212,11 @@ export function StepMechanism() {
       <p className="-mt-3 mb-4 text-xs text-[#636466]">
         {preset ? t(`trigger.hint.${preset}`) : null}
       </p>
+      {preset !== 'core_due' ? (
+        <p className="mb-4 text-sm" aria-live="polite">
+          {threshold}
+        </p>
+      ) : null}
       {preset === 'core_due' ? (
         <Form.Item
           name="coreDays"
@@ -161,6 +235,7 @@ export function StepMechanism() {
         <legend className="px-1 text-sm font-medium">{t('fields.exit')}</legend>
         <Form.Item
           name="exitOnPurchase"
+          hidden={preset === 'warranty_expiring'}
           valuePropName="checked"
           className="mb-1"
         >
@@ -168,36 +243,66 @@ export function StepMechanism() {
         </Form.Item>
         <Form.Item
           name="exitOnWarrantyRenewed"
+          hidden={preset !== 'warranty_expiring'}
           valuePropName="checked"
           className="mb-0"
         >
           <Checkbox>{t('fields.exitOnWarrantyRenewed')}</Checkbox>
         </Form.Item>
       </fieldset>
+      <fieldset className="mb-4 rounded-lg border border-[#E7E8E9] p-3">
+        <legend className="px-1 text-sm font-medium">
+          {t('mechanism.frequencyTitle')}
+        </legend>
+        <div className="grid gap-x-4 sm:grid-cols-2">
+          <Form.Item
+            name="cooldownDays"
+            label={t('fields.cooldownDays')}
+            extra={t('mechanism.frequencyHint')}
+            rules={[{ required: true, type: 'number', min: 0, max: 365 }]}
+          >
+            <InputNumber
+              min={0}
+              max={365}
+              precision={0}
+              addonAfter={t('unit.days')}
+            />
+          </Form.Item>
+          <Form.Item
+            name="maxSends"
+            label={t('mechanism.totalCapLabel')}
+            extra={t('mechanism.reentryHint')}
+            rules={[{ required: true, type: 'number', min: 1, max: 100 }]}
+          >
+            <InputNumber min={1} max={100} precision={0} />
+          </Form.Item>
+        </div>
+        {frequencyCap}
+      </fieldset>
       <div className="grid gap-x-4 sm:grid-cols-2">
         <Form.Item
-          name="cooldownDays"
-          label={t('fields.cooldownDays')}
-          rules={[{ required: true, type: 'number', min: 0, max: 365 }]}
+          name="startsOn"
+          label={t('fields.startsOn')}
+          extra={t('mechanism.startHint')}
         >
-          <InputNumber
-            min={0}
-            max={365}
-            precision={0}
-            addonAfter={t('unit.days')}
-          />
-        </Form.Item>
-        <Form.Item
-          name="maxSends"
-          label={t('fields.maxSends')}
-          rules={[{ required: true, type: 'number', min: 1, max: 100 }]}
-        >
-          <InputNumber min={1} max={100} precision={0} />
-        </Form.Item>
-        <Form.Item name="startsOn" label={t('fields.startsOn')}>
           <DatePicker format="DD/MM/YYYY" />
         </Form.Item>
-        <Form.Item name="endsOn" label={t('fields.endsOn')}>
+        <Form.Item
+          name="endsOn"
+          label={t('fields.endsOn')}
+          extra={t('mechanism.endHint')}
+          dependencies={['startsOn']}
+          rules={[
+            {
+              validator: (_, value: dayjs.Dayjs | undefined) => {
+                const start = values.startsOn;
+                return !value || !start || !value.isBefore(start, 'day')
+                  ? Promise.resolve()
+                  : Promise.reject(new Error(t('mechanism.invalidWindow')));
+              },
+            },
+          ]}
+        >
           <DatePicker format="DD/MM/YYYY" />
         </Form.Item>
       </div>
@@ -210,6 +315,9 @@ export function StepMechanism() {
             forceRender: true,
             children: (
               <>
+                <p className="text-xs text-[#636466]">
+                  {t('mechanism.quietHint')}
+                </p>
                 <div className="grid gap-x-4 sm:grid-cols-2">
                   <Form.Item
                     name="quietFrom"
@@ -251,6 +359,54 @@ export function StepMechanism() {
             ),
           },
         ]}
+      />
+      <Alert
+        className="mt-4"
+        type="info"
+        showIcon
+        title={t('mechanism.summaryTitle')}
+        description={
+          <div aria-live="polite" className="space-y-2">
+            <p className="m-0">{threshold}</p>
+            <p className="m-0">
+              {t('mechanism.summaryWindow', {
+                from:
+                  values.startsOn?.format('DD/MM/YYYY') ??
+                  t('mechanism.afterActivation'),
+                to:
+                  values.endsOn?.endOf('day').format('DD/MM/YYYY HH:mm') ??
+                  t('summary.noEnd'),
+              })}
+            </p>
+            <p className="m-0">
+              {t('mechanism.summaryRepeat', {
+                days: values.cooldownDays ?? '—',
+                max: values.maxSends ?? '—',
+              })}
+            </p>
+            <p className="m-0">
+              {t('mechanism.currentCap', { cap: values.frequencyCap ?? '—' })}
+            </p>
+            <p className="m-0">
+              {t('mechanism.summaryQuiet', {
+                from: values.quietFrom || '—',
+                to: values.quietTo || '—',
+              })}
+            </p>
+            <p className="m-0">
+              {t('mechanism.summaryExit', {
+                condition:
+                  preset === 'warranty_expiring'
+                    ? values.exitOnWarrantyRenewed
+                      ? t('fields.exitOnWarrantyRenewed')
+                      : t('mechanism.noExit')
+                    : values.exitOnPurchase
+                      ? t('fields.exitOnPurchase')
+                      : t('mechanism.noExit'),
+              })}
+            </p>
+          </div>
+        }
       />
     </>
   );

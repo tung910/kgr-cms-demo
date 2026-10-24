@@ -258,6 +258,11 @@ function inQuietHours(from: number, to: number): boolean {
 
 function dispatch(campaign: CampaignDto): void {
   const now = Date.now();
+  if (
+    (campaign.starts_at && Date.parse(campaign.starts_at) > now) ||
+    (campaign.ends_at && Date.parse(campaign.ends_at) <= now)
+  )
+    return;
   const config = getSystemConfigParams();
   const trigger = campaign.trigger_config;
   // Quiet hours only silence push; banners and popups show on app open.

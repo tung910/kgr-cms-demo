@@ -4,7 +4,6 @@ import {
   Alert,
   Button,
   Checkbox,
-  Collapse,
   Form,
   InputNumber,
   Radio,
@@ -13,7 +12,6 @@ import {
 } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-import { PermissionGuard } from '@/core/permissions/PermissionGuard';
 import { modelReferenceQueries } from '@/core/reference/modelReferenceQueries';
 import { PRODUCT_CONNECTIVITIES } from '@/shared/constants/productConnectivity';
 
@@ -357,30 +355,6 @@ export function StepAudience({ preview }: { preview: AudiencePreviewState }) {
       </fieldset>
 
       <PreviewPanel preview={preview} />
-
-      <PermissionGuard capability="campaign.frequency.config">
-        <Collapse
-          ghost
-          className="mt-2"
-          items={[
-            {
-              key: 'advanced',
-              label: t('wizard.advanced'),
-              forceRender: true,
-              children: (
-                <Form.Item
-                  name="frequencyCap"
-                  label={t('fields.frequencyCap')}
-                  tooltip={t('fields.frequencyCapHint')}
-                  className="mb-0"
-                >
-                  <InputNumber min={0} precision={0} />
-                </Form.Item>
-              ),
-            },
-          ]}
-        />
-      </PermissionGuard>
     </>
   );
 }

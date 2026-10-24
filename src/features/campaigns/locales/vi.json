@@ -29,7 +29,7 @@
   },
   "trigger": {
     "core_due": "Lõi còn ≤ N ngày",
-    "warranty_expiring": "Bảo hành sắp hết (≤ 30 ngày)",
+    "warranty_expiring": "Bảo hành sắp hết",
     "high_tds": "TDS vùng vượt ngưỡng",
     "hint": {
       "core_due": "Theo cảm biến lõi — chỉ máy IoT.",
@@ -149,8 +149,6 @@
     "suppressOptOut": "Khách đã tắt nhóm thông báo này (bắt buộc)",
     "suppressRecent": "Vừa nhận chiến dịch khác trong 24 giờ",
     "suppressTest": "Tài khoản test",
-    "frequencyCap": "Giới hạn tần suất gửi / KH",
-    "frequencyCapHint": "Số lần tối đa một khách nhận chiến dịch này trong chu kỳ giới hạn của hệ thống.",
     "title": "Tiêu đề",
     "titlePlaceholder": "VD: Lõi lọc của bạn sắp hết",
     "content": "Nội dung",
@@ -407,5 +405,35 @@
       "auto": "Mua lõi theo máy của khách",
       "cores": "Mua lõi: {{names}}"
     }
+  },
+  "mechanism": {
+    "firstSendTitle": "Khách đã đủ điều kiện được xét ngay khi bắt đầu chạy",
+    "firstSendHint": "Sau khi được duyệt và bật chạy, chiến dịch xét cả khách đã thỏa điều kiện, không chỉ khách mới vượt ngưỡng. Mỗi lần gửi vẫn phải thỏa bộ lọc đối tượng, điều kiện thoát, giờ yên lặng và giới hạn tần suất.",
+    "coreThreshold": "Kích hoạt khi lõi còn ≤ {{days}} ngày (chỉ máy IoT).",
+    "warrantyThreshold": "Kích hoạt khi bảo hành còn từ 0 đến {{days}} ngày. Ngưỡng lấy từ cấu hình hệ thống, có thể thay đổi.",
+    "tdsThreshold": "Kích hoạt khi TDS khu vực ≥ {{value}} ppm (chỉ máy IoT). Ngưỡng lấy từ cấu hình hệ thống, có thể thay đổi.",
+    "thresholdRestricted": "Ngưỡng áp dụng theo cấu hình hệ thống. Tài khoản này không có quyền xem cấu hình; liên hệ quản trị viên để xác nhận giá trị hiện hành.",
+    "thresholdError": "Không tải được ngưỡng hệ thống. Chưa thể xác nhận giá trị kích hoạt; vui lòng thử lại sau.",
+    "thresholdLoading": "Đang tải ngưỡng từ cấu hình hệ thống…",
+    "frequencyHint": "Đây là khoảng cách tối thiểu, không phải lịch gửi cố định. Chỉ gửi khi đồng thời thỏa tổng số lần, giới hạn mỗi chu kỳ và giới hạn chung của hệ thống. 0 ngày nghĩa là không chờ giữa hai lượt xét.",
+    "reentryHint": "Đếm trong toàn chiến dịch, theo tài khoản hoặc thiết bị đã chọn ở bước Đối tượng. Hiện không tự đặt lại số lần khi thay lõi hoặc gia hạn bảo hành.",
+    "startHint": "Bắt đầu từ 00:00 ngày đã chọn, sau khi được duyệt và bật chạy. Để trống: từ lúc bật chạy. Ngày giờ theo múi giờ trình duyệt; tại Việt Nam là UTC+7.",
+    "endHint": "Bao gồm hết ngày đã chọn (23:59). Để trống: không giới hạn ngày kết thúc; vẫn có thể dừng chiến dịch.",
+    "invalidWindow": "Ngày kết thúc phải cùng ngày hoặc sau ngày bắt đầu.",
+    "quietHint": "Giờ Việt Nam (UTC+7), chỉ áp dụng cho push. Trong khoảng này không gửi; sau đó xét lại điều kiện, không cộng dồn lượt bị hoãn. Hai mốc giờ giống nhau nghĩa là không có giờ yên lặng.",
+    "summaryTitle": "Tóm tắt cơ chế chạy",
+    "summaryWindow": "Hiệu lực: {{from}} → {{to}}, sau khi được duyệt và bật chạy.",
+    "afterActivation": "Từ lúc bật chạy",
+    "summaryRepeat": "Nhắc cách nhau ít nhất {{days}} ngày, tối đa {{max}} lần trong toàn chiến dịch cho mỗi tài khoản/thiết bị theo lựa chọn ở bước Đối tượng; vẫn chịu giới hạn tần suất chung.",
+    "summaryQuiet": "Push tạm ngừng trong {{from}}–{{to}} giờ Việt Nam (UTC+7); hai mốc bằng nhau thì không tạm ngừng.",
+    "summaryExit": "Điều kiện thoát đã chọn: {{condition}}.",
+    "noExit": "Không chọn điều kiện bổ sung; mỗi lượt vẫn phải thỏa điều kiện kích hoạt",
+    "frequencyTitle": "Tần suất & giới hạn gửi",
+    "totalCapLabel": "Tổng số lần tối đa trong chiến dịch",
+    "cycle": "Chu kỳ: {{days}} ngày liên tiếp tính lùi từ mỗi lần xét gửi. Giới hạn chung: tối đa {{limit}} lượt/KH từ tất cả chiến dịch trong khoảng này.",
+    "cycleUnavailable": "Chu kỳ và giới hạn chung theo cấu hình hệ thống. Giá trị hiện chưa hiển thị với tài khoản này; liên hệ quản trị viên để xác nhận.",
+    "currentCap": "Chiến dịch này: tối đa {{cap}} lượt trong mỗi chu kỳ, theo tài khoản hoặc thiết bị đã chọn ở bước Đối tượng.",
+    "cycleCapLabel": "Số lần tối đa trong mỗi chu kỳ",
+    "cycleCapHint": "Đây là giới hạn riêng của chiến dịch trong chu kỳ nêu trên, không phải tổng số lần của cả chiến dịch. 0 nghĩa là chặn mọi lượt gửi. Chỉ người có quyền mới chỉnh được."
   }
 }

@@ -315,19 +315,25 @@ export function buildDraftInput(
     buttons: buildButtons(values, labelFor),
     scheduleType: isTrigger ? 'send_now' : values.scheduleType,
     startsAt: isTrigger
-      ? (values.startsOn?.toISOString() ?? null)
+      ? (values.startsOn?.startOf('day').toISOString() ?? null)
       : scheduled && values.scheduledAt
         ? values.scheduledAt.toISOString()
         : null,
-    endsAt: isTrigger ? (values.endsOn?.toISOString() ?? null) : null,
+    endsAt: isTrigger
+      ? (values.endsOn?.endOf('day').toISOString() ?? null)
+      : null,
     triggerPreset: isTrigger ? values.triggerPreset : null,
     triggerConfig: isTrigger
       ? {
           ...(values.triggerPreset === 'core_due'
             ? { coreDays: values.coreDays }
             : {}),
-          exitOnPurchase: values.exitOnPurchase,
-          exitOnWarrantyRenewed: values.exitOnWarrantyRenewed,
+          exitOnPurchase:
+            values.triggerPreset !== 'warranty_expiring' &&
+            values.exitOnPurchase,
+          exitOnWarrantyRenewed:
+            values.triggerPreset === 'warranty_expiring' &&
+            values.exitOnWarrantyRenewed,
           cooldownDays: values.cooldownDays,
           maxSends: values.maxSends,
           quietFrom: values.quietFrom,
