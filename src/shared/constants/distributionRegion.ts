@@ -1,11 +1,10 @@
 // Distribution regions a QR batch can be shipped to (9.2): the four spec
-// zones, special water zones and single provinces, in display order.
+// zones and special water zones, in display order.
 // `labelKey` and the group keys live in the `common` namespace; translate
 // with `t(labelKey, { ns: 'common' })`.
 export const DISTRIBUTION_REGION_GROUPS = [
   { value: 'zone', labelKey: 'distributionRegionGroup.zone' },
   { value: 'water_zone', labelKey: 'distributionRegionGroup.water_zone' },
-  { value: 'province', labelKey: 'distributionRegionGroup.province' },
 ] as const;
 
 export type DistributionRegionGroup =
@@ -24,12 +23,6 @@ export const DISTRIBUTION_REGIONS = [
     value: 'mekong_alum',
     group: 'water_zone',
     labelKey: 'distributionRegion.mekong_alum',
-  },
-  { value: 'hanoi', group: 'province', labelKey: 'distributionRegion.hanoi' },
-  {
-    value: 'ho_chi_minh',
-    group: 'province',
-    labelKey: 'distributionRegion.ho_chi_minh',
   },
 ] as const satisfies ReadonlyArray<{
   value: string;

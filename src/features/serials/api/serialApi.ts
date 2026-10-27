@@ -70,16 +70,14 @@ export async function getSerialBatches(
 // The factory file is sent verbatim so validation (format, duplicates)
 // happens once on the server and the rejection report matches what a real
 // batch ingest would return. The batch header (code, core type, region) is
-// declared alongside it (9.2).
+// declared alongside it (9.2); the server generates the batch code.
 export async function ingestSerialBatch(input: {
-  batchId: string;
   coreType: string;
   region?: DistributionRegion;
   fileName: string;
   content: string;
 }): Promise<SerialIngestResult> {
   const response = await apiClient.post<unknown>('/serials/batches', {
-    batch_id: input.batchId,
     core_type: input.coreType,
     ...(input.region && { region: input.region }),
     file_name: input.fileName,

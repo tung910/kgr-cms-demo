@@ -1,16 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { InboxOutlined } from '@ant-design/icons';
-import {
-  Alert,
-  Form,
-  Input,
-  Modal,
-  Select,
-  Table,
-  Upload,
-  message,
-} from 'antd';
+import { Alert, Form, Modal, Select, Table, Upload, message } from 'antd';
 import type { UploadFile } from 'antd';
 import { useTranslation } from 'react-i18next';
 
@@ -25,10 +16,8 @@ import type { SerialIngestResult } from '../schemas/serialSchemas';
 import { regionSelectOptions } from './regionOptions';
 
 const TEMPLATE_HEADER = 'serial,key';
-const BATCH_CODE_PATTERN = /^QR-B\d{4}$/;
 
 interface IngestFormValues {
-  batchId: string;
   coreType: string;
   region?: DistributionRegion;
 }
@@ -50,7 +39,6 @@ export function SerialIngestModal({ open, onClose }: SerialIngestModalProps) {
   const mutation = useMutation({
     mutationFn: async (values: IngestFormValues) =>
       ingestSerialBatch({
-        batchId: values.batchId.trim().toUpperCase(),
         coreType: values.coreType,
         ...(values.region && { region: values.region }),
         fileName: file!.name,
@@ -144,21 +132,6 @@ export function SerialIngestModal({ open, onClose }: SerialIngestModalProps) {
           }}
         >
           <Form.Item
-            name="batchId"
-            label={t('ingestModal.batchId')}
-            extra={t('ingestModal.batchIdHint')}
-            normalize={(value: string) => value.toUpperCase()}
-            rules={[
-              {
-                required: true,
-                pattern: BATCH_CODE_PATTERN,
-                message: t('ingestModal.batchIdInvalid'),
-              },
-            ]}
-          >
-            <Input placeholder="QR-B0108" autoComplete="off" />
-          </Form.Item>
-          <Form.Item
             name="coreType"
             label={t('ingestModal.coreType')}
             rules={[
@@ -224,6 +197,9 @@ export function SerialIngestModal({ open, onClose }: SerialIngestModalProps) {
             showIcon
             title={t('ingestModal.lifespanNote')}
           />
+          <p className="mb-0 mt-3 text-sm text-[#636466]">
+            {t('ingestModal.batchIdAuto')}
+          </p>
         </Form>
       )}
     </Modal>

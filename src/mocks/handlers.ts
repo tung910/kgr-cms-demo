@@ -240,6 +240,15 @@ function serialError(key: string, status = 409) {
   );
 }
 
+// Batch codes are generated server-side: QR-B + the next free 4-digit number.
+function nextBatchCode() {
+  const highest = serialBatchStore.reduce((max, batch) => {
+    const match = /^QR-B(\d{4})$/.exec(batch.batch_id);
+    return match ? Math.max(max, Number(match[1])) : max;
+  }, 0);
+  return `QR-B${String(highest + 1).padStart(4, '0')}`;
+}
+
 // 9.2 batch ingest: the batch header (code, core type, optional region) is
 // declared in the form; the factory file carries only (serial, key).
 function ingestSerialFile(header: {
@@ -1386,17 +1395,11 @@ export const handlers = [
     if (!allowed('serial.write')) return serialError('forbidden', 403);
 
     const body = (await request.json().catch(() => null)) as {
-      batch_id?: string;
       core_type?: string;
       region?: string;
       file_name?: string;
       content?: string;
     } | null;
-    const batchId = body?.batch_id?.trim().toUpperCase() ?? '';
-    if (!/^QR-B\d{4}$/.test(batchId))
-      return serialError('invalidBatchCode', 400);
-    if (serialBatchStore.some((batch) => batch.batch_id === batchId))
-      return serialError('duplicateBatchCode', 409);
     const core = findCoreType(body?.core_type ?? '');
     if (!core) return serialError('invalidCoreType', 400);
     const region = z
@@ -1409,7 +1412,7 @@ export const handlers = [
 
     return HttpResponse.json(
       ingestSerialFile({
-        batchId,
+        batchId: nextBatchCode(),
         coreType: core.code,
         region: region.data ?? null,
         content: body?.content ?? '',

@@ -212,7 +212,7 @@ const batchSeeds: readonly BatchSeed[] = [
     region: {
       at: '2026-08-12T02:00:00.000Z',
       actor: LOGISTICS,
-      value: 'ho_chi_minh',
+      value: 'south',
       reason: 'Phân phối theo lệnh xuất kho XK-0812',
     },
     lifespan: [
@@ -291,7 +291,7 @@ const batchSeeds: readonly BatchSeed[] = [
     region: {
       at: '2026-10-16T02:00:00.000Z',
       actor: LOGISTICS,
-      value: 'hanoi',
+      value: 'north',
       reason: 'Phân phối theo lệnh xuất kho XK-1016',
     },
   },
