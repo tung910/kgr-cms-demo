@@ -80,10 +80,12 @@ export const CAPABILITIES = [
   'serial.void',
   'serial.void.delete',
   'serial.anomaly.export',
-  // M04.1: write = lifespan, core kind and model layout (QTHT only);
-  // tune = thresholds, TDS factors and campaigns (QTHT + VHKT).
-  'core_config.write',
-  'core_config.tune',
+  // 9.3 core lifespan, per docs/prototypes/core-lifespan-config.html: a
+  // standard per core type, confirmed or shortened per QR batch.
+  'core_type.read',
+  'core_type.update',
+  'serial.batch.region',
+  'serial.batch.lifespan',
   // M10: accounts, role groups, role simulation, audit, config, backup.
   'member.read',
   'member.create',
@@ -174,8 +176,10 @@ export type Capability = (typeof CAPABILITIES)[number];
 // serial.void                  |   ✓   |   ✓   |    ✓    |         |       |     ✓     | 9.6b
 // serial.void.delete           |   ✓   |       |         |         |       |           | 9.6b note
 // serial.anomaly.export        |   ✓   |   ✓   |         |         |       |     ✓     | 9.7
-// core_config.write            |   ✓   |   ✓   |    ✓    |         |   ✓   |           | 9.3
-// core_config.tune             |   ✓   |   ✓   |         |         |       |           | no sheet row
+// core_type.read               |   ✓   |   ✓   |    ✓    |    ✓    |   ✓   |           | 9.3 (R)
+// core_type.update             |   ✓   |   ✓   |    ✓    |         |       |           | 9.3 (U) ⚠️
+// serial.batch.lifespan        |   ✓   |   ✓   |    ✓    |         |       |           | 9.3 (U) ⚠️
+// serial.batch.region          |   ✓   |   ✓   |         |         |       |     ✓     | 9.2 note
 // member.read/create/update    |   ✓   |   ✓   |         |         |       |           | 10.1/10.1b
 // member.delete                |   ✓   |       |         |         |       |           | 10.1c
 // role.read                    |   ✓   |   ✓   |         |         |       |           | 10.2
@@ -193,8 +197,11 @@ export type Capability = (typeof CAPABILITIES)[number];
 //   level and drops factory. Modelled here as a separate capability held by
 //   super/admin/service_center; needs business confirmation.
 // - 10.2: Super Admin manages roots; System Admin manages its own children.
-// - device.edit_info, device.diagnose and core_config.tune have no sheet row
-//   and keep their previous assignment.
+// - device.edit_info and device.diagnose have no sheet row and keep their
+//   previous assignment.
+// - 9.3 follows the core-lifespan prototype, not the sheet: sales only reads
+//   core lifespan (conflict of interest with core revenue) and logistics only
+//   declares a batch's distribution region. Pending business sign-off.
 // - device.inventory.sync (Tồn kho "Đồng bộ") has no sheet row: assumed for
 //   the roles that produce or hold stock (factory, logistics) plus admins.
 //
@@ -264,8 +271,10 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'serial.export',
     'serial.void',
     'serial.anomaly.export',
-    'core_config.write',
-    'core_config.tune',
+    'serial.batch.region',
+    'serial.batch.lifespan',
+    'core_type.read',
+    'core_type.update',
     'member.read',
     'member.create',
     'member.update',
@@ -307,6 +316,7 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'analytics.reliability.read',
     'serial.read',
     'serial.detail.read',
+    'core_type.read',
     'config.read',
   ],
   sales: [
@@ -333,7 +343,7 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'analytics.reliability.read',
     'analytics.revenue.export',
     'serial.read',
-    'core_config.write',
+    'core_type.read',
   ],
   factory: [
     'dashboard.tds.export',
@@ -362,7 +372,9 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'serial.write',
     'serial.export',
     'serial.void',
-    'core_config.write',
+    'serial.batch.lifespan',
+    'core_type.read',
+    'core_type.update',
     'config.read',
   ],
   logistics: [
@@ -381,6 +393,7 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'serial.export',
     'serial.void',
     'serial.anomaly.export',
+    'serial.batch.region',
   ],
 };
 
