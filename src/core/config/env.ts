@@ -6,11 +6,15 @@ const appEnvSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((value) => value === 'true'),
+  VITE_GOOGLE_MAPS_API_KEY: z.string().trim().default(''),
+  VITE_GOOGLE_MAPS_MAP_ID: z.string().trim().default('DEMO_MAP_ID'),
 });
 
 export interface AppEnv {
   apiBaseUrl: string;
   enableMocks: boolean;
+  googleMapsApiKey: string;
+  googleMapsMapId: string;
 }
 
 const parsedEnv = appEnvSchema.safeParse(import.meta.env);
@@ -27,4 +31,6 @@ if (!parsedEnv.success) {
 export const env: AppEnv = {
   apiBaseUrl: parsedEnv.data.VITE_API_BASE_URL,
   enableMocks: parsedEnv.data.VITE_ENABLE_MOCKS,
+  googleMapsApiKey: parsedEnv.data.VITE_GOOGLE_MAPS_API_KEY,
+  googleMapsMapId: parsedEnv.data.VITE_GOOGLE_MAPS_MAP_ID,
 };

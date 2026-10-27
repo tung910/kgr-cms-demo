@@ -1,30 +1,81 @@
 {
   "page": {
     "title": "Device map",
-    "description": "Device locations by region and connection status"
+    "description": "Device distribution by region and water quality"
   },
   "stats": {
-    "totalDevices": "Total devices",
-    "alerting": "In alert",
-    "regions": "Regions"
+    "totalDevices": "Devices on map",
+    "regions": "Tracked regions",
+    "alertRegions": "Warning regions",
+    "avgTds": "Average TDS",
+    "tdsUnit": "ppm"
   },
   "filters": {
-    "statusAriaLabel": "Device status",
-    "regionAriaLabel": "Region",
-    "regionPlaceholder": "Region",
-    "all": "All"
+    "model": "Model",
+    "modelAriaLabel": "Device model",
+    "statusAriaLabel": "Region status",
+    "all": "All",
+    "dateRangeAriaLabel": "Activation period",
+    "clear": "Clear filters"
   },
-  "status": {
-    "online": "Online",
-    "offline": "Offline",
-    "alert": "Alert"
+  "legend": {
+    "title": "Legend",
+    "hint": "Marker numbers show devices in thousands (K)"
   },
-  "empty": {
-    "noMatchingDevices": "No matching devices",
-    "selectDevice": "Select a device on the map"
+  "canvas": {
+    "ariaLabel": "Device distribution map",
+    "devMode": "No Google Maps API key configured: the map runs in development mode.",
+    "authError": "Google rejected the Maps API key. Enable the Maps JavaScript API for this key and allow this site in its restrictions.",
+    "loadError": "Google Maps could not be loaded. Check the API key and network, then reload."
   },
   "detail": {
-    "region": "Region: {{region}}",
-    "status": "Status: {{status}}"
+    "title": "Region detail",
+    "status": "Status",
+    "devices": "Devices",
+    "avgTds": "Average TDS",
+    "insightTitle": "Insight & business suggestion",
+    "sites": "Install locations",
+    "sitesHidden": "Exact install locations are not available for your role.",
+    "close": "Clear selection",
+    "insight": {
+      "stable": "Water quality is stable. Keep the current filter-replacement reminders and promote core subscriptions.",
+      "high_tds": "Average TDS is above the {{threshold}} ppm threshold. Suggest early filter-core replacement campaigns and pre-filter upsell.",
+      "low_coverage": "Few devices installed. Consider local dealer promotions to grow the installed base."
+    }
+  },
+  "ranking": {
+    "title": "Region ranking",
+    "overThreshold": "Above TDS threshold ({{threshold}} ppm)",
+    "columns": {
+      "rank": "#",
+      "region": "Region",
+      "devices": "Devices",
+      "avgTds": "Avg TDS (ppm)",
+      "status": "Status"
+    }
+  },
+  "export": {
+    "button": "Export regional report",
+    "success": "Exported {{count}} regions.",
+    "headers": {
+      "region": "Region",
+      "level": "Level",
+      "devices": "Devices",
+      "avgTds": "Avg TDS (ppm)",
+      "status": "Status"
+    },
+    "level": {
+      "province": "Province/City",
+      "district": "District"
+    }
+  },
+  "empty": {
+    "noRegions": "No regions match the current filters",
+    "selectRegion": "Select a region on the map or in the ranking"
+  },
+  "errors": {
+    "invalidResponse": "The device map response is invalid.",
+    "load": "Could not load the device map.",
+    "detail": "Could not load the region detail."
   }
 }

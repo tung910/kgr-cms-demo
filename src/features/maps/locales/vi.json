@@ -1,30 +1,81 @@
 {
   "page": {
     "title": "Bản đồ thiết bị",
-    "description": "Vị trí thiết bị theo khu vực và trạng thái kết nối"
+    "description": "Phân bố thiết bị theo khu vực và chất lượng nước"
   },
   "stats": {
-    "totalDevices": "Tổng thiết bị",
-    "alerting": "Đang cảnh báo",
-    "regions": "Khu vực"
+    "totalDevices": "Thiết bị trên bản đồ",
+    "regions": "Khu vực theo dõi",
+    "alertRegions": "Vùng cảnh báo",
+    "avgTds": "TDS trung bình",
+    "tdsUnit": "ppm"
   },
   "filters": {
-    "statusAriaLabel": "Trạng thái thiết bị",
-    "regionAriaLabel": "Khu vực",
-    "regionPlaceholder": "Khu vực",
-    "all": "Tất cả"
+    "model": "Model",
+    "modelAriaLabel": "Model thiết bị",
+    "statusAriaLabel": "Trạng thái khu vực",
+    "all": "Tất cả",
+    "dateRangeAriaLabel": "Khoảng thời gian kích hoạt",
+    "clear": "Xóa bộ lọc"
   },
-  "status": {
-    "online": "Trực tuyến",
-    "offline": "Ngoại tuyến",
-    "alert": "Cảnh báo"
+  "legend": {
+    "title": "Chú giải",
+    "hint": "Số trên marker là số thiết bị (đơn vị nghìn, K)"
   },
-  "empty": {
-    "noMatchingDevices": "Không có thiết bị phù hợp",
-    "selectDevice": "Chọn một thiết bị trên bản đồ"
+  "canvas": {
+    "ariaLabel": "Bản đồ phân bố thiết bị",
+    "devMode": "Chưa cấu hình Google Maps API key: bản đồ chạy ở chế độ phát triển.",
+    "authError": "Google từ chối API key. Hãy bật Maps JavaScript API cho key này và cho phép website trong phần giới hạn của key.",
+    "loadError": "Không tải được Google Maps. Kiểm tra API key và kết nối mạng rồi tải lại trang."
   },
   "detail": {
-    "region": "Khu vực: {{region}}",
-    "status": "Trạng thái: {{status}}"
+    "title": "Chi tiết khu vực",
+    "status": "Trạng thái",
+    "devices": "Số thiết bị",
+    "avgTds": "TDS trung bình",
+    "insightTitle": "Nhận định & gợi ý kinh doanh",
+    "sites": "Vị trí lắp đặt",
+    "sitesHidden": "Vai trò của bạn không được xem vị trí lắp đặt chính xác.",
+    "close": "Bỏ chọn",
+    "insight": {
+      "stable": "Chất lượng nước ổn định. Duy trì nhắc thay lõi định kỳ và đẩy gói lõi lọc.",
+      "high_tds": "TDS trung bình vượt ngưỡng {{threshold}} ppm. Gợi ý chạy chiến dịch thay lõi sớm và bán thêm bộ lọc thô.",
+      "low_coverage": "Số thiết bị còn ít. Cân nhắc khuyến mãi qua đại lý địa phương để mở rộng tệp khách hàng."
+    }
+  },
+  "ranking": {
+    "title": "Bảng xếp hạng khu vực",
+    "overThreshold": "Vượt ngưỡng TDS ({{threshold}} ppm)",
+    "columns": {
+      "rank": "#",
+      "region": "Khu vực",
+      "devices": "Số thiết bị",
+      "avgTds": "TDS TB (ppm)",
+      "status": "Trạng thái"
+    }
+  },
+  "export": {
+    "button": "Xuất báo cáo vùng",
+    "success": "Đã xuất {{count}} khu vực.",
+    "headers": {
+      "region": "Khu vực",
+      "level": "Cấp",
+      "devices": "Số thiết bị",
+      "avgTds": "TDS TB (ppm)",
+      "status": "Trạng thái"
+    },
+    "level": {
+      "province": "Tỉnh/Thành phố",
+      "district": "Quận/Huyện"
+    }
+  },
+  "empty": {
+    "noRegions": "Không có khu vực phù hợp với bộ lọc",
+    "selectRegion": "Chọn một khu vực trên bản đồ hoặc trong bảng xếp hạng"
+  },
+  "errors": {
+    "invalidResponse": "Phản hồi bản đồ thiết bị không hợp lệ.",
+    "load": "Không tải được bản đồ thiết bị.",
+    "detail": "Không tải được chi tiết khu vực."
   }
 }
