@@ -803,6 +803,17 @@ export const handlers = [
     );
   }),
   ...campaignHandlers,
+  // Core SKU catalogue for the campaign "Mua lõi" button. Lives here because it
+  // reads the serials core store, which the campaigns slice must not import.
+  // Registered before campaignHandlers so it wins over `/campaigns/:id`.
+  http.get('/api/campaigns/core-options', () => {
+    if (!allowed('campaign.write'))
+      return HttpResponse.json({ message: 'forbidden' }, { status: 403 });
+    return HttpResponse.json(
+      coreLifecycleStore.cores.map(({ sku, name }) => ({ sku, name }))
+    );
+  }),
+  ...campaignHandlers,
   ...deviceExtraHandlers,
   http.get('/api/dashboard/summary', ({ request }) => {
     if (hasServerError(new URL(request.url))) {
