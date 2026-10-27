@@ -20,14 +20,24 @@ import { campaignHandlers } from '@/features/campaigns/mocks/campaignHandlers';
 import type { DeviceDto } from '@/features/devices/schemas/deviceSchemas';
 import type { ConnectionStatus } from '@/shared/constants/connectionStatus';
 
-import {
-  coreLifecycleConfigDtoSchema,
-  type CoreLifecycleConfigDto,
+import { mapCoreType } from '@/features/serials/api/coreLifecycleMapper';
+import type {
+  AuditTargetKind,
+  CoreLifecycleConfigDto,
 } from '@/features/serials/schemas/coreLifecycleSchemas';
 import type {
   SerialBatchDto,
   SerialDto,
 } from '@/features/serials/schemas/serialSchemas';
+import {
+  CORE_CRITICAL_PERCENT,
+  CORE_WARNING_PERCENT,
+  MIN_REASON_LENGTH,
+  batchLifespanBounds,
+  batchLifespanNeedsReason,
+  effectiveBatchLifespan,
+} from '@/features/serials/utils/coreLifespan';
+import { DISTRIBUTION_REGION_VALUES } from '@/shared/constants/distributionRegion';
 
 import { deviceFixtures } from './fixtures/devices';
 import {
@@ -35,8 +45,20 @@ import {
   dashboardSummaryFixture,
 } from './fixtures/dashboard';
 import { modelFixtures } from './fixtures/models';
-import { serialBatchFixtures, serialFixtures } from './fixtures/serials';
-import { coreLifecycleConfigFixture } from './fixtures/coreLifecycleConfigs';
+import {
+  batchAuditFixtures,
+  serialBatchFixtures,
+  serialFixtures,
+} from './fixtures/serials';
+import {
+  coreTypeAuditFixtures,
+  coreTypeFixtures,
+  regionInsightFixtures,
+} from './fixtures/coreLifecycleConfigs';
+import {
+  deviceCoreLayouts,
+  deviceCoreSkus,
+} from './fixtures/deviceCoreCatalog';
 import {
   buildAlertHistory,
   buildConnectivityHistory,
@@ -59,7 +81,14 @@ import type {
 const deviceStore: DeviceDto[] = deviceFixtures.map((device) => ({
   ...device,
 }));
-let coreLifecycleStore: CoreLifecycleConfigDto = coreLifecycleConfigFixture;
+// 9.3: one change log for core types and batches, newest first.
+let coreLifecycleStore: CoreLifecycleConfigDto = structuredClone({
+  core_types: [...coreTypeFixtures],
+  region_insights: [...regionInsightFixtures],
+  audit_log: [...coreTypeAuditFixtures, ...batchAuditFixtures].sort((a, b) =>
+    b.changed_at.localeCompare(a.changed_at)
+  ),
+});
 const serialStore: SerialDto[] = serialFixtures.map((serial) => ({
   ...serial,
 }));
@@ -121,8 +150,8 @@ const CORE_FUNCTIONS: Record<string, string> = {
   'CORE-MINERAL': 'Bổ sung khoáng chất',
   'CORE-HYDROGEN': 'Tạo nước giàu hydrogen',
 };
-const CORE_POOR_PERCENT = 30;
-const CORE_CRITICAL_PERCENT = 10;
+// Same fixed yellow / red defaults as the 9.3 core lifespan screen.
+const CORE_POOR_PERCENT = CORE_WARNING_PERCENT;
 
 // Deterministic telemetry wave so a refetch draws the same chart.
 function buildTelemetryHistory(
@@ -188,13 +217,13 @@ function deviceError(key: string, status = 409) {
     { status }
   );
 }
-// Core positions come from the M04.1 config, the single source of truth for
-// how many cores a model has and what each one is called.
+// Core positions come from the mock device core catalog: how many cores a
+// model has and what each one is called.
 function corePositionsForModelName(
   modelName: string | undefined
 ): Array<{ position: string; core_name: string; default_sku: string }> {
   const model = modelFixtures.find((item) => item.code === modelName);
-  const layout = coreLifecycleStore.model_layouts.find(
+  const layout = deviceCoreLayouts.find(
     (item) => item.model_id === model?.model_id
   );
   return (layout?.positions ?? []).map((item) => ({
@@ -211,15 +240,18 @@ function serialError(key: string, status = 409) {
   );
 }
 
-// M04 batch ingest: the factory file carries only (serial, key); the model is
-// encoded in the serial string itself and must resolve to a known model.
-function ingestSerialFile(content: string) {
+// 9.2 batch ingest: the batch header (code, core type, optional region) is
+// declared in the form; the factory file carries only (serial, key).
+function ingestSerialFile(header: {
+  batchId: string;
+  coreType: string;
+  region: SerialBatchDto['region'];
+  content: string;
+}) {
   const rejected: Array<{ line: number; serial: string; reason: string }> = [];
-  const accepted: Array<{ serial: string; key: string; modelCode: string }> =
-    [];
+  const accepted: Array<{ serial: string; key: string }> = [];
   const seenInFile = new Set<string>();
-  const knownModelCodes = new Set(modelFixtures.map((model) => model.code));
-  const rows = content
+  const rows = header.content
     .split(/\r?\n/)
     .map((row) => row.trim())
     .filter(Boolean);
@@ -233,14 +265,8 @@ function ingestSerialFile(content: string) {
       rejected.push({ line, serial, reason: 'missingField' });
       return;
     }
-
-    const modelCode = serial.split('-').slice(0, 2).join('-');
     if (!/^[A-Z0-9]+-[A-Z0-9]+-[A-Z0-9]{4,}$/.test(serial)) {
       rejected.push({ line, serial, reason: 'invalidSerialFormat' });
-      return;
-    }
-    if (!knownModelCodes.has(modelCode)) {
-      rejected.push({ line, serial, reason: 'unknownModel' });
       return;
     }
     if (seenInFile.has(serial)) {
@@ -253,37 +279,80 @@ function ingestSerialFile(content: string) {
     }
 
     seenInFile.add(serial);
-    accepted.push({ serial, key, modelCode });
+    accepted.push({ serial, key });
   });
 
   const ingestedAt = new Date().toISOString();
-  const batchId = `LOT-${ingestedAt.slice(0, 10).replace(/-/g, '')}-${serialBatchStore.length + 1}`;
 
   if (accepted.length > 0) {
     serialStore.push(
       ...accepted.map((row) => ({
         serial: row.serial,
         masked_key: `${row.key.slice(0, 2)}••••••`,
-        model_code: row.modelCode,
-        batch_id: batchId,
+        core_type: header.coreType,
+        batch_id: header.batchId,
         status: 'unused' as const,
         ingested_at: ingestedAt,
         used_at: null,
         used_by_device_id: null,
+        locked_lifespan: null,
       }))
     );
-    serialBatchStore.push({
-      batch_id: batchId,
-      model_code: accepted[0]!.modelCode,
+    serialBatchStore.unshift({
+      batch_id: header.batchId,
+      core_type: header.coreType,
+      region: header.region,
+      lifespan_status: 'pending',
+      lifespan_months: null,
+      lifespan_hours: null,
       total: accepted.length,
       used: 0,
       ingested_at: ingestedAt,
       recalled_at: null,
       recall_reason: null,
     });
+    const changes: AuditChange[] = [
+      ['batchCreated', '', `${header.coreType} · ${accepted.length}`],
+    ];
+    if (header.region) changes.push(['region', '', header.region]);
+    appendCoreAudit('batch', header.batchId, changes, '');
   }
 
-  return { batch_id: batchId, inserted: accepted.length, rejected };
+  return { batch_id: header.batchId, inserted: accepted.length, rejected };
+}
+
+type AuditChange = [field: string, before: string, after: string];
+
+// Immutable 9.3 log: entries are only ever prepended, never edited.
+function appendCoreAudit(
+  targetKind: AuditTargetKind,
+  target: string,
+  changes: AuditChange[],
+  reason: string
+) {
+  const now = Date.now();
+  coreLifecycleStore = {
+    ...coreLifecycleStore,
+    audit_log: [
+      ...changes.map(([field, before, after], index) => ({
+        id: `core-config-audit-${now}-${target}-${index}`,
+        actor: getMockActor(),
+        changed_at: new Date(now).toISOString(),
+        target_kind: targetKind,
+        target,
+        field,
+        before_value: before,
+        after_value: after,
+        reason,
+      })),
+      ...coreLifecycleStore.audit_log,
+    ],
+  };
+}
+
+function findCoreType(code: string) {
+  const dto = coreLifecycleStore.core_types.find((item) => item.code === code);
+  return dto && mapCoreType(dto);
 }
 
 function allowed(capability: Capability) {
@@ -715,13 +784,13 @@ async function mutateDevice(
 export const handlers = [
   ...systemHandlers,
   // Core SKU catalogue for the campaign "Mua lõi" button. Lives here because it
-  // reads the serials core store, which the campaigns slice must not import.
+  // reads the shared device core catalog, which campaigns must not import.
   // Registered before campaignHandlers so it wins over `/campaigns/:id`.
   http.get('/api/campaigns/core-options', () => {
     if (!allowed('campaign.write'))
       return HttpResponse.json({ message: 'forbidden' }, { status: 403 });
     return HttpResponse.json(
-      coreLifecycleStore.cores.map(({ sku, name }) => ({ sku, name }))
+      deviceCoreSkus.map(({ sku, name }) => ({ sku, name }))
     );
   }),
   ...campaignHandlers,
@@ -1058,7 +1127,7 @@ export const handlers = [
           positionNumber > 5
         )
           return [];
-        const sku = coreLifecycleStore.cores.find(
+        const sku = deviceCoreSkus.find(
           (item) => item.sku === core.default_sku
         );
         if (!sku) return [];
@@ -1123,7 +1192,7 @@ export const handlers = [
     if (!device) return deviceError('notFound', 404);
     const statuses = corePositionsForModelName(device.model_name).flatMap(
       (core): FilterCoreStatusDto[] => {
-        const sku = coreLifecycleStore.cores.find(
+        const sku = deviceCoreSkus.find(
           (item) => item.sku === core.default_sku
         );
         if (!sku) return [];
@@ -1285,7 +1354,7 @@ export const handlers = [
     }
 
     const search = url.searchParams.get('search')?.trim().toLocaleLowerCase();
-    const modelCode = url.searchParams.get('model_code');
+    const coreType = url.searchParams.get('core_type');
     const batchId = url.searchParams.get('batch_id');
     const status = url.searchParams.get('status');
     const page = parsePositiveInteger(url.searchParams.get('page'), 1);
@@ -1296,7 +1365,7 @@ export const handlers = [
     const filtered = serialStore.filter(
       (serial) =>
         (!search || serial.serial.toLocaleLowerCase().includes(search)) &&
-        (!modelCode || serial.model_code === modelCode) &&
+        (!coreType || serial.core_type === coreType) &&
         (!batchId || serial.batch_id === batchId) &&
         (!status || serial.status === status)
     );
@@ -1316,11 +1385,36 @@ export const handlers = [
   http.post('/api/serials/batches', async ({ request }) => {
     if (!allowed('serial.write')) return serialError('forbidden', 403);
 
-    const body = (await request.json()) as {
-      file_name: string;
-      content: string;
-    };
-    return HttpResponse.json(ingestSerialFile(body.content));
+    const body = (await request.json().catch(() => null)) as {
+      batch_id?: string;
+      core_type?: string;
+      region?: string;
+      file_name?: string;
+      content?: string;
+    } | null;
+    const batchId = body?.batch_id?.trim().toUpperCase() ?? '';
+    if (!/^QR-B\d{4}$/.test(batchId))
+      return serialError('invalidBatchCode', 400);
+    if (serialBatchStore.some((batch) => batch.batch_id === batchId))
+      return serialError('duplicateBatchCode', 409);
+    const core = findCoreType(body?.core_type ?? '');
+    if (!core) return serialError('invalidCoreType', 400);
+    const region = z
+      .enum(DISTRIBUTION_REGION_VALUES)
+      .optional()
+      .safeParse(body?.region);
+    if (!region.success) return serialError('invalidRegion', 400);
+    if (region.data && !allowed('serial.batch.region'))
+      return serialError('forbidden', 403);
+
+    return HttpResponse.json(
+      ingestSerialFile({
+        batchId,
+        coreType: core.code,
+        region: region.data ?? null,
+        content: body?.content ?? '',
+      })
+    );
   }),
   http.post(
     '/api/serials/batches/:batchId/recall',
@@ -1351,6 +1445,105 @@ export const handlers = [
       return HttpResponse.json(serialBatchStore[index]);
     }
   ),
+  http.put(
+    '/api/serials/batches/:batchId/region',
+    async ({ params, request }) => {
+      if (!allowed('serial.batch.region')) return serialError('forbidden', 403);
+      const index = serialBatchStore.findIndex(
+        (batch) => batch.batch_id === params.batchId
+      );
+      const batch = serialBatchStore[index];
+      if (!batch) return serialError('batchNotFound', 404);
+      if (batch.recalled_at) return serialError('batchAlreadyRecalled', 409);
+      if (batch.region) return serialError('regionAlreadyDeclared', 409);
+
+      const body = (await request.json().catch(() => null)) as {
+        region?: string;
+        reason?: string;
+      } | null;
+      const region = z.enum(DISTRIBUTION_REGION_VALUES).safeParse(body?.region);
+      if (!region.success) return serialError('invalidRegion', 400);
+      const reason = body?.reason?.trim() ?? '';
+      if (!reason) return serialError('reasonRequired', 400);
+
+      serialBatchStore[index] = { ...batch, region: region.data };
+      appendCoreAudit(
+        'batch',
+        batch.batch_id,
+        [['region', '', region.data]],
+        reason
+      );
+      return HttpResponse.json(serialBatchStore[index]);
+    }
+  ),
+  http.put(
+    '/api/serials/batches/:batchId/lifespan',
+    async ({ params, request }) => {
+      if (!allowed('serial.batch.lifespan'))
+        return serialError('forbidden', 403);
+      const index = serialBatchStore.findIndex(
+        (batch) => batch.batch_id === params.batchId
+      );
+      const batch = serialBatchStore[index];
+      if (!batch) return serialError('batchNotFound', 404);
+      if (batch.recalled_at) return serialError('batchAlreadyRecalled', 409);
+      if (!batch.region) return serialError('regionRequired', 409);
+      const core = findCoreType(batch.core_type);
+      if (!core) return serialError('invalidCoreType', 400);
+
+      const body = (await request.json().catch(() => null)) as {
+        months?: number;
+        hours?: number;
+        reason?: string;
+      } | null;
+      const months = Number(body?.months);
+      const hours = Number(body?.hours);
+      const reason = body?.reason?.trim() ?? '';
+      const bounds = batchLifespanBounds(core);
+      if (
+        !Number.isInteger(months) ||
+        months < bounds.minMonths ||
+        months > bounds.maxMonths ||
+        !Number.isInteger(hours) ||
+        hours < bounds.minHours ||
+        hours > bounds.maxHours
+      )
+        return serialError('lifespanOutOfBounds', 400);
+      if (
+        batchLifespanNeedsReason(core, batch.lifespan_status, months, hours) &&
+        reason.length < MIN_REASON_LENGTH
+      )
+        return serialError('reasonRequired', 400);
+
+      const before = effectiveBatchLifespan(
+        {
+          lifespanStatus: batch.lifespan_status,
+          lifespanMonths: batch.lifespan_months,
+          lifespanHours: batch.lifespan_hours,
+        },
+        core
+      );
+      const changes: AuditChange[] = [];
+      if (batch.lifespan_status === 'pending')
+        changes.push(['lifespanStatus', 'pending', 'confirmed']);
+      if (months !== before.months)
+        changes.push(['lifespanMonths', String(before.months), String(months)]);
+      if (hours !== before.hours)
+        changes.push(['lifespanHours', String(before.hours), String(hours)]);
+      if (changes.length === 0) return serialError('noChange', 400);
+
+      serialBatchStore[index] = {
+        ...batch,
+        lifespan_status: 'confirmed',
+        lifespan_months: months,
+        lifespan_hours: hours,
+      };
+      appendCoreAudit('batch', batch.batch_id, changes, reason);
+      return HttpResponse.json(serialBatchStore[index]);
+    }
+  ),
+  // Batches render for every serial.read role (logistics declares regions
+  // there), but the change log stays behind core_type.read.
   http.get('/api/serials/core-config', ({ request }) => {
     if (!allowed('serial.read')) return serialError('forbidden', 403);
     if (hasServerError(new URL(request.url))) {
@@ -1359,92 +1552,60 @@ export const handlers = [
         { status: 500 }
       );
     }
-    return HttpResponse.json(coreLifecycleStore);
+    return HttpResponse.json({
+      ...coreLifecycleStore,
+      audit_log: allowed('core_type.read') ? coreLifecycleStore.audit_log : [],
+    });
   }),
-  http.put('/api/serials/core-config', async ({ request }) => {
-    if (!allowed('core_config.write') && !allowed('core_config.tune')) {
-      return serialError('forbidden', 403);
-    }
-    if (hasServerError(new URL(request.url))) {
-      return HttpResponse.json(
-        { message: 'Mock core config server error.' },
-        { status: 500 }
-      );
-    }
+  http.put('/api/serials/core-types/:code', async ({ params, request }) => {
+    if (!allowed('core_type.update')) return serialError('forbidden', 403);
+    const index = coreLifecycleStore.core_types.findIndex(
+      (item) => item.code === params.code
+    );
+    const current = coreLifecycleStore.core_types[index];
+    if (!current) return serialError('invalidCoreType', 404);
 
     const body = (await request.json().catch(() => null)) as {
-      cores?: unknown;
-      model_layouts?: unknown;
-      campaigns?: unknown;
-      changes?: Array<{
-        field: string;
-        before_value: string;
-        after_value: string;
-      }>;
+      standard_months?: number;
+      standard_hours?: number;
+      floor_percent?: number;
+      reason?: string;
     } | null;
-    const parsed = coreLifecycleConfigDtoSchema.safeParse({
-      cores: body?.cores ?? coreLifecycleStore.cores,
-      model_layouts: body?.model_layouts ?? coreLifecycleStore.model_layouts,
-      campaigns: body?.campaigns ?? coreLifecycleStore.campaigns,
-      audit_log: coreLifecycleStore.audit_log,
-    });
-    if (!parsed.success || !body?.changes?.length) {
+    const months = Number(body?.standard_months);
+    const hours = Number(body?.standard_hours);
+    const floor = Number(body?.floor_percent);
+    const reason = body?.reason?.trim() ?? '';
+    if (
+      !Number.isInteger(months) ||
+      months < 1 ||
+      months > 60 ||
+      !Number.isInteger(hours) ||
+      hours < 1 ||
+      hours > 20000 ||
+      !(floor >= 10 && floor <= 100)
+    )
       return serialError('invalidCoreConfig', 400);
-    }
-    const next = parsed.data;
-    const current = coreLifecycleStore;
+    if (reason.length < MIN_REASON_LENGTH)
+      return serialError('reasonRequired', 400);
 
-    // The SKU catalog is owned by product-line data: same SKUs, same names.
-    const catalogKey = (cores: typeof next.cores) =>
-      JSON.stringify(cores.map((core) => [core.sku, core.name]));
-    if (catalogKey(next.cores) !== catalogKey(current.cores)) {
-      return serialError('invalidCoreConfig', 400);
-    }
-    const skus = new Set(next.cores.map((core) => core.sku));
-    const unknownSku = next.model_layouts.some((layout) =>
-      layout.positions.some((item) =>
-        item.compatible_skus.some((sku) => !skus.has(sku))
-      )
-    );
-    if (unknownSku) return serialError('invalidCoreConfig', 400);
+    const changes = (
+      [
+        ['standardMonths', String(current.standard_months), String(months)],
+        ['standardHours', String(current.standard_hours), String(hours)],
+        ['floorPercent', String(current.floor_percent), String(floor)],
+      ] satisfies AuditChange[]
+    ).filter(([, before, after]) => before !== after);
+    if (changes.length === 0) return serialError('noChange', 400);
 
-    // write = lifespan/kind/video/regions and model layout; tune = the rest.
-    const writeFields = (cores: typeof next.cores) =>
-      JSON.stringify(
-        cores.map((core) => [
-          core.kind,
-          core.lifespan_months,
-          core.lifespan_liters,
-          core.guide_video_url,
-          core.sale_regions,
-        ])
-      );
-    const needsWrite =
-      writeFields(next.cores) !== writeFields(current.cores) ||
-      JSON.stringify(next.model_layouts) !==
-        JSON.stringify(current.model_layouts);
-    if (needsWrite && !allowed('core_config.write')) {
-      return serialError('forbidden', 403);
-    }
-    if (!needsWrite && !allowed('core_config.tune')) {
-      return serialError('forbidden', 403);
-    }
-
-    const now = Date.now();
-    coreLifecycleStore = {
-      ...next,
-      audit_log: [
-        ...body.changes.map((change, entryIndex) => ({
-          id: `core-config-audit-${now}-${entryIndex}`,
-          actor: getMockActor(),
-          changed_at: new Date(now).toISOString(),
-          field: change.field,
-          before_value: change.before_value,
-          after_value: change.after_value,
-        })),
-        ...current.audit_log,
-      ],
+    const coreTypes = [...coreLifecycleStore.core_types];
+    coreTypes[index] = {
+      ...current,
+      standard_months: months,
+      standard_hours: hours,
+      floor_percent: floor,
     };
+    coreLifecycleStore = { ...coreLifecycleStore, core_types: coreTypes };
+    appendCoreAudit('core_type', current.code, changes, reason);
     return HttpResponse.json(coreLifecycleStore);
   }),
 ];
