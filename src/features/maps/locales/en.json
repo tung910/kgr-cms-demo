@@ -24,9 +24,13 @@
   },
   "canvas": {
     "ariaLabel": "Device distribution map",
-    "devMode": "No Google Maps API key configured: the map runs in development mode.",
-    "authError": "Google rejected the Maps API key. Enable the Maps JavaScript API for this key and allow this site in its restrictions.",
-    "loadError": "Google Maps could not be loaded. Check the API key and network, then reload."
+    "loadError": "The map could not be loaded. Check your network and that WebGL is enabled, then reload.",
+    "labels": {
+      "paracel": "Hoang Sa Archipelago (Vietnam)",
+      "spratly": "Truong Sa Archipelago (Vietnam)",
+      "eastSea": "East Sea (Bien Dong)",
+      "gulfOfTonkin": "Gulf of Tonkin"
+    }
   },
   "detail": {
     "title": "Region detail",

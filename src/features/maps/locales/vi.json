@@ -24,9 +24,13 @@
   },
   "canvas": {
     "ariaLabel": "Bản đồ phân bố thiết bị",
-    "devMode": "Chưa cấu hình Google Maps API key: bản đồ chạy ở chế độ phát triển.",
-    "authError": "Google từ chối API key. Hãy bật Maps JavaScript API cho key này và cho phép website trong phần giới hạn của key.",
-    "loadError": "Không tải được Google Maps. Kiểm tra API key và kết nối mạng rồi tải lại trang."
+    "loadError": "Không tải được bản đồ. Kiểm tra kết nối mạng và WebGL rồi tải lại trang.",
+    "labels": {
+      "paracel": "Quần đảo Hoàng Sa (Việt Nam)",
+      "spratly": "Quần đảo Trường Sa (Việt Nam)",
+      "eastSea": "Biển Đông",
+      "gulfOfTonkin": "Vịnh Bắc Bộ"
+    }
   },
   "detail": {
     "title": "Chi tiết khu vực",
