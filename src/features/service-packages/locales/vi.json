@@ -1,0 +1,134 @@
+{
+  "listPage": {
+    "title": "Gói dịch vụ mua kèm",
+    "description": "Danh mục {{total}} gói dịch vụ bán kèm sản phẩm.",
+    "empty": "Không có gói dịch vụ nào khớp bộ lọc.",
+    "create": "Tạo gói dịch vụ"
+  },
+  "form": {
+    "title": "Tạo gói dịch vụ",
+    "codeLabel": "Mã gói",
+    "codePlaceholder": "VD: WAR-EXT12",
+    "codeHint": "Chữ in hoa, số và dấu gạch ngang.",
+    "nameLabel": "Tên gói",
+    "namePlaceholder": "VD: Bảo hành mở rộng 12 tháng",
+    "groupLabel": "Nhóm dịch vụ",
+    "billingTypeLabel": "Hình thức thu phí",
+    "priceLabel": "Giá (VND)",
+    "priceHint": "Nhập 0 nếu miễn phí kèm sản phẩm.",
+    "billingPeriodLabel": "Chu kỳ thu phí (tháng)",
+    "billingPeriodPlaceholder": "VD: 6 hoặc 12",
+    "termLabel": "Thời hạn áp dụng (tháng)",
+    "termPlaceholder": "Để trống nếu không áp dụng",
+    "eligibleModelsLabel": "Số mẫu áp dụng",
+    "descriptionLabel": "Mô tả",
+    "descriptionPlaceholder": "Mô tả ngắn hiển thị trên storefront",
+    "hint": "Gói mới được tạo ở trạng thái Nháp; phát hành sau khi kiểm tra.",
+    "submit": "Tạo gói",
+    "cancel": "Huỷ",
+    "success": "Đã tạo gói dịch vụ (trạng thái Nháp).",
+    "validation": {
+      "codeRequired": "Vui lòng nhập mã gói hợp lệ (chữ in hoa, số, gạch ngang).",
+      "nameRequired": "Vui lòng nhập tên gói.",
+      "groupRequired": "Vui lòng chọn nhóm dịch vụ.",
+      "billingTypeRequired": "Vui lòng chọn hình thức thu phí.",
+      "priceRequired": "Vui lòng nhập giá.",
+      "billingPeriodRequired": "Vui lòng nhập chu kỳ thu phí."
+    }
+  },
+  "stats": {
+    "total": "Tổng số gói",
+    "active": "Đang bán",
+    "recurring": "Doanh thu định kỳ",
+    "recurringDetail": "Gói thu phí lặp lại (định kỳ + thuê bao)"
+  },
+  "filters": {
+    "searchPlaceholder": "Tìm theo mã hoặc tên gói",
+    "searchAriaLabel": "Tìm gói dịch vụ",
+    "groupLabel": "Nhóm dịch vụ",
+    "groupPlaceholder": "Tất cả nhóm",
+    "billingTypeLabel": "Hình thức thu phí",
+    "billingTypePlaceholder": "Tất cả hình thức",
+    "statusLabel": "Trạng thái",
+    "statusAll": "Tất cả",
+    "reset": "Đặt lại",
+    "clearAll": "Xoá bộ lọc",
+    "chips": {
+      "search": "Từ khoá: {{value}}",
+      "group": "Nhóm: {{value}}",
+      "billingType": "Thu phí: {{value}}",
+      "status": "Trạng thái: {{value}}"
+    }
+  },
+  "table": {
+    "columns": {
+      "package": "Gói dịch vụ",
+      "group": "Nhóm",
+      "billing": "Thu phí",
+      "price": "Giá",
+      "eligibility": "Mẫu áp dụng",
+      "status": "Trạng thái",
+      "updatedAt": "Cập nhật",
+      "actions": "Thao tác"
+    },
+    "price": {
+      "free": "Miễn phí",
+      "perMonths": "mỗi {{count}} tháng",
+      "perMonth": "mỗi tháng"
+    },
+    "term": {
+      "months": "{{count}} tháng",
+      "none": "—"
+    },
+    "eligibleModels": "{{count}} mẫu",
+    "totalPackages": "Tổng {{total}} gói"
+  },
+  "groups": {
+    "installation": "Lắp đặt & khởi tạo",
+    "warranty": "Bảo hành & bảo vệ",
+    "maintenance": "Bảo trì & vật tư định kỳ",
+    "care": "Chăm sóc & ưu tiên",
+    "bundle": "Trọn gói & thuê bao"
+  },
+  "billingTypes": {
+    "one_time": "Một lần",
+    "recurring": "Định kỳ",
+    "subscription": "Thuê bao"
+  },
+  "statuses": {
+    "draft": "Nháp",
+    "active": "Đang bán",
+    "archived": "Ngừng bán"
+  },
+  "actions": {
+    "publish": "Phát hành",
+    "archive": "Ngừng bán"
+  },
+  "statusDialog": {
+    "publishTitle": "Phát hành gói dịch vụ",
+    "archiveTitle": "Ngừng bán gói dịch vụ",
+    "publishWarning": "Gói sẽ hiển thị trên storefront và đồng bộ sang app trong vài phút.",
+    "archiveWarning": "Gói sẽ ẩn khỏi storefront. Hợp đồng đang chạy không bị huỷ.",
+    "reasonLabel": "Lý do",
+    "confirmPublish": "Phát hành",
+    "confirmArchive": "Ngừng bán",
+    "cancel": "Huỷ",
+    "publishSuccess": "Đã phát hành gói dịch vụ.",
+    "archiveSuccess": "Đã ngừng bán gói dịch vụ."
+  },
+  "validation": {
+    "required": "Vui lòng nhập lý do."
+  },
+  "errors": {
+    "invalidResponse": "Dữ liệu gói dịch vụ không hợp lệ.",
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "server": "Lỗi máy chủ. Vui lòng thử lại.",
+    "invalidInput": "Dữ liệu gửi lên không hợp lệ.",
+    "notFound": "Không tìm thấy gói dịch vụ.",
+    "noChange": "Trạng thái không thay đổi.",
+    "invalidTransition": "Không thể chuyển sang trạng thái này.",
+    "duplicateCode": "Mã gói đã tồn tại.",
+    "statusError": "Không thể cập nhật trạng thái gói dịch vụ.",
+    "createError": "Không thể tạo gói dịch vụ."
+  }
+}

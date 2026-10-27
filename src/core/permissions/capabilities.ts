@@ -86,6 +86,13 @@ export const CAPABILITIES = [
   'core_type.update',
   'serial.batch.region',
   'serial.batch.lifespan',
+  // M11 e-commerce add-on service packages. ⚠️ No sheet row: the e-commerce
+  // counterpart is a planned domain (AGENTS.md) with no permission matrix yet,
+  // so these are a documented assumption — sales owns the catalogue like
+  // promotions (7.x), service_center reads it for customer advice. Needs
+  // business sign-off before the real API lands.
+  'service_package.read',
+  'service_package.write',
   // M10: accounts, role groups, role simulation, audit, config, backup.
   'member.read',
   'member.create',
@@ -180,6 +187,8 @@ export type Capability = (typeof CAPABILITIES)[number];
 // core_type.update             |   ✓   |   ✓   |    ✓    |         |       |           | 9.3 (U) ⚠️
 // serial.batch.lifespan        |   ✓   |   ✓   |    ✓    |         |       |           | 9.3 (U) ⚠️
 // serial.batch.region          |   ✓   |   ✓   |         |         |       |     ✓     | 9.2 note
+// service_package.read         |   ✓   |   ✓   |         |    ✓    |   ✓   |           | M11 ⚠️ (assumption)
+// service_package.write        |   ✓   |   ✓   |         |         |   ✓   |           | M11 ⚠️ (assumption)
 // member.read/create/update    |   ✓   |   ✓   |         |         |       |           | 10.1/10.1b
 // member.delete                |   ✓   |       |         |         |       |           | 10.1c
 // role.read                    |   ✓   |   ✓   |         |         |       |           | 10.2
@@ -275,6 +284,8 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'serial.batch.lifespan',
     'core_type.read',
     'core_type.update',
+    'service_package.read',
+    'service_package.write',
     'member.read',
     'member.create',
     'member.update',
@@ -317,6 +328,7 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'serial.read',
     'serial.detail.read',
     'core_type.read',
+    'service_package.read',
     'config.read',
   ],
   sales: [
@@ -344,6 +356,8 @@ export const ROLE_CAPABILITIES: Record<SystemRole, readonly Capability[]> = {
     'analytics.revenue.export',
     'serial.read',
     'core_type.read',
+    'service_package.read',
+    'service_package.write',
   ],
   factory: [
     'dashboard.tds.export',
@@ -405,6 +419,7 @@ export const PORTAL_MENU_KEYS = [
   'device_map',
   'customers',
   'campaigns',
+  'service_packages',
   'serials',
   'analytics',
   'members',
@@ -431,6 +446,7 @@ export const MENU_CAPABILITY: Record<PortalMenuKey, Capability | null> = {
   device_map: 'device_map.read',
   customers: 'customers.read',
   campaigns: 'campaign.read',
+  service_packages: 'service_package.read',
   serials: 'serial.read',
   analytics: 'analytics.read',
   members: 'member.read',

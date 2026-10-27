@@ -16,6 +16,8 @@ import customersEn from '@/features/customers/locales/en.json';
 import customersVi from '@/features/customers/locales/vi.json';
 import campaignsEn from '@/features/campaigns/locales/en.json';
 import campaignsVi from '@/features/campaigns/locales/vi.json';
+import servicePackagesEn from '@/features/service-packages/locales/en.json';
+import servicePackagesVi from '@/features/service-packages/locales/vi.json';
 import dashboardEn from '@/features/dashboard/locales/en.json';
 import dashboardVi from '@/features/dashboard/locales/vi.json';
 import devicesEn from '@/features/devices/locales/en.json';
@@ -48,6 +50,7 @@ void i18n
         // Campaigns ships Vietnamese only for now: English falls back to it
         // until en.json is translated (shallow merge — flatten before adding).
         campaigns: { ...campaignsVi, ...campaignsEn },
+        servicePackages: servicePackagesEn,
         firmware: firmwareEn,
         maps: mapsEn,
         portal: portalEn,
@@ -62,6 +65,7 @@ void i18n
         serials: serialsVi,
         customers: customersVi,
         campaigns: campaignsVi,
+        servicePackages: servicePackagesVi,
         firmware: firmwareVi,
         maps: mapsVi,
         portal: portalVi,
@@ -77,6 +81,7 @@ void i18n
       'serials',
       'customers',
       'campaigns',
+      'servicePackages',
       'firmware',
       'maps',
       'portal',

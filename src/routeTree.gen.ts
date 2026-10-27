@@ -33,6 +33,7 @@ import { Route as AuthenticatedDevicesDeviceIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedMapsIndexRouteImport } from './routes/_authenticated/maps/index'
 import { Route as AuthenticatedSerialsIndexRouteImport } from './routes/_authenticated/serials/index'
 import { Route as AuthenticatedSerialsCoreConfigRouteImport } from './routes/_authenticated/serials/core-config'
+import { Route as AuthenticatedServicePackagesIndexRouteImport } from './routes/_authenticated/service-packages/index'
 import { Route as AuthenticatedSystemAuditRouteImport } from './routes/_authenticated/system/audit'
 import { Route as AuthenticatedSystemConfigRouteImport } from './routes/_authenticated/system/config'
 import { Route as AuthenticatedSystemMembersRouteImport } from './routes/_authenticated/system/members'
@@ -168,6 +169,12 @@ const AuthenticatedSerialsCoreConfigRoute =
     path: '/serials/core-config',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedServicePackagesIndexRoute =
+  AuthenticatedServicePackagesIndexRouteImport.update({
+    id: '/service-packages/',
+    path: '/service-packages/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSystemAuditRoute =
   AuthenticatedSystemAuditRouteImport.update({
     id: '/system/audit',
@@ -214,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/devices/': typeof AuthenticatedDevicesIndexRoute
   '/maps/': typeof AuthenticatedMapsIndexRoute
   '/serials/': typeof AuthenticatedSerialsIndexRoute
+  '/service-packages/': typeof AuthenticatedServicePackagesIndexRoute
 }
 export interface FileRoutesByTo {
   '/$': typeof SplatRoute
@@ -242,6 +250,7 @@ export interface FileRoutesByTo {
   '/devices': typeof AuthenticatedDevicesIndexRoute
   '/maps': typeof AuthenticatedMapsIndexRoute
   '/serials': typeof AuthenticatedSerialsIndexRoute
+  '/service-packages': typeof AuthenticatedServicePackagesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -272,6 +281,7 @@ export interface FileRoutesById {
   '/_authenticated/devices/': typeof AuthenticatedDevicesIndexRoute
   '/_authenticated/maps/': typeof AuthenticatedMapsIndexRoute
   '/_authenticated/serials/': typeof AuthenticatedSerialsIndexRoute
+  '/_authenticated/service-packages/': typeof AuthenticatedServicePackagesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/devices/'
     | '/maps/'
     | '/serials/'
+    | '/service-packages/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/devices'
     | '/maps'
     | '/serials'
+    | '/service-packages'
   id:
     | '__root__'
     | '/$'
@@ -359,6 +371,7 @@ export interface FileRouteTypes {
     | '/_authenticated/devices/'
     | '/_authenticated/maps/'
     | '/_authenticated/serials/'
+    | '/_authenticated/service-packages/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -538,6 +551,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSerialsCoreConfigRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/service-packages/': {
+      id: '/_authenticated/service-packages/'
+      path: '/service-packages'
+      fullPath: '/service-packages/'
+      preLoaderRoute: typeof AuthenticatedServicePackagesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/system/audit': {
       id: '/_authenticated/system/audit'
       path: '/system/audit'
@@ -586,6 +606,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDevicesIndexRoute: typeof AuthenticatedDevicesIndexRoute
   AuthenticatedMapsIndexRoute: typeof AuthenticatedMapsIndexRoute
   AuthenticatedSerialsIndexRoute: typeof AuthenticatedSerialsIndexRoute
+  AuthenticatedServicePackagesIndexRoute: typeof AuthenticatedServicePackagesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -612,6 +633,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDevicesIndexRoute: AuthenticatedDevicesIndexRoute,
   AuthenticatedMapsIndexRoute: AuthenticatedMapsIndexRoute,
   AuthenticatedSerialsIndexRoute: AuthenticatedSerialsIndexRoute,
+  AuthenticatedServicePackagesIndexRoute:
+    AuthenticatedServicePackagesIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

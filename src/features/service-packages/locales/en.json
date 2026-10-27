@@ -1,0 +1,134 @@
+{
+  "listPage": {
+    "title": "Add-on service packages",
+    "description": "Catalogue of {{total}} services sold alongside products.",
+    "empty": "No service package matches the filters.",
+    "create": "Create package"
+  },
+  "form": {
+    "title": "Create service package",
+    "codeLabel": "Package code",
+    "codePlaceholder": "e.g. WAR-EXT12",
+    "codeHint": "Uppercase letters, digits and hyphens.",
+    "nameLabel": "Package name",
+    "namePlaceholder": "e.g. Extended warranty 12 months",
+    "groupLabel": "Service group",
+    "billingTypeLabel": "Billing type",
+    "priceLabel": "Price (VND)",
+    "priceHint": "Enter 0 if free with the product.",
+    "billingPeriodLabel": "Billing cadence (months)",
+    "billingPeriodPlaceholder": "e.g. 6 or 12",
+    "termLabel": "Coverage term (months)",
+    "termPlaceholder": "Leave empty if not applicable",
+    "eligibleModelsLabel": "Eligible model count",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Short description shown on the storefront",
+    "hint": "A new package is created as a draft; publish it after review.",
+    "submit": "Create package",
+    "cancel": "Cancel",
+    "success": "Service package created (draft).",
+    "validation": {
+      "codeRequired": "Enter a valid code (uppercase letters, digits, hyphens).",
+      "nameRequired": "Please enter a package name.",
+      "groupRequired": "Please choose a service group.",
+      "billingTypeRequired": "Please choose a billing type.",
+      "priceRequired": "Please enter a price.",
+      "billingPeriodRequired": "Please enter a billing cadence."
+    }
+  },
+  "stats": {
+    "total": "Total packages",
+    "active": "On sale",
+    "recurring": "Recurring revenue",
+    "recurringDetail": "Packages billed repeatedly (recurring + subscription)"
+  },
+  "filters": {
+    "searchPlaceholder": "Search by code or name",
+    "searchAriaLabel": "Search service packages",
+    "groupLabel": "Service group",
+    "groupPlaceholder": "All groups",
+    "billingTypeLabel": "Billing type",
+    "billingTypePlaceholder": "All billing types",
+    "statusLabel": "Status",
+    "statusAll": "All",
+    "reset": "Reset",
+    "clearAll": "Clear filters",
+    "chips": {
+      "search": "Keyword: {{value}}",
+      "group": "Group: {{value}}",
+      "billingType": "Billing: {{value}}",
+      "status": "Status: {{value}}"
+    }
+  },
+  "table": {
+    "columns": {
+      "package": "Service package",
+      "group": "Group",
+      "billing": "Billing",
+      "price": "Price",
+      "eligibility": "Eligible models",
+      "status": "Status",
+      "updatedAt": "Updated",
+      "actions": "Actions"
+    },
+    "price": {
+      "free": "Free",
+      "perMonths": "every {{count}} months",
+      "perMonth": "per month"
+    },
+    "term": {
+      "months": "{{count}} months",
+      "none": "—"
+    },
+    "eligibleModels": "{{count}} models",
+    "totalPackages": "{{total}} packages in total"
+  },
+  "groups": {
+    "installation": "Installation & setup",
+    "warranty": "Warranty & protection",
+    "maintenance": "Maintenance & consumables",
+    "care": "Care & priority support",
+    "bundle": "Bundles & subscription"
+  },
+  "billingTypes": {
+    "one_time": "One-time",
+    "recurring": "Recurring",
+    "subscription": "Subscription"
+  },
+  "statuses": {
+    "draft": "Draft",
+    "active": "On sale",
+    "archived": "Retired"
+  },
+  "actions": {
+    "publish": "Publish",
+    "archive": "Retire"
+  },
+  "statusDialog": {
+    "publishTitle": "Publish service package",
+    "archiveTitle": "Retire service package",
+    "publishWarning": "The package becomes visible on the storefront and syncs to the app within minutes.",
+    "archiveWarning": "The package is hidden from the storefront. Running contracts are not cancelled.",
+    "reasonLabel": "Reason",
+    "confirmPublish": "Publish",
+    "confirmArchive": "Retire",
+    "cancel": "Cancel",
+    "publishSuccess": "Service package published.",
+    "archiveSuccess": "Service package retired."
+  },
+  "validation": {
+    "required": "Please enter a reason."
+  },
+  "errors": {
+    "invalidResponse": "Invalid service package data.",
+    "forbidden": "You do not have permission for this action.",
+    "server": "Server error. Please try again.",
+    "invalidInput": "The submitted data is invalid.",
+    "notFound": "Service package not found.",
+    "noChange": "Status is unchanged.",
+    "invalidTransition": "This status change is not allowed.",
+    "duplicateCode": "That package code already exists.",
+    "statusError": "Could not update the package status.",
+    "createError": "Could not create the service package."
+  }
+}
