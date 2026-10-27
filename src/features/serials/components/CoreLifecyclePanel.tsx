@@ -1,359 +1,306 @@
 import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
-import {
-  Button,
-  Popconfirm,
-  Select,
-  Table,
-  Tabs,
-  Tag,
-  Timeline,
-  Typography,
-  message,
-} from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
+import { Alert, Button, Select, Table, Tabs, Tooltip } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/core/auth/useAuth';
 import { hasCapability } from '@/core/permissions/capabilities';
 import { PermissionGuard } from '@/core/permissions/PermissionGuard';
-import { modelReferenceQueries } from '@/core/reference/modelReferenceQueries';
 import { PortalCard } from '@/shared/components/portal';
-import { formatDateTime } from '@/shared/lib/format';
 
-import { updateCoreLifecycleConfig } from '../api/coreLifecycleApi';
-import { coreLifecycleQueries } from '../queries/coreLifecycleQueries';
 import type {
   CoreLifecycleConfig,
-  CoreSku,
+  CoreType,
 } from '../schemas/coreLifecycleSchemas';
-import { CampaignModal } from './CampaignModal';
-import { CoreSkuModal } from './CoreSkuModal';
-import { ModelLayoutModal } from './ModelLayoutModal';
+import {
+  BATCH_LIFESPAN_STATUSES,
+  type BatchLifespanStatus,
+  type SerialBatch,
+} from '../schemas/serialSchemas';
+import {
+  CORE_CRITICAL_PERCENT,
+  CORE_WARNING_PERCENT,
+  lifespanFloor,
+} from '../utils/coreLifespan';
+import { BatchLifespanModal } from './BatchLifespanModal';
+import { BatchLifespanTable } from './BatchLifespanTable';
+import { BatchRegionModal } from './BatchRegionModal';
+import { CoreAuditTable } from './CoreAuditTable';
+import { CoreTypeModal } from './CoreTypeModal';
+import { LifespanText } from './LifespanText';
+import { ThresholdTags } from './ThresholdTags';
+import { SerialIngestModal } from './SerialIngestModal';
+
+export interface CoreLifecycleFilters {
+  lifespanStatus?: BatchLifespanStatus;
+  coreType?: string;
+}
 
 export interface CoreLifecyclePanelProps {
   config: CoreLifecycleConfig;
-  modelId?: string;
+  batches: SerialBatch[];
+  filters: CoreLifecycleFilters;
+  onFiltersChange: (changes: CoreLifecycleFilters) => void;
 }
 
 export function CoreLifecyclePanel({
   config,
-  modelId,
+  batches,
+  filters,
+  onFiltersChange,
 }: CoreLifecyclePanelProps) {
-  const { t } = useTranslation('serials');
+  const { t, i18n } = useTranslation('serials');
   const { session } = useAuth();
-  const queryClient = useQueryClient();
-  const navigate = useNavigate({ from: '/serials/core-config' });
-  const models = useQuery(modelReferenceQueries.list());
-  const [editingCore, setEditingCore] = useState<CoreSku | null>(null);
-  const [editLayoutOpen, setEditLayoutOpen] = useState(false);
-  const [addCampaignOpen, setAddCampaignOpen] = useState(false);
-  const canEditCore =
-    !!session &&
-    (hasCapability(session.role, 'core_config.write') ||
-      hasCapability(session.role, 'core_config.tune'));
-  const selectedModelId = modelId ?? models.data?.[0]?.id;
-  const layout = config.modelLayouts.find(
-    (item) => item.modelId === selectedModelId
-  );
-  const coreName = (sku: string) =>
-    config.cores.find((core) => core.sku === sku)?.name ?? sku;
+  const canReadCoreTypes =
+    !!session && hasCapability(session.role, 'core_type.read');
+  const canUpdateCoreTypes =
+    !!session && hasCapability(session.role, 'core_type.update');
+  const [regionTarget, setRegionTarget] = useState<SerialBatch>();
+  const [lifespanTarget, setLifespanTarget] = useState<SerialBatch>();
+  const [editingCore, setEditingCore] = useState<CoreType>();
+  const [ingestOpen, setIngestOpen] = useState(false);
 
-  const removeCampaign = useMutation({
-    mutationFn: (campaignId: string) =>
-      updateCoreLifecycleConfig({
-        campaigns: config.campaigns.filter((item) => item.id !== campaignId),
-        changes: [
+  const visibleBatches = batches.filter(
+    (batch) =>
+      (!filters.lifespanStatus ||
+        batch.lifespanStatus === filters.lifespanStatus) &&
+      (!filters.coreType || batch.coreType === filters.coreType)
+  );
+  const pendingCount = batches.filter(
+    (batch) => batch.lifespanStatus === 'pending' && !batch.recalledAt
+  ).length;
+  const coreOptions = config.coreTypes.map((core) => ({
+    value: core.code,
+    label: core.name,
+  }));
+
+  const batchesTab = (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-end gap-3">
+        <Select<BatchLifespanStatus | 'all'>
+          aria-label={t('batchLifespan.filters.status')}
+          className="w-full sm:w-48"
+          value={filters.lifespanStatus ?? 'all'}
+          options={[
+            { value: 'all', label: t('batchLifespan.filters.allStatuses') },
+            ...BATCH_LIFESPAN_STATUSES.map((status) => ({
+              value: status.value,
+              label: t(status.labelKey),
+            })),
+          ]}
+          onChange={(value) =>
+            onFiltersChange({
+              lifespanStatus: value === 'all' ? undefined : value,
+            })
+          }
+        />
+        <Select
+          allowClear
+          aria-label={t('batchLifespan.filters.coreType')}
+          placeholder={t('batchLifespan.filters.allCoreTypes')}
+          className="w-full sm:w-56"
+          value={filters.coreType}
+          options={coreOptions}
+          onChange={(coreType?: string) => onFiltersChange({ coreType })}
+        />
+        <span className="hidden flex-1 sm:block" />
+        <PermissionGuard capability="serial.write">
+          <Button type="primary" onClick={() => setIngestOpen(true)}>
+            {t('listPage.ingest')}
+          </Button>
+        </PermissionGuard>
+      </div>
+      {pendingCount > 0 ? (
+        <Alert
+          type="warning"
+          showIcon
+          title={t('batchLifespan.pendingNotice', { count: pendingCount })}
+        />
+      ) : null}
+      <BatchLifespanTable
+        batches={visibleBatches}
+        coreTypes={config.coreTypes}
+        onDeclareRegion={setRegionTarget}
+        onEditLifespan={setLifespanTarget}
+      />
+    </div>
+  );
+
+  const coreTypesTab = (
+    <div className="space-y-3">
+      <Alert
+        type="info"
+        showIcon
+        title={
+          <ul className="m-0 space-y-1 pl-4">
+            <li>{t('coreTypes.sourceNote')}</li>
+            <li>
+              {t('coreTypes.thresholdNote', {
+                warning: CORE_WARNING_PERCENT,
+                critical: CORE_CRITICAL_PERCENT,
+              })}
+            </li>
+            <li>{t('coreTypes.floorNote')}</li>
+          </ul>
+        }
+      />
+      <Table<CoreType>
+        rowKey="code"
+        size="small"
+        pagination={false}
+        scroll={{ x: true }}
+        dataSource={config.coreTypes}
+        columns={[
           {
-            field: `campaign (${campaignId})`,
-            beforeValue: t('coreLifecycle.entryExists'),
-            afterValue: t('coreLifecycle.entryRemoved'),
+            title: t('coreTypes.columns.code'),
+            key: 'code',
+            render: (_, row) => <b>{row.code}</b>,
           },
-        ],
-      }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: coreLifecycleQueries.all,
-      });
-    },
-    onError: () => void message.error(t('editModal.error')),
-  });
+          { title: t('coreTypes.columns.name'), dataIndex: 'name' },
+          { title: t('coreTypes.columns.group'), dataIndex: 'group' },
+          {
+            title: t('coreTypes.columns.position'),
+            dataIndex: 'usualPosition',
+          },
+          {
+            title: t('coreTypes.columns.standard'),
+            key: 'standard',
+            render: (_, row) => (
+              <LifespanText
+                months={row.standardMonths}
+                hours={row.standardHours}
+              />
+            ),
+          },
+          {
+            title: t('coreTypes.columns.thresholds'),
+            key: 'thresholds',
+            render: (_, row) => (
+              <ThresholdTags
+                lifespan={{
+                  months: row.standardMonths,
+                  hours: row.standardHours,
+                }}
+              />
+            ),
+          },
+          {
+            title: (
+              <Tooltip title={t('coreTypes.floorTooltip')}>
+                <span className="inline-flex items-center gap-1">
+                  {t('coreTypes.columns.floor')} <InfoCircleOutlined />
+                </span>
+              </Tooltip>
+            ),
+            key: 'floor',
+            render: (_, row) => (
+              <div>
+                <div>{row.floorPercent}%</div>
+                <div className="text-xs text-[#636466]">
+                  {t('coreTypes.floorMin', {
+                    months: lifespanFloor(row.standardMonths, row.floorPercent),
+                    hours: new Intl.NumberFormat(i18n.resolvedLanguage).format(
+                      lifespanFloor(row.standardHours, row.floorPercent)
+                    ),
+                  })}
+                </div>
+              </div>
+            ),
+          },
+          {
+            title: t('coreTypes.columns.batches'),
+            key: 'batches',
+            render: (_, row) => {
+              const ofCore = batches.filter(
+                (batch) => batch.coreType === row.code
+              );
+              return (
+                <div>
+                  <div>{ofCore.length}</div>
+                  <div className="text-xs text-[#636466]">
+                    {t('coreTypes.pendingCount', {
+                      count: ofCore.filter(
+                        (batch) =>
+                          batch.lifespanStatus === 'pending' &&
+                          !batch.recalledAt
+                      ).length,
+                    })}
+                  </div>
+                </div>
+              );
+            },
+          },
+          ...(canUpdateCoreTypes
+            ? [
+                {
+                  title: t('table.columns.actions'),
+                  key: 'actions',
+                  render: (_: unknown, row: CoreType) => (
+                    <Button
+                      type="link"
+                      size="small"
+                      onClick={() => setEditingCore(row)}
+                    >
+                      {t('coreTypes.edit')}
+                    </Button>
+                  ),
+                },
+              ]
+            : []),
+        ]}
+      />
+    </div>
+  );
 
   return (
-    <PortalCard title={t('coreLifecycle.title')}>
-      <p className="mb-4 mt-0 text-sm text-[#636466]">
-        {t('coreLifecycle.precedenceNote')}
-      </p>
+    <PortalCard>
       <Tabs
         items={[
           {
-            key: 'cores',
-            label: t('coreLifecycle.tabs.cores'),
-            children: (
-              <div className="space-y-3">
-                <p className="m-0 text-sm text-[#636466]">
-                  {t('coreLifecycle.skuSourceNote')}
-                </p>
-                <Table
-                  rowKey="sku"
-                  size="small"
-                  pagination={false}
-                  scroll={{ x: true }}
-                  dataSource={config.cores}
-                  columns={[
-                    { title: t('coreLifecycle.sku'), dataIndex: 'sku' },
-                    { title: t('coreLifecycle.coreName'), dataIndex: 'name' },
-                    {
-                      title: t('coreLifecycle.kind'),
-                      key: 'kind',
-                      render: (_, row) => t(`coreLifecycle.kinds.${row.kind}`),
-                    },
-                    {
-                      title: t('coreLifecycle.lifespan'),
-                      key: 'lifespan',
-                      render: (_, row) =>
-                        t('coreLifecycle.lifespanValue', {
-                          months: row.lifespanMonths,
-                          liters: row.lifespanLiters,
-                        }),
-                    },
-                    {
-                      title: t('coreLifecycle.warningThreshold'),
-                      key: 'thresholds',
-                      render: (_, row) =>
-                        `${row.warningLevel1Percent}% / ${row.warningLevel2Percent}%`,
-                    },
-                    {
-                      title: t('coreLifecycle.tdsFactors'),
-                      key: 'tdsFactors',
-                      render: (_, row) =>
-                        row.tdsFactors.length === 0
-                          ? '×1'
-                          : row.tdsFactors
-                              .map(
-                                (item) =>
-                                  `${item.minPpm}–${item.maxPpm ?? '∞'}: ×${item.factor}`
-                              )
-                              .join('; '),
-                    },
-                    {
-                      title: t('coreLifecycle.saleRegions'),
-                      key: 'saleRegions',
-                      render: (_, row) =>
-                        row.saleRegions.length === 0
-                          ? t('coreLifecycle.allRegions')
-                          : row.saleRegions.map((region) => (
-                              <Tag key={region}>{region}</Tag>
-                            )),
-                    },
-                    ...(canEditCore
-                      ? [
-                          {
-                            title: t('table.columns.actions'),
-                            key: 'actions',
-                            render: (_: unknown, row: CoreSku) => (
-                              <Button
-                                type="link"
-                                size="small"
-                                onClick={() => setEditingCore(row)}
-                              >
-                                {t('coreLifecycle.edit')}
-                              </Button>
-                            ),
-                          },
-                        ]
-                      : []),
-                  ]}
-                />
-              </div>
-            ),
+            key: 'batches',
+            label: t('coreLifecycle.tabs.batches'),
+            children: batchesTab,
           },
-          {
-            key: 'layout',
-            label: t('coreLifecycle.tabs.layout'),
-            children: (
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <Select
-                    showSearch
-                    optionFilterProp="label"
-                    className="w-full sm:w-96"
-                    loading={models.isFetching}
-                    value={selectedModelId}
-                    placeholder={t('coreConfigPage.modelPickerPlaceholder')}
-                    options={models.data?.map((model) => ({
-                      value: model.id,
-                      label: `${model.code} · ${model.name}`,
-                    }))}
-                    onChange={(value) =>
-                      void navigate({ search: { modelId: value } })
-                    }
-                  />
-                  {selectedModelId && (
-                    <PermissionGuard capability="core_config.write">
-                      <Button onClick={() => setEditLayoutOpen(true)}>
-                        {t('coreLifecycle.editLayout')}
-                      </Button>
-                    </PermissionGuard>
-                  )}
-                </div>
-                <p className="m-0 text-sm text-[#636466]">
-                  {t('coreConfigPage.modelSourceNote')}
-                </p>
-                <Table
-                  rowKey="position"
-                  size="small"
-                  pagination={false}
-                  dataSource={layout?.positions ?? []}
-                  locale={{ emptyText: t('coreConfigPage.empty') }}
-                  columns={[
-                    {
-                      title: t('coreLifecycle.position'),
-                      key: 'position',
-                      render: (_, row) => `${row.position} · ${row.name}`,
-                    },
-                    {
-                      title: t('coreLifecycle.compatibleSkus'),
-                      key: 'compatibleSkus',
-                      render: (_, row) =>
-                        row.compatibleSkus.map((sku) => (
-                          <Tag
-                            key={sku}
-                            color={sku === row.defaultSku ? 'blue' : undefined}
-                          >
-                            {sku} · {coreName(sku)}
-                          </Tag>
-                        )),
-                    },
-                    {
-                      title: t('coreLifecycle.defaultSku'),
-                      dataIndex: 'defaultSku',
-                    },
-                  ]}
-                />
-              </div>
-            ),
-          },
-          {
-            key: 'campaign',
-            label: t('coreLifecycle.tabs.campaign'),
-            children: (
-              <div className="space-y-3">
-                <PermissionGuard capability="core_config.tune">
-                  <div className="flex justify-end">
-                    <Button onClick={() => setAddCampaignOpen(true)}>
-                      {t('coreLifecycle.addCampaign')}
-                    </Button>
-                  </div>
-                </PermissionGuard>
-                <Table
-                  rowKey="id"
-                  size="small"
-                  pagination={false}
-                  dataSource={config.campaigns}
-                  columns={[
-                    {
-                      title: t('coreLifecycle.campaignName'),
-                      dataIndex: 'name',
-                      key: 'name',
-                    },
-                    {
-                      title: t('coreLifecycle.sku'),
-                      key: 'sku',
-                      render: (_, row) => row.sku ?? t('coreLifecycle.allSkus'),
-                    },
-                    {
-                      title: t('coreLifecycle.pushContent'),
-                      dataIndex: 'pushContent',
-                      key: 'pushContent',
-                    },
-                    {
-                      title: t('coreLifecycle.cta'),
-                      key: 'cta',
-                      render: (_, row) => `${row.ctaLabel} → ${row.deeplink}`,
-                    },
-                    {
-                      title: t('coreLifecycle.runWindow'),
-                      key: 'runWindow',
-                      render: (_, row) =>
-                        t('coreLifecycle.effectiveWindowValue', {
-                          from: formatDateTime(row.startsAt),
-                          to: formatDateTime(row.endsAt),
-                        }),
-                    },
-                    {
-                      title: t('table.columns.actions'),
-                      key: 'actions',
-                      render: (_, row) => (
-                        <PermissionGuard capability="core_config.tune">
-                          <Popconfirm
-                            title={t('coreLifecycle.confirmDelete')}
-                            onConfirm={() => removeCampaign.mutate(row.id)}
-                          >
-                            <Button danger type="link" size="small">
-                              {t('coreLifecycle.delete')}
-                            </Button>
-                          </Popconfirm>
-                        </PermissionGuard>
-                      ),
-                    },
-                  ]}
-                />
-              </div>
-            ),
-          },
+          ...(canReadCoreTypes
+            ? [
+                {
+                  key: 'coreTypes',
+                  label: t('coreLifecycle.tabs.coreTypes'),
+                  children: coreTypesTab,
+                },
+                {
+                  key: 'audit',
+                  label: t('coreLifecycle.tabs.audit'),
+                  children: (
+                    <CoreAuditTable
+                      entries={config.auditLog}
+                      coreTypes={config.coreTypes}
+                    />
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
-      <Typography.Title level={5} className="mb-2 mt-6">
-        {t('coreLifecycle.auditLog')}
-      </Typography.Title>
-      {config.auditLog.length === 0 ? (
-        <p className="text-sm text-[#636466]">
-          {t('coreLifecycle.auditLogEmpty')}
-        </p>
-      ) : (
-        <Timeline
-          items={config.auditLog.map((entry) => ({
-            key: entry.id,
-            children: (
-              <div className="text-sm">
-                <div className="font-medium">
-                  {t('coreLifecycle.auditEntryTitle', {
-                    field: entry.field,
-                    actor: entry.actor,
-                  })}
-                </div>
-                <div className="break-all text-xs text-[#636466]">
-                  {formatDateTime(entry.changedAt)} ·{' '}
-                  {t('coreLifecycle.auditEntryChange', {
-                    before: entry.beforeValue,
-                    after: entry.afterValue,
-                  })}
-                </div>
-              </div>
-            ),
-          }))}
-        />
-      )}
-      <CoreSkuModal
-        cores={config.cores}
-        core={editingCore}
-        onClose={() => setEditingCore(null)}
+      <BatchRegionModal
+        batch={regionTarget}
+        onClose={() => setRegionTarget(undefined)}
       />
-      {selectedModelId && (
-        <ModelLayoutModal
-          modelId={selectedModelId}
-          cores={config.cores}
-          modelLayouts={config.modelLayouts}
-          open={editLayoutOpen}
-          onClose={() => setEditLayoutOpen(false)}
-        />
-      )}
-      <CampaignModal
-        cores={config.cores}
-        campaigns={config.campaigns}
-        open={addCampaignOpen}
-        onClose={() => setAddCampaignOpen(false)}
+      <BatchLifespanModal
+        batch={lifespanTarget}
+        batches={batches}
+        coreTypes={config.coreTypes}
+        regionInsights={config.regionInsights}
+        onClose={() => setLifespanTarget(undefined)}
+      />
+      <CoreTypeModal
+        core={editingCore}
+        batches={batches}
+        onClose={() => setEditingCore(undefined)}
+      />
+      <SerialIngestModal
+        open={ingestOpen}
+        onClose={() => setIngestOpen(false)}
       />
     </PortalCard>
   );
