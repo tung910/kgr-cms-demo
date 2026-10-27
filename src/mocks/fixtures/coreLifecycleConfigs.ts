@@ -160,6 +160,4 @@ export const regionInsightFixtures: readonly {
   { region: 'south', avg_tds_ppm: 260, early_replace_percent: 18 },
   { region: 'nationwide', avg_tds_ppm: 235, early_replace_percent: 16 },
   { region: 'mekong_alum', avg_tds_ppm: 520, early_replace_percent: 34 },
-  { region: 'hanoi', avg_tds_ppm: 230, early_replace_percent: 16 },
-  { region: 'ho_chi_minh', avg_tds_ppm: 190, early_replace_percent: 14 },
 ];

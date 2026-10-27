@@ -28,7 +28,6 @@ import { BatchRegionModal } from './BatchRegionModal';
 import { CoreAuditTable } from './CoreAuditTable';
 import { CoreTypeModal } from './CoreTypeModal';
 import { LifespanText } from './LifespanText';
-import { ThresholdTags } from './ThresholdTags';
 import { SerialIngestModal } from './SerialIngestModal';
 
 export interface CoreLifecycleFilters {
@@ -157,7 +156,6 @@ export function CoreLifecyclePanel({
             render: (_, row) => <b>{row.code}</b>,
           },
           { title: t('coreTypes.columns.name'), dataIndex: 'name' },
-          { title: t('coreTypes.columns.group'), dataIndex: 'group' },
           {
             title: t('coreTypes.columns.position'),
             dataIndex: 'usualPosition',
@@ -169,18 +167,6 @@ export function CoreLifecyclePanel({
               <LifespanText
                 months={row.standardMonths}
                 hours={row.standardHours}
-              />
-            ),
-          },
-          {
-            title: t('coreTypes.columns.thresholds'),
-            key: 'thresholds',
-            render: (_, row) => (
-              <ThresholdTags
-                lifespan={{
-                  months: row.standardMonths,
-                  hours: row.standardHours,
-                }}
               />
             ),
           },

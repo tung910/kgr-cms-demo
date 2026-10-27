@@ -44,8 +44,8 @@
     "keyMaskedHint": "Key là mã bí mật chống hàng giả — hệ thống không bao giờ trả về đầy đủ.",
     "notUsed": "Chưa dùng",
     "lifespanSource": {
-      "batch": "Theo lô",
-      "standard": "Theo chuẩn (lô chờ xác nhận)"
+      "batch": "Mức của lô",
+      "standard": "Mức chuẩn · lô chưa chốt"
     }
   },
   "batchTable": {
@@ -79,9 +79,7 @@
       "alreadyIngested": "Đã nạp trước đó"
     },
     "submit": "Nhập lô",
-    "batchId": "Mã lô",
-    "batchIdHint": "Định dạng QR-Bxxxx, không trùng.",
-    "batchIdInvalid": "Mã lô phải có dạng QR-Bxxxx.",
+    "batchIdAuto": "Mã lô do hệ thống tự sinh sau khi nhập.",
     "coreType": "Loại lõi",
     "coreTypeRequired": "Chọn loại lõi.",
     "region": "Khu vực phân phối",
@@ -102,7 +100,6 @@
   "coreConfigPage": {
     "backToSerials": "Danh sách serial",
     "title": "Cấu hình tuổi thọ lõi",
-    "description": "Tuổi thọ chuẩn theo loại lõi (giờ lọc và tháng hoạt động của máy, cái nào đến trước thì lõi hết hạn), ngưỡng cảnh báo vàng/đỏ và tuổi thọ của từng lô QR — quyết định đồng hồ đếm ngược lõi trên App (9.3). Mỗi lõi chốt tuổi thọ lúc kích hoạt, sửa sau không hồi tố.",
     "loadError": "Không tải được cấu hình tuổi thọ lõi."
   },
   "editModal": {
@@ -117,8 +114,6 @@
     "batchAlreadyRecalled": "Lô này đã được thu hồi.",
     "recallReasonRequired": "Phải nhập lý do thu hồi.",
     "invalidCoreConfig": "Cấu hình loại lõi không hợp lệ.",
-    "invalidBatchCode": "Mã lô phải có dạng QR-Bxxxx.",
-    "duplicateBatchCode": "Mã lô đã tồn tại.",
     "invalidCoreType": "Loại lõi không hợp lệ hoặc đã ngừng tạo lô mới.",
     "invalidRegion": "Khu vực phân phối không hợp lệ.",
     "regionAlreadyDeclared": "Lô đã được khai báo khu vực.",
@@ -170,9 +165,9 @@
     "region": "Khu vực phân phối",
     "regionPlaceholder": "Chọn khu vực",
     "regionRequired": "Chọn khu vực phân phối.",
-    "reason": "Ghi chú / số lệnh xuất kho",
+    "reason": "Ghi chú",
     "reasonPlaceholder": "VD: XK-2210",
-    "reasonRequired": "Nhập ghi chú hoặc số lệnh xuất kho.",
+    "reasonRequired": "Nhập ghi chú.",
     "nextStep": "Sau khi khai báo, R&D/Admin xác nhận hoặc điều chỉnh tuổi thọ của lô theo khu vực này.",
     "success": "Đã khai báo khu vực cho lô {{batchId}}."
   },
@@ -221,12 +216,10 @@
     "columns": {
       "code": "Mã",
       "name": "Tên lõi",
-      "group": "Vai trò",
       "position": "Vị trí thường lắp",
       "standard": "Tuổi thọ chuẩn",
       "floor": "Mức sàn",
-      "batches": "Số lô",
-      "thresholds": "Ngưỡng cảnh báo"
+      "batches": "Số lô"
     },
     "floorMin": "ngắn nhất {{months}} tháng · {{hours}} h",
     "pendingCount": "{{count}} chờ xác nhận",

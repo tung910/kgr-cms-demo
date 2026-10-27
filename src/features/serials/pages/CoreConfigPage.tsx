@@ -33,10 +33,7 @@ export function CoreConfigPage({ filters }: CoreConfigPageProps) {
       >
         <ArrowLeftOutlined /> {t('coreConfigPage.backToSerials')}
       </Link>
-      <PortalPageHeader
-        title={t('coreConfigPage.title')}
-        description={t('coreConfigPage.description')}
-      />
+      <PortalPageHeader title={t('coreConfigPage.title')} />
       {config.isPending || batches.isPending ? (
         <Skeleton active />
       ) : config.data && batches.data ? (
