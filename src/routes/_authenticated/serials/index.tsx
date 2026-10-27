@@ -10,7 +10,7 @@ import { RouteErrorState } from '@/shared/components/RouteErrorState';
 
 const serialListSearchSchema = z.object({
   search: z.string().catch(''),
-  modelCode: z.string().trim().min(1).optional().catch(undefined),
+  coreType: z.string().trim().min(1).optional().catch(undefined),
   batchId: z.string().trim().min(1).optional().catch(undefined),
   status: z.enum(['unused', 'used', 'recalled']).optional().catch(undefined),
   page: z.coerce.number().int().positive().catch(1),

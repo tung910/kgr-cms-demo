@@ -2,8 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button, Input, Segmented, Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-import { modelReferenceQueries } from '@/core/reference/modelReferenceQueries';
-
+import { coreLifecycleQueries } from '../queries/coreLifecycleQueries';
 import { serialQueries } from '../queries/serialQueries';
 import type { SerialListFilters, SerialStatus } from '../schemas/serialSchemas';
 
@@ -19,7 +18,7 @@ export function SerialFilters({
   onReset,
 }: SerialFiltersProps) {
   const { t } = useTranslation('serials');
-  const models = useQuery(modelReferenceQueries.list());
+  const config = useQuery(coreLifecycleQueries.detail());
   const batches = useQuery(serialQueries.batches());
 
   const statusOptions: Array<{ value: SerialStatus; label: string }> = [
@@ -41,16 +40,16 @@ export function SerialFilters({
       />
       <Select
         allowClear
-        aria-label={t('filters.modelAriaLabel')}
-        placeholder={t('filters.modelPlaceholder')}
-        value={filters.modelCode}
-        loading={models.isFetching}
-        options={models.data?.map((model) => ({
-          value: model.code,
-          label: model.code,
+        aria-label={t('filters.coreTypeAriaLabel')}
+        placeholder={t('filters.coreTypePlaceholder')}
+        value={filters.coreType}
+        loading={config.isFetching}
+        options={config.data?.coreTypes.map((core) => ({
+          value: core.code,
+          label: core.name,
         }))}
-        className="w-full sm:w-44"
-        onChange={(modelCode) => onChange({ modelCode })}
+        className="w-full sm:w-48"
+        onChange={(coreType) => onChange({ coreType })}
       />
       <Select
         allowClear

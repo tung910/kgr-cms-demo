@@ -93,6 +93,17 @@
     "warning": "Error",
     "offline": "Offline"
   },
+  "distributionRegionGroup": {
+    "zone": "Zone",
+    "water_zone": "Special water zone"
+  },
+  "distributionRegion": {
+    "north": "North",
+    "central": "Central",
+    "south": "South",
+    "nationwide": "Nationwide",
+    "mekong_alum": "Mekong Delta – alum/saline water"
+  },
   "auth": {
     "cancel": "Cancel",
     "changePassword": {

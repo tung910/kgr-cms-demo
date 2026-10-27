@@ -1,110 +1,163 @@
 import type {
-  CoreLifecycleConfigDto,
-  CoreSkuDto,
+  CoreLifecycleAuditEntryDto,
+  CoreTypeDto,
+  RegionInsight,
 } from '@/features/serials/schemas/coreLifecycleSchemas';
 
-// M04.1: lifespan and thresholds live on the core SKU, shared by every model
-// that fits it. TDS bands are placeholders until R&D signs off the real table.
-const TDS_BANDS = [
-  { min_ppm: 0, max_ppm: 150, factor: 1 },
-  { min_ppm: 150, max_ppm: 300, factor: 1.3 },
-  { min_ppm: 300, max_ppm: 500, factor: 1.6 },
-  { min_ppm: 500, factor: 2 },
-];
-
-function core(
-  sku: string,
+// 9.3 core types as they stand today. Standards are illustrative, pending the
+// official R&D table; `coreTypeHistory` below records how they got here, and
+// the batch fixtures (./serials.ts) replay it to know which standard a core
+// locked in when it was activated.
+function coreType(
+  code: string,
   name: string,
+  group: string,
+  usualPosition: string,
+  hours: number,
   months: number,
-  liters: number,
-  extra: Partial<CoreSkuDto> = {}
-): CoreSkuDto {
+  floor: number
+): CoreTypeDto {
   return {
-    sku,
+    code,
     name,
-    kind: 'standard',
-    lifespan_months: months,
-    lifespan_liters: liters,
-    warning_level1_percent: 70,
-    warning_level2_percent: 90,
-    sale_regions: [],
-    tds_factors: TDS_BANDS,
-    ...extra,
+    group,
+    usual_position: usualPosition,
+    standard_months: months,
+    standard_hours: hours,
+    floor_percent: floor,
   };
 }
 
-const cores: CoreSkuDto[] = [
-  core('CORE-PP', 'PP Cotton', 6, 3000, {
-    guide_video_url: 'https://example.com/guides/core-pp',
-  }),
-  core('CORE-PP-ALUM', 'PP xử lý phèn', 4, 2500, {
-    kind: 'poor_water',
-    sale_regions: ['Đồng bằng sông Cửu Long'],
-  }),
-  core('CORE-CARBON', 'Carbon Block', 9, 4500),
-  core('CORE-RO', 'RO Membrane', 24, 12000),
-  core('CORE-POST', 'Post Carbon', 12, 6000, { tds_factors: [] }),
-  core('CORE-MINERAL', 'Mineral', 12, 6000, { tds_factors: [] }),
-  core('CORE-HYDROGEN', 'Hydrogen', 12, 6000, { tds_factors: [] }),
+// Filter hours and months of device operation, whichever runs out first.
+export const coreTypeFixtures: readonly CoreTypeDto[] = [
+  coreType('PP5', 'PP 5 micron', 'Lọc thô', 'Lõi 1', 250, 12, 40),
+  coreType('GAC', 'Than hoạt tính GAC', 'Lọc tinh', 'Lõi 2', 500, 12, 40),
+  coreType('PP1', 'PP 1 micron', 'Than hoạt tính', 'Lõi 3', 750, 12, 40),
+  coreType('RO', 'Màng RO', 'Màng RO', 'Lõi 4', 2700, 36, 50),
+  // Position 5 holds all three functional cores at once; each has its own
+  // QR, batch and countdown, and R&D can tune each one separately.
+  coreType(
+    'MINERAL',
+    'Mineral Purion',
+    'Lõi chức năng sau RO',
+    'Lõi 5 · 1/3',
+    1000,
+    12,
+    60
+  ),
+  coreType(
+    'HYDROGEN',
+    'Hydrogen Purion',
+    'Lõi chức năng sau RO',
+    'Lõi 5 · 2/3',
+    1000,
+    12,
+    60
+  ),
+  coreType(
+    'PPNANO',
+    'PP Nano Extra',
+    'Lõi chức năng sau RO',
+    'Lõi 5 · 3/3',
+    1000,
+    12,
+    60
+  ),
 ];
 
-function position(
-  index: number,
-  name: string,
-  compatible: string[]
-): CoreLifecycleConfigDto['model_layouts'][number]['positions'][number] {
-  return {
-    position: String(index + 1),
-    name,
-    compatible_skus: compatible,
-    default_sku: compatible[0]!,
-  };
+export interface CoreTypeChange {
+  at: string;
+  actor: string;
+  code: string;
+  field: 'standardMonths' | 'standardHours' | 'floorPercent';
+  before: string;
+  after: string;
+  reason: string;
 }
 
-const fiveCoreLayout = [
-  position(0, 'Lõi 1 · PP', ['CORE-PP', 'CORE-PP-ALUM']),
-  position(1, 'Lõi 2 · Carbon', ['CORE-CARBON']),
-  position(2, 'Lõi 3 · RO', ['CORE-RO']),
-  position(3, 'Lõi 4 · Post Carbon', ['CORE-POST']),
-  position(4, 'Lõi 5 · Mineral', ['CORE-MINERAL']),
+// Oldest first. `after` of the last change per field equals the value above.
+export const coreTypeHistory: readonly CoreTypeChange[] = [
+  {
+    at: '2026-02-10T02:00:00.000Z',
+    actor: 'admin@mock.cms-portal.local',
+    code: 'PP5',
+    field: 'floorPercent',
+    before: '30',
+    after: '40',
+    reason: 'Thống nhất mức sàn nhóm lọc thô 40%',
+  },
+  {
+    at: '2026-06-15T03:30:00.000Z',
+    actor: 'factory@mock.cms-portal.local',
+    code: 'GAC',
+    field: 'standardHours',
+    before: '450',
+    after: '500',
+    reason: 'Lõi lọc tinh thế hệ mới, R&D test đạt 500 giờ',
+  },
+  {
+    at: '2026-08-02T07:30:00.000Z',
+    actor: 'admin@mock.cms-portal.local',
+    code: 'RO',
+    field: 'floorPercent',
+    before: '40',
+    after: '50',
+    reason: 'Màng RO giá cao, hạn chế rút ngắn quá mức',
+  },
+  {
+    at: '2026-09-20T02:00:00.000Z',
+    actor: 'factory@mock.cms-portal.local',
+    code: 'HYDROGEN',
+    field: 'standardHours',
+    before: '800',
+    after: '1000',
+    reason: 'Điện cực thế hệ 2 kéo dài tuổi thọ lên 1000 giờ',
+  },
 ];
 
-export const coreLifecycleConfigFixture: CoreLifecycleConfigDto = {
-  cores,
-  model_layouts: [
-    { model_id: 'model-a100', positions: fiveCoreLayout },
-    { model_id: 'model-b200', positions: fiveCoreLayout.slice(0, 3) },
-    { model_id: 'model-n110', positions: fiveCoreLayout.slice(0, 4) },
-    { model_id: 'model-n120', positions: fiveCoreLayout },
-    {
-      model_id: 'model-c300',
-      positions: [
-        ...fiveCoreLayout,
-        position(5, 'Lõi 6 · Hydrogen', ['CORE-HYDROGEN']),
-        position(6, 'Lõi 7 · Mineral', ['CORE-MINERAL']),
-      ],
-    },
-  ],
-  campaigns: [
-    {
-      id: 'campaign-q3-pp',
-      name: 'Nhắc thay lõi PP Q3',
-      sku: 'CORE-PP',
-      push_content: 'Lõi PP sắp hết hạn, đặt lõi mới ngay hôm nay!',
-      cta_label: 'Mua lõi ngay',
-      deeplink: 'onekangaroo://core-shop?sku=CORE-PP',
-      starts_at: '2026-09-01T00:00:00.000Z',
-      ends_at: '2026-09-30T23:59:59.000Z',
-    },
-  ],
-  audit_log: [
-    {
-      id: 'core-config-audit-1',
-      actor: 'admin@kgr.local',
-      changed_at: '2026-09-01T08:00:00.000Z',
-      field: 'warningLevel1Percent (CORE-PP)',
-      before_value: '60',
-      after_value: '70',
-    },
-  ],
-};
+// The standard a core type had at `at`: today's value with every later
+// change rolled back.
+export function standardAt(
+  code: string,
+  at: string
+): { months: number; hours: number } {
+  const core = coreTypeFixtures.find((item) => item.code === code)!;
+  const standard = {
+    months: core.standard_months,
+    hours: core.standard_hours,
+  };
+  for (const change of [...coreTypeHistory].reverse()) {
+    if (change.code !== code || change.at <= at) continue;
+    if (change.field === 'standardMonths')
+      standard.months = Number(change.before);
+    if (change.field === 'standardHours')
+      standard.hours = Number(change.before);
+  }
+  return standard;
+}
+
+export const coreTypeAuditFixtures: readonly CoreLifecycleAuditEntryDto[] =
+  coreTypeHistory.map((change, index) => ({
+    id: `core-type-audit-${index + 1}`,
+    actor: change.actor,
+    changed_at: change.at,
+    target_kind: 'core_type',
+    target: change.code,
+    field: change.field,
+    before_value: change.before,
+    after_value: change.after,
+    reason: change.reason,
+  }));
+
+// Reference data for the confirm-lifespan dialog (water map + QR history).
+export const regionInsightFixtures: readonly {
+  region: RegionInsight['region'];
+  avg_tds_ppm: number;
+  early_replace_percent: number;
+}[] = [
+  { region: 'north', avg_tds_ppm: 180, early_replace_percent: 12 },
+  { region: 'central', avg_tds_ppm: 210, early_replace_percent: 15 },
+  { region: 'south', avg_tds_ppm: 260, early_replace_percent: 18 },
+  { region: 'nationwide', avg_tds_ppm: 235, early_replace_percent: 16 },
+  { region: 'mekong_alum', avg_tds_ppm: 520, early_replace_percent: 34 },
+];

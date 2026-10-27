@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { Pagination, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +7,9 @@ import { StatusTag } from '@/shared/components/StatusTag';
 import { formatDateTimeInLocale as formatDateTime } from '@/shared/lib/format';
 import type { PageResponse } from '@/shared/types/pagination';
 
+import { coreLifecycleQueries } from '../queries/coreLifecycleQueries';
 import type { Serial, SerialListFilters } from '../schemas/serialSchemas';
+import { LifespanText } from './LifespanText';
 
 const statusTone: Record<Serial['status'], string> = {
   unused: 'active',
@@ -22,6 +25,9 @@ export interface SerialTableProps {
 
 export function SerialTable({ data, filters, onPageChange }: SerialTableProps) {
   const { t, i18n } = useTranslation('serials');
+  const config = useQuery(coreLifecycleQueries.detail());
+  const coreName = (code: string) =>
+    config.data?.coreTypes.find((core) => core.code === code)?.name ?? code;
 
   const columns: ColumnsType<Serial> = [
     {
@@ -32,7 +38,9 @@ export function SerialTable({ data, filters, onPageChange }: SerialTableProps) {
           <div className="font-mono text-[13px] font-semibold">
             {row.serial}
           </div>
-          <div className="mt-1 text-xs text-[#636466]">{row.modelCode}</div>
+          <div className="mt-1 text-xs text-[#636466]">
+            {coreName(row.coreType)}
+          </div>
         </div>
       ),
     },
@@ -67,6 +75,27 @@ export function SerialTable({ data, filters, onPageChange }: SerialTableProps) {
           </div>
         ) : (
           <span className="text-xs text-[#636466]">{t('table.notUsed')}</span>
+        ),
+    },
+    {
+      // Locked at activation: later batch/core-type edits never change it.
+      title: t('table.columns.lockedLifespan'),
+      key: 'lockedLifespan',
+      render: (_: unknown, row: Serial) =>
+        row.lockedLifespan ? (
+          <div className="text-xs">
+            <div className="font-medium">
+              <LifespanText
+                months={row.lockedLifespan.months}
+                hours={row.lockedLifespan.hours}
+              />
+            </div>
+            <div className="text-[#636466]">
+              {t(`table.lifespanSource.${row.lockedLifespan.source}`)}
+            </div>
+          </div>
+        ) : (
+          <span className="text-xs text-[#636466]">—</span>
         ),
     },
   ];

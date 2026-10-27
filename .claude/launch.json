@@ -7,6 +7,13 @@
       "runtimeArgs": ["dev", "--port", "5180", "--strictPort"],
       "env": { "VITE_ENABLE_MOCKS": "true" },
       "port": 5180
+    },
+    {
+      "name": "cms-dev-host",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev", "--host", "--port", "5180", "--strictPort"],
+      "env": { "VITE_ENABLE_MOCKS": "true" },
+      "port": 5180
     }
   ]
 }

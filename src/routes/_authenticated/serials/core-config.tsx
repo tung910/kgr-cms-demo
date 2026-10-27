@@ -8,9 +8,12 @@ import { CoreConfigPage } from '@/features/serials/pages/CoreConfigPage';
 import { RouteErrorState } from '@/shared/components/RouteErrorState';
 
 const coreConfigSearchSchema = z.object({
-  modelId: z.string().trim().min(1).optional().catch(undefined),
+  lifespanStatus: z.enum(['pending', 'confirmed']).optional().catch(undefined),
+  coreType: z.string().trim().min(1).optional().catch(undefined),
 });
 
+// Every serial.read role sees the batch tab (logistics declares regions
+// there); core types and the change log are gated inside the page.
 export const Route = createFileRoute('/_authenticated/serials/core-config')({
   validateSearch: coreConfigSearchSchema,
   beforeLoad: ({ context }) => {
@@ -27,6 +30,13 @@ export const Route = createFileRoute('/_authenticated/serials/core-config')({
 });
 
 function CoreConfigRoute() {
-  const { modelId } = Route.useSearch();
-  return <CoreConfigPage {...(modelId && { modelId })} />;
+  const { lifespanStatus, coreType } = Route.useSearch();
+  return (
+    <CoreConfigPage
+      filters={{
+        ...(lifespanStatus && { lifespanStatus }),
+        ...(coreType && { coreType }),
+      }}
+    />
+  );
 }

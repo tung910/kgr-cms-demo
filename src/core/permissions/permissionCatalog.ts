@@ -239,14 +239,19 @@ export const PERMISSION_CATALOG: readonly PermissionFunction[] = [
     cells: { export: 'serial.anomaly.export' },
   },
   {
-    key: 'core_config_lifespan',
+    key: 'core_type',
     module: 'serials',
-    cells: { update: 'core_config.write' },
+    cells: { read: 'core_type.read', update: 'core_type.update' },
   },
   {
-    key: 'core_config_tune',
+    key: 'serial_batch_region',
     module: 'serials',
-    cells: { update: 'core_config.tune' },
+    cells: { update: 'serial.batch.region' },
+  },
+  {
+    key: 'serial_batch_lifespan',
+    module: 'serials',
+    cells: { update: 'serial.batch.lifespan' },
   },
   {
     key: 'member',
