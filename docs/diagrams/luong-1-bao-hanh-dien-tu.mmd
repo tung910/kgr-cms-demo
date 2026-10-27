@@ -1,0 +1,68 @@
+%% Luồng 1 — Bảo hành điện tử (swimlane theo vai trò)
+%% Bảo hành gắn với serial trong hồ sơ máy, không cần giấy.
+%% Khách không phải làm gì nếu thợ đã lắp đặt qua Luồng 3.
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, Segoe UI, sans-serif","primaryColor":"#1f2937","primaryTextColor":"#f9fafb","primaryBorderColor":"#4b5563","lineColor":"#9ca3af","clusterBkg":"#111827","clusterBorder":"#374151"}}}%%
+flowchart TB
+
+  %% ===== Lanes (vai trò) =====
+  subgraph KH["👤 Khách hàng"]
+    direction TB
+    start(("●"))
+    n1["(1) Ghép máy vào app / quét QR tem"]
+    n4["(4) Gửi thông báo và yêu cầu kiểm tra"]
+    n7["(7) Xem thẻ Bảo hành<br/><i>còn X ngày, phạm vi…</i>"]
+    d8{"(8) Khách cần?"}
+    ref4(["Máy hỏng → <b>Luồng 4</b>"])
+  end
+
+  subgraph APP["📱 App OneKangaroo<br/>(+ Nền tảng IoT)"]
+    direction TB
+    n2["(2) Đọc serial + model"]
+    d3{"(3) Serial hợp lệ?"}
+    n6["(6) Tạo phiếu BH điện tử<br/><i>ngày kích hoạt, thông tin BHĐT</i>"]
+    n10["(10) Lỗi lại ≤ 30 ngày sau dịch vụ<br/><i>tạo phiếu làm lại miễn phí</i>"]
+    n11b["(11) Còn 30 ngày hết BH<br/><i>nhắc mua gói bảo trì</i>"]
+  end
+
+  subgraph CMS["🖥️ Web quản trị CMS<br/>(Điều phối / Trạm ASC)"]
+    direction TB
+    ref5(["CMS kiểm tra, kết quả báo về app"])
+    ref2(["→ <b>Luồng 2</b> mua gói"])
+  end
+
+  subgraph KTV["🔧 Kỹ thuật viên<br/>(Web CMS / app điện thoại)"]
+    direction TB
+    n11a["(1.1) KTV thêm máy vào app (hoặc quét QR máy)<br/><i>Luồng 3, bước 10</i>"]
+  end
+
+  subgraph CSKH["🎧 CSKH"]
+    direction TB
+    cskh["<i>(không tham gia Luồng 1)</i>"]
+  end
+
+  %% ===== Flow =====
+  start --> n1
+  n1 --> n2
+  n11a --> n2
+  n2 --> d3
+  d3 -->|Hợp lệ| n6
+  d3 -->|Không| n4
+  n4 -. "chờ kiểm tra" .-> ref5
+  ref5 --> n6
+  n6 --> n7
+  n7 --> d8
+  d8 -->|Lỗi lại sau dịch vụ| n10
+  d8 -->|Sắp hết BH| n11b
+  d8 -->|Máy hỏng| ref4
+  n11b --> ref2
+
+  %% ===== Styling (văn phạm màu, dark) =====
+  classDef sys fill:#052e16,stroke:#22c55e,stroke-width:2px,color:#dcfce7;
+  classDef ref fill:#0b1220,stroke:#3b82f6,stroke-width:1.5px,stroke-dasharray:5 4,color:#dbeafe;
+  classDef startNode fill:#3f1d1d,stroke:#f87171,stroke-width:2px,color:#fecaca;
+  classDef muted fill:#1f2937,stroke:#374151,color:#6b7280;
+
+  class n2,n6 sys;
+  class ref5,ref2,ref4 ref;
+  class start startNode;
+  class cskh muted;

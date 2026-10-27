@@ -93,6 +93,10 @@
     "warning": "Error",
     "offline": "Offline"
   },
+  "mapRegionStatus": {
+    "stable": "Stable",
+    "warning": "Warning"
+  },
   "distributionRegionGroup": {
     "zone": "Zone",
     "water_zone": "Special water zone"

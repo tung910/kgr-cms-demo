@@ -93,6 +93,10 @@
     "warning": "Lỗi",
     "offline": "Offline"
   },
+  "mapRegionStatus": {
+    "stable": "Ổn định",
+    "warning": "Cảnh báo"
+  },
   "distributionRegionGroup": {
     "zone": "Miền",
     "water_zone": "Nhóm vùng nước đặc thù"
