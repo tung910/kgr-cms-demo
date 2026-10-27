@@ -7,6 +7,7 @@ import {
   type Capability,
 } from '@/core/permissions/capabilities';
 import { servicePackageFixtures } from '@/mocks/fixtures/servicePackages';
+import { modelFixtures } from '@/mocks/fixtures/models';
 import { randomId } from '@/shared/lib/id';
 
 import {
@@ -63,7 +64,7 @@ function actor(): string {
 
 function error(key: string, status: number) {
   return HttpResponse.json(
-    { message: i18n.t('servicePackages:errors.' + key) },
+    { code: key, message: i18n.t('servicePackages:errors.' + key) },
     { status }
   );
 }
@@ -140,15 +141,26 @@ export const servicePackageHandlers = [
     if (packageStore.some((item) => item.code.toLocaleUpperCase() === code))
       return error('duplicateCode', 409);
 
-    // One-time packages have no billing cadence; recurring/subscription need one.
-    if (input.billing_type === 'one_time') {
-      input.billing_period_months = null;
-    } else if (input.billing_period_months === null) {
+    if (
+      input.eligible_model_ids.some(
+        (id) => !modelFixtures.some((model) => model.model_id === id)
+      )
+    )
       return error('invalidInput', 400);
-    }
+    if (
+      input.configuration.type === 'TG-ALL' &&
+      input.configuration.packages.some((part) => {
+        const target = packageStore.find((item) => item.id === part.id);
+        return (
+          !target || target.status !== 'active' || target.group === 'bundle'
+        );
+      })
+    )
+      return error('invalidInput', 400);
 
     const now = new Date().toISOString();
     const created: ServicePackageDto = {
+      ...input,
       id: `pkg-${randomId().slice(0, 8)}`,
       code,
       name: input.name,
@@ -158,7 +170,10 @@ export const servicePackageHandlers = [
       price: input.price,
       billing_period_months: input.billing_period_months,
       term_months: input.term_months,
-      eligible_model_count: input.eligible_model_count,
+      eligible_model_count:
+        input.model_scope === 'all'
+          ? modelFixtures.length
+          : input.eligible_model_ids.length,
       description: input.description,
       updated_at: now,
     };
@@ -169,7 +184,7 @@ export const servicePackageHandlers = [
       package_id: created.id,
       field: 'created',
       before_value: '',
-      after_value: `${created.code} · ${created.group}`,
+      after_value: JSON.stringify(input),
       reason: '',
       changed_at: now,
     });
@@ -198,6 +213,25 @@ export const servicePackageHandlers = [
       if (!ALLOWED_TRANSITIONS[current.status].includes(status))
         return error('invalidTransition', 409);
 
+      if (
+        status === 'active' &&
+        !servicePackageDraftInputSchema.safeParse(current).success
+      )
+        return error('configurationRequired', 400);
+      if (
+        status === 'active' &&
+        current.configuration?.type === 'TG-ALL' &&
+        current.configuration.packages.some((part) => {
+          const target = packageStore.find((item) => item.id === part.id);
+          return (
+            !target ||
+            target.id === current.id ||
+            target.status !== 'active' ||
+            target.group === 'bundle'
+          );
+        })
+      )
+        return error('invalidInput', 400);
       const before = current.status;
       const updated: ServicePackageDto = {
         ...current,

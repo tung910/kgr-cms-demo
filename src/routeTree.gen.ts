@@ -34,6 +34,7 @@ import { Route as AuthenticatedMapsIndexRouteImport } from './routes/_authentica
 import { Route as AuthenticatedSerialsIndexRouteImport } from './routes/_authenticated/serials/index'
 import { Route as AuthenticatedSerialsCoreConfigRouteImport } from './routes/_authenticated/serials/core-config'
 import { Route as AuthenticatedServicePackagesIndexRouteImport } from './routes/_authenticated/service-packages/index'
+import { Route as AuthenticatedServicePackagesNewRouteImport } from './routes/_authenticated/service-packages/new'
 import { Route as AuthenticatedSystemAuditRouteImport } from './routes/_authenticated/system/audit'
 import { Route as AuthenticatedSystemConfigRouteImport } from './routes/_authenticated/system/config'
 import { Route as AuthenticatedSystemMembersRouteImport } from './routes/_authenticated/system/members'
@@ -175,6 +176,12 @@ const AuthenticatedServicePackagesIndexRoute =
     path: '/service-packages/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedServicePackagesNewRoute =
+  AuthenticatedServicePackagesNewRouteImport.update({
+    id: '/service-packages/new',
+    path: '/service-packages/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSystemAuditRoute =
   AuthenticatedSystemAuditRouteImport.update({
     id: '/system/audit',
@@ -214,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/serials/core-config': typeof AuthenticatedSerialsCoreConfigRoute
+  '/service-packages/new': typeof AuthenticatedServicePackagesNewRoute
   '/system/audit': typeof AuthenticatedSystemAuditRoute
   '/system/config': typeof AuthenticatedSystemConfigRoute
   '/system/members': typeof AuthenticatedSystemMembersRoute
@@ -243,6 +251,7 @@ export interface FileRoutesByTo {
   '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/serials/core-config': typeof AuthenticatedSerialsCoreConfigRoute
+  '/service-packages/new': typeof AuthenticatedServicePackagesNewRoute
   '/system/audit': typeof AuthenticatedSystemAuditRoute
   '/system/config': typeof AuthenticatedSystemConfigRoute
   '/system/members': typeof AuthenticatedSystemMembersRoute
@@ -274,6 +283,7 @@ export interface FileRoutesById {
   '/_authenticated/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/_authenticated/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/_authenticated/serials/core-config': typeof AuthenticatedSerialsCoreConfigRoute
+  '/_authenticated/service-packages/new': typeof AuthenticatedServicePackagesNewRoute
   '/_authenticated/system/audit': typeof AuthenticatedSystemAuditRoute
   '/_authenticated/system/config': typeof AuthenticatedSystemConfigRoute
   '/_authenticated/system/members': typeof AuthenticatedSystemMembersRoute
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
     | '/campaigns/new'
     | '/devices/$deviceId'
     | '/serials/core-config'
+    | '/service-packages/new'
     | '/system/audit'
     | '/system/config'
     | '/system/members'
@@ -334,6 +345,7 @@ export interface FileRouteTypes {
     | '/campaigns/new'
     | '/devices/$deviceId'
     | '/serials/core-config'
+    | '/service-packages/new'
     | '/system/audit'
     | '/system/config'
     | '/system/members'
@@ -364,6 +376,7 @@ export interface FileRouteTypes {
     | '/_authenticated/campaigns/new'
     | '/_authenticated/devices/$deviceId'
     | '/_authenticated/serials/core-config'
+    | '/_authenticated/service-packages/new'
     | '/_authenticated/system/audit'
     | '/_authenticated/system/config'
     | '/_authenticated/system/members'
@@ -558,6 +571,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedServicePackagesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/service-packages/new': {
+      id: '/_authenticated/service-packages/new'
+      path: '/service-packages/new'
+      fullPath: '/service-packages/new'
+      preLoaderRoute: typeof AuthenticatedServicePackagesNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/system/audit': {
       id: '/_authenticated/system/audit'
       path: '/system/audit'
@@ -599,6 +619,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCampaignsNewRoute: typeof AuthenticatedCampaignsNewRoute
   AuthenticatedDevicesDeviceIdRoute: typeof AuthenticatedDevicesDeviceIdRoute
   AuthenticatedSerialsCoreConfigRoute: typeof AuthenticatedSerialsCoreConfigRoute
+  AuthenticatedServicePackagesNewRoute: typeof AuthenticatedServicePackagesNewRoute
   AuthenticatedSystemAuditRoute: typeof AuthenticatedSystemAuditRoute
   AuthenticatedSystemConfigRoute: typeof AuthenticatedSystemConfigRoute
   AuthenticatedSystemMembersRoute: typeof AuthenticatedSystemMembersRoute
@@ -626,6 +647,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCampaignsNewRoute: AuthenticatedCampaignsNewRoute,
   AuthenticatedDevicesDeviceIdRoute: AuthenticatedDevicesDeviceIdRoute,
   AuthenticatedSerialsCoreConfigRoute: AuthenticatedSerialsCoreConfigRoute,
+  AuthenticatedServicePackagesNewRoute: AuthenticatedServicePackagesNewRoute,
   AuthenticatedSystemAuditRoute: AuthenticatedSystemAuditRoute,
   AuthenticatedSystemConfigRoute: AuthenticatedSystemConfigRoute,
   AuthenticatedSystemMembersRoute: AuthenticatedSystemMembersRoute,

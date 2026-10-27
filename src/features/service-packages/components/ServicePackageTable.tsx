@@ -42,6 +42,7 @@ export function ServicePackageTable({
   const { t } = useTranslation('servicePackages');
 
   const priceLabel = (servicePackage: ServicePackage): string => {
+    if (servicePackage.price === null) return t('create.pricing.quotation');
     if (servicePackage.price === 0) return t('table.price.free');
     const amount = vndFormatter.format(servicePackage.price);
     const period = servicePackage.billingPeriodMonths;
@@ -61,6 +62,11 @@ export function ServicePackageTable({
         <div>
           <div className="text-[13px] font-semibold text-[#020204]">
             {servicePackage.name}
+          </div>
+          <div className="mt-1 text-xs text-slate-500">
+            {servicePackage.details
+              ? t(`types.${servicePackage.details.serviceTypeCode}`)
+              : t('create.notConfigured')}
           </div>
           <div className="mt-1 font-mono text-xs text-[#636466]">
             {servicePackage.code}
@@ -110,9 +116,13 @@ export function ServicePackageTable({
       key: 'eligibility',
       render: (_, servicePackage) => (
         <span className="text-xs text-[#636466]">
-          {t('table.eligibleModels', {
-            count: servicePackage.eligibleModelCount,
-          })}
+          {!servicePackage.details
+            ? t('create.notConfigured')
+            : servicePackage.details.modelScope === 'all'
+              ? t('create.models.all')
+              : t('table.eligibleModels', {
+                  count: servicePackage.details.eligibleModelIds.length,
+                })}
         </span>
       ),
     },
@@ -204,6 +214,11 @@ export function ServicePackageTable({
                   </div>
                   <div className="mt-1 font-mono text-xs text-[#636466]">
                     {servicePackage.code}
+                  </div>
+                  <div className="mt-1 text-xs text-slate-500">
+                    {servicePackage.details
+                      ? t(`types.${servicePackage.details.serviceTypeCode}`)
+                      : t('create.notConfigured')}
                   </div>
                 </div>
                 <PortalBadge tone={PACKAGE_STATUS_TONE[servicePackage.status]}>

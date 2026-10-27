@@ -23,7 +23,8 @@
   },
   "breadcrumb": {
     "home": "Home",
-    "deviceDetail": "Detail {{id}}"
+    "deviceDetail": "Detail {{id}}",
+    "createService": "Create service"
   },
   "roles": {
     "super_admin": "Super Admin",

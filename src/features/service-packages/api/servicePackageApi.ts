@@ -9,6 +9,7 @@ import {
 } from './servicePackageMapper';
 import {
   servicePackageDtoSchema,
+  servicePackageDraftInputSchema,
   servicePackagePageDtoSchema,
   servicePackageStatsDtoSchema,
   type ServicePackage,
@@ -59,10 +60,19 @@ export async function getServicePackages(
 
 // Create a new package. It is persisted as a draft; the server assigns the id
 // and timestamps, and rejects a duplicate code.
-export async function createServicePackage(
-  input: ServicePackageDraftInput
-): Promise<ServicePackage> {
-  const response = await apiClient.post<unknown>('/service-packages', {
+export function toServicePackageDraftDto(input: ServicePackageDraftInput) {
+  return servicePackageDraftInputSchema.parse({
+    service_type_code: input.serviceTypeCode,
+    purpose: input.purpose,
+    included_items: input.includedItems,
+    excluded_items: input.excludedItems,
+    eligibility_description: input.eligibilityDescription,
+    model_scope: input.modelScope,
+    eligible_model_ids: input.eligibleModelIds,
+    pricing_mode: input.pricingMode,
+    pricing_description: input.pricingDescription,
+    additional_cost_description: input.additionalCostDescription,
+    configuration: input.configuration,
     code: input.code,
     name: input.name,
     group: input.group,
@@ -73,6 +83,15 @@ export async function createServicePackage(
     eligible_model_count: input.eligibleModelCount,
     description: input.description,
   });
+}
+
+export async function createServicePackage(
+  input: ServicePackageDraftInput
+): Promise<ServicePackage> {
+  const response = await apiClient.post<unknown>(
+    '/service-packages',
+    toServicePackageDraftDto(input)
+  );
   const parsed = servicePackageDtoSchema.safeParse(response);
   if (!parsed.success) throw invalidResponse(parsed.error);
   return mapServicePackage(parsed.data);

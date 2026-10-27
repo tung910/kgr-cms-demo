@@ -1,3 +1,4 @@
+import { getApiErrorCode } from '@/core/api/error';
 import { useState } from 'react';
 import {
   useMutation,
@@ -22,19 +23,14 @@ import {
 } from '@/shared/components/portal';
 import { PageState } from '@/shared/components/PageState';
 
-import {
-  createServicePackage,
-  setServicePackageStatus,
-} from '../api/servicePackageApi';
+import { setServicePackageStatus } from '../api/servicePackageApi';
 import { ServicePackageFilters } from '../components/ServicePackageFilters';
-import { ServicePackageFormModal } from '../components/ServicePackageFormModal';
 import { ServicePackageStatusDialog } from '../components/ServicePackageStatusDialog';
 import { ServicePackageTable } from '../components/ServicePackageTable';
 import { servicePackageQueries } from '../queries/servicePackageQueries';
 import type {
   PackageStatus,
   ServicePackage,
-  ServicePackageDraftInput,
   ServicePackageListFilters,
 } from '../schemas/servicePackageSchemas';
 
@@ -62,23 +58,6 @@ export function ServicePackageListPage({
   const { data } = useSuspenseQuery(servicePackageQueries.list(filters));
   const { data: stats } = useSuspenseQuery(servicePackageQueries.stats());
   const [target, setTarget] = useState<StatusTarget | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
-
-  const createMutation = useMutation({
-    mutationFn: (input: ServicePackageDraftInput) =>
-      createServicePackage(input),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: servicePackageQueries.all,
-      });
-      void message.success(t('form.success'));
-      setCreateOpen(false);
-    },
-    onError: () => {
-      void message.error(t('errors.createError'));
-    },
-  });
-
   const mutation = useMutation({
     mutationFn: ({
       servicePackage,
@@ -97,8 +76,12 @@ export function ServicePackageListPage({
       );
       setTarget(null);
     },
-    onError: () => {
-      void message.error(t('errors.statusError'));
+    onError: (error) => {
+      void message.error(
+        getApiErrorCode(error) === 'configurationRequired'
+          ? t('errors.configurationRequired')
+          : t('errors.statusError')
+      );
     },
   });
 
@@ -125,7 +108,7 @@ export function ServicePackageListPage({
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => setCreateOpen(true)}
+              onClick={() => void navigate({ to: '/service-packages/new' })}
             >
               {t('listPage.create')}
             </Button>
@@ -199,12 +182,6 @@ export function ServicePackageListPage({
         pending={mutation.isPending}
         onCancel={() => setTarget(null)}
         onConfirm={handleConfirm}
-      />
-      <ServicePackageFormModal
-        open={createOpen}
-        pending={createMutation.isPending}
-        onCancel={() => setCreateOpen(false)}
-        onSubmit={(input) => createMutation.mutate(input)}
       />
     </div>
   );

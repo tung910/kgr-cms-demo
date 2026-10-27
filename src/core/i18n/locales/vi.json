@@ -23,7 +23,8 @@
   },
   "breadcrumb": {
     "home": "Trang chủ",
-    "deviceDetail": "Chi tiết {{id}}"
+    "deviceDetail": "Chi tiết {{id}}",
+    "createService": "Tạo dịch vụ"
   },
   "roles": {
     "super_admin": "Super Admin",

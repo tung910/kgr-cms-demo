@@ -212,11 +212,13 @@ export function AppShell() {
     .filter(Boolean)
     .map((segment, index) => ({
       title:
-        location.pathname.startsWith('/devices/') && index === 1
-          ? t('breadcrumb.deviceDetail', { id: segment })
-          : pathLabelKeys[segment]
-            ? t(pathLabelKeys[segment])
-            : segment,
+        location.pathname === '/service-packages/new' && index === 1
+          ? t('breadcrumb.createService')
+          : location.pathname.startsWith('/devices/') && index === 1
+            ? t('breadcrumb.deviceDetail', { id: segment })
+            : pathLabelKeys[segment]
+              ? t(pathLabelKeys[segment])
+              : segment,
     }));
 
   const navigateToMenu = (key: PortalMenuKey) => {
