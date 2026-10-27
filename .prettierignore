@@ -5,3 +5,4 @@ pnpm-lock.yaml
 docs/superpowers/
 .claude/
 src/routeTree.gen.ts
+public/geo/
