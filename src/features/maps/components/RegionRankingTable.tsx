@@ -70,7 +70,11 @@ export function RegionRankingTable({
     <Table<MapRegion>
       size="middle"
       rowKey="id"
-      pagination={false}
+      pagination={{
+        pageSize: 15,
+        hideOnSinglePage: true,
+        showSizeChanger: false,
+      }}
       scroll={{ x: 'max-content' }}
       columns={columns}
       dataSource={ranked}

@@ -12,6 +12,7 @@ import type {
   MapRegionDto,
   MapRegionInsight,
 } from '../schemas/mapSchemas';
+import { generatedProvinceSeeds } from './provinceSeeds';
 
 // Mock backend for the device map (spec §5). The real service aggregates by
 // region and strips exact locations for roles without
@@ -27,7 +28,7 @@ const LOW_COVERAGE_DEVICES = 1_500;
 
 const MODELS = ['KGR-A100', 'KGR-B200', 'KGR-C300'] as const;
 
-interface RegionSeed {
+export interface RegionSeed {
   id: string;
   name: string;
   lat: number;
@@ -45,7 +46,7 @@ interface RegionSeed {
   }>;
 }
 
-const provinceSeeds: readonly RegionSeed[] = [
+const handwrittenSeeds: readonly RegionSeed[] = [
   {
     id: 'hn',
     name: 'Hà Nội',
@@ -219,6 +220,12 @@ const provinceSeeds: readonly RegionSeed[] = [
     tds: 71,
     since: '2024-04-22',
   },
+];
+
+// All 63 provinces: hand-written seeds plus generated placeholders.
+const provinceSeeds: readonly RegionSeed[] = [
+  ...handwrittenSeeds,
+  ...generatedProvinceSeeds,
 ];
 
 function allowed(capability: Capability): boolean {
