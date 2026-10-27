@@ -54,7 +54,7 @@ function RegionMarker({
   label: string;
   onSelect: (id: string) => void;
 }) {
-  const size = Math.min(64, 30 + Math.sqrt(region.deviceCount) / 3);
+  const size = Math.min(46, 26 + Math.sqrt(region.deviceCount) / 8);
   return (
     <Marker
       longitude={region.lng}
@@ -206,13 +206,26 @@ export function DeviceMapCanvas({
                       MAP_STATUS_COLORS.stable,
                       'rgba(0,0,0,0)',
                     ],
-                    'fill-opacity': 0.18,
+                    'fill-opacity': 0.4,
+                  }}
+                />
+                <Layer
+                  id="province-outline"
+                  type="line"
+                  paint={{
+                    'line-color': '#FFFFFF',
+                    'line-width': 0.8,
+                    'line-opacity': 0.9,
                   }}
                 />
                 <Layer
                   id="province-selected"
                   type="line"
-                  filter={['==', ['get', 'regionId'], selectedRegionId ?? '']}
+                  filter={[
+                    'all',
+                    ['!=', ['get', 'regionId'], ''],
+                    ['==', ['get', 'regionId'], selectedRegionId ?? ''],
+                  ]}
                   paint={{ 'line-color': '#0F62FE', 'line-width': 2.5 }}
                 />
               </Source>
