@@ -93,6 +93,20 @@
     "warning": "Lỗi",
     "offline": "Offline"
   },
+  "distributionRegionGroup": {
+    "zone": "Miền",
+    "water_zone": "Nhóm vùng nước đặc thù",
+    "province": "Tỉnh/thành"
+  },
+  "distributionRegion": {
+    "north": "Miền Bắc",
+    "central": "Miền Trung",
+    "south": "Miền Nam",
+    "nationwide": "Toàn quốc",
+    "mekong_alum": "ĐBSCL – nhiễm phèn/mặn",
+    "hanoi": "Hà Nội",
+    "ho_chi_minh": "TP. Hồ Chí Minh"
+  },
   "auth": {
     "cancel": "Huỷ",
     "changePassword": {

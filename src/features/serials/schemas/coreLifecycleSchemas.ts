@@ -1,160 +1,105 @@
 import { z } from 'zod';
 
-// M04.1 cascade: core SKU (lifespan + thresholds) -> model layout (positions
-// and compatible SKUs, no lifespan) -> per-device TDS factor -> campaign
-// (push content only). The SKU catalog itself comes from the business
-// product-line data; the portal only edits its attributes.
+import {
+  DISTRIBUTION_REGION_VALUES,
+  type DistributionRegion,
+} from '@/shared/constants/distributionRegion';
 
-export const CORE_KINDS = ['standard', 'poor_water'] as const;
-export type CoreKind = (typeof CORE_KINDS)[number];
+// 9.3 per docs/prototypes/core-lifespan-config.html: each core type carries a
+// standard lifespan (filter hours + months of device operation, whichever
+// runs out first), a floor (fixed yellow/red warning thresholds live in
+// utils/coreLifespan.ts); each QR batch confirms or shortens it within
+// [floor, standard]. A core locks its lifespan when it is activated, so later
+// edits never change cores already in use (no retroactive effect). The core
+// type catalog itself comes from product data; the portal only edits it.
 
-export interface CoreTdsFactor {
-  minPpm: number;
-  maxPpm?: number;
-  factor: number;
-}
-
-export interface CoreSku {
-  sku: string;
+export interface CoreType {
+  code: string;
   name: string;
-  kind: CoreKind;
-  lifespanMonths: number;
-  lifespanLiters: number;
-  warningLevel1Percent: number;
-  warningLevel2Percent: number;
-  guideVideoUrl?: string;
-  saleRegions: string[];
-  tdsFactors: CoreTdsFactor[];
+  group: string;
+  usualPosition: string;
+  standardMonths: number;
+  standardHours: number;
+  floorPercent: number;
 }
 
-export interface CorePosition {
-  position: string;
-  name: string;
-  compatibleSkus: string[];
-  defaultSku: string;
+// Reference data shown while confirming a batch: water map TDS and how early
+// customers in the region replace cores (QR activation history).
+export interface RegionInsight {
+  region: DistributionRegion;
+  avgTdsPpm: number;
+  earlyReplacePercent: number;
 }
 
-export interface CoreModelLayout {
-  modelId: string;
-  positions: CorePosition[];
-}
+export const AUDIT_TARGET_KINDS = ['core_type', 'batch'] as const;
+export type AuditTargetKind = (typeof AUDIT_TARGET_KINDS)[number];
 
-export interface CoreLifecycleCampaign {
-  id: string;
-  name: string;
-  sku?: string;
-  region?: string;
-  pushContent: string;
-  ctaLabel: string;
-  deeplink: string;
-  startsAt: string;
-  endsAt: string;
-}
-
+// `field` is a stable key translated at render time; region and status
+// values are stored as their codes for the same reason.
 export interface CoreLifecycleAuditEntry {
   id: string;
   actor: string;
   changedAt: string;
+  targetKind: AuditTargetKind;
+  target: string;
   field: string;
   beforeValue: string;
   afterValue: string;
-}
-
-export interface CoreLifecycleAuditChange {
-  field: string;
-  beforeValue: string;
-  afterValue: string;
+  reason: string;
 }
 
 export interface CoreLifecycleConfig {
-  cores: CoreSku[];
-  modelLayouts: CoreModelLayout[];
-  campaigns: CoreLifecycleCampaign[];
+  coreTypes: CoreType[];
+  regionInsights: RegionInsight[];
   auditLog: CoreLifecycleAuditEntry[];
 }
 
-const percentSchema = z.number().min(0).max(100);
+export interface CoreTypeUpdate {
+  code: string;
+  standardMonths: number;
+  standardHours: number;
+  floorPercent: number;
+  reason: string;
+}
 
-export const coreTdsFactorDtoSchema = z.object({
-  min_ppm: z.number().min(0),
-  max_ppm: z.number().positive().optional(),
-  factor: z.number().positive(),
-});
-
-export const coreSkuDtoSchema = z
-  .object({
-    sku: z.string().min(1),
-    name: z.string().min(1),
-    kind: z.enum(CORE_KINDS),
-    lifespan_months: z.number().int().positive(),
-    lifespan_liters: z.number().positive(),
-    warning_level1_percent: percentSchema,
-    warning_level2_percent: percentSchema,
-    guide_video_url: z.string().url().optional(),
-    sale_regions: z.array(z.string().min(1)),
-    tds_factors: z.array(coreTdsFactorDtoSchema),
-  })
-  .refine((core) => core.warning_level2_percent > core.warning_level1_percent, {
-    path: ['warning_level2_percent'],
-    message: 'Level 2 threshold must be above level 1.',
-  });
-
-export const corePositionDtoSchema = z
-  .object({
-    position: z.string().min(1),
-    name: z.string().min(1),
-    compatible_skus: z.array(z.string().min(1)).min(1),
-    default_sku: z.string().min(1),
-  })
-  .refine(
-    (position) => position.compatible_skus.includes(position.default_sku),
-    {
-      path: ['default_sku'],
-      message: 'Default SKU must be one of the compatible SKUs.',
-    }
-  );
-
-export const coreModelLayoutDtoSchema = z.object({
-  model_id: z.string().min(1),
-  positions: z.array(corePositionDtoSchema),
-});
-
-export const coreLifecycleCampaignDtoSchema = z.object({
-  id: z.string().min(1),
+export const coreTypeDtoSchema = z.object({
+  code: z.string().min(1),
   name: z.string().min(1),
-  sku: z.string().optional(),
-  region: z.string().optional(),
-  push_content: z.string().min(1),
-  cta_label: z.string().min(1),
-  deeplink: z.string().min(1),
-  starts_at: z.string().datetime({ offset: true }),
-  ends_at: z.string().datetime({ offset: true }),
+  group: z.string().min(1),
+  usual_position: z.string().min(1),
+  standard_months: z.number().int().positive(),
+  standard_hours: z.number().int().positive(),
+  floor_percent: z.number().min(0).max(100),
+});
+
+export const regionInsightDtoSchema = z.object({
+  region: z.enum(DISTRIBUTION_REGION_VALUES),
+  avg_tds_ppm: z.number().nonnegative(),
+  early_replace_percent: z.number().min(0).max(100),
 });
 
 export const coreLifecycleAuditEntryDtoSchema = z.object({
   id: z.string().min(1),
   actor: z.string().min(1),
   changed_at: z.string().datetime({ offset: true }),
+  target_kind: z.enum(AUDIT_TARGET_KINDS),
+  target: z.string().min(1),
   field: z.string().min(1),
   before_value: z.string(),
   after_value: z.string(),
+  reason: z.string(),
 });
 
 export const coreLifecycleConfigDtoSchema = z.object({
-  cores: z.array(coreSkuDtoSchema),
-  model_layouts: z.array(coreModelLayoutDtoSchema),
-  campaigns: z.array(coreLifecycleCampaignDtoSchema),
+  core_types: z.array(coreTypeDtoSchema),
+  region_insights: z.array(regionInsightDtoSchema),
   audit_log: z.array(coreLifecycleAuditEntryDtoSchema),
 });
 
 export type CoreLifecycleConfigDto = z.infer<
   typeof coreLifecycleConfigDtoSchema
 >;
-export type CoreSkuDto = z.infer<typeof coreSkuDtoSchema>;
-export type CoreModelLayoutDto = z.infer<typeof coreModelLayoutDtoSchema>;
-export type CoreLifecycleCampaignDto = z.infer<
-  typeof coreLifecycleCampaignDtoSchema
->;
+export type CoreTypeDto = z.infer<typeof coreTypeDtoSchema>;
 export type CoreLifecycleAuditEntryDto = z.infer<
   typeof coreLifecycleAuditEntryDtoSchema
 >;

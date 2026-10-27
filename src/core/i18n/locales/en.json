@@ -93,6 +93,20 @@
     "warning": "Error",
     "offline": "Offline"
   },
+  "distributionRegionGroup": {
+    "zone": "Zone",
+    "water_zone": "Special water zone",
+    "province": "Province"
+  },
+  "distributionRegion": {
+    "north": "North",
+    "central": "Central",
+    "south": "South",
+    "nationwide": "Nationwide",
+    "mekong_alum": "Mekong Delta – alum/saline water",
+    "hanoi": "Hà Nội",
+    "ho_chi_minh": "Ho Chi Minh City"
+  },
   "auth": {
     "cancel": "Cancel",
     "changePassword": {

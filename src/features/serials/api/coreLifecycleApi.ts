@@ -1,19 +1,11 @@
 import { ApiError } from '@/core/api/error';
 import { apiClient } from '@/core/api/apiClient';
 
-import {
-  mapCampaignsToDto,
-  mapCoreLifecycleConfig,
-  mapCoresToDto,
-  mapModelLayoutsToDto,
-} from './coreLifecycleMapper';
+import { mapCoreLifecycleConfig } from './coreLifecycleMapper';
 import {
   coreLifecycleConfigDtoSchema,
-  type CoreLifecycleAuditChange,
-  type CoreLifecycleCampaign,
   type CoreLifecycleConfig,
-  type CoreModelLayout,
-  type CoreSku,
+  type CoreTypeUpdate,
 } from '../schemas/coreLifecycleSchemas';
 
 function invalidResponse(error: {
@@ -44,27 +36,19 @@ export async function getCoreLifecycleConfig(
   );
 }
 
-export interface UpdateCoreLifecycleConfigInput {
-  cores?: CoreSku[];
-  modelLayouts?: CoreModelLayout[];
-  campaigns?: CoreLifecycleCampaign[];
-  changes: CoreLifecycleAuditChange[];
-}
-
-export async function updateCoreLifecycleConfig(
-  input: UpdateCoreLifecycleConfigInput
+// The server computes the before/after audit entries itself, so the portal
+// only sends the new values and the reason.
+export async function updateCoreType(
+  input: CoreTypeUpdate
 ): Promise<CoreLifecycleConfig> {
-  const response = await apiClient.put<unknown>('/serials/core-config', {
-    ...(input.cores && { cores: mapCoresToDto(input.cores) }),
-    ...(input.modelLayouts && {
-      model_layouts: mapModelLayoutsToDto(input.modelLayouts),
-    }),
-    ...(input.campaigns && { campaigns: mapCampaignsToDto(input.campaigns) }),
-    changes: input.changes.map((change) => ({
-      field: change.field,
-      before_value: change.beforeValue,
-      after_value: change.afterValue,
-    })),
-  });
+  const response = await apiClient.put<unknown>(
+    `/serials/core-types/${encodeURIComponent(input.code)}`,
+    {
+      standard_months: input.standardMonths,
+      standard_hours: input.standardHours,
+      floor_percent: input.floorPercent,
+      reason: input.reason,
+    }
+  );
   return parseConfig(response);
 }

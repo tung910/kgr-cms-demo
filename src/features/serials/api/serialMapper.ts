@@ -11,12 +11,13 @@ export function mapSerial(dto: SerialDto): Serial {
   return {
     serial: dto.serial,
     maskedKey: dto.masked_key,
-    modelCode: dto.model_code,
+    coreType: dto.core_type,
     batchId: dto.batch_id,
     status: dto.status,
     ingestedAt: dto.ingested_at,
     usedAt: dto.used_at,
     usedByDeviceId: dto.used_by_device_id,
+    lockedLifespan: dto.locked_lifespan,
   };
 }
 
@@ -37,7 +38,11 @@ export function mapSerialPage(dto: {
 export function mapSerialBatch(dto: SerialBatchDto): SerialBatch {
   return {
     id: dto.batch_id,
-    modelCode: dto.model_code,
+    coreType: dto.core_type,
+    region: dto.region,
+    lifespanStatus: dto.lifespan_status,
+    lifespanMonths: dto.lifespan_months,
+    lifespanHours: dto.lifespan_hours,
     total: dto.total,
     used: dto.used,
     ingestedAt: dto.ingested_at,
