@@ -43,11 +43,11 @@
 
 **Interfaces:** giữ tên create/list/status API; tạo mới không yêu cầu model hay auto-attach; DTO đọc chấp nhận dữ liệu cũ. Không chuyển details thành null chỉ vì thiếu model.
 
-- [ ] Dùng `rg` xác định toàn bộ caller model/autoAttach; lưu đối chiếu bản ghi cũ đầy đủ/thiếu cấu hình.
-- [ ] Bỏ field/picker/count model và công tắc tự gắn khỏi form, preview, bảng, drawer và validation tạo/phát hành. Giữ quota tùy chỉnh. Dữ liệu request mới bỏ trường cũ; handler tạo chuẩn hóa legacy nếu DTO đọc còn cần.
-- [ ] Endpoint auto-attach cũ không được bật lại cấu hình; bỏ client call và trả lỗi rõ nếu còn request cũ. Legacy read vẫn giữ lịch sử.
-- [ ] Kiểm tra MSW tạo/phát hành gói không model, đọc gói cũ và ngừng bán; ghi kết quả. Chạy typecheck và lint.
-- [ ] Commit `refactor(service-packages): remove model scope and auto-attach controls`.
+- [x] Dùng `rg` xác định toàn bộ caller model/autoAttach; lưu đối chiếu bản ghi cũ đầy đủ/thiếu cấu hình.
+- [x] Bỏ field/picker/count model và công tắc tự gắn khỏi form, preview, bảng, drawer và validation tạo/phát hành. Giữ quota tùy chỉnh. Dữ liệu request mới bỏ trường cũ; handler tạo chuẩn hóa legacy nếu DTO đọc còn cần.
+- [x] Endpoint auto-attach cũ không được bật lại cấu hình; bỏ client call và trả lỗi rõ nếu còn request cũ. Legacy read vẫn giữ lịch sử.
+- [x] Kiểm tra MSW tạo/phát hành gói không model, đọc gói cũ và ngừng bán; ghi kết quả. Chạy typecheck và lint.
+- [x] Commit `refactor(service-packages): remove model scope and auto-attach controls`.
 
 ### Task 2: Hợp đồng import và bộ đọc CSV
 
@@ -57,11 +57,11 @@
 
 **Wire contract đề xuất:** POST `/devices/inventory/import/preview` nhận `{source:'csv',rows:[{serial,model}]}` hoặc `{source:'warehouse'}`; trả `{preview_id,items:[{row_id,serial,model}]}`. GET `/devices/inventory/import/package-options` trả options active/complete và bundle components đủ để xem trước quyền lợi, không kèm PII. POST `/devices/inventory/import/confirm` nhận `{preview_id,assignments:[{row_id,package_ids}]}` với `Idempotency-Key`; trả `{items:[{row_id,serial,status:'added'|'skipped'|'failed',code,entitlements_attached}],added,skipped,failed,entitlements_attached}`. Types domain camelCase tương ứng; schema/mapper là nguồn duy nhất.
 
-- [ ] Tạo Zod schemas nguồn nhập, preview, options và kết quả; ID không rỗng, package ID unique, kiểm tra tập assignment khớp preview phía mock.
-- [ ] Viết parser CSV theo định dạng trên; reject header thiếu/trùng, thiếu serial/model, số ô sai, quote chưa đóng và file chỉ header. Không tự biến serial thành số, không bỏ số 0 đầu; serial trùng để backend xử lý.
-- [ ] Thực hiện assert tạm ngoài file tracked cho BOM/CRLF/quoted comma/escaped quote, serial `000123`, dòng sai; không thêm framework/test files. Kiểm tra assert thực sự chạy và ghi kết quả.
-- [ ] Thêm API parse boundary, mapper lỗi theo pattern hiện có, query factory options; key có prefix devices. Kiểm tra DTO lỗi bị từ chối, typecheck.
-- [ ] Commit `feat(devices): define inventory import preview and confirmation contract`.
+- [x] Tạo Zod schemas nguồn nhập, preview, options và kết quả; ID không rỗng, package ID unique, kiểm tra tập assignment khớp preview phía mock.
+- [x] Viết parser CSV theo định dạng trên; reject header thiếu/trùng, thiếu serial/model, số ô sai, quote chưa đóng và file chỉ header. Không tự biến serial thành số, không bỏ số 0 đầu; serial trùng để backend xử lý.
+- [x] Thực hiện assert tạm ngoài file tracked cho BOM/CRLF/quoted comma/escaped quote, serial `000123`, dòng sai; không thêm framework/test files. Kiểm tra assert thực sự chạy và ghi kết quả.
+- [x] Thêm API parse boundary, mapper lỗi theo pattern hiện có, query factory options; key có prefix devices. Kiểm tra DTO lỗi bị từ chối, typecheck.
+- [x] Commit `feat(devices): define inventory import preview and confirmation contract`.
 
 ### Task 3: MSW preview/confirm và cấp quyền lợi có kiểm soát
 
@@ -69,13 +69,13 @@
 
 **Interfaces:** handlers đúng Task 2; `inventoryImportStore` giữ preview bất biến theo actor. Tách sinh ứng viên kho khỏi ghi inventory: preview warehouse không gọi hàm push. `attachPackage` giữ chữ ký hiện có; bỏ model gate, thêm source `inventory_import` vào schema/mapper/i18n liên quan sau khi tìm hết consumer; giữ đọc source cũ.
 
-- [ ] Trước sửa, tái hiện sync ghi ngay/auto-attach. Sau sửa, loại `attachAutoEntitlementsOnSync` và đóng endpoint sync ghi ngay cũ; không còn caller UI sau Task 4. Không xóa fixture lịch sử auto_attach.
-- [ ] Preview kiểm quyền và validate, lưu row ID cố định/actor, không ghi inventory, entitlement hay audit ghi kho. Options dùng quyền nhập kho, lọc active/complete cả bundle; không lọc model/giá.
-- [ ] Confirm kiểm quyền, ownership preview, exact row set, package IDs, bundle components và dữ liệu hiện tại trước mọi ghi. Expand bundle, dedupe ID; snapshot server-side với quota/thời hạn cũ; không yêu cầu free pricing/model scope.
-- [ ] Dùng khóa idempotency gắn actor/route/payload trước kiểm tra preview đã dùng; replay trả cùng kết quả. Preview confirm thành công không được tái dùng với khóa mới. Lỗi mạng phía UI không đổi khóa/payload khi retry; request sửa sau rejection dùng khóa mới.
-- [ ] Ghi từng máy mới và quyền lợi cùng audit actor/timestamp/before/after/reason/target; serial tồn tại skip, giữ quyền lợi cũ. Không dùng actor `system` cho lựa chọn nhân viên.
-- [ ] Assert tạm: preview không ghi; hai model cùng gói có giá; bundle + direct không trùng; state đổi bị reject trước ghi; serial_exists; replay không tăng store/audit; key payload khác conflict; actor khác/thiếu quyền bị từ chối; old sync không tự gắn.
-- [ ] Kiểm tra đọc entitlement/summary, snapshot và giữ chỗ cảnh báo lõi không đổi; typecheck/lint rồi commit `feat(devices): confirm inventory batches with selected entitlements`.
+- [x] Trước sửa, tái hiện sync ghi ngay/auto-attach. Sau sửa, loại `attachAutoEntitlementsOnSync` và đóng endpoint sync ghi ngay cũ; không còn caller UI sau Task 4. Không xóa fixture lịch sử auto_attach.
+- [x] Preview kiểm quyền và validate, lưu row ID cố định/actor, không ghi inventory, entitlement hay audit ghi kho. Options dùng quyền nhập kho, lọc active/complete cả bundle; không lọc model/giá.
+- [x] Confirm kiểm quyền, ownership preview, exact row set, package IDs, bundle components và dữ liệu hiện tại trước mọi ghi. Expand bundle, dedupe ID; snapshot server-side với quota/thời hạn cũ; không yêu cầu free pricing/model scope.
+- [x] Dùng khóa idempotency gắn actor/route/payload trước kiểm tra preview đã dùng; replay trả cùng kết quả. Preview confirm thành công không được tái dùng với khóa mới. Lỗi mạng phía UI không đổi khóa/payload khi retry; request sửa sau rejection dùng khóa mới.
+- [x] Ghi từng máy mới và quyền lợi cùng audit actor/timestamp/before/after/reason/target; serial tồn tại skip, giữ quyền lợi cũ. Không dùng actor `system` cho lựa chọn nhân viên.
+- [x] Assert tạm: preview không ghi; hai model cùng gói có giá; bundle + direct không trùng; state đổi bị reject trước ghi; serial_exists; replay không tăng store/audit; key payload khác conflict; actor khác/thiếu quyền bị từ chối; old sync không tự gắn.
+- [x] Kiểm tra đọc entitlement/summary, snapshot và giữ chỗ cảnh báo lõi không đổi; typecheck/lint rồi commit `feat(devices): confirm inventory batches with selected entitlements`.
 
 ### Task 4: Wizard nhập kho và kết quả
 
@@ -83,25 +83,56 @@
 
 **Interfaces:** wizard gọi API Task 2; state gồm preview, commonPackageIds, overrides theo rowId và bước hiện tại. Hàm `resolveInventoryPackages(rowId, commonPackageIds, overrides): string[]`; override rỗng khác chưa override. Bảng phân trang/tìm kiếm dùng state được validate trong modal; không tạo route URL mới cho bản nháp nhạy cảm.
 
-- [ ] Bật upload CSV, giới hạn file trước đọc; file mẫu; báo lỗi rõ. Auto source gọi preview. Chặn tiếp khi options lỗi và có retry, không coi tải lỗi là danh mục rỗng.
-- [ ] Dựng bốn bước đã duyệt; selector searchable chỉ options Task 2. Chọn gói chung; per-row thêm/bỏ/reset; máy chỉnh riêng giữ tập riêng, máy khác kế thừa. Giữ draft khi quay lại, reset theo preview mới khi đổi nguồn.
-- [ ] Review tính quyền lợi sau bundle dedupe, cho thấy phần tử component và máy chỉnh riêng; không gửi đến confirm trước nút cuối. Empty packages hợp lệ.
-- [ ] Trong pending khóa sửa/đóng/submit; lỗi mạng giữ đúng request và operation key để retry. Validation rejection cho quay lại xem/sửa. Kết quả từng dòng và counts từ response; invalidate devices/inventory/counts/detail/entitlement query liên quan sau ghi.
-- [ ] Thử bằng MSW: chỉnh máy đầu, đổi common, kiểm tra máy đầu không đổi; reset; no-package; đổi file; hủy; double click; timeout retry; lỗi một dòng; role chỉ nhập kho; VI/EN, keyboard, 10.000 dòng phân trang. Không render 10.000 selector đồng thời.
-- [ ] Chạy bốn check; commit `feat(devices): add inventory service selection wizard`.
+- [x] Bật upload CSV, giới hạn file trước đọc; file mẫu; báo lỗi rõ. Auto source gọi preview. Chặn tiếp khi options lỗi và có retry, không coi tải lỗi là danh mục rỗng.
+- [x] Dựng bốn bước đã duyệt; selector searchable chỉ options Task 2. Chọn gói chung; per-row thêm/bỏ/reset; máy chỉnh riêng giữ tập riêng, máy khác kế thừa. Giữ draft khi quay lại, reset theo preview mới khi đổi nguồn.
+- [x] Review tính quyền lợi sau bundle dedupe, cho thấy phần tử component và máy chỉnh riêng; không gửi đến confirm trước nút cuối. Empty packages hợp lệ.
+- [x] Trong pending khóa sửa/đóng/submit; lỗi mạng giữ đúng request và operation key để retry. Validation rejection cho quay lại xem/sửa. Kết quả từng dòng và counts từ response; invalidate devices/inventory/counts/detail/entitlement query liên quan sau ghi.
+- [x] Thử bằng MSW: chỉnh máy đầu, đổi common, kiểm tra máy đầu không đổi; reset; no-package; đổi file; hủy; double click; timeout retry; lỗi một dòng; role chỉ nhập kho; VI/EN, keyboard, 10.000 dòng phân trang. Không render 10.000 selector đồng thời.
+- [x] Chạy bốn check; commit `feat(devices): add inventory service selection wizard`.
 
 ### Task 5: Tài liệu và kiểm chứng toàn luồng
 
 **Files:** cập nhật `docs/SERVICE_PACKAGE_CATALOG.md`, spec/plan quyền lợi ngày 27/10 bằng ghi chú superseded cho model/auto-attach; không xóa lịch sử quyết định. Ghi bằng chứng kiểm chứng vào tài liệu feature, thêm ảnh UI nếu mở PR.
 
-- [ ] Tìm toàn repo caller `syncInventory`, `receiveNewUnits`, autoAttach/modelScope và source enums; bỏ dead code/import/i18n dành riêng UI đã xóa, giữ DTO lịch sử và fixtures cần thiết.
-- [ ] Chạy tuần tự `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`; ghi exit code, phân biệt warning có sẵn. Không chạy hai tsc build cùng lúc.
-- [ ] Manually exercise từ upload → confirm → kho → entitlement detail/event log; warehouse cùng luồng; reload reset MSW như tài liệu. Kiểm tra forbidden, empty/loading/error và cảnh báo lõi hiện hữu.
-- [ ] Review diff độc lập theo cách thực thi người dùng chọn; xử lý phát hiện thực sự, chạy lại check bị ảnh hưởng. Không tuyên bố backend/app đã tích hợp.
-- [ ] Commit docs/verification liên quan; báo kết quả và giới hạn, không push tự động.
+- [x] Tìm toàn repo caller `syncInventory`, `receiveNewUnits`, autoAttach/modelScope và source enums; bỏ dead code/import/i18n dành riêng UI đã xóa, giữ DTO lịch sử và fixtures cần thiết.
+- [x] Chạy tuần tự `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`; ghi exit code, phân biệt warning có sẵn. Không chạy hai tsc build cùng lúc.
+- [x] Manually exercise từ upload → confirm → kho → entitlement detail/event log; warehouse cùng luồng; reload reset MSW như tài liệu. Kiểm tra forbidden, empty/loading/error và cảnh báo lõi hiện hữu.
+- [x] Review diff độc lập theo cách thực thi người dùng chọn; xử lý phát hiện thực sự, chạy lại check bị ảnh hưởng. Không tuyên bố backend/app đã tích hợp.
+- [x] Commit docs/verification liên quan; báo kết quả và giới hạn, không push tự động.
 
 ## Self-review
 
 Đã đối chiếu: mọi quyết định spec có task; contract/source/selection state nhất quán;
 năm Review Focus có bước kiểm chứng tương ứng. Định dạng file/hạn mức là quyết định
 triển khai được trình người dùng ở kế hoạch này; không phải yêu cầu đã có của KGR.
+
+## Kết quả triển khai — 28/10/2026
+
+- Hoàn tất 5 task trên nhánh `codex/service-catalog`, trong worktree cùng tên.
+- `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`: exit 0.
+  Lint còn warning có sẵn ở worker; build còn warning chunk lớn.
+- Assert tạm qua Vite SSR: tạo gói không model; CSV BOM/CRLF/quoted cells,
+  serial giữ số 0 đầu, lỗi header/cột/quote; overrides rỗng khác kế thừa;
+  preview không ghi; cấp khác model; bundle/thuê bao tách thành phần, khớp
+  quota và dedupe; gói ngừng bán bị từ chối; actor; replay/conflict; preview
+  đã dùng; serial tồn tại; nhập không gói. Không thêm test framework/file test.
+- HTTP mock: factory đọc options không cần quyền danh mục, sales bị từ chối,
+  giả lập vai trò không confirm được, replay trả cùng kết quả.
+- Trình duyệt Edge với MSW: warehouse và CSV đi đủ bốn bước; CSV lỗi có thông
+  báo; máy chỉnh riêng giữ nguyên khi đổi gói chung và reset đúng; serial đã
+  tồn tại được skip; giả lập backend ghi thành công rồi mất phản hồi, retry
+  trả đúng 2 máy mới/1 skip/3 quyền lợi, không cấp lại; tiếng Việt; preview
+  10.000 dòng chỉ render một trang, hủy không ghi kho.
+- Đã xem screenshot ở 1440/768/390 px; trang không tràn ngang, bảng có vùng
+  cuộn riêng. Tạo/review/lưu gói có giá từ form không cần model đã chạy qua.
+- Reviewer độc lập rà soát range `0029ccd..d4407cb` và tài liệu liên quan:
+  không có phát hiện quan trọng cần sửa. Reviewer không tự chạy lại check;
+  các kết quả phía trên do implementer chạy trong phiên.
+
+Các lựa chọn triển khai bổ sung: TG-SUB dùng danh sách gói thành phần có ID
+như TG-ALL; bản ghi cũ chỉ có mô tả là chưa đủ cấu hình. Khi trùng quyền lợi,
+gói chọn trực tiếp ưu tiên; giữa bundle dùng thứ tự ID ổn định. CSV lấy metadata
+mock từ thiết bị cùng model; backend thật phải tra nguồn sản xuất chính thức.
+
+Chưa kiểm tra backend/app thật hoặc thiết bị di động thật. Không push/merge
+và không thay đổi ma trận quyền. Giữ worktree để người dùng tiếp tục làm việc.

@@ -1,5 +1,13 @@
 # Gói dịch vụ gắn theo thiết bị (quyền lợi dịch vụ)
 
+> **Thay thế một phần — 28/10/2026:** Quy tắc ràng buộc model và tự gắn khi
+> đồng bộ kho trong tài liệu này là lịch sử. Thiết kế mới đã duyệt tại
+> `docs/superpowers/specs/2026-10-28-inventory-service-selection-design.md`:
+> chọn gói chung khi nhập lô → chỉnh từng máy → xem lại → xác nhận mới cấp.
+> `device.inventory.sync` cho phép cấp trong giao dịch nhập kho này; không
+> mở các thao tác điều chỉnh quyền lợi đã cấp còn hoãn ở giai đoạn A.
+> Các quy tắc quota, kích hoạt, giữ chỗ, audit và lịch sử khác vẫn giữ nguyên.
+
 Ngày: 27/10/2026 · Cập nhật: 28/10/2026 · Trạng thái: đã duyệt các quyết định tại mục 15; chi tiết phiếu/KTV và phân quyền tạm hoãn · Liên quan:
 `docs/SERVICE_PACKAGE_CATALOG.md`, `docs/CMS_QnA_V1_SPEC.md` (2.3, 2.4, 3.4b,
 9.3, 9.5).

@@ -1,5 +1,13 @@
 # Gói dịch vụ gắn theo thiết bị — Implementation Plan
 
+> **Thay thế một phần — 28/10/2026:** Quy tắc ràng buộc model và tự gắn khi
+> đồng bộ kho trong tài liệu này là lịch sử. Thiết kế mới đã duyệt tại
+> `docs/superpowers/specs/2026-10-28-inventory-service-selection-design.md`:
+> chọn gói chung khi nhập lô → chỉnh từng máy → xem lại → xác nhận mới cấp.
+> `device.inventory.sync` cho phép cấp trong giao dịch nhập kho này; không
+> mở các thao tác điều chỉnh quyền lợi đã cấp còn hoãn ở giai đoạn A.
+> Các quy tắc quota, kích hoạt, giữ chỗ, audit và lịch sử khác vẫn giữ nguyên.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Gắn gói dịch vụ vào từng máy khi đồng bộ kho, hiển thị và theo dõi
