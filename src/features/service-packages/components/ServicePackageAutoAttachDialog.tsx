@@ -38,11 +38,13 @@ export function ServicePackageAutoAttachDialog({
   // (= `pending`) is true, and that only flips *after* this component's
   // `onFinish` → the caller's `mutate()` call — i.e. after async field
   // validation has already run once. A second click landing in that window
-  // would call `form.submit()` again, validate independently, and reach
-  // `onConfirm` a second time with a *different* idempotency key, defeating
-  // the whole point of idempotency protection on this endpoint. This ref is
-  // set synchronously at the first click, before `form.submit()` runs, and
-  // is the only thing a second click's `onOk` handler ever sees.
+  // would call `form.submit()` again and fire a second, redundant request
+  // (the caller now keeps one idempotency key for the whole dialog attempt —
+  // see `autoAttachKeyRef` in `ServicePackageListPage` — so a race here would
+  // be a harmless replay rather than a duplicate write, but it would still
+  // waste a round trip and could surface a confusing race in the UI). This
+  // ref is set synchronously at the first click, before `form.submit()` runs,
+  // and is the only thing a second click's `onOk` handler ever sees.
   const submitting = useRef(false);
   const wasPending = useRef(false);
 

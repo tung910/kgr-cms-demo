@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ApiError } from '@/core/api/error';
 import { PortalCard, PortalProgress } from '@/shared/components/portal';
+import { randomId } from '@/shared/lib/id';
 
 import { createServiceTicketFromCoreAlert } from '../api/deviceDetailApi';
 import { deviceQueries } from '../queries/deviceQueries';
@@ -70,6 +71,12 @@ export function DeviceCoreAlertsPanel({ device }: { device: Device }) {
   const submitting = useRef(false);
   const wasPending = useRef(false);
 
+  // One key per "create ticket for this alert" attempt (spec §11): minted the
+  // moment the modal opens for a given alert (see `setPending` below), and
+  // reused across a validation-failure resubmit and a genuine network retry.
+  // Opening the modal for a *different* alert mints a fresh key.
+  const ticketKeyRef = useRef<string | null>(null);
+
   const mutation = useMutation({
     mutationFn: (values: FormValues) => {
       if (!pending) throw new Error(t('coreAlerts.error'));
@@ -78,11 +85,7 @@ export function DeviceCoreAlertsPanel({ device }: { device: Device }) {
         pending.position,
         values.reason,
         values.entitlementId ?? null,
-        // A fresh key per submit attempt (spec §11): the ref guard above is
-        // what stops a double-click from reaching this twice, not reuse of
-        // one key across attempts — a legitimate retry with different form
-        // values must not collide with an earlier attempt's key.
-        crypto.randomUUID()
+        ticketKeyRef.current ?? randomId()
       );
     },
     onSuccess: () => {
@@ -157,7 +160,12 @@ export function DeviceCoreAlertsPanel({ device }: { device: Device }) {
                 className="mt-2"
                 size="small"
                 type="primary"
-                onClick={() => setPending(alert)}
+                onClick={() => {
+                  // A fresh attempt starts here (modal opening for this
+                  // alert) — see `ticketKeyRef` above.
+                  ticketKeyRef.current = randomId();
+                  setPending(alert);
+                }}
               >
                 {t('coreAlerts.createAppointment')}
               </Button>

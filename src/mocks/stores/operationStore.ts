@@ -52,12 +52,38 @@ export type IdempotencyOutcome<T> =
   | { status: 'replayed'; result: T }
   | { status: 'conflict' };
 
+// Every handler wired through this (see the three call sites) returns a
+// discriminated `{ ok: true; ... } | { ok: false; ... }` outcome from `run()`
+// (its own `HandlerOutcome`/`ServiceTicketOutcome` type — this module has no
+// dependency on those, it just recognizes the shared `ok` convention at
+// runtime). Only an `{ ok: true }` result is cached: a business-rule
+// rejection (`entitlement_exhausted`, `autoAttachBlocked`, a Zod validation
+// failure, ...) must not freeze that key forever, because the UI is now
+// allowed to keep reusing one key across a validation-failure-then-resubmit
+// (see the plan's 28/10/2026 scope note and spec §11) — it may legitimately
+// resubmit the SAME key with a corrected payload, or retry later after the
+// condition that caused the rejection has changed (e.g. quota freed up by a
+// concurrent reversal). Not caching rejections means that resubmission is
+// re-validated against live data and gets a fresh answer instead of a stale
+// cached one. A result with no recognizable `ok` field (a future caller that
+// doesn't follow the convention) is cached as before, preserving the
+// original behavior for anything outside this convention.
+function isCacheableOutcome(result: unknown): boolean {
+  if (result !== null && typeof result === 'object' && 'ok' in result) {
+    return (result as { ok: unknown }).ok !== false;
+  }
+  return true;
+}
+
 // No `operationKey` → always runs, no tracking (e.g. GET, or a write endpoint
 // that doesn't participate in idempotency). Same (actor, route, operationKey)
 // + same payload fingerprint seen again → returns the cached result without
 // calling `run()` again (no duplicate event/audit side effects). Same key +
 // different payload fingerprint → `conflict` (caller maps this to an
-// `idempotency_conflict` 400/409 response).
+// `idempotency_conflict` 400/409 response). A rejection (`{ ok: false }`) is
+// never cached — see `isCacheableOutcome` — so only a genuine duplicate
+// *successful* submission is blocked; a resubmission after a rejection always
+// re-runs `run()`.
 export function withIdempotency<T>(
   actor: string,
   route: string,
@@ -77,6 +103,8 @@ export function withIdempotency<T>(
   }
 
   const result = run();
-  operationStore.set(storeKey, { fingerprint, result });
+  if (isCacheableOutcome(result)) {
+    operationStore.set(storeKey, { fingerprint, result });
+  }
   return { status: 'ran', result };
 }

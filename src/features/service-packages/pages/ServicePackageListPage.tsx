@@ -1,5 +1,5 @@
 import { getApiErrorCode } from '@/core/api/error';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   useMutation,
   useQueryClient,
@@ -22,6 +22,7 @@ import {
   PortalStatCard,
 } from '@/shared/components/portal';
 import { PageState } from '@/shared/components/PageState';
+import { randomId } from '@/shared/lib/id';
 
 import {
   setServicePackageAutoAttach,
@@ -95,6 +96,12 @@ export function ServicePackageListPage({
   });
   const [autoAttachTarget, setAutoAttachTarget] =
     useState<AutoAttachTarget | null>(null);
+  // One key per dialog "attempt" (spec §11): minted the moment the dialog
+  // opens for a given package/mode, reused across a validation-failure
+  // resubmit and a genuine network retry, and replaced the next time the
+  // dialog opens (a new target — same or different package/mode — is a new
+  // operation). `autoAttachMutation`'s `mutationFn` only ever reads it.
+  const autoAttachKeyRef = useRef<string | null>(null);
   const autoAttachMutation = useMutation({
     mutationFn: ({
       servicePackage,
@@ -105,9 +112,7 @@ export function ServicePackageListPage({
       setServicePackageAutoAttach(
         servicePackage,
         { enabled: mode === 'enable', from, reason },
-        // A fresh key per submit attempt: every click of the confirm button
-        // is its own idempotent operation (spec §11).
-        { idempotencyKey: crypto.randomUUID() }
+        { idempotencyKey: autoAttachKeyRef.current ?? randomId() }
       ),
     onSuccess: (_result, variables) => {
       void queryClient.invalidateQueries({
@@ -218,12 +223,15 @@ export function ServicePackageListPage({
             onArchive={(servicePackage) =>
               setTarget({ servicePackage, status: 'archived' })
             }
-            onToggleAutoAttach={(servicePackage) =>
+            onToggleAutoAttach={(servicePackage) => {
+              // A fresh attempt starts here (dialog opening), not inside the
+              // mutation — see `autoAttachKeyRef` above.
+              autoAttachKeyRef.current = randomId();
               setAutoAttachTarget({
                 servicePackage,
                 mode: servicePackage.autoAttach ? 'disable' : 'enable',
-              })
-            }
+              });
+            }}
           />
         )}
       </PortalCard>
