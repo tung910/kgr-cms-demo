@@ -252,7 +252,8 @@
       "backup": "Sao lưu",
       "simulation": "Mô phỏng vai trò",
       "audit_log": "Nhật ký hệ thống",
-      "access": "Kiểm soát truy cập"
+      "access": "Kiểm soát truy cập",
+      "service_entitlements": "Gói dịch vụ thiết bị"
     },
     "actions": {
       "login": "login",
