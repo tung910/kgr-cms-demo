@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Alert, DatePicker, Form, Input, Modal } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +32,34 @@ export function ServicePackageAutoAttachDialog({
   const [form] = Form.useForm<FormValues>();
   const isEnable = mode === 'enable';
 
+  // Guards against a double-click (or two near-simultaneous Enter/click
+  // events) firing `form.submit()` twice before `onConfirm`'s mutation ever
+  // sets `pending`. antd's OK button only disables once `confirmLoading`
+  // (= `pending`) is true, and that only flips *after* this component's
+  // `onFinish` → the caller's `mutate()` call — i.e. after async field
+  // validation has already run once. A second click landing in that window
+  // would call `form.submit()` again, validate independently, and reach
+  // `onConfirm` a second time with a *different* idempotency key, defeating
+  // the whole point of idempotency protection on this endpoint. This ref is
+  // set synchronously at the first click, before `form.submit()` runs, and
+  // is the only thing a second click's `onOk` handler ever sees.
+  const submitting = useRef(false);
+  const wasPending = useRef(false);
+
+  // Reset the guard once the mutation settles (success or error) so a
+  // legitimate retry after a transient failure isn't permanently blocked.
+  useEffect(() => {
+    if (wasPending.current && !pending) submitting.current = false;
+    wasPending.current = pending;
+  }, [pending]);
+
+  // Reset the guard whenever the dialog closes (cancel, or a successful
+  // submit that closed it from the parent), so the next open — a genuinely
+  // new attempt — starts clean.
+  useEffect(() => {
+    if (!open) submitting.current = false;
+  }, [open]);
+
   return (
     <Modal
       title={
@@ -40,7 +69,11 @@ export function ServicePackageAutoAttachDialog({
       }
       open={open}
       onCancel={onCancel}
-      onOk={() => form.submit()}
+      onOk={() => {
+        if (submitting.current) return;
+        submitting.current = true;
+        form.submit();
+      }}
       confirmLoading={pending}
       okText={
         isEnable
@@ -71,6 +104,12 @@ export function ServicePackageAutoAttachDialog({
             reason: values.reason.trim(),
           })
         }
+        onFinishFailed={() => {
+          // Validation failed, so `onConfirm`/`mutate()` never ran and
+          // `pending` never flips — release the guard here instead so the
+          // user can fix the field and submit again.
+          submitting.current = false;
+        }}
       >
         {isEnable ? (
           <Form.Item
