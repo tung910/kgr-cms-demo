@@ -182,11 +182,15 @@ export const servicePackageHandlers = [
           return { ok: false, code: 'duplicateCode', status: 409 };
 
         if (
-          input.configuration.type === 'TG-ALL' &&
+          (input.configuration.type === 'TG-ALL' ||
+            input.configuration.type === 'TG-SUB') &&
           input.configuration.packages.some((part) => {
             const target = packageStore.find((item) => item.id === part.id);
             return (
-              !target || target.status !== 'active' || target.group === 'bundle'
+              !target ||
+              target.status !== 'active' ||
+              target.group === 'bundle' ||
+              !servicePackageDraftInputSchema.safeParse(target).success
             );
           })
         )
@@ -260,14 +264,16 @@ export const servicePackageHandlers = [
         return error('configurationRequired', 400);
       if (
         status === 'active' &&
-        current.configuration?.type === 'TG-ALL' &&
+        (current.configuration?.type === 'TG-ALL' ||
+          current.configuration?.type === 'TG-SUB') &&
         current.configuration.packages.some((part) => {
           const target = packageStore.find((item) => item.id === part.id);
           return (
             !target ||
             target.id === current.id ||
             target.status !== 'active' ||
-            target.group === 'bundle'
+            target.group === 'bundle' ||
+            !servicePackageDraftInputSchema.safeParse(target).success
           );
         })
       )

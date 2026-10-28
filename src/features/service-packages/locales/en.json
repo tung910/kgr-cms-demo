@@ -133,7 +133,8 @@
     "configurationRequired": "This package is not configured for publication. Legacy records require configuration before publishing.",
     "autoAttachBlocked": "This package is not eligible for auto-attach yet.",
     "autoAttachFromPast": "The effective date cannot be before today.",
-    "idempotencyConflict": "This action was already submitted with different content. Please reload the page and try again."
+    "idempotencyConflict": "This action was already submitted with different content. Please reload the page and try again.",
+    "autoAttachRetired": "Automatic attachment is retired. Select packages when importing devices."
   },
   "autoAttach": {
     "sectionTitle": "Auto-attach on stock intake",

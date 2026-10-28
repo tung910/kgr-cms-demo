@@ -1,14 +1,9 @@
 import type { ServiceTypeCode } from '../constants/servicePackageTypes';
 import type { ServicePackageConfiguration } from '../schemas/servicePackageConfiguration';
-import type {
-  ServicePackageDetails,
-  ServicePackageGroup,
-} from '../schemas/servicePackageSchemas';
-
 // Pure rules for device service entitlements (spec §4.1, §5.1). No I/O, no
 // React — kept easily unit-testable even though this repo has no test runner
 // yet. Shared by the service-package create/edit form and the mock backend so
-// both compute the same quota and auto-attach eligibility.
+// both compute the same quota.
 
 export type EntitlementKind = 'one_time' | 'counted' | 'time_only';
 
@@ -74,52 +69,4 @@ export function computeEntitlementQuota(
       // Unreachable: every `counted`-kind service type is handled above.
       return null;
   }
-}
-
-export type AutoAttachBlocker =
-  'pricing' | 'incomplete' | 'bundle' | 'term' | 'zeroQuota';
-
-// §4.1 conditions to allow turning `auto_attach` on for a package. Returns
-// every blocker that currently applies (not just the first), in the display
-// order the spec lists them. When `details` is `null` (package has no
-// configuration yet) only `incomplete` fires — `pricing`, `term` and
-// `zeroQuota` need configuration data to evaluate and are otherwise skipped,
-// consistent with "gói có cấu hình đầy đủ" being the real gate.
-export function getAutoAttachBlockers(pkg: {
-  group: ServicePackageGroup;
-  termMonths: number | null;
-  quotaMode: 'default' | 'custom';
-  customQuota: number | null;
-  details: Pick<ServicePackageDetails, 'pricingMode' | 'configuration'> | null;
-}): AutoAttachBlocker[] {
-  const blockers: AutoAttachBlocker[] = [];
-
-  if (pkg.details !== null && pkg.details.pricingMode !== 'free_or_included') {
-    blockers.push('pricing');
-  }
-  if (pkg.details === null) {
-    blockers.push('incomplete');
-  }
-  if (pkg.group === 'bundle') {
-    blockers.push('bundle');
-  }
-
-  const kind = pkg.details
-    ? getEntitlementKind(pkg.details.configuration.type)
-    : null;
-  if (pkg.termMonths === null && kind !== 'one_time') {
-    blockers.push('term');
-  }
-
-  if (pkg.details && kind === 'counted') {
-    const quota = computeEntitlementQuota(
-      pkg.details.configuration,
-      pkg.termMonths,
-      pkg.quotaMode,
-      pkg.customQuota
-    );
-    if (quota === 0) blockers.push('zeroQuota');
-  }
-
-  return blockers;
 }

@@ -16,7 +16,7 @@ import type { InventoryDeviceDto } from '../schemas/inventorySchemas';
 // Registered before the main device handlers so these paths win over
 // /api/devices/:deviceId. `inventoryStore` and the "Đồng bộ" unit generator
 // live in src/mocks/stores/inventoryStore.ts so other mock handlers (device
-// service entitlements auto-attach, Task 7) can share them.
+// inventory import preview/confirm) can share them.
 
 const roleKey = 'cms-portal:mock-auth-role'; // shared with handlers.ts
 const dayMs = 86_400_000;

@@ -259,7 +259,7 @@ export function appendEntitlementEvent(
 }
 
 // §4.1/§4.2: snapshot the package (deep copy — no live reference back to
-// `packageStore`), check the device's model is in scope, and reject a
+// `packageStore`), without restricting models, and reject a
 // duplicate active (non-revoked) package on the same device unless
 // `options.allowDuplicate` (§7.2 "Thêm gói" explicitly allows a second
 // grant of the same package). Returns `null` on any rejection — a package

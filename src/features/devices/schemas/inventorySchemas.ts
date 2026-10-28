@@ -48,26 +48,6 @@ export const inventoryCountsDtoSchema = z.object({
 });
 export type InventoryCountsDto = z.infer<typeof inventoryCountsDtoSchema>;
 
-// Pulls never-activated units from the production/warehouse system.
-export const inventorySyncResultDtoSchema = z.object({
-  synced_at: z.string().datetime({ offset: true }),
-  added: z.number().int().nonnegative(),
-  updated: z.number().int().nonnegative(),
-  // Service entitlements auto-attached to newly received units (spec §4.2).
-  // Legacy/other callers predate this field: nullish → mapper default 0.
-  entitlements_attached: z.number().int().nonnegative().nullish(),
-});
-export type InventorySyncResultDto = z.infer<
-  typeof inventorySyncResultDtoSchema
->;
-
-export interface InventorySyncResult {
-  syncedAt: string;
-  added: number;
-  updated: number;
-  entitlementsAttached: number;
-}
-
 export interface InventoryDevice {
   id: string;
   modelName: string;

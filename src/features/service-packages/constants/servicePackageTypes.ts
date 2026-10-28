@@ -44,11 +44,6 @@ export const PRICING_MODES = [
   { value: 'quotation', labelKey: 'create.pricing.quotation' },
 ] as const;
 
-export const MODEL_SCOPES = [
-  { value: 'all', labelKey: 'create.models.all' },
-  { value: 'selected', labelKey: 'create.models.selected' },
-] as const;
-
 export const DELIVERY_OPTIONS = [
   { value: 'self', labelKey: 'create.delivery.self' },
   { value: 'technician', labelKey: 'create.delivery.technician' },

@@ -133,7 +133,8 @@
     "configurationRequired": "Gói chưa đủ cấu hình để phát hành. Bản ghi cũ cần được bổ sung trước khi mở bán.",
     "autoAttachBlocked": "Gói chưa đủ điều kiện để bật tự động gắn.",
     "autoAttachFromPast": "Ngày hiệu lực không được trước hôm nay.",
-    "idempotencyConflict": "Thao tác này đã được gửi với nội dung khác trước đó. Vui lòng tải lại trang và thử lại."
+    "idempotencyConflict": "Thao tác này đã được gửi với nội dung khác trước đó. Vui lòng tải lại trang và thử lại.",
+    "autoAttachRetired": "Đã ngừng tự gắn gói. Hãy chọn gói khi nhập lô thiết bị."
   },
   "autoAttach": {
     "sectionTitle": "Tự động gắn khi nhập kho",

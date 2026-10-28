@@ -2,9 +2,7 @@ import { inventoryDeviceFixtures } from '@/mocks/fixtures/inventoryDevices';
 import type { InventoryDeviceDto } from '@/features/devices/schemas/inventorySchemas';
 
 // Shared in-memory mock backend for never-activated stock ("Tồn kho").
-// Extracted from deviceExtraHandlers.ts so other mock handlers (device
-// service entitlements auto-attach on sync, Task 7) can read/append to the
-// same inventory without importing the handlers module. Resets on reload.
+// Shared by stock reads and confirmed batch imports. Resets on reload.
 // Kept as a `const` array mutated via push, never reassigned, so every
 // importer holds the same live reference.
 export const inventoryStore: InventoryDeviceDto[] = [
@@ -14,10 +12,7 @@ export const inventoryStore: InventoryDeviceDto[] = [
 const dayMs = 86_400_000;
 let nextSyncedNumber = 2001;
 
-// Pulls one to three fresh IoT units from the warehouse system, appends them
-// to `inventoryStore`, and returns just the newly received units (so callers
-// — e.g. the sync endpoint, or later the auto-attach step — can report/act on
-// exactly what changed).
+// Reserves candidate serials without writing stock; confirmation commits the batch.
 export function previewNewUnits(): InventoryDeviceDto[] {
   const models = ['KGR-A100', 'KGR-B200', 'KGR-C300'] as const;
   const count = 1 + (nextSyncedNumber % 3);

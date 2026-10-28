@@ -249,7 +249,8 @@ export const servicePackageDraftInputSchema = z
     )
       issue('billing_type', 'billingType');
     if (
-      value.configuration.type === 'TG-ALL' &&
+      (value.configuration.type === 'TG-ALL' ||
+        value.configuration.type === 'TG-SUB') &&
       new Set(value.configuration.packages.map((item) => item.id)).size !==
         value.configuration.packages.length
     )
