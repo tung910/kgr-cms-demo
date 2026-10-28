@@ -80,5 +80,6 @@ export async function syncInventory(): Promise<InventorySyncResult> {
     syncedAt: parsed.data.synced_at,
     added: parsed.data.added,
     updated: parsed.data.updated,
+    entitlementsAttached: parsed.data.entitlements_attached ?? 0,
   };
 }

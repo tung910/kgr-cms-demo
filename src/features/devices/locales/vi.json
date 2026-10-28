@@ -31,6 +31,7 @@
         "description": "Lấy danh sách thiết bị mới nhập kho khi bạn chọn mục này."
       },
       "success": "Đã đồng bộ: thêm {{added}}, cập nhật {{updated}} thiết bị.",
+      "successWithEntitlements": "Đã đồng bộ: thêm {{added}}, cập nhật {{updated}} thiết bị, gắn {{count}} gói dịch vụ.",
       "upToDate": "Danh sách thiết bị trong kho đã được cập nhật mới nhất.",
       "error": "Không thể đồng bộ danh sách thiết bị trong kho. Vui lòng thử lại."
     },

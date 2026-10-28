@@ -67,10 +67,16 @@ export function InventorySyncButton() {
       void message.success(
         result.added + result.updated === 0
           ? t('inventory.sync.upToDate')
-          : t('inventory.sync.success', {
-              added: result.added,
-              updated: result.updated,
-            })
+          : result.entitlementsAttached > 0
+            ? t('inventory.sync.successWithEntitlements', {
+                added: result.added,
+                updated: result.updated,
+                count: result.entitlementsAttached,
+              })
+            : t('inventory.sync.success', {
+                added: result.added,
+                updated: result.updated,
+              })
       );
       void queryClient.invalidateQueries({
         queryKey: [...deviceQueries.all, 'inventory'],
