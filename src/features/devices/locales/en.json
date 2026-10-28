@@ -568,6 +568,7 @@
     },
     "tags": {
       "overflow": "+{{count}}",
+      "withName": "{{name}}: {{status}}",
       "expiringDays": "Expiring soon: {{count}} days left",
       "quota": "{{used}}/{{quota}} uses",
       "notStarted": "Not started",

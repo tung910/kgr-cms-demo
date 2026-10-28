@@ -29,7 +29,12 @@ export function EntitlementTags({ items, variant }: EntitlementTagsProps) {
     return <span className="text-xs text-[#9A9B9C]">—</span>;
   }
 
-  const label = (item: EntitlementSummary): string => {
+  // Status-only part of the tag text (spec §8.1: "tên ngắn + thông tin theo
+  // trạng thái" — short name + status-based info). Returns `null` when there
+  // is no extra status info to add beyond the name (an `active`, no-quota /
+  // time-only entitlement — its validity is already implied by the tag's
+  // tone, and the term is in the tooltip).
+  const statusInfo = (item: EntitlementSummary): string | null => {
     if (item.status === 'exhausted') {
       return t('entitlements.statuses.exhausted');
     }
@@ -52,7 +57,20 @@ export function EntitlementTags({ items, variant }: EntitlementTagsProps) {
         ? t('entitlements.tags.notUsedYet')
         : t('entitlements.tags.notStarted');
     }
-    return item.name;
+    return null;
+  };
+
+  // Fix for the final whole-branch review: the tag used to show ONLY the
+  // status text ("0/2 uses"), leaving the package name in the hover tooltip
+  // only — an operator looking at several tags on one row couldn't tell which
+  // package was which without hovering each one. Prefix with the (possibly
+  // truncated, see the `truncate` wrapper below) package name whenever there
+  // is status info to attach; otherwise fall back to the bare name.
+  const label = (item: EntitlementSummary): string => {
+    const status = statusInfo(item);
+    return status
+      ? t('entitlements.tags.withName', { name: item.name, status })
+      : item.name;
   };
 
   const tooltip = (item: EntitlementSummary): string => {
@@ -79,10 +97,15 @@ export function EntitlementTags({ items, variant }: EntitlementTagsProps) {
       {shown.map((item) => (
         <Tooltip key={item.id} title={tooltip(item)}>
           {isGreyTag(item) ? (
-            <Tag className="m-0">{label(item)}</Tag>
+            <Tag className="m-0 max-w-[220px]">
+              <span className="block truncate">{label(item)}</span>
+            </Tag>
           ) : (
-            <PortalBadge tone={ENTITLEMENT_STATUS_TONE[item.status]}>
-              {label(item)}
+            <PortalBadge
+              tone={ENTITLEMENT_STATUS_TONE[item.status]}
+              className="min-w-0 max-w-[220px]"
+            >
+              <span className="min-w-0 truncate">{label(item)}</span>
             </PortalBadge>
           )}
         </Tooltip>

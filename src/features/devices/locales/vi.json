@@ -563,6 +563,7 @@
     },
     "tags": {
       "overflow": "+{{count}}",
+      "withName": "{{name}}: {{status}}",
       "expiringDays": "Sắp hết hạn: còn {{count}} ngày",
       "quota": "{{used}}/{{quota}} lượt",
       "notStarted": "Chưa bắt đầu",

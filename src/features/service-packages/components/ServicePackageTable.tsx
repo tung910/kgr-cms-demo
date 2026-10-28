@@ -1,4 +1,4 @@
-import { Button, Pagination, Space, Table } from 'antd';
+import { Button, Pagination, Space, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 
@@ -15,6 +15,10 @@ import type {
   ServicePackage,
   ServicePackageListFilters,
 } from '../schemas/servicePackageSchemas';
+import {
+  getAutoAttachBlockers,
+  type AutoAttachBlocker,
+} from '../utils/entitlementRules';
 
 const vndFormatter = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
@@ -54,6 +58,61 @@ export function ServicePackageTable({
         ? t('table.price.perMonth')
         : t('table.price.perMonths', { count: period });
     return `${amount} / ${cadence}`;
+  };
+
+  // The create form (`ServicePackageForm`) already disables its own
+  // auto-attach checkbox when `getAutoAttachBlockers` reports a blocker
+  // (legacy `details: null` packages, priced packages, bundles, packages with
+  // no term, a zero-quota configuration). The table's "Enable auto-attach"
+  // row action must apply the same check — otherwise it offers an action
+  // that is guaranteed to fail server-side with `autoAttachBlocked`. Only
+  // relevant for turning auto-attach ON: "Disable" has no such precondition
+  // and must always stay available for an already-enabled package.
+  const enableAutoAttachBlockers = (
+    servicePackage: ServicePackage
+  ): AutoAttachBlocker[] =>
+    getAutoAttachBlockers({
+      group: servicePackage.group,
+      termMonths: servicePackage.termMonths,
+      quotaMode: servicePackage.quotaMode,
+      customQuota: servicePackage.customQuota,
+      details: servicePackage.details
+        ? {
+            pricingMode: servicePackage.details.pricingMode,
+            configuration: servicePackage.details.configuration,
+          }
+        : null,
+    });
+
+  const autoAttachAction = (servicePackage: ServicePackage) => {
+    const label = servicePackage.autoAttach
+      ? t('autoAttach.actions.disable')
+      : t('autoAttach.actions.enable');
+    if (servicePackage.autoAttach) {
+      return (
+        <Button
+          type="link"
+          size="small"
+          onClick={() => onToggleAutoAttach(servicePackage)}
+        >
+          {label}
+        </Button>
+      );
+    }
+    const blockers = enableAutoAttachBlockers(servicePackage);
+    const blocked = blockers.length > 0;
+    return (
+      <Tooltip title={blocked ? t(`autoAttach.blockers.${blockers[0]}`) : null}>
+        <Button
+          type="link"
+          size="small"
+          disabled={blocked}
+          onClick={() => onToggleAutoAttach(servicePackage)}
+        >
+          {label}
+        </Button>
+      </Tooltip>
+    );
   };
 
   const columns: ColumnsType<ServicePackage> = [
@@ -180,17 +239,9 @@ export function ServicePackageTable({
                 {t('actions.archive')}
               </Button>
             ) : null}
-            {servicePackage.status !== 'archived' ? (
-              <Button
-                type="link"
-                size="small"
-                onClick={() => onToggleAutoAttach(servicePackage)}
-              >
-                {servicePackage.autoAttach
-                  ? t('autoAttach.actions.disable')
-                  : t('autoAttach.actions.enable')}
-              </Button>
-            ) : null}
+            {servicePackage.status !== 'archived'
+              ? autoAttachAction(servicePackage)
+              : null}
           </Space>
         </PermissionGuard>
       ),
@@ -284,17 +335,9 @@ export function ServicePackageTable({
                       {t('actions.archive')}
                     </Button>
                   ) : null}
-                  {servicePackage.status !== 'archived' ? (
-                    <Button
-                      type="link"
-                      size="small"
-                      onClick={() => onToggleAutoAttach(servicePackage)}
-                    >
-                      {servicePackage.autoAttach
-                        ? t('autoAttach.actions.disable')
-                        : t('autoAttach.actions.enable')}
-                    </Button>
-                  ) : null}
+                  {servicePackage.status !== 'archived'
+                    ? autoAttachAction(servicePackage)
+                    : null}
                 </div>
               </PermissionGuard>
             </div>
