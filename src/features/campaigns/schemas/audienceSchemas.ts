@@ -136,7 +136,8 @@ export const audienceDeviceDtoSchema = z.object({
   // signal, not a sensor) — drives the "đã mua lõi → dừng nhắc" exit rule.
   last_core_purchase_days_ago: z.number().int().nonnegative(),
   // IDs of the service packages this device holds a still-valid entitlement of.
-  active_package_ids: z.array(z.string()),
+  // `.default([])` so device records predating service packages still parse.
+  active_package_ids: z.array(z.string()).default([]),
 });
 export type AudienceDeviceDto = z.infer<typeof audienceDeviceDtoSchema>;
 

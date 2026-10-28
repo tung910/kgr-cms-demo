@@ -157,7 +157,10 @@ function materialize(campaign: CampaignDto): CampaignDto {
     campaign.status === 'approved' &&
     campaign.schedule_type === 'scheduled' &&
     campaign.starts_at &&
-    Date.parse(campaign.starts_at) <= now
+    Date.parse(campaign.starts_at) <= now &&
+    // Same rule as the manual run: a package that is no longer grantable keeps
+    // the campaign waiting instead of silently starting it.
+    packageGrantable(campaign.promoted_package_id)
   ) {
     campaign.status = 'running';
     campaign.updated_at = new Date().toISOString();
@@ -365,13 +368,6 @@ function dispatch(campaign: CampaignDto): void {
     const devices = matchingDevices(customer, campaign.audience)
       .filter((candidate) => {
         if (campaign.kind !== 'trigger') return true;
-        // Never remind a device that already holds the promoted package,
-        // whatever the exit-rule toggles say.
-        if (
-          campaign.promoted_package_id &&
-          candidate.active_package_ids.includes(campaign.promoted_package_id)
-        )
-          return false;
         // Exit rule: a core bought recently means the reminder is moot.
         if (
           trigger?.exitOnPurchase &&

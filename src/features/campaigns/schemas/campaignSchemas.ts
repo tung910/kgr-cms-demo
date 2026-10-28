@@ -240,8 +240,9 @@ export const campaignDtoSchema = z.object({
   ab_test: abTestSchema.nullable(),
   offer: campaignOfferSchema.nullable(),
   // Optional promoted service package: the reference plus a catalogue summary.
-  promoted_package_id: z.string().nullable(),
-  promoted_package: promotedPackageDtoSchema.nullable(),
+  // `.default(null)` so campaigns stored before these fields existed still parse.
+  promoted_package_id: z.string().nullable().default(null),
+  promoted_package: promotedPackageDtoSchema.nullable().default(null),
   test_recipients: z.array(z.string()),
   created_by: z.string(),
   created_by_name: z.string(),
@@ -294,8 +295,9 @@ export const campaignMetricsDtoSchema = z.object({
   suppressed_opt_out: z.number().int().nonnegative(),
   // Part of `orders` / `revenue` that came from the promoted package, after the
   // voucher; recurring packages count the first period only (spec 4.6).
-  package_purchases: z.number().int().nonnegative(),
-  package_revenue: z.number().nonnegative(),
+  // `.default(0)`: metrics payloads from before package campaigns omit these.
+  package_purchases: z.number().int().nonnegative().default(0),
+  package_revenue: z.number().nonnegative().default(0),
 });
 export type CampaignMetricsDto = z.infer<typeof campaignMetricsDtoSchema>;
 
