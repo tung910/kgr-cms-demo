@@ -66,6 +66,55 @@ Mã lỗi: `invalid_input`, `invalid_model`, `preview_unavailable`,
 `package_changed`, `idempotency_conflict`, `forbidden`. Lỗi mạng giữ nguyên
 request/key để thử lại; UI không cho sửa draft khi chưa xác minh kết quả.
 
+## Quảng cáo gói qua chiến dịch
+
+Thiết kế được duyệt: [Quảng cáo gói dịch vụ qua chiến dịch](superpowers/specs/2026-10-28-service-package-campaigns-design.md).
+Mỗi chiến dịch có thể tuỳ chọn trỏ tới đúng một gói; không chọn thì chiến dịch,
+số khách xem trước và số liệu giữ nguyên như trước. Chỉ gói `active`, đủ cấu
+hình và không thuộc nhóm bundle được chọn.
+
+- DTO chiến dịch: `promoted_package_id` (null nếu không có) và bản tóm tắt
+  `promoted_package` do MSW ghép lúc đọc từ danh mục sống: `id`, `code`, `name`,
+  `group`, `status`, `grantable`, `billing_type`, `price`,
+  `billing_period_months`, `pricing_mode`, `term_months`. Màn chiến dịch dùng
+  bản tóm tắt này, không cần `service_package.read`. Bản nháp gửi
+  `promotedPackageId`.
+- `GET /campaigns/package-options`: gói chọn được cho wizard, dùng
+  `campaign.write`, không kèm PII.
+- CTA `buy_service_package` ("Mua gói") mở trang gói. Deeplink **đề xuất**:
+  `onekangaroo://service-packages/{id}?device={deviceId}`; `device` được gắn
+  khi gửi như các CTA theo thiết bị khác. App chưa đăng ký đường dẫn này, đây
+  là hợp đồng cần app xác nhận.
+- Voucher gắn gói: `appliesTo` = mã gói. Gói định kỳ chỉ giảm **kỳ thu tiền
+  đầu**, giá gốc là `price` cho `billing_period_months` (xem trước kiểu
+  "480.000đ năm đầu / sau đó 600.000đ/năm"). Gói miễn phí/gộp giá không có
+  voucher giảm giá; gói báo giá chỉ giảm %; số tiền giảm không vượt giá một kỳ.
+  Vi phạm bị chặn ở form và trả 422 `invalid_package_offer`.
+- Đối tượng: điều kiện `excludeActivePackageId` loại máy đã có gói (AND với các
+  điều kiện khác), mặc định bật khi chọn gói. Đổi hoặc bỏ gói thì wizard xoá nút,
+  voucher không còn hợp lệ và đặt lại điều kiện loại trừ.
+- Gói không còn phát hành được (ngừng bán, mất cấu hình): tạo/sửa nháp trả 422
+  `package_unavailable`; gửi duyệt, duyệt, chạy, chạy lại trả 409
+  `package_unavailable` và không sinh lượt gửi. Chiến dịch đang chạy hiện cảnh
+  báo ở danh sách/chi tiết. Body lỗi của mock mang `code`.
+- Số liệu: `package_purchases`, `package_revenue` đếm từ quyền lợi nguồn
+  `campaign_purchase` của chiến dịch, đã nằm trong đơn/doanh thu, tính kỳ đầu
+  sau giảm; gói báo giá cho doanh thu 0. CSV có thêm hai cột.
+- Quyền lợi: nguồn `campaign_purchase` (reference = mã chiến dịch). Trên thiết
+  bị hiển thị "Mua qua chiến dịch …", có link tới chiến dịch khi vai trò có
+  `campaign.read`. Seed `CMP-0009` "Vệ sinh máy giảm 20% năm đầu" (gói
+  `pkg-demo-clean`): 3 lượt mua trên KGR-0002/0004/0005, 1.440.000đ. Fixture
+  bản nháp cũ chuyển từ `CMP-0009` sang `CMP-0010`.
+
+Giới hạn riêng của tính năng này: chỉ là demo frontend + MSW, chưa nối backend
+hay app. Deeplink là đề xuất. Mock có hai bộ dữ liệu tách biệt: đối tượng chiến
+dịch dùng mã `DEV-…`, thiết bị và quyền lợi dùng `KGR-…`, nên số khách xem
+trước không liên hệ với 3 lượt mua seed. Chiến dịch chỉ ghi nhận lượt mua và
+doanh thu từ quyền lợi trong mock; việc đổi voucher khi thanh toán thuộc
+storefront (§10), chưa làm ở đây. Gói bundle không được quảng cáo. Bản dịch EN
+của màn chiến dịch chưa đầy đủ (chỉ nhánh `package`/`button`), phần còn lại và
+mọi thông báo lỗi hiển thị tiếng Việt.
+
 ## Giới hạn
 
 Đây là frontend + MSW; backend thật cần duyệt hợp đồng. Chưa cam kết đồng bộ
@@ -80,5 +129,7 @@ quyền lợi đã cấp; phiếu lắp đặt/màn KTV thuộc giai đoạn sau
 ## Kiểm chứng
 
 Các check và bằng chứng cho đợt triển khai này được ghi trong
-[kế hoạch triển khai](superpowers/plans/2026-10-28-inventory-service-selection.md).
+[kế hoạch triển khai](superpowers/plans/2026-10-28-inventory-service-selection.md);
+phần quảng cáo gói qua chiến dịch nằm ở
+[kế hoạch riêng](superpowers/plans/2026-10-28-service-package-campaigns.md).
 Không thêm dependency hoặc framework kiểm thử. Chưa kiểm tra backend/app thật.

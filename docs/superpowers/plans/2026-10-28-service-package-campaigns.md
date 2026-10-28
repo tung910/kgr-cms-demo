@@ -62,7 +62,7 @@
     - `firstPeriodPrice(pkg: PromotedPackage, offer: CampaignOffer | null): number | null` — giá kỳ đầu sau voucher; `null` khi báo giá.
     - `packagePriceLines(pkg: PromotedPackage, offer: CampaignOffer | null, t: TFunction): string[]` — dòng chữ cho xem trước/tóm tắt.
 
-- [ ] **Step 1: Viết assert tạm** `<scratchpad>/assert-package-pricing.mjs`, dùng `createServer({ server: { middlewareMode: true }, appType: 'custom' })` + `ssrLoadModule('/src/features/campaigns/utils/packagePricing.ts')` và `campaignCta.ts`/`deeplinkTargets.ts`. Gói mẫu `clean = {price: 600000, billingType: 'recurring', billingPeriodMonths: 12, pricingMode: 'fixed', …}`:
+- [x] **Step 1: Viết assert tạm** `<scratchpad>/assert-package-pricing.mjs`, dùng `createServer({ server: { middlewareMode: true }, appType: 'custom' })` + `ssrLoadModule('/src/features/campaigns/utils/packagePricing.ts')` và `campaignCta.ts`/`deeplinkTargets.ts`. Gói mẫu `clean = {price: 600000, billingType: 'recurring', billingPeriodMonths: 12, pricingMode: 'fixed', …}`:
   - `firstPeriodPrice(clean, {type:'voucher', discountType:'percent', discountValue:20}) === 480000`
   - `firstPeriodPrice(clean, {type:'voucher', discountType:'amount', discountValue:100000}) === 500000`
   - `validatePackageOffer(clean, {…amount, discountValue: 600001}) === 'discount_exceeds_price'`; `discountValue: 600000` → `null`
@@ -70,10 +70,10 @@
   - gói `pricingMode:'quotation', price:null` + amount → `'quotation_amount_discount'`; + percent → `null`; `firstPeriodPrice` → `null`
   - `packagePriceLines` với `t = (k, o) => k + JSON.stringify(o ?? {})`: gói định kỳ 12 tháng có voucher cho key kỳ đầu + key gia hạn với `months: 12`; `billingPeriodMonths: 6` cho `months: 6`; gói `one_time` không có dòng gia hạn.
   - `buttonDeeplink({type:'buy_service_package'}, 'pkg a') === 'onekangaroo://service-packages/pkg%20a'`; không ID → `null`; `isDeviceScopedDeeplink('onekangaroo://service-packages/x') === true`.
-- [ ] **Step 2: Chạy** `node <scratchpad>/assert-package-pricing.mjs` — kỳ vọng lỗi import (module chưa có).
-- [ ] **Step 3: Cài đặt** schema/mapper/API/query/CTA/deeplink theo Interfaces; `packagePricing.ts` đọc định dạng tiền như `offerText.ts` (`toLocaleString('vi')` + `unit.vnd`). Key i18n mới (VI/EN) dưới `campaigns`: `button.type.buy_service_package`, `button.defaultLabel.buy_service_package` ("Mua gói"/"Buy plan"), `package.price.firstPeriod` (`"{{price}} {{period}} đầu"`), `package.price.renewal` (`"sau đó {{price}}/{{period}}"`), `package.price.oneTime`, `package.price.free`, `package.price.quotation`, `package.price.quotationDiscount` (`"Giảm {{value}}% trên báo giá"`), `package.period.year`, `package.period.months` (`"{{count}} tháng"`); 12 tháng dùng "năm".
-- [ ] **Step 4: Giữ build xanh với giá trị trung tính:** base fixture `promoted_package_id: null`; handler trả `promoted_package: null`, `package_purchases: 0`, `package_revenue: 0`; mỗi máy đối tượng `active_package_ids: []`; `buildDraftInput` gửi `promotedPackageId: null`; `buttonDeeplink` gọi cũ giữ nguyên. Chạy lại assert — tất cả in `ok`.
-- [ ] **Step 5:** `pnpm typecheck && pnpm lint` exit 0; commit `feat(campaigns): define promoted service package contract`.
+- [x] **Step 2: Chạy** `node <scratchpad>/assert-package-pricing.mjs` — kỳ vọng lỗi import (module chưa có).
+- [x] **Step 3: Cài đặt** schema/mapper/API/query/CTA/deeplink theo Interfaces; `packagePricing.ts` đọc định dạng tiền như `offerText.ts` (`toLocaleString('vi')` + `unit.vnd`). Key i18n mới (VI/EN) dưới `campaigns`: `button.type.buy_service_package`, `button.defaultLabel.buy_service_package` ("Mua gói"/"Buy plan"), `package.price.firstPeriod` (`"{{price}} {{period}} đầu"`), `package.price.renewal` (`"sau đó {{price}}/{{period}}"`), `package.price.oneTime`, `package.price.free`, `package.price.quotation`, `package.price.quotationDiscount` (`"Giảm {{value}}% trên báo giá"`), `package.period.year`, `package.period.months` (`"{{count}} tháng"`); 12 tháng dùng "năm".
+- [x] **Step 4: Giữ build xanh với giá trị trung tính:** base fixture `promoted_package_id: null`; handler trả `promoted_package: null`, `package_purchases: 0`, `package_revenue: 0`; mỗi máy đối tượng `active_package_ids: []`; `buildDraftInput` gửi `promotedPackageId: null`; `buttonDeeplink` gọi cũ giữ nguyên. Chạy lại assert — tất cả in `ok`.
+- [x] **Step 5:** `pnpm typecheck && pnpm lint` exit 0; commit `feat(campaigns): define promoted service package contract`.
 
 ### Task 2: MSW — gói quảng cáo, đối tượng, số liệu và quyền lợi mua
 
@@ -89,10 +89,10 @@
   - `countCampaignPurchases(campaignId: string): number` từ `entitlementStore.ts`.
   - Nguồn quyền lợi thêm `'campaign_purchase'` ở `entitlementSourceSchema`, kiểu domain dòng 202 và `EntitlementRecord['source']['kind']`.
 
-- [ ] **Step 1: Ghi baseline** trước khi sửa: trên trình duyệt (`pnpm dev`, MSW), vào chi tiết `CMP-0001`, `CMP-0004`, `CMP-0006`, ghi số khách xem trước và toàn bộ số liệu; ghi lại vào ghi chú tạm.
-- [ ] **Step 2: Fixture.** Base fixture thêm `promoted_package_id: null`. Thêm `CMP-0009` (manual, push, nhóm `service`, `running`, `promoted_package_id: 'pkg-demo-clean'`, nút `buy_service_package`, voucher `{type:'voucher', voucherCode:'VESINH20', discountType:'percent', discountValue:20, appliesTo:'DEMO-BT-2L'}`, `audience.excludeActivePackageId: 'pkg-demo-clean'`). Mỗi máy trong `campaignAudience.ts` thêm `active_package_ids`: `seed % 4 === 0 ? ['pkg-demo-clean'] : []` — không đổi field cũ nào.
-- [ ] **Step 3: Store.** Chuyển `isGrantablePackage`. Trong `entitlementStore.ts` thêm khối seed: chọn 3 máy đầu tiên (theo `device_id`) trong `deviceFixtures` có `activated_at` và chưa có `pkg-demo-clean`, `attachPackage(..., pkg, {kind:'campaign_purchase', reference: PACKAGE_CAMPAIGN_ID, at}, {startsAt: at})` với `at = seedNow.subtract(i + 1, 'week')`. Thêm `countCampaignPurchases`.
-- [ ] **Step 4: Handlers.**
+- [x] **Step 1: Ghi baseline** trước khi sửa: trên trình duyệt (`pnpm dev`, MSW), vào chi tiết `CMP-0001`, `CMP-0004`, `CMP-0006`, ghi số khách xem trước và toàn bộ số liệu; ghi lại vào ghi chú tạm.
+- [x] **Step 2: Fixture.** Base fixture thêm `promoted_package_id: null`. Thêm `CMP-0009` (manual, push, nhóm `service`, `running`, `promoted_package_id: 'pkg-demo-clean'`, nút `buy_service_package`, voucher `{type:'voucher', voucherCode:'VESINH20', discountType:'percent', discountValue:20, appliesTo:'DEMO-BT-2L'}`, `audience.excludeActivePackageId: 'pkg-demo-clean'`). Mỗi máy trong `campaignAudience.ts` thêm `active_package_ids`: `seed % 4 === 0 ? ['pkg-demo-clean'] : []` — không đổi field cũ nào.
+- [x] **Step 3: Store.** Chuyển `isGrantablePackage`. Trong `entitlementStore.ts` thêm khối seed: chọn 3 máy đầu tiên (theo `device_id`) trong `deviceFixtures` có `activated_at` và chưa có `pkg-demo-clean`, `attachPackage(..., pkg, {kind:'campaign_purchase', reference: PACKAGE_CAMPAIGN_ID, at}, {startsAt: at})` với `at = seedNow.subtract(i + 1, 'week')`. Thêm `countCampaignPurchases`.
+- [x] **Step 4: Handlers.**
   - `GET /api/campaigns/package-options`: `campaign.write` hoặc 403; trả `packageStore.filter(grantable && group !== 'bundle').map(toPromotedPackageDto)`.
   - Mọi response chiến dịch (list, get, create, update, transition) ghép `promoted_package` từ `packageStore` (gói không tìm thấy → `null`).
   - Create/update: `promotedPackageId` khác null mà không grantable/bundle → 422 `package_unavailable`; `validatePackageOffer` có issue → 422 `invalid_package_offer`.
@@ -100,9 +100,9 @@
   - `predicatesOf`: `excludeActivePackageId` → `(_, d) => !d.active_package_ids.includes(id)`.
   - `dispatch`: bỏ qua chiến dịch có gói không grantable; trigger có gói bỏ máy đã có gói (bất kể toggle); deeplink dùng `buttonDeeplink(button, campaign.promoted_package_id)`.
   - `metricsFor`: `package_purchases = countCampaignPurchases(id)`; `package_revenue = purchases × (firstPeriodPrice(pkg, offer) ?? 0)`; cộng vào `orders` và `revenue`. Chiến dịch không gói: hai field = 0 và `orders/revenue` không đổi.
-- [ ] **Step 5: Assert tạm** `<scratchpad>/assert-campaign-mock.mjs` qua SSR trên store (không qua handler cần localStorage): `isGrantablePackage` đúng cho `pkg-demo-clean` (true), `pkg-demo-survey` (false, draft); `countCampaignPurchases('CMP-0009') === 3`; các quyền lợi đó có `source.kind === 'campaign_purchase'`, `starts_override_at` khác null, nằm trên 3 máy khác nhau; `countCampaignPurchases('CMP-0001') === 0`.
-- [ ] **Step 6: Kiểm tra HTTP mock trên trình duyệt** (DevTools `fetch`): package-options không có bundle/draft; vai trò không có `campaign.write` → 403; lưu nháp với `pkg-demo-survey` → 422; voucher amount 600.001 trên `pkg-demo-clean` → 422; ngừng bán `pkg-demo-clean` ở danh mục rồi `pause` → `resume` `CMP-0009` → 409, số lượt gửi không tăng khi tải lại danh sách; mở lại gói (hoặc reload). So `CMP-0001/0004/0006` với baseline Step 1 — phải trùng.
-- [ ] **Step 7:** `pnpm typecheck && pnpm lint`; commit `feat(campaigns): serve promoted packages and purchase entitlements in mocks`.
+- [x] **Step 5: Assert tạm** `<scratchpad>/assert-campaign-mock.mjs` qua SSR trên store (không qua handler cần localStorage): `isGrantablePackage` đúng cho `pkg-demo-clean` (true), `pkg-demo-survey` (false, draft); `countCampaignPurchases('CMP-0009') === 3`; các quyền lợi đó có `source.kind === 'campaign_purchase'`, `starts_override_at` khác null, nằm trên 3 máy khác nhau; `countCampaignPurchases('CMP-0001') === 0`.
+- [x] **Step 6: Kiểm tra HTTP mock trên trình duyệt** (DevTools `fetch`): package-options không có bundle/draft; vai trò không có `campaign.write` → 403; lưu nháp với `pkg-demo-survey` → 422; voucher amount 600.001 trên `pkg-demo-clean` → 422; ngừng bán `pkg-demo-clean` ở danh mục rồi `pause` → `resume` `CMP-0009` → 409, số lượt gửi không tăng khi tải lại danh sách; mở lại gói (hoặc reload). So `CMP-0001/0004/0006` với baseline Step 1 — phải trùng.
+- [x] **Step 7:** `pnpm typecheck && pnpm lint`; commit `feat(campaigns): serve promoted packages and purchase entitlements in mocks`.
 
 ### Task 3: Wizard — chọn gói, CTA, voucher, đối tượng, xem trước
 
@@ -118,13 +118,13 @@
   - `PromotedPackageField({ value, onChange }: { value?: string; onChange: (pkg: PromotedPackage | null) => void })` — Select `showSearch` + `allowClear`, nhãn "mã — tên — giá"; loading/skeleton; lỗi tải hiện `Alert` + nút thử lại (không coi lỗi là danh sách rỗng).
   - `CampaignPhonePreview` thêm prop `packageCard: { name: string; priceLines: string[] } | null`.
 
-- [ ] **Step 1: Đặt trường** ở bước nội dung/ưu đãi (`StepContentOffer`) phía trên phần ưu đãi.
-- [ ] **Step 2: Đồng bộ khi đổi gói** trong `CampaignWizard`: bỏ gói → xoá nút `buy_service_package`, xoá `appliesTo` gắn gói, đặt lại `excludePackageOwners = true`. Đổi sang gói khác → giữ nút, cập nhật `appliesTo`, xoá giá trị voucher không còn hợp lệ cho gói mới.
-- [ ] **Step 3: CTA.** `ButtonsEditor` hiện loại "Mua gói dịch vụ" chỉ khi đã chọn gói.
-- [ ] **Step 4: Voucher.** Khi có gói thì ẩn ô `appliesTo`, hiện tag gói. Gói miễn phí thì disable hai loại voucher giảm giá. Gói báo giá thì disable giảm tiền. Rule form gọi `validatePackageOffer` và hiện key `package.offerIssue.<issue>`.
-- [ ] **Step 5: Đối tượng.** `StepAudience` hiện switch "Loại máy đã có gói này" (chỉ khi có gói), xem trước số khách gọi lại khi switch đổi.
-- [ ] **Step 6: Xem trước/tóm tắt.** Truyền `packageCard` vào `CampaignPhonePreview`; `StepReview` và `CampaignSummary` hiện gói + dòng giá; chiến dịch không gói hiển thị như cũ.
-- [ ] **Step 7: Kiểm tra trên trình duyệt (MSW, VI rồi EN):**
+- [x] **Step 1: Đặt trường** ở bước nội dung/ưu đãi (`StepContentOffer`) phía trên phần ưu đãi.
+- [x] **Step 2: Đồng bộ khi đổi gói** trong `CampaignWizard`: bỏ gói → xoá nút `buy_service_package`, xoá `appliesTo` gắn gói, đặt lại `excludePackageOwners = true`. Đổi sang gói khác → giữ nút, cập nhật `appliesTo`, xoá giá trị voucher không còn hợp lệ cho gói mới.
+- [x] **Step 3: CTA.** `ButtonsEditor` hiện loại "Mua gói dịch vụ" chỉ khi đã chọn gói.
+- [x] **Step 4: Voucher.** Khi có gói thì ẩn ô `appliesTo`, hiện tag gói. Gói miễn phí thì disable hai loại voucher giảm giá. Gói báo giá thì disable giảm tiền. Rule form gọi `validatePackageOffer` và hiện key `package.offerIssue.<issue>`.
+- [x] **Step 5: Đối tượng.** `StepAudience` hiện switch "Loại máy đã có gói này" (chỉ khi có gói), xem trước số khách gọi lại khi switch đổi.
+- [x] **Step 6: Xem trước/tóm tắt.** Truyền `packageCard` vào `CampaignPhonePreview`; `StepReview` và `CampaignSummary` hiện gói + dòng giá; chiến dịch không gói hiển thị như cũ.
+- [x] **Step 7: Kiểm tra trên trình duyệt (MSW, VI rồi EN):**
   - Tạo chiến dịch với `DEMO-BT-2L` + voucher 20% → xem trước hiện "480.000đ năm đầu" và "sau đó 600.000đ/năm".
   - Đổi sang `DEMO-LD-STD` (miễn phí) → voucher giảm giá bị disable hoặc báo lỗi.
   - Bỏ gói → nút "Mua gói dịch vụ" và tag gói biến mất, `appliesTo` tự do hiện lại.
@@ -132,7 +132,7 @@
   - Lưu nháp, mở lại → mọi giá trị giữ nguyên.
   - Mở wizard sửa `CMP-0001` → không có gói, các trường như cũ.
   - Chặn mạng `package-options` → hiện lỗi kèm nút thử lại.
-- [ ] **Step 8:** `pnpm typecheck && pnpm lint`; commit `feat(campaigns): promote a service package from the campaign wizard`.
+- [x] **Step 8:** `pnpm typecheck && pnpm lint`; commit `feat(campaigns): promote a service package from the campaign wizard`.
 
 ### Task 4: Danh sách/chi tiết, số liệu và quyền lợi trên thiết bị
 
@@ -144,30 +144,43 @@
 - Consumes: `Campaign.promotedPackage`, `CampaignMetrics.packagePurchases/packageRevenue`, nguồn `campaign_purchase`.
 - Produces: `PromotedPackageWarning({ campaign }: { campaign: Campaign })` — trả `null` trừ khi `promotedPackage` tồn tại, `!grantable` và trạng thái thuộc `pending_approval | approved | running | paused`.
 
-- [ ] **Step 1:** Cảnh báo trong cột trạng thái `CampaignTable` và đầu `CampaignDetailPage`. `CampaignActions` map lỗi `package_unavailable`/`invalid_package_offer` sang thông báo i18n.
-- [ ] **Step 2:** `CampaignMetricsPanel` thêm hai ô "Lượt mua gói", "Doanh thu gói" khi có gói. Gói báo giá thì thêm ghi chú "Không tính doanh thu gói báo giá". CSV thêm hai cột (label truyền từ panel như các cột cũ); chiến dịch không gói vẫn xuất 0.
-- [ ] **Step 3:** `DeviceEntitlementsPanel`: `SOURCE_KIND_KEY.campaign_purchase = 'campaignPurchase'`, nhãn "Mua qua chiến dịch {{reference}}". Có `campaign.read` thì nhãn là `Link` tới `/campaigns/$campaignId`.
-- [ ] **Step 4: Kiểm tra trên trình duyệt:**
+- [x] **Step 1:** Cảnh báo trong cột trạng thái `CampaignTable` và đầu `CampaignDetailPage`. `CampaignActions` map lỗi `package_unavailable`/`invalid_package_offer` sang thông báo i18n.
+- [x] **Step 2:** `CampaignMetricsPanel` thêm hai ô "Lượt mua gói", "Doanh thu gói" khi có gói. Gói báo giá thì thêm ghi chú "Không tính doanh thu gói báo giá". CSV thêm hai cột (label truyền từ panel như các cột cũ); chiến dịch không gói vẫn xuất 0.
+- [x] **Step 3:** `DeviceEntitlementsPanel`: `SOURCE_KIND_KEY.campaign_purchase = 'campaignPurchase'`, nhãn "Mua qua chiến dịch {{reference}}". Có `campaign.read` thì nhãn là `Link` tới `/campaigns/$campaignId`.
+- [x] **Step 4: Kiểm tra trên trình duyệt:**
   - `CMP-0009` hiện lượt mua 3 và doanh thu gói 1.440.000đ, và cả hai nằm trong tổng đơn/doanh thu.
   - CSV có hai cột mới.
   - Mở một trong ba máy đã seed → quyền lợi "Vệ sinh máy" với nguồn "Mua qua chiến dịch CMP-0009", bấm link tới đúng chiến dịch.
   - Vai trò không có `campaign.read` thấy nhãn nhưng không có link.
   - Ngừng bán gói → cảnh báo hiện ở danh sách và chi tiết; chạy lại sau tạm dừng báo lỗi rõ.
   - Màn hình 390px không tràn ngang.
-- [ ] **Step 5:** `pnpm typecheck && pnpm lint`; commit `feat(campaigns): show package performance, warnings and purchase source`.
+- [x] **Step 5:** `pnpm typecheck && pnpm lint`; commit `feat(campaigns): show package performance, warnings and purchase source`.
 
 ### Task 5: Tài liệu và kiểm chứng toàn luồng
 
 **Files:** Modify `docs/SERVICE_PACKAGE_CATALOG.md` (mục mới "Quảng cáo gói qua chiến dịch": hợp đồng `promoted_package_id`, `package-options`, deeplink đề xuất, nguồn `campaign_purchase`, giới hạn demo), `docs/CAMPAIGN_FEATURE_BUILD_PLAN.md` (một dòng trỏ spec mới), plan này (mục Kết quả).
 
-- [ ] **Step 1:** `rg -n "buttonDeeplink\(|grantablePackage|appliesTo" src`. Kiểm tra không còn caller cũ thiếu tham số và không còn bản sao logic grantable.
-- [ ] **Step 2:** Chạy tuần tự `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`; ghi exit code và tách riêng warning có sẵn (worker lint, chunk > 500 kB).
-- [ ] **Step 3:** Đi lại khoảnh khắc thành công từ đầu đến cuối trên trình duyệt: tạo → gửi duyệt → duyệt bằng tài khoản khác → chạy → số liệu → thiết bị. Chụp ảnh ở 1440/768/390px.
-- [ ] **Step 4:** Review diff độc lập; xử lý phát hiện thật, chạy lại các check bị ảnh hưởng.
-- [ ] **Step 5:** Ghi kết quả và giới hạn vào plan và tài liệu. Commit `docs: document service package campaigns and verification`. Không push.
+- [x] **Step 1:** `rg -n "buttonDeeplink\(|grantablePackage|appliesTo" src`. Kiểm tra không còn caller cũ thiếu tham số và không còn bản sao logic grantable.
+- [x] **Step 2:** Chạy tuần tự `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`; ghi exit code và tách riêng warning có sẵn (worker lint, chunk > 500 kB).
+- [x] **Step 3:** Đi lại khoảnh khắc thành công từ đầu đến cuối trên trình duyệt: tạo → gửi duyệt → duyệt bằng tài khoản khác → chạy → số liệu → thiết bị. Chụp ảnh ở 1440/768/390px. _(chỉ làm một phần: xem mục Kết quả triển khai.)_
+- [ ] **Step 4:** Review diff độc lập; xử lý phát hiện thật, chạy lại các check bị ảnh hưởng. _(chưa tick: review cuối toàn nhánh chạy sau khi commit tài liệu này.)_
+- [x] **Step 5:** Ghi kết quả và giới hạn vào plan và tài liệu. Commit `docs: document service package campaigns and verification`. Không push.
 
 ## Self-review
 
 - Đối chiếu spec: §4.1 → Task 1/3; §4.2 → Task 1/2/3; §4.3 → Task 3; §4.4 → Task 2/3; §4.5 → Task 2/4; §4.6 → Task 2/4; §4.7 → Task 2/4; §5 → Task 1/2; §6 → Review Focus 2 và Task 2 Step 6; §8 → Task 3–5.
 - Tên dùng nhất quán: `promotedPackageId`/`promoted_package_id`, `excludeActivePackageId`, `PromotedPackage`, `isGrantablePackage`, `countCampaignPurchases`, `buy_service_package`, `campaign_purchase`.
 - Mỗi mục Review Focus có bước kiểm chứng: 1 → T2S6, T4S4; 2 → T2S1/S6; 3 → T3S7; 4 → T1S1, T2S6, T3S7; 5 → T1S1.
+
+## Kết quả triển khai — 28/10/2026
+
+- Task 1–4 xong; Task 5 Step 1, 2, 5 xong và Step 3 làm một phần. Commit trên nhánh `codex/service-catalog`: `e4bc2de`, `028dee2`, `176c07a`, `f321154`, `35566dd`, `30cd32d`, `f0c2ad3`, rồi commit tài liệu này.
+- Quét Step 1 (`rg "buttonDeeplink\(|grantablePackage|appliesTo" src`): `buttonDeeplink` chỉ còn một nơi gọi (MSW, có truyền `promoted_package_id`), tham số mới tuỳ chọn; logic grantable chỉ định nghĩa một lần ở `isGrantablePackage` (store gói), campaign và nhập lô cùng dùng. Còn một điều kiện `group !== 'bundle'` thừa ở bộ lọc `package-options` (đã nằm trong `grantable`), không ảnh hưởng hành vi.
+- `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build` chạy tuần tự: cả bốn exit 0. Warning có sẵn: lint ở `public/mockServiceWorker.js` (unused eslint-disable); build có chunk lớn hơn 500 kB.
+- Assert tạm qua Vite SSR (Task 1–2, không commit): định giá kỳ đầu/kỳ sau và các ràng buộc voucher, CTA/deeplink, `isGrantablePackage`, `countCampaignPurchases`, nguồn `campaign_purchase`. HTTP mock và các assert msw/node ở Task 2/4 bao gồm 422 `package_unavailable`/`invalid_package_offer` và 409 `package_unavailable` khi chạy lại; đường 409 này không bấm qua trình duyệt.
+- Trình duyệt với MSW (đã bấm): ở 1024px, tiếng Anh, tài khoản sales dev — ô chọn gói tải và tìm được; chọn DEMO-BT-2L hiện thẻ gói; voucher 20% xem trước "480.000đ năm đầu / sau đó 600.000đ/năm"; CTA "Buy service package" có sau khi chọn gói; đổi sang DEMO-LD-STD giữ CTA, xoá voucher, hiện "Free" (ưu đãi chuyển sang điểm thưởng, giá trị trống); bỏ gói thì mất CTA và thẻ. Tên gói dài từng tràn sang cột xem trước, đã sửa ở `35566dd` và kiểm lại.
+- `CMP-0009` chi tiết: 3 đơn, doanh thu 1.440.000đ, 3 lượt mua gói, doanh thu gói 1.440.000đ. `KGR-0002` hiện "Mua qua chiến dịch CMP-0009", hiệu lực 21/10/2026–21/10/2027, link mở đúng chiến dịch. Ngừng bán `pkg-demo-clean` qua API trạng thái thì dòng danh sách hiện cảnh báo. Vai trò sales không tạm dừng/chạy lại được (403, đúng kỳ vọng). Ở 390px, danh sách chiến dịch, chi tiết `CMP-0009` và `KGR-0002` không tràn ngang.
+- Chưa làm: không chụp ảnh ở 1440 và 768px (đã xem ở 1024 và 390px); chưa bấm trọn luồng tạo, gửi duyệt, duyệt bằng tài khoản thứ hai, chạy trong trình duyệt; chưa xem giao diện tiếng Anh đầy đủ vì bản dịch EN của chiến dịch mới có nhánh `package`/`button` (phần còn lại và mọi `errors.*` hiển thị tiếng Việt, có từ trước).
+- Review độc lập (Step 4): chưa chạy trong task này; người điều phối chạy review cuối toàn nhánh sau commit tài liệu.
+
+Giới hạn: chỉ là demo frontend + MSW; chưa kiểm tra backend hay app thật và không cam kết đồng bộ app. Deeplink `onekangaroo://service-packages/{id}?device={deviceId}` là hợp đồng đề xuất, app phải đăng ký. Dữ liệu mock tách hai bộ (`DEV-…` cho đối tượng, `KGR-…` cho thiết bị), nên số khách xem trước không liên quan 3 lượt mua seed. Đổi voucher khi thanh toán vẫn thuộc storefront §10. Gói bundle không được quảng cáo. Bản dịch EN chưa đầy đủ. Không push/merge và không đổi ma trận quyền.
