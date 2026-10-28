@@ -1,9 +1,6 @@
 import { Descriptions } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-import type { ModelReference } from '@/core/reference/modelReferenceApi';
-import { formatDate } from '@/shared/lib/format';
-
 import type {
   ServicePackage,
   ServicePackageDraftInput,
@@ -15,11 +12,9 @@ import {
 
 export function ServicePackagePreview({
   input,
-  models,
   packages,
 }: {
   input: ServicePackageDraftInput;
-  models: ModelReference[];
   packages: ServicePackage[];
 }) {
   const { t, i18n } = useTranslation('servicePackages');
@@ -77,19 +72,6 @@ export function ServicePackagePreview({
             key: 'eligible',
             label: t('create.fields.eligibility_description'),
             children: input.eligibilityDescription,
-          },
-          {
-            key: 'models',
-            label: t('create.modelTitle'),
-            children:
-              input.modelScope === 'all'
-                ? t('create.models.all')
-                : input.eligibleModelIds
-                    .map((id) => {
-                      const model = models.find((item) => item.id === id);
-                      return model ? `${model.code} — ${model.name}` : id;
-                    })
-                    .join('; '),
           },
           {
             key: 'price',
@@ -151,15 +133,6 @@ export function ServicePackagePreview({
                 mode: t(`autoAttach.quotaModes.${input.quotaMode}`),
               });
             })(),
-          },
-          {
-            key: 'autoAttach',
-            label: t('autoAttach.sectionTitle'),
-            children: input.autoAttach
-              ? t('autoAttach.fromDate', {
-                  date: formatDate(input.autoAttachFrom),
-                })
-              : t('autoAttach.off'),
           },
           ...Object.entries(input.configuration)
             .filter(([key]) => key !== 'type')

@@ -16,7 +16,6 @@ import {
   type ServicePackageDraftInput,
   type ServicePackageListFilters,
   type ServicePackageStats,
-  type SetPackageAutoAttachInput,
   type SetPackageStatusInput,
 } from '../schemas/servicePackageSchemas';
 
@@ -74,14 +73,12 @@ export async function getServicePackages(
 // Create a new package. It is persisted as a draft; the server assigns the id
 // and timestamps, and rejects a duplicate code.
 export function toServicePackageDraftDto(input: ServicePackageDraftInput) {
-  return servicePackageDraftInputSchema.parse({
+  const payload = {
     service_type_code: input.serviceTypeCode,
     purpose: input.purpose,
     included_items: input.includedItems,
     excluded_items: input.excludedItems,
     eligibility_description: input.eligibilityDescription,
-    model_scope: input.modelScope,
-    eligible_model_ids: input.eligibleModelIds,
     pricing_mode: input.pricingMode,
     pricing_description: input.pricingDescription,
     additional_cost_description: input.additionalCostDescription,
@@ -95,11 +92,10 @@ export function toServicePackageDraftDto(input: ServicePackageDraftInput) {
     term_months: input.termMonths,
     quota_mode: input.quotaMode,
     custom_quota: input.customQuota,
-    auto_attach: input.autoAttach,
-    auto_attach_from: input.autoAttachFrom,
-    eligible_model_count: input.eligibleModelCount,
     description: input.description,
-  });
+  };
+  servicePackageDraftInputSchema.parse(payload);
+  return payload;
 }
 
 export async function createServicePackage(
@@ -146,42 +142,6 @@ export async function setServicePackageStatus(
         },
       ],
     }
-  );
-  const parsed = servicePackageDtoSchema.safeParse(response);
-  if (!parsed.success) throw invalidResponse(parsed.error);
-  return mapServicePackage(parsed.data);
-}
-
-// Toggle auto-attach-on-stock-intake (spec §4.1). Enabling requires an
-// effective date (server rejects a date before today); disabling only needs a
-// reason. The reason and before/after values feed the immutable audit log.
-export async function setServicePackageAutoAttach(
-  servicePackage: ServicePackage,
-  input: SetPackageAutoAttachInput,
-  options?: { idempotencyKey?: string }
-): Promise<ServicePackage> {
-  const response = await apiClient.post<unknown>(
-    '/service-packages/' +
-      encodeURIComponent(servicePackage.id) +
-      '/auto-attach',
-    {
-      enabled: input.enabled,
-      from: input.from,
-      reason: input.reason,
-      changes: [
-        {
-          field: 'auto_attach',
-          before_value: String(servicePackage.autoAttach),
-          after_value: String(input.enabled),
-        },
-        {
-          field: 'auto_attach_from',
-          before_value: servicePackage.autoAttachFrom ?? '',
-          after_value: input.from ?? '',
-        },
-      ],
-    },
-    idempotencyHeaders(options?.idempotencyKey)
   );
   const parsed = servicePackageDtoSchema.safeParse(response);
   if (!parsed.success) throw invalidResponse(parsed.error);

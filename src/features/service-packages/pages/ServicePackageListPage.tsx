@@ -1,5 +1,5 @@
 import { getApiErrorCode } from '@/core/api/error';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import {
   useMutation,
   useQueryClient,
@@ -22,13 +22,8 @@ import {
   PortalStatCard,
 } from '@/shared/components/portal';
 import { PageState } from '@/shared/components/PageState';
-import { randomId } from '@/shared/lib/id';
 
-import {
-  setServicePackageAutoAttach,
-  setServicePackageStatus,
-} from '../api/servicePackageApi';
-import { ServicePackageAutoAttachDialog } from '../components/ServicePackageAutoAttachDialog';
+import { setServicePackageStatus } from '../api/servicePackageApi';
 import { ServicePackageFilters } from '../components/ServicePackageFilters';
 import { ServicePackageStatusDialog } from '../components/ServicePackageStatusDialog';
 import { ServicePackageTable } from '../components/ServicePackageTable';
@@ -52,11 +47,6 @@ const defaultFilters: ServicePackageListFilters = {
 interface StatusTarget {
   servicePackage: ServicePackage;
   status: Extract<PackageStatus, 'active' | 'archived'>;
-}
-
-interface AutoAttachTarget {
-  servicePackage: ServicePackage;
-  mode: 'enable' | 'disable';
 }
 
 export function ServicePackageListPage({
@@ -94,53 +84,6 @@ export function ServicePackageListPage({
       );
     },
   });
-  const [autoAttachTarget, setAutoAttachTarget] =
-    useState<AutoAttachTarget | null>(null);
-  // One key per dialog "attempt" (spec §11): minted the moment the dialog
-  // opens for a given package/mode, reused across a validation-failure
-  // resubmit and a genuine network retry, and replaced the next time the
-  // dialog opens (a new target — same or different package/mode — is a new
-  // operation). `autoAttachMutation`'s `mutationFn` only ever reads it.
-  const autoAttachKeyRef = useRef<string | null>(null);
-  const autoAttachMutation = useMutation({
-    mutationFn: ({
-      servicePackage,
-      mode,
-      from,
-      reason,
-    }: AutoAttachTarget & { from: string | null; reason: string }) =>
-      setServicePackageAutoAttach(
-        servicePackage,
-        { enabled: mode === 'enable', from, reason },
-        { idempotencyKey: autoAttachKeyRef.current ?? randomId() }
-      ),
-    onSuccess: (_result, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: servicePackageQueries.all,
-      });
-      void message.success(
-        variables.mode === 'enable'
-          ? t('autoAttach.dialog.enableSuccess')
-          : t('autoAttach.dialog.disableSuccess')
-      );
-      setAutoAttachTarget(null);
-    },
-    onError: (error) => {
-      const code = getApiErrorCode(error);
-      void message.error(
-        code === 'autoAttachBlocked'
-          ? t('errors.autoAttachBlocked')
-          : code === 'autoAttachFromPast'
-            ? t('errors.autoAttachFromPast')
-            : code === 'noChange'
-              ? t('errors.noChange')
-              : code === 'idempotency_conflict'
-                ? t('errors.idempotencyConflict')
-                : t('errors.statusError')
-      );
-    },
-  });
-
   const updateFilters = (changes: Partial<ServicePackageListFilters>) => {
     void navigate({
       search: (previous) => ({ ...previous, ...changes, page: 1 }),
@@ -150,14 +93,6 @@ export function ServicePackageListPage({
   const handleConfirm = (reason: string) => {
     if (!target) return;
     mutation.mutate({ ...target, reason });
-  };
-
-  const handleAutoAttachConfirm = (values: {
-    from: string | null;
-    reason: string;
-  }) => {
-    if (!autoAttachTarget) return;
-    autoAttachMutation.mutate({ ...autoAttachTarget, ...values });
   };
 
   const isPublish = target?.status === 'active';
@@ -223,15 +158,6 @@ export function ServicePackageListPage({
             onArchive={(servicePackage) =>
               setTarget({ servicePackage, status: 'archived' })
             }
-            onToggleAutoAttach={(servicePackage) => {
-              // A fresh attempt starts here (dialog opening), not inside the
-              // mutation — see `autoAttachKeyRef` above.
-              autoAttachKeyRef.current = randomId();
-              setAutoAttachTarget({
-                servicePackage,
-                mode: servicePackage.autoAttach ? 'disable' : 'enable',
-              });
-            }}
           />
         )}
       </PortalCard>
@@ -255,13 +181,6 @@ export function ServicePackageListPage({
         pending={mutation.isPending}
         onCancel={() => setTarget(null)}
         onConfirm={handleConfirm}
-      />
-      <ServicePackageAutoAttachDialog
-        open={autoAttachTarget !== null}
-        mode={autoAttachTarget?.mode ?? 'enable'}
-        pending={autoAttachMutation.isPending}
-        onCancel={() => setAutoAttachTarget(null)}
-        onConfirm={handleAutoAttachConfirm}
       />
     </div>
   );

@@ -77,8 +77,14 @@ export const servicePackageDetailsSchema = z.object({
   included_items: items,
   excluded_items: z.array(text),
   eligibility_description: text,
-  model_scope: z.enum(['all', 'selected']),
-  eligible_model_ids: z.array(text),
+  model_scope: z
+    .enum(['all', 'selected'])
+    .nullish()
+    .transform((value) => value ?? 'all'),
+  eligible_model_ids: z
+    .array(text)
+    .nullish()
+    .transform((value) => value ?? []),
   pricing_mode: z.enum(['fixed', 'free_or_included', 'quotation']),
   pricing_description: text.nullable(),
   additional_cost_description: text.nullable(),

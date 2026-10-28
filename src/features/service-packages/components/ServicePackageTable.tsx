@@ -1,4 +1,4 @@
-import { Button, Pagination, Space, Table, Tooltip } from 'antd';
+import { Button, Pagination, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 
@@ -15,11 +15,6 @@ import type {
   ServicePackage,
   ServicePackageListFilters,
 } from '../schemas/servicePackageSchemas';
-import {
-  getAutoAttachBlockers,
-  type AutoAttachBlocker,
-} from '../utils/entitlementRules';
-
 const vndFormatter = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
   currency: 'VND',
@@ -33,7 +28,6 @@ export interface ServicePackageTableProps {
   onPageChange: (page: number, pageSize: number) => void;
   onPublish: (servicePackage: ServicePackage) => void;
   onArchive: (servicePackage: ServicePackage) => void;
-  onToggleAutoAttach: (servicePackage: ServicePackage) => void;
 }
 
 export function ServicePackageTable({
@@ -43,7 +37,6 @@ export function ServicePackageTable({
   onPageChange,
   onPublish,
   onArchive,
-  onToggleAutoAttach,
 }: ServicePackageTableProps) {
   const { t } = useTranslation('servicePackages');
 
@@ -58,61 +51,6 @@ export function ServicePackageTable({
         ? t('table.price.perMonth')
         : t('table.price.perMonths', { count: period });
     return `${amount} / ${cadence}`;
-  };
-
-  // The create form (`ServicePackageForm`) already disables its own
-  // auto-attach checkbox when `getAutoAttachBlockers` reports a blocker
-  // (legacy `details: null` packages, priced packages, bundles, packages with
-  // no term, a zero-quota configuration). The table's "Enable auto-attach"
-  // row action must apply the same check — otherwise it offers an action
-  // that is guaranteed to fail server-side with `autoAttachBlocked`. Only
-  // relevant for turning auto-attach ON: "Disable" has no such precondition
-  // and must always stay available for an already-enabled package.
-  const enableAutoAttachBlockers = (
-    servicePackage: ServicePackage
-  ): AutoAttachBlocker[] =>
-    getAutoAttachBlockers({
-      group: servicePackage.group,
-      termMonths: servicePackage.termMonths,
-      quotaMode: servicePackage.quotaMode,
-      customQuota: servicePackage.customQuota,
-      details: servicePackage.details
-        ? {
-            pricingMode: servicePackage.details.pricingMode,
-            configuration: servicePackage.details.configuration,
-          }
-        : null,
-    });
-
-  const autoAttachAction = (servicePackage: ServicePackage) => {
-    const label = servicePackage.autoAttach
-      ? t('autoAttach.actions.disable')
-      : t('autoAttach.actions.enable');
-    if (servicePackage.autoAttach) {
-      return (
-        <Button
-          type="link"
-          size="small"
-          onClick={() => onToggleAutoAttach(servicePackage)}
-        >
-          {label}
-        </Button>
-      );
-    }
-    const blockers = enableAutoAttachBlockers(servicePackage);
-    const blocked = blockers.length > 0;
-    return (
-      <Tooltip title={blocked ? t(`autoAttach.blockers.${blockers[0]}`) : null}>
-        <Button
-          type="link"
-          size="small"
-          disabled={blocked}
-          onClick={() => onToggleAutoAttach(servicePackage)}
-        >
-          {label}
-        </Button>
-      </Tooltip>
-    );
   };
 
   const columns: ColumnsType<ServicePackage> = [
@@ -135,13 +73,6 @@ export function ServicePackageTable({
           {servicePackage.description ? (
             <div className="mt-1 max-w-xs text-xs text-[#9A9B9C]">
               {servicePackage.description}
-            </div>
-          ) : null}
-          {servicePackage.autoAttach ? (
-            <div className="mt-1 text-xs text-emerald-600">
-              {t('autoAttach.tableLabel', {
-                date: formatDate(servicePackage.autoAttachFrom),
-              })}
             </div>
           ) : null}
         </div>
@@ -176,21 +107,6 @@ export function ServicePackageTable({
       render: (_, servicePackage) => (
         <span className="whitespace-nowrap text-sm font-semibold text-[#020204]">
           {priceLabel(servicePackage)}
-        </span>
-      ),
-    },
-    {
-      title: t('table.columns.eligibility'),
-      key: 'eligibility',
-      render: (_, servicePackage) => (
-        <span className="text-xs text-[#636466]">
-          {!servicePackage.details
-            ? t('create.notConfigured')
-            : servicePackage.details.modelScope === 'all'
-              ? t('create.models.all')
-              : t('table.eligibleModels', {
-                  count: servicePackage.details.eligibleModelIds.length,
-                })}
         </span>
       ),
     },
@@ -239,9 +155,6 @@ export function ServicePackageTable({
                 {t('actions.archive')}
               </Button>
             ) : null}
-            {servicePackage.status !== 'archived'
-              ? autoAttachAction(servicePackage)
-              : null}
           </Space>
         </PermissionGuard>
       ),
@@ -291,13 +204,6 @@ export function ServicePackageTable({
                       ? t(`types.${servicePackage.details.serviceTypeCode}`)
                       : t('create.notConfigured')}
                   </div>
-                  {servicePackage.autoAttach ? (
-                    <div className="mt-1 text-xs text-emerald-600">
-                      {t('autoAttach.tableLabel', {
-                        date: formatDate(servicePackage.autoAttachFrom),
-                      })}
-                    </div>
-                  ) : null}
                 </div>
                 <PortalBadge tone={PACKAGE_STATUS_TONE[servicePackage.status]}>
                   {t(`statuses.${servicePackage.status}`)}
@@ -335,9 +241,6 @@ export function ServicePackageTable({
                       {t('actions.archive')}
                     </Button>
                   ) : null}
-                  {servicePackage.status !== 'archived'
-                    ? autoAttachAction(servicePackage)
-                    : null}
                 </div>
               </PermissionGuard>
             </div>

@@ -1,22 +1,9 @@
 import { useRef, useState } from 'react';
-import {
-  Alert,
-  Button,
-  Checkbox,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Radio,
-  Select,
-} from 'antd';
+import { Button, Form, Input, InputNumber, Modal, Radio, Select } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useBlocker } from '@tanstack/react-router';
-import dayjs, { type Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 
-import { modelReferenceQueries } from '@/core/reference/modelReferenceQueries';
 import { ApiError, getApiErrorCode } from '@/core/api/error';
 import { PortalCard } from '@/shared/components/portal';
 
@@ -26,7 +13,6 @@ import {
 } from '../constants/servicePackage';
 import {
   getServiceBillingTypes,
-  MODEL_SCOPES,
   PRICING_MODES,
   SERVICE_PACKAGE_TYPES,
   type ServiceTypeCode,
@@ -42,7 +28,6 @@ import {
 } from '../schemas/servicePackageSchemas';
 import {
   computeEntitlementQuota,
-  getAutoAttachBlockers,
   getEntitlementKind,
 } from '../utils/entitlementRules';
 import {
@@ -51,15 +36,8 @@ import {
 } from './ServicePackageConfigurationFields';
 import { ServicePackagePreview } from './ServicePackagePreview';
 
-// The create-form's local Form values differ from `ServicePackageDraftDto` in
-// one spot: while editing, `auto_attach_from` is a Ant Design `DatePicker`
-// value (a `Dayjs`), not yet the ISO date string the wire schema expects —
-// that conversion happens once, in `review()`, right before validation.
-type ServicePackageFormValues = Omit<
-  Partial<ServicePackageDraftDto>,
-  'auto_attach_from'
-> &
-  Record<string, unknown> & { auto_attach_from?: Dayjs | null };
+type ServicePackageFormValues = Partial<ServicePackageDraftDto> &
+  Record<string, unknown>;
 
 export function ServicePackageForm({
   onSubmit,
@@ -81,7 +59,6 @@ export function ServicePackageForm({
   const saved = useRef(false);
   const saving = useRef(false);
   const [preview, setPreview] = useState<ServicePackageDraftInput | null>(null);
-  const models = useQuery(modelReferenceQueries.list());
   const packages = useQuery({
     ...servicePackageQueries.components(),
     enabled: values.service_type_code === 'TG-ALL',
@@ -112,18 +89,6 @@ export function ServicePackageForm({
         type: type.value,
       } as ServicePackageConfiguration)
     : null;
-  const autoAttachBlockers = type
-    ? getAutoAttachBlockers({
-        group: type.group,
-        termMonths: values.term_months ?? null,
-        quotaMode,
-        customQuota: values.custom_quota ?? null,
-        details: {
-          pricingMode: values.pricing_mode ?? 'fixed',
-          configuration: liveConfiguration as ServicePackageConfiguration,
-        },
-      })
-    : [];
   const computedQuota =
     kind === 'counted' && liveConfiguration
       ? computeEntitlementQuota(
@@ -185,12 +150,6 @@ export function ServicePackageForm({
           ? null
           : (current.billing_period_months ?? null),
       term_months: current.term_months ?? null,
-      eligible_model_ids:
-        current.model_scope === 'all' ? [] : (current.eligible_model_ids ?? []),
-      eligible_model_count:
-        current.model_scope === 'all'
-          ? (models.data?.length ?? 0)
-          : (current.eligible_model_ids?.length ?? 0),
       excluded_items: current.excluded_items ?? [],
       description: current.description?.trim() || null,
       pricing_description: current.pricing_description?.trim() || null,
@@ -199,10 +158,6 @@ export function ServicePackageForm({
       quota_mode: current.quota_mode ?? 'default',
       custom_quota:
         current.quota_mode === 'custom' ? (current.custom_quota ?? null) : null,
-      auto_attach: Boolean(current.auto_attach),
-      auto_attach_from: current.auto_attach
-        ? (current.auto_attach_from?.format('YYYY-MM-DD') ?? null)
-        : null,
     });
     if (!parsed.success) {
       const fields = parsed.error.issues.map((issue) => ({
@@ -255,17 +210,6 @@ export function ServicePackageForm({
         layout="vertical"
         onValuesChange={(changed: Partial<ServicePackageFormValues>) => {
           setDirty(true);
-          if ('auto_attach' in changed) {
-            if (
-              changed.auto_attach &&
-              !form.getFieldValue('auto_attach_from')
-            ) {
-              form.setFieldValue('auto_attach_from', dayjs());
-            }
-            if (!changed.auto_attach) {
-              form.setFieldValue('auto_attach_from', null);
-            }
-          }
           if ('quota_mode' in changed && changed.quota_mode === 'default') {
             form.setFieldValue('custom_quota', null);
           }
@@ -398,6 +342,7 @@ export function ServicePackageForm({
                     </Form.Item>
                   </div>
                   {text('purpose')}
+                  {text('eligibility_description')}
                   <Form.Item
                     name="description"
                     label={t('form.descriptionLabel')}
@@ -413,68 +358,6 @@ export function ServicePackageForm({
                     label={t('create.fields.excluded_items')}
                     required={false}
                   />
-                </PortalCard>
-                <PortalCard
-                  title={
-                    <h2 className="m-0 text-base font-semibold">
-                      {t('create.modelTitle')}
-                    </h2>
-                  }
-                >
-                  {text('eligibility_description')}
-                  <Form.Item
-                    name="model_scope"
-                    label={t('create.modelScopeLabel')}
-                    rules={[{ required: true, message: t('create.required') }]}
-                  >
-                    <Radio.Group
-                      options={MODEL_SCOPES.map((item) => ({
-                        value: item.value,
-                        label: t(item.labelKey),
-                      }))}
-                    />
-                  </Form.Item>
-                  {models.isError ? (
-                    <Alert
-                      type="error"
-                      title={t('create.modelError')}
-                      action={
-                        <Button onClick={() => void models.refetch()}>
-                          {t('create.retry')}
-                        </Button>
-                      }
-                    />
-                  ) : null}
-                  {values.model_scope === 'all' ? (
-                    <p className="text-sm text-slate-500">
-                      {t('create.allModelsHint')}
-                    </p>
-                  ) : values.model_scope === 'selected' ? (
-                    <Form.Item
-                      name="eligible_model_ids"
-                      label={t('create.selectModels')}
-                      rules={[
-                        {
-                          required: true,
-                          type: 'array',
-                          min: 1,
-                          message: t('create.required'),
-                        },
-                      ]}
-                    >
-                      <Select
-                        mode="multiple"
-                        showSearch
-                        optionFilterProp="label"
-                        loading={models.isPending}
-                        disabled={models.isError}
-                        options={models.data?.map((model) => ({
-                          value: model.id,
-                          label: `${model.code} — ${model.name}`,
-                        }))}
-                      />
-                    </Form.Item>
-                  ) : null}
                 </PortalCard>
                 <PortalCard
                   title={
@@ -593,7 +476,7 @@ export function ServicePackageForm({
                 <PortalCard
                   title={
                     <h2 className="m-0 text-base font-semibold">
-                      {t('autoAttach.sectionTitle')}
+                      {t('autoAttach.quotaModeLabel')}
                     </h2>
                   }
                 >
@@ -638,36 +521,6 @@ export function ServicePackageForm({
                       ) : null}
                     </>
                   ) : null}
-                  <Form.Item
-                    name="auto_attach"
-                    valuePropName="checked"
-                    className="mb-1"
-                  >
-                    <Checkbox disabled={autoAttachBlockers.length > 0}>
-                      {t('autoAttach.checkboxLabel')}
-                    </Checkbox>
-                  </Form.Item>
-                  {autoAttachBlockers.length > 0 ? (
-                    <p className="mt-0 text-sm text-amber-600">
-                      {t(`autoAttach.blockers.${autoAttachBlockers[0]}`)}
-                    </p>
-                  ) : values.auto_attach ? (
-                    <Form.Item
-                      name="auto_attach_from"
-                      label={t('autoAttach.effectiveDateLabel')}
-                      rules={[
-                        { required: true, message: t('create.required') },
-                      ]}
-                    >
-                      <DatePicker
-                        className="w-full"
-                        format="DD/MM/YYYY"
-                        disabledDate={(current) =>
-                          !!current && current.isBefore(dayjs(), 'day')
-                        }
-                      />
-                    </Form.Item>
-                  ) : null}
                 </PortalCard>
               </>
             ) : null}
@@ -684,12 +537,7 @@ export function ServicePackageForm({
                 <p className="text-sm">{t(`groups.${type.group}`)}</p>
               ) : null}
               <p className="text-sm text-slate-500">{t('create.draftHint')}</p>
-              <Button
-                htmlType="submit"
-                type="primary"
-                block
-                disabled={!type || models.isPending || models.isError}
-              >
+              <Button htmlType="submit" type="primary" block disabled={!type}>
                 {t('create.review')}
               </Button>
               <Button
@@ -730,7 +578,6 @@ export function ServicePackageForm({
         {preview ? (
           <ServicePackagePreview
             input={preview}
-            models={models.data ?? []}
             packages={packages.data ?? []}
           />
         ) : null}

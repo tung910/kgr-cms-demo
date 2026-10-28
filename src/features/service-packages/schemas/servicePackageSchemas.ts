@@ -5,10 +5,7 @@ import {
   getServiceBillingTypes,
   type ServiceTypeCode,
 } from '../constants/servicePackageTypes';
-import {
-  getAutoAttachBlockers,
-  getEntitlementKind,
-} from '../utils/entitlementRules';
+import { getEntitlementKind } from '../utils/entitlementRules';
 import {
   servicePackageDetailsSchema,
   type ServicePackageConfiguration,
@@ -116,7 +113,7 @@ export const servicePackageDtoSchema = z
     custom_quota: z.number().int().positive().nullish(),
     auto_attach: z.boolean().nullish(),
     auto_attach_from: z.string().date().nullish(),
-    eligible_model_count: z.number().int().nonnegative(),
+    eligible_model_count: z.number().int().nonnegative().default(0),
     description: z.string().nullable(),
     updated_at: z.string().datetime({ offset: true }),
   })
@@ -204,7 +201,7 @@ export const servicePackageDraftInputSchema = z
     custom_quota: z.number().int().positive().nullable().default(null),
     auto_attach: z.boolean().default(false),
     auto_attach_from: z.string().date().nullable().default(null),
-    eligible_model_count: z.number().int().nonnegative(),
+    eligible_model_count: z.number().int().nonnegative().default(0),
     description: z.string().trim().min(1).nullable(),
   })
   .extend(servicePackageDetailsSchema.shape)
@@ -238,14 +235,6 @@ export const servicePackageDraftInputSchema = z
         : value.billing_period_months === null
     )
       issue('billing_period_months', 'billingPeriod');
-    if (value.model_scope === 'selected' && !value.eligible_model_ids.length)
-      issue('eligible_model_ids', 'required');
-    if (value.model_scope === 'all' && value.eligible_model_ids.length)
-      issue('eligible_model_ids', 'allModels');
-    if (
-      new Set(value.eligible_model_ids).size !== value.eligible_model_ids.length
-    )
-      issue('eligible_model_ids', 'duplicate');
     if (
       ['BH-EXT', 'BH-ADP', 'BH-CMP', 'BT-CLN', 'TG-ALL', 'TG-SUB'].includes(
         value.service_type_code
@@ -281,25 +270,6 @@ export const servicePackageDraftInputSchema = z
       if (value.quota_mode === 'default' && value.custom_quota !== null)
         issue('custom_quota', 'quotaNotAllowed');
     }
-
-    // §4.1: auto-attach requires an effective date and every blocker clear.
-    if (value.auto_attach) {
-      if (!value.auto_attach_from)
-        issue('auto_attach_from', 'autoAttachRequiresDate');
-      const blockers = getAutoAttachBlockers({
-        group: value.group,
-        termMonths: value.term_months,
-        quotaMode: value.quota_mode,
-        customQuota: value.custom_quota,
-        details: {
-          pricingMode: value.pricing_mode,
-          configuration: value.configuration,
-        },
-      });
-      if (blockers.length > 0) issue('auto_attach', 'autoAttachBlocked');
-    } else if (value.auto_attach_from !== null) {
-      issue('auto_attach_from', 'autoAttachDateNotAllowed');
-    }
   });
 
 export type ServicePackageDraftDto = z.infer<
@@ -323,24 +293,3 @@ export const packageStatusMutationSchema = z.object({
   reason: z.string().trim().min(1),
   changes: z.array(packageAuditChangeSchema).min(1),
 });
-
-// Toggle auto-attach-on-stock-intake (§4.1). Enabling requires an effective
-// date; disabling ignores whatever `from` is sent (always cleared server-side).
-export interface SetPackageAutoAttachInput {
-  enabled: boolean;
-  from: string | null;
-  reason: string;
-}
-
-export const packageAutoAttachMutationSchema = z
-  .object({
-    enabled: z.boolean(),
-    from: z.string().date().nullable(),
-    reason: z.string().trim().min(1),
-    changes: z.array(packageAuditChangeSchema).min(1),
-  })
-  .superRefine((value, ctx) => {
-    if (value.enabled && !value.from) {
-      ctx.addIssue({ code: 'custom', path: ['from'], message: 'required' });
-    }
-  });
