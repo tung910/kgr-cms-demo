@@ -6,6 +6,10 @@ import {
   type ServiceTypeCode,
 } from '../constants/servicePackageTypes';
 import {
+  getAutoAttachBlockers,
+  getEntitlementKind,
+} from '../utils/entitlementRules';
+import {
   servicePackageDetailsSchema,
   type ServicePackageConfiguration,
 } from './servicePackageConfiguration';
@@ -38,6 +42,11 @@ export type BillingType = z.infer<typeof billingTypeSchema>;
 // `active` is published to the app/storefront, `archived` is retired.
 export const packageStatusSchema = z.enum(['draft', 'active', 'archived']);
 export type PackageStatus = z.infer<typeof packageStatusSchema>;
+
+// §5.1: a package's entitlement quota is either the default formula
+// (entitlementRules.computeEntitlementQuota) or a fixed `customQuota`.
+export const quotaModeSchema = z.enum(['default', 'custom']);
+export type QuotaMode = z.infer<typeof quotaModeSchema>;
 
 export interface ServicePackageListFilters {
   search: string;
@@ -76,6 +85,15 @@ export interface ServicePackage {
   billingPeriodMonths: number | null;
   // Contract/coverage length (warranty extension, rental term); null if n/a.
   termMonths: number | null;
+  // §5.1 quota override: 'custom' uses `customQuota` instead of the default
+  // formula. `customQuota` is a positive integer when `quotaMode = 'custom'`,
+  // otherwise null.
+  quotaMode: QuotaMode;
+  customQuota: number | null;
+  // §4.1 auto-attach-on-stock-intake config. `autoAttachFrom` is an ISO date
+  // (no time component); null unless `autoAttach` is true.
+  autoAttach: boolean;
+  autoAttachFrom: string | null;
   // How many product models this package may be attached to (eligibility map).
   eligibleModelCount: number;
   description: string | null;
@@ -93,6 +111,11 @@ export const servicePackageDtoSchema = z
     price: z.number().int().nonnegative().nullable(),
     billing_period_months: z.number().int().positive().nullable(),
     term_months: z.number().int().positive().nullable(),
+    // Old records predate these fields; nullish → default/null (spec §11).
+    quota_mode: quotaModeSchema.nullish(),
+    custom_quota: z.number().int().positive().nullish(),
+    auto_attach: z.boolean().nullish(),
+    auto_attach_from: z.string().date().nullish(),
     eligible_model_count: z.number().int().nonnegative(),
     description: z.string().nullable(),
     updated_at: z.string().datetime({ offset: true }),
@@ -152,6 +175,10 @@ export interface ServicePackageDraftInput extends ServicePackageDetails {
   price: number | null;
   billingPeriodMonths: number | null;
   termMonths: number | null;
+  quotaMode: QuotaMode;
+  customQuota: number | null;
+  autoAttach: boolean;
+  autoAttachFrom: string | null;
   eligibleModelCount: number;
   description: string | null;
 }
@@ -169,6 +196,14 @@ export const servicePackageDraftInputSchema = z
     price: z.number().int().nonnegative().nullable(),
     billing_period_months: z.number().int().positive().nullable(),
     term_months: z.number().int().positive().nullable(),
+    // `.default(...)` (not strictly required) so this schema can still
+    // re-validate pre-existing packages created before these fields existed
+    // (see the publish-transition `configurationRequired` check below, which
+    // reuses this same schema against already-stored DTOs).
+    quota_mode: quotaModeSchema.default('default'),
+    custom_quota: z.number().int().positive().nullable().default(null),
+    auto_attach: z.boolean().default(false),
+    auto_attach_from: z.string().date().nullable().default(null),
     eligible_model_count: z.number().int().nonnegative(),
     description: z.string().trim().min(1).nullable(),
   })
@@ -230,6 +265,41 @@ export const servicePackageDraftInputSchema = z
         value.configuration.packages.length
     )
       issue(['configuration', 'packages'], 'duplicate');
+
+    // §5.1: quota customization applies only to one_time/counted kinds;
+    // time_only (and bundle, which has no entitlement kind of its own) must
+    // stay on the default/null pair.
+    const kind = getEntitlementKind(value.service_type_code);
+    if (kind === 'time_only' || kind === null) {
+      if (value.quota_mode !== 'default')
+        issue('quota_mode', 'timeOnlyQuotaMode');
+      if (value.custom_quota !== null)
+        issue('custom_quota', 'timeOnlyQuotaMode');
+    } else {
+      if (value.quota_mode === 'custom' && value.custom_quota === null)
+        issue('custom_quota', 'quotaRequired');
+      if (value.quota_mode === 'default' && value.custom_quota !== null)
+        issue('custom_quota', 'quotaNotAllowed');
+    }
+
+    // §4.1: auto-attach requires an effective date and every blocker clear.
+    if (value.auto_attach) {
+      if (!value.auto_attach_from)
+        issue('auto_attach_from', 'autoAttachRequiresDate');
+      const blockers = getAutoAttachBlockers({
+        group: value.group,
+        termMonths: value.term_months,
+        quotaMode: value.quota_mode,
+        customQuota: value.custom_quota,
+        details: {
+          pricingMode: value.pricing_mode,
+          configuration: value.configuration,
+        },
+      });
+      if (blockers.length > 0) issue('auto_attach', 'autoAttachBlocked');
+    } else if (value.auto_attach_from !== null) {
+      issue('auto_attach_from', 'autoAttachDateNotAllowed');
+    }
   });
 
 export type ServicePackageDraftDto = z.infer<
@@ -253,3 +323,24 @@ export const packageStatusMutationSchema = z.object({
   reason: z.string().trim().min(1),
   changes: z.array(packageAuditChangeSchema).min(1),
 });
+
+// Toggle auto-attach-on-stock-intake (§4.1). Enabling requires an effective
+// date; disabling ignores whatever `from` is sent (always cleared server-side).
+export interface SetPackageAutoAttachInput {
+  enabled: boolean;
+  from: string | null;
+  reason: string;
+}
+
+export const packageAutoAttachMutationSchema = z
+  .object({
+    enabled: z.boolean(),
+    from: z.string().date().nullable(),
+    reason: z.string().trim().min(1),
+    changes: z.array(packageAuditChangeSchema).min(1),
+  })
+  .superRefine((value, ctx) => {
+    if (value.enabled && !value.from) {
+      ctx.addIssue({ code: 'custom', path: ['from'], message: 'required' });
+    }
+  });

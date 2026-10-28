@@ -130,7 +130,51 @@
     "duplicateCode": "Mã gói đã tồn tại.",
     "statusError": "Không thể cập nhật trạng thái gói dịch vụ.",
     "createError": "Không thể tạo gói dịch vụ.",
-    "configurationRequired": "Gói chưa đủ cấu hình để phát hành. Bản ghi cũ cần được bổ sung trước khi mở bán."
+    "configurationRequired": "Gói chưa đủ cấu hình để phát hành. Bản ghi cũ cần được bổ sung trước khi mở bán.",
+    "autoAttachBlocked": "Gói chưa đủ điều kiện để bật tự động gắn.",
+    "autoAttachFromPast": "Ngày hiệu lực không được trước hôm nay.",
+    "idempotencyConflict": "Thao tác này đã được gửi với nội dung khác trước đó. Vui lòng tải lại trang và thử lại."
+  },
+  "autoAttach": {
+    "sectionTitle": "Tự động gắn khi nhập kho",
+    "checkboxLabel": "Bật tự động gắn khi nhập kho",
+    "effectiveDateLabel": "Ngày hiệu lực",
+    "blockers": {
+      "pricing": "Chỉ áp dụng cho gói miễn phí/đã gộp giá.",
+      "incomplete": "Gói chưa cấu hình đầy đủ.",
+      "bundle": "Gói kết hợp (bundle) chưa hỗ trợ tự động gắn.",
+      "term": "Gói cần có thời hạn áp dụng xác định.",
+      "zeroQuota": "Số lượt tính được bằng 0 nên không thể tự động gắn."
+    },
+    "fromDate": "Tự gắn từ {{date}}",
+    "off": "Không tự gắn",
+    "tableLabel": "Tự gắn từ {{date}}",
+    "quotaModeLabel": "Cách tính số lượt",
+    "quotaModes": {
+      "default": "Mặc định theo công thức",
+      "custom": "Tùy chỉnh"
+    },
+    "customQuotaLabel": "Số lượt tùy chỉnh",
+    "quotaPreview": "Mỗi máy nhận {{count}} lượt",
+    "quotaResultLabel": "Số lượt cấp",
+    "quotaResultValue": "{{count}} lượt ({{mode}})",
+    "quotaNotApplicable": "Không áp dụng (quyền lợi chỉ tính theo thời hạn)",
+    "actions": {
+      "enable": "Bật tự gắn",
+      "disable": "Tắt tự gắn"
+    },
+    "dialog": {
+      "enableTitle": "Bật tự động gắn khi nhập kho",
+      "disableTitle": "Tắt tự động gắn khi nhập kho",
+      "enableWarning": "Máy mới đồng bộ từ ngày hiệu lực sẽ tự nhận gói này. Máy đã nằm kho trước ngày hiệu lực không được gắn bù tự động.",
+      "disableWarning": "Máy mới đồng bộ sau khi tắt sẽ không còn tự nhận gói này. Máy đã được gắn trước đó vẫn giữ nguyên.",
+      "dateLabel": "Ngày hiệu lực",
+      "pastDate": "Ngày hiệu lực không được trước hôm nay.",
+      "confirmEnable": "Bật tự gắn",
+      "confirmDisable": "Tắt tự gắn",
+      "enableSuccess": "Đã bật tự động gắn khi nhập kho.",
+      "disableSuccess": "Đã tắt tự động gắn khi nhập kho."
+    }
   },
   "create": {
     "description": "Cấu hình nội dung khách hàng nhận được, điều kiện sử dụng và cách tính giá.",
@@ -239,7 +283,13 @@
       "subscriptionRequired": "Loại này sử dụng hình thức thuê bao.",
       "oneTimeRequired": "Loại này sử dụng hình thức thu phí một lần.",
       "recurringRequired": "Loại này sử dụng hình thức thu phí định kỳ.",
-      "billingType": "Hình thức thu phí không phù hợp loại dịch vụ."
+      "billingType": "Hình thức thu phí không phù hợp loại dịch vụ.",
+      "timeOnlyQuotaMode": "Loại dịch vụ này không hỗ trợ tùy chỉnh số lượt.",
+      "quotaRequired": "Nhập số lượt tùy chỉnh.",
+      "quotaNotAllowed": "Chỉ nhập số lượt khi chọn cách tính 'Tùy chỉnh'.",
+      "autoAttachRequiresDate": "Chọn ngày hiệu lực khi bật tự động gắn.",
+      "autoAttachBlocked": "Gói chưa đủ điều kiện để bật tự động gắn.",
+      "autoAttachDateNotAllowed": "Chỉ nhập ngày hiệu lực khi bật tự động gắn."
     },
     "models": {
       "all": "Mọi model",

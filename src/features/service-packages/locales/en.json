@@ -130,7 +130,51 @@
     "duplicateCode": "That package code already exists.",
     "statusError": "Could not update the package status.",
     "createError": "Could not create the service package.",
-    "configurationRequired": "This package is not configured for publication. Legacy records require configuration before publishing."
+    "configurationRequired": "This package is not configured for publication. Legacy records require configuration before publishing.",
+    "autoAttachBlocked": "This package is not eligible for auto-attach yet.",
+    "autoAttachFromPast": "The effective date cannot be before today.",
+    "idempotencyConflict": "This action was already submitted with different content. Please reload the page and try again."
+  },
+  "autoAttach": {
+    "sectionTitle": "Auto-attach on stock intake",
+    "checkboxLabel": "Enable auto-attach on stock intake",
+    "effectiveDateLabel": "Effective date",
+    "blockers": {
+      "pricing": "Only free or included-price packages are eligible.",
+      "incomplete": "The package is not fully configured yet.",
+      "bundle": "Bundle packages do not support auto-attach yet.",
+      "term": "The package needs a defined applicable term.",
+      "zeroQuota": "The computed quota is zero, so auto-attach is not allowed."
+    },
+    "fromDate": "Auto-attach from {{date}}",
+    "off": "Not auto-attached",
+    "tableLabel": "Auto-attach from {{date}}",
+    "quotaModeLabel": "Quota calculation",
+    "quotaModes": {
+      "default": "Default formula",
+      "custom": "Custom"
+    },
+    "customQuotaLabel": "Custom quota",
+    "quotaPreview": "Each device gets {{count}} uses",
+    "quotaResultLabel": "Granted quota",
+    "quotaResultValue": "{{count}} uses ({{mode}})",
+    "quotaNotApplicable": "Not applicable (term-only benefit)",
+    "actions": {
+      "enable": "Enable auto-attach",
+      "disable": "Disable auto-attach"
+    },
+    "dialog": {
+      "enableTitle": "Enable auto-attach on stock intake",
+      "disableTitle": "Disable auto-attach on stock intake",
+      "enableWarning": "Devices synced on or after the effective date will automatically receive this package. Devices already in stock before that date are not attached retroactively.",
+      "disableWarning": "Devices synced after this is turned off will no longer receive this package automatically. Devices already attached keep it.",
+      "dateLabel": "Effective date",
+      "pastDate": "The effective date cannot be before today.",
+      "confirmEnable": "Enable auto-attach",
+      "confirmDisable": "Disable auto-attach",
+      "enableSuccess": "Auto-attach on stock intake enabled.",
+      "disableSuccess": "Auto-attach on stock intake disabled."
+    }
   },
   "create": {
     "description": "Configure what customers receive, eligibility and pricing.",
@@ -239,7 +283,13 @@
       "subscriptionRequired": "This type requires subscription billing.",
       "oneTimeRequired": "This type requires one-time billing.",
       "recurringRequired": "This type requires recurring billing.",
-      "billingType": "The billing method does not match the service type."
+      "billingType": "The billing method does not match the service type.",
+      "timeOnlyQuotaMode": "This service type does not support a custom quota.",
+      "quotaRequired": "Enter a custom quota.",
+      "quotaNotAllowed": "Only enter a quota when using the 'Custom' calculation.",
+      "autoAttachRequiresDate": "Choose an effective date to enable auto-attach.",
+      "autoAttachBlocked": "This package is not eligible for auto-attach yet.",
+      "autoAttachDateNotAllowed": "An effective date is only used when auto-attach is enabled."
     },
     "models": {
       "all": "All models",

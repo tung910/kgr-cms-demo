@@ -2,10 +2,16 @@ import { Descriptions } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import type { ModelReference } from '@/core/reference/modelReferenceApi';
+import { formatDate } from '@/shared/lib/format';
+
 import type {
   ServicePackage,
   ServicePackageDraftInput,
 } from '../schemas/servicePackageSchemas';
+import {
+  computeEntitlementQuota,
+  getEntitlementKind,
+} from '../utils/entitlementRules';
 
 export function ServicePackagePreview({
   input,
@@ -126,6 +132,34 @@ export function ServicePackagePreview({
             children: input.termMonths
               ? t('table.term.months', { count: input.termMonths })
               : t('create.notApplicable'),
+          },
+          {
+            key: 'quota',
+            label: t('autoAttach.quotaResultLabel'),
+            children: (() => {
+              const kind = getEntitlementKind(input.serviceTypeCode);
+              if (kind === null || kind === 'time_only')
+                return t('autoAttach.quotaNotApplicable');
+              const quota = computeEntitlementQuota(
+                input.configuration,
+                input.termMonths,
+                input.quotaMode,
+                input.customQuota
+              );
+              return t('autoAttach.quotaResultValue', {
+                count: quota ?? 0,
+                mode: t(`autoAttach.quotaModes.${input.quotaMode}`),
+              });
+            })(),
+          },
+          {
+            key: 'autoAttach',
+            label: t('autoAttach.sectionTitle'),
+            children: input.autoAttach
+              ? t('autoAttach.fromDate', {
+                  date: formatDate(input.autoAttachFrom),
+                })
+              : t('autoAttach.off'),
           },
           ...Object.entries(input.configuration)
             .filter(([key]) => key !== 'type')

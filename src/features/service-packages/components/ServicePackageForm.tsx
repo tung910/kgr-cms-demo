@@ -2,6 +2,8 @@ import { useRef, useState } from 'react';
 import {
   Alert,
   Button,
+  Checkbox,
+  DatePicker,
   Form,
   Input,
   InputNumber,
@@ -11,6 +13,7 @@ import {
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useBlocker } from '@tanstack/react-router';
+import dayjs, { type Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 
 import { modelReferenceQueries } from '@/core/reference/modelReferenceQueries';
@@ -30,16 +33,33 @@ import {
 } from '../constants/servicePackageTypes';
 import { mapServicePackageDraftInput } from '../api/servicePackageMapper';
 import { servicePackageQueries } from '../queries/servicePackageQueries';
+import type { ServicePackageConfiguration } from '../schemas/servicePackageConfiguration';
 import {
   servicePackageDraftInputSchema,
+  type QuotaMode,
   type ServicePackageDraftDto,
   type ServicePackageDraftInput,
 } from '../schemas/servicePackageSchemas';
+import {
+  computeEntitlementQuota,
+  getAutoAttachBlockers,
+  getEntitlementKind,
+} from '../utils/entitlementRules';
 import {
   ServicePackageConfigurationFields,
   ServicePackageTextList,
 } from './ServicePackageConfigurationFields';
 import { ServicePackagePreview } from './ServicePackagePreview';
+
+// The create-form's local Form values differ from `ServicePackageDraftDto` in
+// one spot: while editing, `auto_attach_from` is a Ant Design `DatePicker`
+// value (a `Dayjs`), not yet the ISO date string the wire schema expects —
+// that conversion happens once, in `review()`, right before validation.
+type ServicePackageFormValues = Omit<
+  Partial<ServicePackageDraftDto>,
+  'auto_attach_from'
+> &
+  Record<string, unknown> & { auto_attach_from?: Dayjs | null };
 
 export function ServicePackageForm({
   onSubmit,
@@ -51,11 +71,9 @@ export function ServicePackageForm({
   isSubmitting: boolean;
 }) {
   const { t } = useTranslation('servicePackages');
-  const [form] = Form.useForm<
-    Partial<ServicePackageDraftDto> & Record<string, unknown>
-  >();
+  const [form] = Form.useForm<ServicePackageFormValues>();
   const values =
-    Form.useWatch<Partial<ServicePackageDraftDto>>([], {
+    Form.useWatch<ServicePackageFormValues>([], {
       form,
       preserve: true,
     }) ?? {};
@@ -86,6 +104,35 @@ export function ServicePackageForm({
   const type = SERVICE_PACKAGE_TYPES.find(
     (item) => item.value === values.service_type_code
   );
+  const kind = type ? getEntitlementKind(type.value) : null;
+  const quotaMode: QuotaMode = (values.quota_mode as QuotaMode) ?? 'default';
+  const liveConfiguration = type
+    ? ({
+        ...(values.configuration as object),
+        type: type.value,
+      } as ServicePackageConfiguration)
+    : null;
+  const autoAttachBlockers = type
+    ? getAutoAttachBlockers({
+        group: type.group,
+        termMonths: values.term_months ?? null,
+        quotaMode,
+        customQuota: values.custom_quota ?? null,
+        details: {
+          pricingMode: values.pricing_mode ?? 'fixed',
+          configuration: liveConfiguration as ServicePackageConfiguration,
+        },
+      })
+    : [];
+  const computedQuota =
+    kind === 'counted' && liveConfiguration
+      ? computeEntitlementQuota(
+          liveConfiguration,
+          values.term_months ?? null,
+          quotaMode,
+          values.custom_quota ?? null
+        )
+      : null;
   const required = [
     { required: true, whitespace: true, message: t('create.required') },
   ];
@@ -149,6 +196,13 @@ export function ServicePackageForm({
       pricing_description: current.pricing_description?.trim() || null,
       additional_cost_description:
         current.additional_cost_description?.trim() || null,
+      quota_mode: current.quota_mode ?? 'default',
+      custom_quota:
+        current.quota_mode === 'custom' ? (current.custom_quota ?? null) : null,
+      auto_attach: Boolean(current.auto_attach),
+      auto_attach_from: current.auto_attach
+        ? (current.auto_attach_from?.format('YYYY-MM-DD') ?? null)
+        : null,
     });
     if (!parsed.success) {
       const fields = parsed.error.issues.map((issue) => ({
@@ -199,13 +253,33 @@ export function ServicePackageForm({
       <Form
         form={form}
         layout="vertical"
-        onValuesChange={() => setDirty(true)}
+        onValuesChange={(changed: Partial<ServicePackageFormValues>) => {
+          setDirty(true);
+          if ('auto_attach' in changed) {
+            if (
+              changed.auto_attach &&
+              !form.getFieldValue('auto_attach_from')
+            ) {
+              form.setFieldValue('auto_attach_from', dayjs());
+            }
+            if (!changed.auto_attach) {
+              form.setFieldValue('auto_attach_from', null);
+            }
+          }
+          if ('quota_mode' in changed && changed.quota_mode === 'default') {
+            form.setFieldValue('custom_quota', null);
+          }
+        }}
         onFinish={review}
         scrollToFirstError
         initialValues={{
           included_items: [''],
           excluded_items: [],
           pricing_mode: 'fixed',
+          quota_mode: 'default',
+          custom_quota: null,
+          auto_attach: false,
+          auto_attach_from: null,
         }}
         disabled={isSubmitting}
       >
@@ -258,6 +332,10 @@ export function ServicePackageForm({
                       billing_type: billing,
                       billing_period_months: null,
                       term_months: null,
+                      quota_mode: 'default',
+                      custom_quota: null,
+                      auto_attach: false,
+                      auto_attach_from: null,
                     });
                     form.setFields(
                       form
@@ -511,6 +589,85 @@ export function ServicePackageForm({
                     error={packages.isError}
                     onRetry={() => void packages.refetch()}
                   />
+                </PortalCard>
+                <PortalCard
+                  title={
+                    <h2 className="m-0 text-base font-semibold">
+                      {t('autoAttach.sectionTitle')}
+                    </h2>
+                  }
+                >
+                  {kind === 'one_time' || kind === 'counted' ? (
+                    <>
+                      <Form.Item
+                        name="quota_mode"
+                        label={t('autoAttach.quotaModeLabel')}
+                      >
+                        <Radio.Group
+                          options={[
+                            {
+                              value: 'default',
+                              label: t('autoAttach.quotaModes.default'),
+                            },
+                            {
+                              value: 'custom',
+                              label: t('autoAttach.quotaModes.custom'),
+                            },
+                          ]}
+                        />
+                      </Form.Item>
+                      {values.quota_mode === 'custom' ? (
+                        <Form.Item
+                          name="custom_quota"
+                          label={t('autoAttach.customQuotaLabel')}
+                          rules={numericRequired}
+                        >
+                          <InputNumber
+                            min={1}
+                            precision={0}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                      ) : null}
+                      {kind === 'counted' ? (
+                        <p className="text-sm text-slate-500">
+                          {t('autoAttach.quotaPreview', {
+                            count: computedQuota ?? 0,
+                          })}
+                        </p>
+                      ) : null}
+                    </>
+                  ) : null}
+                  <Form.Item
+                    name="auto_attach"
+                    valuePropName="checked"
+                    className="mb-1"
+                  >
+                    <Checkbox disabled={autoAttachBlockers.length > 0}>
+                      {t('autoAttach.checkboxLabel')}
+                    </Checkbox>
+                  </Form.Item>
+                  {autoAttachBlockers.length > 0 ? (
+                    <p className="mt-0 text-sm text-amber-600">
+                      {t(`autoAttach.blockers.${autoAttachBlockers[0]}`)}
+                    </p>
+                  ) : values.auto_attach ? (
+                    <Form.Item
+                      name="auto_attach_from"
+                      label={t('autoAttach.effectiveDateLabel')}
+                      rules={[
+                        { required: true, message: t('create.required') },
+                      ]}
+                    >
+                      <DatePicker
+                        className="w-full"
+                        format="DD/MM/YYYY"
+                        disabledDate={(current) =>
+                          !!current && current.isBefore(dayjs(), 'day')
+                        }
+                      />
+                    </Form.Item>
+                  ) : null}
                 </PortalCard>
               </>
             ) : null}

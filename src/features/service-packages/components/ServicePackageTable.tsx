@@ -29,6 +29,7 @@ export interface ServicePackageTableProps {
   onPageChange: (page: number, pageSize: number) => void;
   onPublish: (servicePackage: ServicePackage) => void;
   onArchive: (servicePackage: ServicePackage) => void;
+  onToggleAutoAttach: (servicePackage: ServicePackage) => void;
 }
 
 export function ServicePackageTable({
@@ -38,6 +39,7 @@ export function ServicePackageTable({
   onPageChange,
   onPublish,
   onArchive,
+  onToggleAutoAttach,
 }: ServicePackageTableProps) {
   const { t } = useTranslation('servicePackages');
 
@@ -74,6 +76,13 @@ export function ServicePackageTable({
           {servicePackage.description ? (
             <div className="mt-1 max-w-xs text-xs text-[#9A9B9C]">
               {servicePackage.description}
+            </div>
+          ) : null}
+          {servicePackage.autoAttach ? (
+            <div className="mt-1 text-xs text-emerald-600">
+              {t('autoAttach.tableLabel', {
+                date: formatDate(servicePackage.autoAttachFrom),
+              })}
             </div>
           ) : null}
         </div>
@@ -171,6 +180,17 @@ export function ServicePackageTable({
                 {t('actions.archive')}
               </Button>
             ) : null}
+            {servicePackage.status !== 'archived' ? (
+              <Button
+                type="link"
+                size="small"
+                onClick={() => onToggleAutoAttach(servicePackage)}
+              >
+                {servicePackage.autoAttach
+                  ? t('autoAttach.actions.disable')
+                  : t('autoAttach.actions.enable')}
+              </Button>
+            ) : null}
           </Space>
         </PermissionGuard>
       ),
@@ -220,6 +240,13 @@ export function ServicePackageTable({
                       ? t(`types.${servicePackage.details.serviceTypeCode}`)
                       : t('create.notConfigured')}
                   </div>
+                  {servicePackage.autoAttach ? (
+                    <div className="mt-1 text-xs text-emerald-600">
+                      {t('autoAttach.tableLabel', {
+                        date: formatDate(servicePackage.autoAttachFrom),
+                      })}
+                    </div>
+                  ) : null}
                 </div>
                 <PortalBadge tone={PACKAGE_STATUS_TONE[servicePackage.status]}>
                   {t(`statuses.${servicePackage.status}`)}
@@ -255,6 +282,17 @@ export function ServicePackageTable({
                       onClick={() => onArchive(servicePackage)}
                     >
                       {t('actions.archive')}
+                    </Button>
+                  ) : null}
+                  {servicePackage.status !== 'archived' ? (
+                    <Button
+                      type="link"
+                      size="small"
+                      onClick={() => onToggleAutoAttach(servicePackage)}
+                    >
+                      {servicePackage.autoAttach
+                        ? t('autoAttach.actions.disable')
+                        : t('autoAttach.actions.enable')}
                     </Button>
                   ) : null}
                 </div>

@@ -16,8 +16,21 @@ import {
   type ServicePackageDraftInput,
   type ServicePackageListFilters,
   type ServicePackageStats,
+  type SetPackageAutoAttachInput,
   type SetPackageStatusInput,
 } from '../schemas/servicePackageSchemas';
+
+// Idempotency-Key header shared by write endpoints that must tolerate a
+// resubmitted request without double-applying it (spec §11, plan "Phạm vi
+// cập nhật 28/10/2026"). The UI layer generates this value once per
+// user-initiated submission attempt.
+function idempotencyHeaders(
+  idempotencyKey?: string
+): { headers: Record<string, string> } | undefined {
+  return idempotencyKey
+    ? { headers: { 'Idempotency-Key': idempotencyKey } }
+    : undefined;
+}
 
 function invalidResponse(error: {
   issues: Array<{ code: string; path: PropertyKey[] }>;
@@ -80,17 +93,23 @@ export function toServicePackageDraftDto(input: ServicePackageDraftInput) {
     price: input.price,
     billing_period_months: input.billingPeriodMonths,
     term_months: input.termMonths,
+    quota_mode: input.quotaMode,
+    custom_quota: input.customQuota,
+    auto_attach: input.autoAttach,
+    auto_attach_from: input.autoAttachFrom,
     eligible_model_count: input.eligibleModelCount,
     description: input.description,
   });
 }
 
 export async function createServicePackage(
-  input: ServicePackageDraftInput
+  input: ServicePackageDraftInput,
+  options?: { idempotencyKey?: string }
 ): Promise<ServicePackage> {
   const response = await apiClient.post<unknown>(
     '/service-packages',
-    toServicePackageDraftDto(input)
+    toServicePackageDraftDto(input),
+    idempotencyHeaders(options?.idempotencyKey)
   );
   const parsed = servicePackageDtoSchema.safeParse(response);
   if (!parsed.success) throw invalidResponse(parsed.error);
@@ -127,6 +146,42 @@ export async function setServicePackageStatus(
         },
       ],
     }
+  );
+  const parsed = servicePackageDtoSchema.safeParse(response);
+  if (!parsed.success) throw invalidResponse(parsed.error);
+  return mapServicePackage(parsed.data);
+}
+
+// Toggle auto-attach-on-stock-intake (spec §4.1). Enabling requires an
+// effective date (server rejects a date before today); disabling only needs a
+// reason. The reason and before/after values feed the immutable audit log.
+export async function setServicePackageAutoAttach(
+  servicePackage: ServicePackage,
+  input: SetPackageAutoAttachInput,
+  options?: { idempotencyKey?: string }
+): Promise<ServicePackage> {
+  const response = await apiClient.post<unknown>(
+    '/service-packages/' +
+      encodeURIComponent(servicePackage.id) +
+      '/auto-attach',
+    {
+      enabled: input.enabled,
+      from: input.from,
+      reason: input.reason,
+      changes: [
+        {
+          field: 'auto_attach',
+          before_value: String(servicePackage.autoAttach),
+          after_value: String(input.enabled),
+        },
+        {
+          field: 'auto_attach_from',
+          before_value: servicePackage.autoAttachFrom ?? '',
+          after_value: input.from ?? '',
+        },
+      ],
+    },
+    idempotencyHeaders(options?.idempotencyKey)
   );
   const parsed = servicePackageDtoSchema.safeParse(response);
   if (!parsed.success) throw invalidResponse(parsed.error);

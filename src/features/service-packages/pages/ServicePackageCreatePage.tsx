@@ -14,7 +14,10 @@ export function ServicePackageCreatePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: createServicePackage,
+    mutationFn: (input: Parameters<typeof createServicePackage>[0]) =>
+      // A fresh key per submit attempt: every click of "Save draft" is its
+      // own idempotent operation (spec §11).
+      createServicePackage(input, { idempotencyKey: crypto.randomUUID() }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: servicePackageQueries.all,

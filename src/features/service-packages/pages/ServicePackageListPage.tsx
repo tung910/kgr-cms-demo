@@ -23,7 +23,11 @@ import {
 } from '@/shared/components/portal';
 import { PageState } from '@/shared/components/PageState';
 
-import { setServicePackageStatus } from '../api/servicePackageApi';
+import {
+  setServicePackageAutoAttach,
+  setServicePackageStatus,
+} from '../api/servicePackageApi';
+import { ServicePackageAutoAttachDialog } from '../components/ServicePackageAutoAttachDialog';
 import { ServicePackageFilters } from '../components/ServicePackageFilters';
 import { ServicePackageStatusDialog } from '../components/ServicePackageStatusDialog';
 import { ServicePackageTable } from '../components/ServicePackageTable';
@@ -47,6 +51,11 @@ const defaultFilters: ServicePackageListFilters = {
 interface StatusTarget {
   servicePackage: ServicePackage;
   status: Extract<PackageStatus, 'active' | 'archived'>;
+}
+
+interface AutoAttachTarget {
+  servicePackage: ServicePackage;
+  mode: 'enable' | 'disable';
 }
 
 export function ServicePackageListPage({
@@ -84,6 +93,48 @@ export function ServicePackageListPage({
       );
     },
   });
+  const [autoAttachTarget, setAutoAttachTarget] =
+    useState<AutoAttachTarget | null>(null);
+  const autoAttachMutation = useMutation({
+    mutationFn: ({
+      servicePackage,
+      mode,
+      from,
+      reason,
+    }: AutoAttachTarget & { from: string | null; reason: string }) =>
+      setServicePackageAutoAttach(
+        servicePackage,
+        { enabled: mode === 'enable', from, reason },
+        // A fresh key per submit attempt: every click of the confirm button
+        // is its own idempotent operation (spec §11).
+        { idempotencyKey: crypto.randomUUID() }
+      ),
+    onSuccess: (_result, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: servicePackageQueries.all,
+      });
+      void message.success(
+        variables.mode === 'enable'
+          ? t('autoAttach.dialog.enableSuccess')
+          : t('autoAttach.dialog.disableSuccess')
+      );
+      setAutoAttachTarget(null);
+    },
+    onError: (error) => {
+      const code = getApiErrorCode(error);
+      void message.error(
+        code === 'autoAttachBlocked'
+          ? t('errors.autoAttachBlocked')
+          : code === 'autoAttachFromPast'
+            ? t('errors.autoAttachFromPast')
+            : code === 'noChange'
+              ? t('errors.noChange')
+              : code === 'idempotency_conflict'
+                ? t('errors.idempotencyConflict')
+                : t('errors.statusError')
+      );
+    },
+  });
 
   const updateFilters = (changes: Partial<ServicePackageListFilters>) => {
     void navigate({
@@ -94,6 +145,14 @@ export function ServicePackageListPage({
   const handleConfirm = (reason: string) => {
     if (!target) return;
     mutation.mutate({ ...target, reason });
+  };
+
+  const handleAutoAttachConfirm = (values: {
+    from: string | null;
+    reason: string;
+  }) => {
+    if (!autoAttachTarget) return;
+    autoAttachMutation.mutate({ ...autoAttachTarget, ...values });
   };
 
   const isPublish = target?.status === 'active';
@@ -159,6 +218,12 @@ export function ServicePackageListPage({
             onArchive={(servicePackage) =>
               setTarget({ servicePackage, status: 'archived' })
             }
+            onToggleAutoAttach={(servicePackage) =>
+              setAutoAttachTarget({
+                servicePackage,
+                mode: servicePackage.autoAttach ? 'disable' : 'enable',
+              })
+            }
           />
         )}
       </PortalCard>
@@ -182,6 +247,13 @@ export function ServicePackageListPage({
         pending={mutation.isPending}
         onCancel={() => setTarget(null)}
         onConfirm={handleConfirm}
+      />
+      <ServicePackageAutoAttachDialog
+        open={autoAttachTarget !== null}
+        mode={autoAttachTarget?.mode ?? 'enable'}
+        pending={autoAttachMutation.isPending}
+        onCancel={() => setAutoAttachTarget(null)}
+        onConfirm={handleAutoAttachConfirm}
       />
     </div>
   );
