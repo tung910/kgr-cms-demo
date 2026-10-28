@@ -49,7 +49,8 @@
         "identity": "Serial / Model",
         "firmware": "Factory firmware",
         "age": "Days in stock",
-        "status": "Activation status"
+        "status": "Activation status",
+        "entitlements": "Service packages"
       },
       "firmwareOutdated": "Needs update",
       "firmwareOutdatedHint": "Firmware is older than the current release — the device will need OTA right after activation.",
@@ -205,6 +206,7 @@
       "region": "Customer & region",
       "status": "Status",
       "filterLife": "Filter cores needing attention",
+      "entitlements": "Service packages",
       "firmware": "Firmware",
       "lastSeen": "Last connected",
       "activatedAt": "Activated on",
@@ -381,7 +383,9 @@
     "reason": "Reason",
     "cancel": "Cancel",
     "error": "Could not complete the action.",
-    "notAvailable": "—"
+    "notAvailable": "—",
+    "entitlementsTransferNotice_one": "{{count}} active service package will transfer with the device",
+    "entitlementsTransferNotice_other": "{{count}} active service packages will transfer with the device"
   },
   "coreAlerts": {
     "title": "Filter replacement alerts",
@@ -551,6 +555,60 @@
       "customerQrScan": "Customer QR scan (not counted)",
       "attached": "Attached",
       "revoked": "Revoked / removed"
+    },
+    "tags": {
+      "overflow": "+{{count}}",
+      "expiringDays": "Expiring soon: {{count}} days left",
+      "quota": "{{used}}/{{quota}} uses",
+      "notStarted": "Not started",
+      "notUsedYet": "Not used yet",
+      "tooltipTerm": "{{count}}-month term, from the activation date",
+      "tooltipNoTerm": "No fixed term",
+      "tooltipSource": "source {{reference}}"
+    },
+    "panel": {
+      "title": "Service packages",
+      "loading": "Loading service packages...",
+      "error": "Could not load service packages.",
+      "empty": "This device has no service packages yet.",
+      "delivery": {
+        "self": "Customer self-service",
+        "technician": "Done by technician",
+        "shipment": "Cores shipped to customer"
+      },
+      "validity": "Valid: {{start}} – {{end}}",
+      "validityPending": "Valid from the device's activation date",
+      "noEnd": "no end date",
+      "remainingDays": "{{count}} days left",
+      "usedOf": "Used {{used}}/{{quota}}",
+      "reserved": "1 reserved — ticket {{ticket}} ({{status}}, {{scheduled}})",
+      "noSchedule": "not scheduled yet",
+      "ticketStatus": {
+        "pending": "Pending",
+        "assigned": "Assigned",
+        "inProgress": "In progress"
+      },
+      "nextDue": "Next use due: {{date}}",
+      "warrantyIndependent": "Additional package warranty — independent from the electronic warranty (expires {{date}})",
+      "warrantyIndependentNoDate": "Additional package warranty — independent from the electronic warranty",
+      "source": "Source: {{kind}} · {{reference}} · {{date}}",
+      "sourceKind": {
+        "autoAttach": "Auto-attached on stock intake",
+        "bulkAssign": "Bulk assignment",
+        "manualAdd": "Added manually"
+      }
+    },
+    "eventLog": {
+      "title": "Usage history",
+      "empty": "No usage history yet.",
+      "error": "Could not load usage history.",
+      "notCounted": "not counted",
+      "columns": {
+        "time": "Time",
+        "type": "Event",
+        "reference": "Reference",
+        "actor": "Performed by"
+      }
     }
   }
 }

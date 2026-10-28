@@ -8,6 +8,7 @@ import { ApiError } from '@/core/api/error';
 import { changeDeviceOwner } from '../api/deviceDetailApi';
 import { deviceQueries } from '../queries/deviceQueries';
 import type { Device } from '../schemas/deviceSchemas';
+import { activeEntitlementsCount } from '../utils/entitlementDisplay';
 
 export interface DeviceOwnerChangeDialogProps {
   device: Device;
@@ -40,6 +41,8 @@ export function DeviceOwnerChangeDialog({
   }, [input]);
 
   const candidates = useQuery(deviceQueries.ownerCandidates(device.id, search));
+  // §5.4 — entitlements transfer with the device, not the owner.
+  const transferCount = activeEntitlementsCount(device.entitlementsSummary);
 
   const close = () => {
     setInput('');
@@ -84,6 +87,16 @@ export function DeviceOwnerChangeDialog({
         message={t('ownership.changeWarning')}
         className="mb-4"
       />
+      {transferCount > 0 ? (
+        <Alert
+          type="info"
+          showIcon
+          message={t('ownership.entitlementsTransferNotice', {
+            count: transferCount,
+          })}
+          className="mb-4"
+        />
+      ) : null}
       <Form<FormValues>
         form={form}
         layout="vertical"

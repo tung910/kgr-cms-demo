@@ -49,7 +49,8 @@
         "identity": "Serial / Model",
         "firmware": "Firmware xuất xưởng",
         "age": "Số ngày trong kho",
-        "status": "Trạng thái kích hoạt"
+        "status": "Trạng thái kích hoạt",
+        "entitlements": "Gói dịch vụ"
       },
       "firmwareOutdated": "Cần cập nhật",
       "firmwareOutdatedHint": "Firmware cũ hơn bản phát hành hiện tại — thiết bị sẽ cần OTA ngay sau khi kích hoạt.",
@@ -205,6 +206,7 @@
       "region": "Khách hàng & khu vực",
       "status": "Trạng thái",
       "filterLife": "Tuổi thọ lõi cần chú ý",
+      "entitlements": "Gói dịch vụ",
       "firmware": "Firmware",
       "lastSeen": "Lần cuối kết nối",
       "activatedAt": "Ngày kích hoạt",
@@ -380,7 +382,8 @@
     "reason": "Lý do",
     "cancel": "Hủy",
     "error": "Không thể hoàn tất thao tác.",
-    "notAvailable": "—"
+    "notAvailable": "—",
+    "entitlementsTransferNotice": "{{count}} gói dịch vụ còn hiệu lực sẽ chuyển theo máy"
   },
   "coreAlerts": {
     "title": "Cảnh báo lõi cần thay",
@@ -547,6 +550,60 @@
       "customerQrScan": "Khách tự quét QR (không trừ lượt)",
       "attached": "Gắn gói",
       "revoked": "Thu hồi / Đã gỡ"
+    },
+    "tags": {
+      "overflow": "+{{count}}",
+      "expiringDays": "Sắp hết hạn: còn {{count}} ngày",
+      "quota": "{{used}}/{{quota}} lượt",
+      "notStarted": "Chưa bắt đầu",
+      "notUsedYet": "Chưa sử dụng",
+      "tooltipTerm": "Thời hạn {{count}} tháng, tính từ ngày kích hoạt",
+      "tooltipNoTerm": "Không giới hạn thời hạn",
+      "tooltipSource": "nguồn {{reference}}"
+    },
+    "panel": {
+      "title": "Gói dịch vụ",
+      "loading": "Đang tải gói dịch vụ...",
+      "error": "Không thể tải gói dịch vụ.",
+      "empty": "Thiết bị chưa có gói dịch vụ nào.",
+      "delivery": {
+        "self": "Khách tự thay",
+        "technician": "Kỹ thuật viên thực hiện",
+        "shipment": "Giao bộ lõi cho khách"
+      },
+      "validity": "Hiệu lực: {{start}} – {{end}}",
+      "validityPending": "Hiệu lực: tính từ ngày kích hoạt thiết bị",
+      "noEnd": "không giới hạn",
+      "remainingDays": "Còn {{count}} ngày",
+      "usedOf": "Đã dùng {{used}}/{{quota}}",
+      "reserved": "Đang giữ chỗ 1 — phiếu {{ticket}} ({{status}}, {{scheduled}})",
+      "noSchedule": "chưa có lịch hẹn",
+      "ticketStatus": {
+        "pending": "Chờ xác nhận",
+        "assigned": "Đã phân công",
+        "inProgress": "Đang xử lý"
+      },
+      "nextDue": "Lượt kế tiếp đến hạn: {{date}}",
+      "warrantyIndependent": "Bảo hành bổ sung theo gói — độc lập với bảo hành điện tử (hết hạn {{date}})",
+      "warrantyIndependentNoDate": "Bảo hành bổ sung theo gói — độc lập với bảo hành điện tử",
+      "source": "Nguồn: {{kind}} · {{reference}} · {{date}}",
+      "sourceKind": {
+        "autoAttach": "Tự động gắn khi nhập kho",
+        "bulkAssign": "Gắn hàng loạt",
+        "manualAdd": "Thêm thủ công"
+      }
+    },
+    "eventLog": {
+      "title": "Lịch sử sử dụng",
+      "empty": "Chưa có lịch sử sử dụng.",
+      "error": "Không thể tải lịch sử sử dụng.",
+      "notCounted": "không trừ lượt",
+      "columns": {
+        "time": "Thời gian",
+        "type": "Loại sự kiện",
+        "reference": "Tham chiếu",
+        "actor": "Người thực hiện"
+      }
     }
   }
 }

@@ -14,6 +14,7 @@ import type { PageResponse } from '@/shared/types/pagination';
 
 import type { Device, DeviceListFilters } from '../schemas/deviceSchemas';
 import { DeviceStatusCell } from './DeviceStatusCell';
+import { EntitlementTags } from './EntitlementTags';
 
 function filterLifeTone(percent: number): PortalTone {
   if (percent <= 20) return 'danger';
@@ -167,6 +168,13 @@ export function DeviceTable({
         ),
     },
     {
+      title: t('table.columns.entitlements'),
+      key: 'entitlements',
+      render: (_: unknown, device: Device) => (
+        <EntitlementTags items={device.entitlementsSummary} variant="in_use" />
+      ),
+    },
+    {
       title: t('table.columns.firmware'),
       key: 'firmware',
       render: (_: unknown, device: Device) =>
@@ -282,6 +290,14 @@ export function DeviceTable({
                     <FilterLifeIndicator device={device} />
                   </div>
                 )}
+                {device.entitlementsSummary.length > 0 ? (
+                  <div className="mt-3">
+                    <EntitlementTags
+                      items={device.entitlementsSummary}
+                      variant="in_use"
+                    />
+                  </div>
+                ) : null}
               </button>
               <div className="mt-3 flex items-center justify-between gap-3 border-t border-[#E7E8E9] pt-3">
                 <Typography.Text type="secondary" className="text-xs">
