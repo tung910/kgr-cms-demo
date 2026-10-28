@@ -12,11 +12,29 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { PERSONALIZATION_VARIABLES } from '../../constants/campaignCta';
+import type { PromotedPackage } from '../../schemas/campaignSchemas';
+import {
+  validatePackageOffer,
+  type PackageOfferIssue,
+} from '../../utils/packagePricing';
 import { ButtonsEditor } from './ButtonsEditor';
-import { buttonCoreSkus, type WizardValues } from './wizardValues';
+import { PromotedPackageField } from './PromotedPackageField';
+import {
+  buttonCoreSkus,
+  type OfferKind,
+  type WizardValues,
+} from './wizardValues';
+
+export interface StepContentProps {
+  promotedPackage?: PromotedPackage;
+  onPackageChange: (pkg: PromotedPackage | null) => void;
+}
 
 // B4 — what the customer sees, plus the button that opens the right app screen.
-export function StepContent() {
+export function StepContent({
+  promotedPackage,
+  onPackageChange,
+}: StepContentProps) {
   const { t } = useTranslation('campaigns');
   const form = Form.useFormInstance<WizardValues>();
   const abEnabled = Form.useWatch('abEnabled', form);
@@ -68,7 +86,20 @@ export function StepContent() {
         </Form.Item>
       </section>
       <section className="rounded-xl border border-[#E7E8E9] p-4">
-        <ButtonsEditor />
+        <Form.Item
+          label={t('package.field.label')}
+          tooltip={t('package.field.hint')}
+          className="mb-0"
+        >
+          <PromotedPackageField
+            value={promotedPackage?.id}
+            current={promotedPackage}
+            onChange={onPackageChange}
+          />
+        </Form.Item>
+      </section>
+      <section className="rounded-xl border border-[#E7E8E9] p-4">
+        <ButtonsEditor hasPackage={!!promotedPackage} />
       </section>
       <Collapse
         items={[
@@ -116,13 +147,51 @@ export function StepContent() {
   );
 }
 
-// B5 — optional voucher / loyalty points attached to the campaign.
-export function StepOffer() {
+// The voucher the form currently describes, for checking it against a package.
+function voucherOf(kind: OfferKind | undefined, value: number | undefined) {
+  return kind === 'voucher_percent' || kind === 'voucher_amount'
+    ? ({
+        type: 'voucher',
+        discountType: kind === 'voucher_percent' ? 'percent' : 'amount',
+        ...(value != null ? { discountValue: value } : {}),
+      } as const)
+    : null;
+}
+
+// B5 — optional voucher / loyalty points attached to the campaign. With a
+// promoted package the voucher is bound to it (spec 4.2).
+export function StepOffer({
+  promotedPackage,
+}: {
+  promotedPackage?: PromotedPackage;
+}) {
   const { t } = useTranslation('campaigns');
   const form = Form.useFormInstance<WizardValues>();
   const enabled = Form.useWatch('offerEnabled', form);
   const kind = Form.useWatch('offerKind', form);
   const values = Form.useWatch([], form) ?? {};
+
+  // Rejects a voucher the promoted package cannot take, with the reason. The
+  // kind field reports what the kind itself rules out, the value field the
+  // amount above the price of one period.
+  const packageOfferRule = (valueIssue: boolean) => ({
+    validator: () => {
+      if (!promotedPackage) return Promise.resolve();
+      const issue: PackageOfferIssue | null = validatePackageOffer(
+        promotedPackage,
+        voucherOf(
+          form.getFieldValue('offerKind'),
+          form.getFieldValue('discountValue')
+        )
+      );
+      return issue && (issue === 'discount_exceeds_price') === valueIssue
+        ? Promise.reject(new Error(t(`package.offerIssue.${issue}`)))
+        : Promise.resolve();
+    },
+  });
+  const kindDisabled = (value: OfferKind) =>
+    !!promotedPackage &&
+    validatePackageOffer(promotedPackage, voucherOf(value, undefined)) !== null;
 
   return (
     <div className="grid gap-5">
@@ -139,17 +208,23 @@ export function StepOffer() {
       {enabled ? (
         <>
           <section className="rounded-xl border border-[#E7E8E9] p-4">
-            <Form.Item name="offerKind" label={t('fields.offerKind')}>
+            <Form.Item
+              name="offerKind"
+              label={t('fields.offerKind')}
+              rules={[packageOfferRule(false)]}
+            >
               <Select
                 className="w-full"
                 options={[
                   {
                     value: 'voucher_percent',
                     label: t('offer.kind.voucher_percent'),
+                    disabled: kindDisabled('voucher_percent'),
                   },
                   {
                     value: 'voucher_amount',
                     label: t('offer.kind.voucher_amount'),
+                    disabled: kindDisabled('voucher_amount'),
                   },
                   { value: 'points', label: t('offer.kind.points') },
                 ]}
@@ -180,6 +255,7 @@ export function StepOffer() {
                 <Form.Item
                   name="discountValue"
                   label={t('fields.discountValue')}
+                  dependencies={['offerKind']}
                   rules={[
                     {
                       required: true,
@@ -187,6 +263,7 @@ export function StepOffer() {
                       min: 1,
                       max: kind === 'voucher_percent' ? 100 : undefined,
                     },
+                    packageOfferRule(true),
                   ]}
                 >
                   <InputNumber
@@ -215,30 +292,42 @@ export function StepOffer() {
               <DatePicker className="w-full" format="DD/MM/YYYY" />
             </Form.Item>
           </section>
-          <Collapse
-            items={[
-              {
-                key: 'advanced',
-                label: t('wizard.advanced'),
-                forceRender: true,
-                children: (
-                  <Form.Item
-                    name="appliesTo"
-                    label={t('fields.appliesTo')}
-                    tooltip={t('fields.appliesToHint')}
-                    className="mb-0"
-                  >
-                    <Input
-                      maxLength={40}
-                      placeholder={
-                        buttonCoreSkus(values).join(', ') || 'ER00051 / CORE-PP'
-                      }
-                    />
-                  </Form.Item>
-                ),
-              },
-            ]}
-          />
+          {promotedPackage ? (
+            <section className="rounded-xl border border-[#E7E8E9] p-4">
+              <span className="text-sm">{t('package.voucherBound')} </span>
+              <Tag className="m-0">{promotedPackage.code}</Tag>
+              <span className="text-sm"> {promotedPackage.name}</span>
+              <Form.Item name="appliesTo" hidden>
+                <Input />
+              </Form.Item>
+            </section>
+          ) : (
+            <Collapse
+              items={[
+                {
+                  key: 'advanced',
+                  label: t('wizard.advanced'),
+                  forceRender: true,
+                  children: (
+                    <Form.Item
+                      name="appliesTo"
+                      label={t('fields.appliesTo')}
+                      tooltip={t('fields.appliesToHint')}
+                      className="mb-0"
+                    >
+                      <Input
+                        maxLength={40}
+                        placeholder={
+                          buttonCoreSkus(values).join(', ') ||
+                          'ER00051 / CORE-PP'
+                        }
+                      />
+                    </Form.Item>
+                  ),
+                },
+              ]}
+            />
+          )}
         </>
       ) : (
         <p className="m-0 rounded-xl border border-dashed border-[#D5D7D8] bg-[#F7F8F8] p-4 text-sm text-[#636466]">

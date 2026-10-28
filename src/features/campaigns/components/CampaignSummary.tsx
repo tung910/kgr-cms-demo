@@ -6,9 +6,11 @@ import { formatDate, formatDateTime } from '@/shared/lib/format';
 import type {
   CampaignDraftInput,
   CoreOption,
+  PromotedPackage,
 } from '../schemas/campaignSchemas';
 import { describeButtonTarget } from '../utils/buttonText';
 import { offerText } from '../utils/offerText';
+import { packageCardOf } from '../utils/packagePricing';
 import { AudienceSummary } from './AudienceSummary';
 
 // Everything the review step and the detail page both show about a campaign.
@@ -20,12 +22,16 @@ export type CampaignSummaryData = Omit<
 export function CampaignSummary({
   data,
   cores = [],
+  promotedPackage = null,
 }: {
   data: CampaignSummaryData;
   // Core catalogue used to name targeted SKUs; SKU codes show without it.
   cores?: readonly CoreOption[];
+  // Catalogue summary of the promoted package; the row is omitted without one.
+  promotedPackage?: PromotedPackage | null;
 }) {
   const { t } = useTranslation('campaigns');
+  const packageCard = packageCardOf(promotedPackage, data.offer, t);
   const trigger = data.triggerConfig;
 
   const mechanism =
@@ -121,6 +127,16 @@ export function CampaignSummary({
           </div>
         ) : null}
       </Descriptions.Item>
+      {promotedPackage && packageCard ? (
+        <Descriptions.Item label={t('package.summaryLabel')}>
+          <b>{promotedPackage.code}</b> · {packageCard.name}
+          {packageCard.priceLines.map((line, index) => (
+            <div key={index} className="mt-1 text-xs text-[#636466]">
+              {line}
+            </div>
+          ))}
+        </Descriptions.Item>
+      ) : null}
       <Descriptions.Item label={t('summary.offer')}>
         {offerText(data.offer, t) ?? t('wizard.noOfferShort')}
         {data.offer?.appliesTo ? ` · ${data.offer.appliesTo}` : ''}

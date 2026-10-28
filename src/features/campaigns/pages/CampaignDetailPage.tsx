@@ -14,6 +14,7 @@ import { CampaignPhonePreview } from '../components/CampaignPhonePreview';
 import { CampaignStatusTag } from '../components/CampaignStatusTag';
 import { CampaignSummary } from '../components/CampaignSummary';
 import { offerText } from '../utils/offerText';
+import { packageCardOf } from '../utils/packagePricing';
 import { campaignQueries } from '../queries/campaignQueries';
 
 export interface CampaignDetailPageProps {
@@ -90,7 +91,10 @@ export function CampaignDetailPage({ campaignId }: CampaignDetailPageProps) {
           title={t('detail.sections.overview')}
           actions={<CampaignStatusTag status={campaign.status} />}
         >
-          <CampaignSummary data={campaign} />
+          <CampaignSummary
+            data={campaign}
+            promotedPackage={campaign.promotedPackage}
+          />
         </PortalCard>
         <PortalCard>
           <CampaignPhonePreview
@@ -99,6 +103,11 @@ export function CampaignDetailPage({ campaignId }: CampaignDetailPageProps) {
             content={campaign.content}
             buttonLabels={campaign.buttons.map((button) => button.label)}
             offerLabel={offerText(campaign.offer, t)}
+            packageCard={packageCardOf(
+              campaign.promotedPackage,
+              campaign.offer,
+              t
+            )}
           />
         </PortalCard>
       </div>

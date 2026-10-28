@@ -107,3 +107,15 @@ export function packagePriceLines(
         }),
       ];
 }
+
+// Name and price lines of the promoted package as the phone preview and the
+// summaries show them; null for a campaign without a package.
+export function packageCardOf(
+  pkg: PromotedPackage | null | undefined,
+  offer: CampaignOffer | null,
+  t: Translate
+): { name: string; priceLines: string[] } | null {
+  return pkg
+    ? { name: pkg.name, priceLines: packagePriceLines(pkg, offer, t) }
+    : null;
+}

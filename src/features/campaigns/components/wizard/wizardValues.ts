@@ -24,7 +24,9 @@ import {
   type CampaignButton,
   type CampaignDraftInput,
   type CampaignOffer,
+  type PromotedPackage,
 } from '../../schemas/campaignSchemas';
+import { validatePackageOffer } from '../../utils/packagePricing';
 
 // Conditions an author can add to the audience (spec 7.2). The last two are
 // "advanced" and sit in their own group of the picker.
@@ -108,11 +110,16 @@ export interface WizardValues {
   tdsMax?: number;
   loyaltyMin?: number;
   loyaltyMax?: number;
+  excludePackageOwners: boolean;
   dedupe: DedupeMode;
   suppressRecent: boolean;
   suppressTest: boolean;
   frequencyCap: number;
-  // B4
+  // B4 — the promoted package is chosen here. The wizard keeps the catalogue
+  // summary in its own state (not a form field) and merges it into the values,
+  // so the preview, voucher rules and offer scope need no lookup.
+  promotedPackageId?: string;
+  promotedPackage?: PromotedPackage;
   title: string;
   content: string;
   buttons: ButtonValues[];
@@ -150,6 +157,7 @@ export const DEFAULT_WIZARD_VALUES: WizardValues = {
   quietTo: DEFAULT_TRIGGER_CONFIG.quietTo,
   fallbackSmsZalo: false,
   startsOn: dayjs(),
+  excludePackageOwners: true,
   activeFields: [],
   logic: 'and',
   dedupe: 'account',
@@ -201,6 +209,10 @@ export function buildConditions(
     loyaltyPoints: on('loyaltyPoints')
       ? range(values.loyaltyMin, values.loyaltyMax)
       : undefined,
+    // Owners of the promoted package are left out unless the author opts in.
+    ...(values.promotedPackageId && (values.excludePackageOwners ?? true)
+      ? { excludeActivePackageId: values.promotedPackageId }
+      : {}),
   };
 }
 
@@ -256,8 +268,10 @@ export function buildButtons(
 
 export function buildOffer(values: WizardValues): CampaignOffer | null {
   if (!values.offerEnabled) return null;
+  // A promoted package replaces the free "applies to" text (spec 4.2).
   const appliesTo =
-    values.appliesTo?.trim() || buttonCoreSkus(values).join(', ');
+    values.promotedPackage?.code ??
+    (values.appliesTo?.trim() || buttonCoreSkus(values).join(', '));
   const common = {
     ...(values.validUntil
       ? { validUntil: values.validUntil.toISOString() }
@@ -357,8 +371,81 @@ export function buildDraftInput(
         }
       : null,
     offer: buildOffer(values),
-    promotedPackageId: null,
+    promotedPackageId: values.promotedPackageId ?? null,
     testRecipients: splitRecipients(values.testRecipients ?? ''),
+  };
+}
+
+// Voucher values the new package cannot take (spec 4.2), cleared so the author
+// re-enters them: a free package takes no discount voucher at all (the offer
+// falls back to points), a quotation one only a percentage.
+function rejectedVoucherReset(
+  values: WizardValues,
+  pkg: PromotedPackage
+): Partial<WizardValues> {
+  switch (validatePackageOffer(pkg, buildOffer(values))) {
+    case 'free_package_discount':
+      return {
+        offerKind: 'points',
+        voucherCode: undefined,
+        discountValue: undefined,
+        usageLimitTotal: undefined,
+      };
+    case 'quotation_amount_discount':
+      return { offerKind: 'voucher_percent', discountValue: undefined };
+    case 'discount_exceeds_price':
+      return { discountValue: undefined };
+    case null:
+      return {};
+  }
+}
+
+// Brings the values in line with a newly picked (or cleared) promoted package.
+// Clearing removes everything bound to the package; switching keeps the CTA and
+// the owner filter, rebinds the voucher scope and drops voucher values the new
+// package rejects. Pure: the wizard writes the result back to the form.
+export function applyPackageChange(
+  values: WizardValues,
+  pkg: PromotedPackage | null
+): WizardValues {
+  const previous = values.promotedPackage;
+  if (!pkg) {
+    return {
+      ...values,
+      buttons: values.buttons.filter(
+        (button) => button.type !== 'buy_service_package'
+      ),
+      appliesTo:
+        previous && values.appliesTo === previous.code
+          ? undefined
+          : values.appliesTo,
+      excludePackageOwners: true,
+      promotedPackageId: undefined,
+      promotedPackage: undefined,
+    };
+  }
+  const next: WizardValues = {
+    ...values,
+    promotedPackageId: pkg.id,
+    promotedPackage: pkg,
+    appliesTo: pkg.code,
+    // On by default for the first pick; a later switch keeps the author's choice.
+    excludePackageOwners: previous ? values.excludePackageOwners : true,
+  };
+  return { ...next, ...rejectedVoucherReset(next, pkg) };
+}
+
+// The fields applyPackageChange may touch, as a form patch. The package itself
+// lives in wizard state, so it is not part of it.
+export function packageFormPatch(values: WizardValues): Partial<WizardValues> {
+  return {
+    buttons: values.buttons,
+    appliesTo: values.appliesTo,
+    excludePackageOwners: values.excludePackageOwners,
+    offerKind: values.offerKind,
+    voucherCode: values.voucherCode,
+    discountValue: values.discountValue,
+    usageLimitTotal: values.usageLimitTotal,
   };
 }
 
@@ -447,6 +534,15 @@ export function fromCampaign(campaign: Campaign): WizardValues {
     usageLimitTotal: offer?.usageLimitTotal,
     validUntil: offer?.validUntil ? dayjs(offer.validUntil) : undefined,
     appliesTo: offer?.appliesTo,
+    ...(campaign.promotedPackageId
+      ? { promotedPackageId: campaign.promotedPackageId }
+      : {}),
+    ...(campaign.promotedPackage
+      ? { promotedPackage: campaign.promotedPackage }
+      : {}),
+    excludePackageOwners: campaign.promotedPackageId
+      ? !!a.excludeActivePackageId
+      : DEFAULT_WIZARD_VALUES.excludePackageOwners,
     approverId: campaign.approverId ?? undefined,
     testRecipients: campaign.testRecipients.join(', '),
   };

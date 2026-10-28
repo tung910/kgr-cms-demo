@@ -13,6 +13,8 @@ export interface CampaignPhonePreviewProps {
   content: string;
   buttonLabels: string[];
   offerLabel: string | null;
+  // Promoted service package (spec 4.3); null for a campaign without one.
+  packageCard: { name: string; priceLines: string[] } | null;
 }
 
 // Live mock of how the notification looks in the OneKangaroo app, rendered from
@@ -23,6 +25,7 @@ export function CampaignPhonePreview({
   content,
   buttonLabels,
   offerLabel,
+  packageCard,
 }: CampaignPhonePreviewProps) {
   const { t } = useTranslation('campaigns');
   const shownTitle = personalize(title) || t('preview.emptyTitle');
@@ -34,6 +37,23 @@ export function CampaignPhonePreview({
       <p className="mb-0 mt-1 whitespace-pre-wrap break-words text-xs">
         {shownContent}
       </p>
+      {packageCard ? (
+        <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 p-2 text-slate-900">
+          <p className="m-0 break-words text-xs font-semibold">
+            {packageCard.name}
+          </p>
+          {packageCard.priceLines.map((line, index) => (
+            <p
+              key={index}
+              className={`m-0 text-xs ${
+                index === 0 ? 'font-medium text-emerald-800' : 'text-slate-500'
+              }`}
+            >
+              {line}
+            </p>
+          ))}
+        </div>
+      ) : null}
       {offerLabel ? (
         <span className="mt-2 inline-block rounded bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-800">
           {offerLabel}

@@ -91,7 +91,24 @@
     "period": {
       "year": "năm",
       "months": "{{count}} tháng"
-    }
+    },
+    "field": {
+      "label": "Gói dịch vụ quảng bá",
+      "placeholder": "Không gắn gói (tùy chọn)",
+      "hint": "Chọn một gói đang bán để chiến dịch dẫn khách tới mua. Bỏ trống nếu chiến dịch không liên quan dịch vụ.",
+      "loadFailed": "Không tải được danh sách gói dịch vụ.",
+      "retry": "Thử lại",
+      "unavailable": "không còn khả dụng"
+    },
+    "offerIssue": {
+      "free_package_discount": "Gói miễn phí hoặc gộp giá không áp dụng voucher giảm giá. Hãy dùng điểm thưởng hoặc bỏ gói.",
+      "quotation_amount_discount": "Gói báo giá sau khảo sát chỉ giảm theo %, không giảm số tiền.",
+      "discount_exceeds_price": "Số tiền giảm không được vượt giá một kỳ của gói."
+    },
+    "voucherBound": "Voucher áp dụng cho gói:",
+    "excludeOwners": "Loại máy đã có gói {{code}}",
+    "excludeOwnersHint": "Bỏ qua máy đang có quyền lợi còn hiệu lực của gói này. Tắt khi chiến dịch nhắc gia hạn.",
+    "summaryLabel": "Gói dịch vụ"
   },
   "common": {
     "on": "Bật",
