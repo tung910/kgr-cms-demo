@@ -64,7 +64,12 @@ export const servicePackageConfigurationSchema = z.discriminatedUnion('type', [
     type: z.literal('TG-ALL'),
     packages: z.array(z.object({ id: text, quantity: months, months })).min(1),
   }),
-  z.object({ type: z.literal('TG-SUB'), transfer: text, services: items }),
+  z.object({
+    type: z.literal('TG-SUB'),
+    transfer: text,
+    services: items,
+    packages: z.array(z.object({ id: text, quantity: months, months })).min(1),
+  }),
 ]);
 
 export type ServicePackageConfiguration = z.infer<

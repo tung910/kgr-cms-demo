@@ -300,6 +300,13 @@ export function ServicePackageConfigurationFields({
         <>
           {text('transfer')}
           {list('services')}
+          <ServicePackageConfigurationFields
+            type="TG-ALL"
+            packages={packages}
+            loading={loading}
+            error={error}
+            onRetry={onRetry}
+          />
         </>
       );
     case 'TG-ALL':

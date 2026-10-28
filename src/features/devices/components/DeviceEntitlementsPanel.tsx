@@ -25,6 +25,7 @@ import { EntitlementEventLog } from './EntitlementEventLog';
 
 const SOURCE_KIND_KEY: Record<Entitlement['source']['kind'], string> = {
   auto_attach: 'autoAttach',
+  inventory_import: 'inventoryImport',
   bulk_assign: 'bulkAssign',
   manual_add: 'manualAdd',
 };

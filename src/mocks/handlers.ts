@@ -16,6 +16,7 @@ import {
 import { isPortalRole, type PortalRole } from '@/core/auth/types';
 import { systemHandlers } from '@/features/system/mocks/systemHandlers';
 import { deviceExtraHandlers } from '@/features/devices/mocks/deviceExtraHandlers';
+import { inventoryImportHandlers } from '@/features/devices/mocks/inventoryImportHandlers';
 import { entitlementHandlers } from '@/features/devices/mocks/entitlementHandlers';
 import {
   appendEntitlementEvent,
@@ -825,6 +826,7 @@ export const handlers = [
   }),
   ...campaignHandlers,
   ...servicePackageHandlers,
+  ...inventoryImportHandlers,
   ...deviceExtraHandlers,
   ...entitlementHandlers,
   ...mapHandlers,

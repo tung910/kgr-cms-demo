@@ -61,7 +61,9 @@ export function ServicePackageForm({
   const [preview, setPreview] = useState<ServicePackageDraftInput | null>(null);
   const packages = useQuery({
     ...servicePackageQueries.components(),
-    enabled: values.service_type_code === 'TG-ALL',
+    enabled:
+      values.service_type_code === 'TG-ALL' ||
+      values.service_type_code === 'TG-SUB',
   });
   const [modal, contextHolder] = Modal.useModal();
   useBlocker({

@@ -20,7 +20,6 @@ import type {
   EntitlementSummaryDto,
 } from '@/features/devices/schemas/entitlementSchemas';
 import { deviceFixtures } from '@/mocks/fixtures/devices';
-import { modelFixtures } from '@/mocks/fixtures/models';
 import { randomId } from '@/shared/lib/id';
 
 import { inventoryStore } from './inventoryStore';
@@ -42,7 +41,7 @@ export interface EntitlementRecord {
   starts_override_at: string | null; // "Thêm gói" §7.2: term starts from add date
   revoked: boolean;
   source: {
-    kind: 'auto_attach' | 'bulk_assign' | 'manual_add';
+    kind: 'auto_attach' | 'bulk_assign' | 'manual_add' | 'inventory_import';
     reference: string;
     at: string;
   };
@@ -228,16 +227,6 @@ function getDelivery(
   }
 }
 
-function isModelInScope(
-  details: { model_scope: 'all' | 'selected'; eligible_model_ids: string[] },
-  modelCode: string
-): boolean {
-  if (details.model_scope === 'all') return true;
-  const model = modelFixtures.find((item) => item.code === modelCode);
-  if (!model) return false;
-  return details.eligible_model_ids.includes(model.model_id);
-}
-
 // Exported so write handlers outside this module (e.g. the core-alert →
 // service-ticket flow in src/mocks/handlers.ts, Task 8) can append a
 // `reserved`/`released` event tied to a ticket they create, instead of
@@ -281,15 +270,17 @@ export function attachPackage(
   target: { deviceId: string; modelCode: string; activatedAt: string | null },
   pkg: ServicePackageDto,
   source: EntitlementRecord['source'],
-  options?: { allowDuplicate?: boolean; startsAt?: string }
+  options?: {
+    allowDuplicate?: boolean;
+    startsAt?: string;
+    actor?: EntitlementEventDto['actor'];
+  }
 ): EntitlementRecord | null {
   const details = servicePackageDetailsSchema.safeParse(pkg);
   if (!details.success) return null;
 
   const kind = getEntitlementKind(details.data.service_type_code);
   if (kind === null) return null;
-
-  if (!isModelInScope(details.data, target.modelCode)) return null;
 
   const alreadyAttached = entitlementRecords.some(
     (record) =>
@@ -350,9 +341,10 @@ export function attachPackage(
     type: 'attached',
     countsAgainstQuota: false,
     actor:
-      source.kind === 'manual_add'
+      options?.actor ??
+      (source.kind === 'manual_add'
         ? { kind: 'staff', name: 'seed@mock.cms-portal.local' }
-        : { kind: 'system', name: 'system' },
+        : { kind: 'system', name: 'system' }),
     occurredAt: source.at,
   });
   return record;

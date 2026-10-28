@@ -18,7 +18,7 @@ let nextSyncedNumber = 2001;
 // to `inventoryStore`, and returns just the newly received units (so callers
 // — e.g. the sync endpoint, or later the auto-attach step — can report/act on
 // exactly what changed).
-export function receiveNewUnits(): InventoryDeviceDto[] {
+export function previewNewUnits(): InventoryDeviceDto[] {
   const models = ['KGR-A100', 'KGR-B200', 'KGR-C300'] as const;
   const count = 1 + (nextSyncedNumber % 3);
   const received: InventoryDeviceDto[] = Array.from(
@@ -44,6 +44,5 @@ export function receiveNewUnits(): InventoryDeviceDto[] {
     }
   );
   nextSyncedNumber += received.length;
-  inventoryStore.push(...received);
   return received;
 }

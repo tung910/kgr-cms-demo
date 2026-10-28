@@ -83,7 +83,12 @@ export type EntitlementPackageSnapshotDto = z.infer<
 >;
 
 export const entitlementSourceSchema = z.object({
-  kind: z.enum(['auto_attach', 'bulk_assign', 'manual_add']),
+  kind: z.enum([
+    'auto_attach',
+    'bulk_assign',
+    'manual_add',
+    'inventory_import',
+  ]),
   reference: z.string().min(1),
   at: z.string().datetime({ offset: true }),
 });
@@ -194,7 +199,7 @@ export interface EntitlementPackageSnapshot {
 }
 
 export interface EntitlementSource {
-  kind: 'auto_attach' | 'bulk_assign' | 'manual_add';
+  kind: 'auto_attach' | 'bulk_assign' | 'manual_add' | 'inventory_import';
   reference: string;
   at: string;
 }
