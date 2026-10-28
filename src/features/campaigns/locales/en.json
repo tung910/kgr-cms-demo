@@ -45,6 +45,10 @@
       "months": "{{count}} months"
     }
   },
+  "errors": {
+    "package_unavailable": "The service package is no longer available (archived or not fully configured).",
+    "invalid_package_offer": "The offer does not fit the selected service package."
+  },
   "button": {
     "none": "No action button yet.",
     "add": "Add action button",

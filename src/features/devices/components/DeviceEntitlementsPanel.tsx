@@ -28,6 +28,7 @@ const SOURCE_KIND_KEY: Record<Entitlement['source']['kind'], string> = {
   inventory_import: 'inventoryImport',
   bulk_assign: 'bulkAssign',
   manual_add: 'manualAdd',
+  campaign_purchase: 'campaignPurchase',
 };
 
 // §6.1/§11: `open_reservations[].ticket_status` is a closed 3-value enum

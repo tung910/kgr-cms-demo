@@ -16,9 +16,11 @@ import type {
   EntitlementEventType,
   EntitlementOpenReservationDto,
   EntitlementPackageSnapshotDto,
+  EntitlementSourceDto,
   EntitlementStatus,
   EntitlementSummaryDto,
 } from '@/features/devices/schemas/entitlementSchemas';
+import { PACKAGE_CAMPAIGN_ID } from '@/mocks/fixtures/campaigns';
 import { deviceFixtures } from '@/mocks/fixtures/devices';
 import { randomId } from '@/shared/lib/id';
 
@@ -41,7 +43,7 @@ export interface EntitlementRecord {
   starts_override_at: string | null; // "Thêm gói" §7.2: term starts from add date
   revoked: boolean;
   source: {
-    kind: 'auto_attach' | 'bulk_assign' | 'manual_add' | 'inventory_import';
+    kind: EntitlementSourceDto['kind'];
     reference: string;
     at: string;
   };
@@ -629,4 +631,49 @@ for (const seed of PENDING_INVENTORY_SEEDS) {
       }
     );
   }
+}
+
+// 9) Purchases made through the promoted-package campaign (campaign spec §4.6):
+// three activated devices — the first by id that do not hold the package yet —
+// bought "Vệ sinh máy" one, two and three weeks ago, with the term starting on
+// the purchase date.
+{
+  const pkg = findPackageFixture('pkg-demo-clean');
+  const buyers = deviceFixtures
+    .filter(
+      (device) =>
+        device.activated_at &&
+        !entitlementRecords.some(
+          (record) =>
+            record.device_id === device.device_id &&
+            !record.revoked &&
+            record.package_snapshot.package_id === 'pkg-demo-clean'
+        )
+    )
+    .sort((a, b) => a.device_id.localeCompare(b.device_id))
+    .slice(0, 3);
+  if (pkg)
+    buyers.forEach((device, index) => {
+      const at = seedNow.subtract(index + 1, 'week').toISOString();
+      attachPackage(
+        {
+          deviceId: device.device_id,
+          modelCode: device.model_name,
+          activatedAt: device.activated_at ?? null,
+        },
+        pkg,
+        { kind: 'campaign_purchase', reference: PACKAGE_CAMPAIGN_ID, at },
+        { startsAt: at }
+      );
+    });
+}
+
+// How many entitlements customers bought through a campaign; feeds the
+// campaign's package purchases/revenue metrics.
+export function countCampaignPurchases(campaignId: string): number {
+  return entitlementRecords.filter(
+    (record) =>
+      record.source.kind === 'campaign_purchase' &&
+      record.source.reference === campaignId
+  ).length;
 }

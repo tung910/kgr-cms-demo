@@ -88,6 +88,7 @@ export const entitlementSourceSchema = z.object({
     'bulk_assign',
     'manual_add',
     'inventory_import',
+    'campaign_purchase',
   ]),
   reference: z.string().min(1),
   at: z.string().datetime({ offset: true }),
@@ -199,7 +200,12 @@ export interface EntitlementPackageSnapshot {
 }
 
 export interface EntitlementSource {
-  kind: 'auto_attach' | 'bulk_assign' | 'manual_add' | 'inventory_import';
+  kind:
+    | 'auto_attach'
+    | 'bulk_assign'
+    | 'manual_add'
+    | 'inventory_import'
+    | 'campaign_purchase';
   reference: string;
   at: string;
 }

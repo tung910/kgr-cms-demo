@@ -691,7 +691,8 @@
         "autoAttach": "Auto-attached on stock intake",
         "bulkAssign": "Bulk assignment",
         "manualAdd": "Added manually",
-        "inventoryImport": "Confirmed inventory import"
+        "inventoryImport": "Confirmed inventory import",
+        "campaignPurchase": "Bought via campaign"
       }
     },
     "eventLog": {

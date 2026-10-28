@@ -686,7 +686,8 @@
         "autoAttach": "Tự động gắn khi nhập kho",
         "bulkAssign": "Gắn hàng loạt",
         "manualAdd": "Thêm thủ công",
-        "inventoryImport": "Nhập lô đã xác nhận"
+        "inventoryImport": "Nhập lô đã xác nhận",
+        "campaignPurchase": "Mua qua chiến dịch"
       }
     },
     "eventLog": {

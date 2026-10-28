@@ -8,6 +8,10 @@ import {
 // Seed campaigns covering every lifecycle state (spec 7.5) plus the automated
 // triggers (7.3) and an offer (7.4). In-memory only; resets on reload.
 
+// The campaign promoting `pkg-demo-clean`; the seeded campaign-purchase
+// entitlements in the entitlement store point back to it.
+export const PACKAGE_CAMPAIGN_ID = 'CMP-0009';
+
 const dayMs = 86_400_000;
 const iso = (offsetDays: number) =>
   new Date(Date.now() + offsetDays * dayMs).toISOString();
@@ -280,7 +284,39 @@ export const campaignFixtures: CampaignDto[] = [
   },
   {
     ...base,
-    id: 'CMP-0009',
+    id: PACKAGE_CAMPAIGN_ID,
+    name: 'Vệ sinh máy giảm 20% năm đầu',
+    notification_group: 'service',
+    title: 'Vệ sinh máy giảm 20% năm đầu',
+    content:
+      'Chào {ten}, máy {model} của bạn sắp đến kỳ vệ sinh. Đăng ký gói Vệ sinh máy ngay để được giảm 20% cho năm đầu tiên.',
+    buttons: [{ type: 'buy_service_package', label: 'Mua gói vệ sinh' }],
+    status: 'running',
+    audience: {
+      ...base.audience,
+      excludeActivePackageId: 'pkg-demo-clean',
+    },
+    audience_count: 32,
+    offer: {
+      type: 'voucher',
+      voucherCode: 'VESINH20',
+      discountType: 'percent',
+      discountValue: 20,
+      appliesTo: 'DEMO-BT-2L',
+    },
+    promoted_package_id: 'pkg-demo-clean',
+    // Newest running campaign, so it dispatches after the older ones and does
+    // not eat into their frequency caps.
+    created_at: iso(-1.5),
+    approver_id: 'u-admin',
+    approver_name: 'Admin Demo',
+    approved_by: 'u-admin',
+    approved_by_name: 'Admin Demo',
+    approved_at: iso(-1),
+  },
+  {
+    ...base,
+    id: 'CMP-0010',
     name: 'Thông báo bảo trì miền Trung',
     display_type: 'banner',
     notification_group: 'service',

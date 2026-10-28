@@ -1,5 +1,8 @@
 import { servicePackageFixtures } from '@/mocks/fixtures/servicePackages';
-import type { ServicePackageDto } from '@/features/service-packages/schemas/servicePackageSchemas';
+import {
+  servicePackageDraftInputSchema,
+  type ServicePackageDto,
+} from '@/features/service-packages/schemas/servicePackageSchemas';
 
 // Shared in-memory mock backend for the add-on service catalogue (M11).
 // Extracted from servicePackageHandlers.ts so other mock handlers (device
@@ -12,3 +15,12 @@ export const packageStore: ServicePackageDto[] = servicePackageFixtures.map(
     ...item,
   })
 );
+
+// A package can be handed to a device (inventory import) or promoted by a
+// campaign only while it is published and fully configured.
+export function isGrantablePackage(pkg: ServicePackageDto): boolean {
+  return (
+    pkg.status === 'active' &&
+    servicePackageDraftInputSchema.safeParse(pkg).success
+  );
+}

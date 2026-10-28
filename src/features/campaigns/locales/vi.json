@@ -383,7 +383,9 @@
     "previewFailed": "Không tính được số khách nhận.",
     "saveFailed": "Lưu chiến dịch thất bại.",
     "transitionFailed": "Chuyển trạng thái thất bại.",
-    "coreRequired": "Chọn ít nhất một lõi."
+    "coreRequired": "Chọn ít nhất một lõi.",
+    "package_unavailable": "Gói dịch vụ không còn khả dụng (đã ngừng bán hoặc chưa đủ cấu hình).",
+    "invalid_package_offer": "Ưu đãi không phù hợp với gói dịch vụ đã chọn."
   },
   "button": {
     "none": "Chưa có nút hành động.",

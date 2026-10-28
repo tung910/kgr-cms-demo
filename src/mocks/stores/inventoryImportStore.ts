@@ -1,7 +1,4 @@
-import {
-  servicePackageDraftInputSchema,
-  type ServicePackageDto,
-} from '@/features/service-packages/schemas/servicePackageSchemas';
+import type { ServicePackageDto } from '@/features/service-packages/schemas/servicePackageSchemas';
 import {
   computeEntitlementQuota,
   getEntitlementKind,
@@ -19,7 +16,7 @@ import { deviceFixtures } from '@/mocks/fixtures/devices';
 import { modelFixtures } from '@/mocks/fixtures/models';
 import { randomId } from '@/shared/lib/id';
 import { inventoryStore, previewNewUnits } from './inventoryStore';
-import { packageStore } from './servicePackageStore';
+import { isGrantablePackage, packageStore } from './servicePackageStore';
 import { attachPackage } from './entitlementStore';
 
 interface ImportPreview {
@@ -41,20 +38,13 @@ export class InventoryImportError extends Error {
   }
 }
 
-function grantablePackage(pkg: ServicePackageDto): boolean {
-  return (
-    pkg.status === 'active' &&
-    servicePackageDraftInputSchema.safeParse(pkg).success
-  );
-}
-
 // Direct selections take precedence over the same package selected via a bundle.
 export function expandInventoryPackages(
   ids: readonly string[]
 ): ServicePackageDto[] {
   const selected = ids.map((id) => {
     const pkg = packageStore.find((item) => item.id === id);
-    if (!pkg || !grantablePackage(pkg))
+    if (!pkg || !isGrantablePackage(pkg))
       throw new InventoryImportError('package_changed');
     return pkg;
   });
@@ -71,7 +61,7 @@ export function expandInventoryPackages(
       throw new InventoryImportError('package_changed');
     for (const part of pkg.configuration.packages) {
       const child = packageStore.find((item) => item.id === part.id);
-      if (!child || child.group === 'bundle' || !grantablePackage(child))
+      if (!child || child.group === 'bundle' || !isGrantablePackage(child))
         throw new InventoryImportError('package_changed');
       const kind = child.service_type_code
         ? getEntitlementKind(child.service_type_code)
