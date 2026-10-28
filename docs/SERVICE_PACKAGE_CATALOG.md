@@ -94,12 +94,14 @@ hình và không thuộc nhóm bundle được chọn.
   điều kiện khác), mặc định bật khi chọn gói. Bỏ gói thì wizard xoá nút CTA
   "Mua gói dịch vụ", gỡ ràng buộc voucher với gói và đặt lại loại trừ về bật; đổi
   sang gói khác thì giữ nút, cập nhật mã áp dụng sang gói mới, chỉ xoá giá trị
-  voucher không hợp lệ với gói mới và giữ lựa chọn loại trừ. Với chiến dịch
-  trigger có gói, mock luôn bỏ qua máy đã có gói đó, bất kể công tắc loại trừ.
+  voucher không hợp lệ với gói mới và giữ lựa chọn loại trừ. Công tắc loại trừ là
+  quy tắc duy nhất cho cả chiến dịch gửi tay lẫn trigger: bật thì bỏ máy đã có
+  gói, tắt (nhắc gia hạn) thì máy đó vẫn được gửi.
 - Gói không còn phát hành được (ngừng bán, mất cấu hình): tạo/sửa nháp trả 422
   `package_unavailable`; gửi duyệt, duyệt, chạy, chạy lại trả 409
-  `package_unavailable` và không sinh lượt gửi. Chiến dịch đang chạy hiện cảnh
-  báo ở danh sách/chi tiết. Body lỗi của mock mang `code`.
+  `package_unavailable` và không sinh lượt gửi; chiến dịch đã duyệt hẹn giờ mà
+  gói không còn phát hành được thì giữ `approved`, không tự chạy khi tới giờ.
+  Chiến dịch đang chạy hiện cảnh báo ở danh sách/chi tiết. Body lỗi của mock mang `code`.
 - Số liệu: `package_purchases`, `package_revenue` đếm từ quyền lợi nguồn
   `campaign_purchase` của chiến dịch, đã nằm trong đơn/doanh thu, tính kỳ đầu
   sau giảm; gói báo giá cho doanh thu 0. CSV có thêm hai cột.
