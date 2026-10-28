@@ -43,6 +43,8 @@ export const campaignAudienceFixtures: AudienceCustomerDto[] = Array.from(
           usage_type: seed % 7 === 0 ? 'rental' : 'personal',
           connectivity: seed % 5 === 0 ? 'non_iot' : 'iot',
           last_core_purchase_days_ago: (seed * 23) % 420,
+          // Every 4th unit already holds "Vệ sinh máy" (pkg-demo-clean).
+          active_package_ids: seed % 4 === 0 ? ['pkg-demo-clean'] : [],
         };
       }),
       loyalty_points: (index * 37) % 1000,

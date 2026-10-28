@@ -31,6 +31,7 @@
         "description": "Fetch newly received devices when you select this option."
       },
       "success": "Synced: {{added}} added, {{updated}} updated.",
+      "successWithEntitlements": "Synced: {{added}} added, {{updated}} updated, {{count}} service package(s) attached.",
       "upToDate": "Inventory is already up to date.",
       "error": "Could not sync inventory. Please try again."
     },
@@ -49,7 +50,8 @@
         "identity": "Serial / Model",
         "firmware": "Factory firmware",
         "age": "Days in stock",
-        "status": "Activation status"
+        "status": "Activation status",
+        "entitlements": "Service packages"
       },
       "firmwareOutdated": "Needs update",
       "firmwareOutdatedHint": "Firmware is older than the current release — the device will need OTA right after activation.",
@@ -59,7 +61,90 @@
       "receivedAt": "Received on: {{date}}",
       "notActivated": "Not activated"
     },
-    "description": "{{total}} in-stock devices match the filters · Not activated"
+    "description": "{{total}} in-stock devices match the filters · Not activated",
+    "import": {
+      "action": "Import devices",
+      "title": "Import devices and assign services",
+      "steps": {
+        "serials": "Serials",
+        "batch": "Batch packages",
+        "devices": "Per-device changes",
+        "confirm": "Review and confirm"
+      },
+      "sourceTitle": "Import a batch of serials",
+      "sourceHint": "Upload a UTF-8 CSV with serial,model columns (up to 5 MiB and 10,000 rows), or preview devices from the warehouse. No devices are imported yet.",
+      "upload": "Upload CSV",
+      "warehouse": "Preview warehouse devices",
+      "template": "Download CSV template",
+      "fileLimit": "Choose a CSV file no larger than 5 MiB. Up to 10,000 device rows are supported.",
+      "previewReady": "{{count}} devices ready to review. Inventory has not changed.",
+      "serial": "Serial / model",
+      "packages": "Service packages",
+      "selection": "Selection",
+      "noPackages": "No service packages",
+      "packagesFor": "Service packages for {{serial}}",
+      "customized": "Customized",
+      "resetRow": "Use batch packages",
+      "fromBatch": "From batch",
+      "search": "Find serial or model",
+      "deviceCount": "{{count}} devices",
+      "quota": "{{count}} uses",
+      "timeOnly": "Time-based coverage",
+      "noTerm": "No fixed term",
+      "term": "{{count}} months",
+      "batchTitle": "Select packages for {{count}} devices",
+      "batchHint": "These are the default packages for this batch. You can change individual devices next. Models do not restrict selection. Only published, fully configured packages are available; assigning a paid package does not record payment.",
+      "batchPackages": "Batch service packages",
+      "noOptions": "No published, fully configured packages are available. You can continue without packages.",
+      "optionsError": "Could not load available packages. Retry before continuing.",
+      "unavailable": "A selected package is no longer available. Remove it or select another package before continuing.",
+      "editHint": "Add or remove packages for each device. Customized devices keep their own selections when batch defaults change. Use “Use batch packages” to reset.",
+      "reviewSummary": "{{devices}} devices · {{customized}} customized · {{count}} expected entitlements",
+      "confirmHint": "Confirm to import this exact batch and grant the packages shown. Existing serials are handled by the backend. Bundles grant their component benefits; duplicate package IDs are granted once. Service terms start under the existing activation rules.",
+      "next": "Continue",
+      "back": "Back",
+      "review": "Review batch",
+      "confirm": "Confirm import and grant packages",
+      "cancel": "Cancel",
+      "close": "Close",
+      "retry": "Retry",
+      "retryConfirm": "Retry the same confirmation",
+      "discardTitle": "Discard this import draft?",
+      "discardDescription": "Your package selections will be lost. No import has been confirmed.",
+      "discard": "Discard draft",
+      "stay": "Keep editing",
+      "uncertain": "Confirmation could not be verified. Retry the same request to recover its result without granting packages twice.",
+      "resultSummary": "Added: {{added}} · Skipped: {{skipped}} · Failed: {{failed}} · Granted entitlements: {{count}}",
+      "result": "Result",
+      "detail": "Details",
+      "benefitCount": "Entitlements",
+      "statuses": {
+        "added": "Imported",
+        "skipped": "Skipped",
+        "failed": "Failed"
+      },
+      "resultCodes": {
+        "imported": "Import confirmed",
+        "serial_exists": "Serial already exists; existing benefits were preserved."
+      },
+      "csvErrors": {
+        "header": "CSV must start with serial,model headers.",
+        "empty": "The file contains no device rows.",
+        "columns": "Line {{line}} must have a serial and model in exactly two columns.",
+        "quote": "Invalid CSV quoting near line {{line}}.",
+        "limit": "The file exceeds 10,000 device rows."
+      },
+      "errors": {
+        "unknown": "Could not complete the import. Please try again.",
+        "forbidden": "You do not have permission to import devices.",
+        "invalid_input": "The import request is invalid. Review the batch.",
+        "invalid_model": "A model code does not exist or has no warehouse reference data. Check the model column.",
+        "preview_unavailable": "This preview is unavailable or has already been confirmed. Reload the inventory before starting a new import.",
+        "package_changed": "A package or bundle component is no longer eligible. Review your selections.",
+        "idempotency_conflict": "This confirmation key was used with different data. Start a new preview.",
+        "inventory_sync_retired": "Direct warehouse sync is retired. Use the import preview and confirmation flow."
+      }
+    }
   },
   "filters": {
     "searchAriaLabel": "Search devices",
@@ -205,6 +290,7 @@
       "region": "Customer & region",
       "status": "Status",
       "filterLife": "Filter cores needing attention",
+      "entitlements": "Service packages",
       "firmware": "Firmware",
       "lastSeen": "Last connected",
       "activatedAt": "Activated on",
@@ -381,7 +467,9 @@
     "reason": "Reason",
     "cancel": "Cancel",
     "error": "Could not complete the action.",
-    "notAvailable": "—"
+    "notAvailable": "—",
+    "entitlementsTransferNotice_one": "{{count}} active service package will transfer with the device",
+    "entitlementsTransferNotice_other": "{{count}} active service packages will transfer with the device"
   },
   "coreAlerts": {
     "title": "Filter replacement alerts",
@@ -395,6 +483,11 @@
     },
     "createAppointment": "Create technician appointment",
     "modalTitle": "Create technician appointment — position {{position}}",
+    "usePackage": {
+      "label": "Use a service package",
+      "option": "{{name}} — {{remaining}} uses left",
+      "none": "Don't use a package (customer pays)"
+    },
     "reason": "Reason",
     "confirm": "Create ticket",
     "cancel": "Cancel",
@@ -442,7 +535,11 @@
     "restoreNotEligible": "This device is not in a restorable state.",
     "invalidResponse": "The server returned an invalid device response.",
     "sameOwner": "This customer already owns the device.",
-    "noOwner": "The device has no owner."
+    "noOwner": "The device has no owner.",
+    "entitlementNotEligible": "This entitlement does not belong to this device or is not a technician-delivery filter-replacement package.",
+    "entitlementNotActive": "This entitlement is not active, or has expired/been revoked.",
+    "entitlementExhausted": "This entitlement has no remaining uses.",
+    "idempotencyConflict": "The same request was resubmitted with different content; please try again."
   },
   "telemetry": {
     "title": "Water quality in/out",
@@ -531,5 +628,85 @@
     "lastOnline": "Last online: {{date}}",
     "viewInDeviceList": "View in device list",
     "openProfile": "Open full profile"
+  },
+  "entitlements": {
+    "statuses": {
+      "pending": "Not started",
+      "active": "Active",
+      "expiring": "Expiring soon",
+      "exhausted": "Used up",
+      "expired": "Expired",
+      "revoked": "Removed"
+    },
+    "eventTypes": {
+      "reserved": "Reserved",
+      "released": "Reservation released",
+      "consumed": "Used",
+      "shipment": "Core shipment logged",
+      "manual": "Manual usage logged",
+      "reversal": "Usage reversed",
+      "customerQrScan": "Customer QR scan (not counted)",
+      "attached": "Attached",
+      "revoked": "Revoked / removed"
+    },
+    "tags": {
+      "overflow": "+{{count}}",
+      "withName": "{{name}}: {{status}}",
+      "expiringDays": "Expiring soon: {{count}} days left",
+      "quota": "{{used}}/{{quota}} uses",
+      "notStarted": "Not started",
+      "notUsedYet": "Not used yet",
+      "tooltipTerm": "{{count}}-month term, from the activation date",
+      "tooltipNoTerm": "No fixed term",
+      "tooltipSource": "source {{reference}}"
+    },
+    "panel": {
+      "title": "Service packages",
+      "loading": "Loading service packages...",
+      "error": "Could not load service packages.",
+      "empty": "This device has no service packages yet.",
+      "delivery": {
+        "self": "Customer self-service",
+        "technician": "Done by technician",
+        "shipment": "Cores shipped to customer"
+      },
+      "validity": "Valid: {{start}} – {{end}}",
+      "validityPending": "Valid from the device's activation date",
+      "noEnd": "no end date",
+      "remainingDays": "{{count}} days left",
+      "usedOf": "Used {{used}}/{{quota}}",
+      "usedNoQuota": "Used {{used}} (total not set)",
+      "reserved": "1 reserved — ticket {{ticket}} ({{status}}, {{scheduled}})",
+      "noSchedule": "not scheduled yet",
+      "ticketStatus": {
+        "pending": "Pending",
+        "assigned": "Assigned",
+        "inProgress": "In progress"
+      },
+      "nextDue": "Next use due: {{date}}",
+      "warrantyIndependent": "Additional package warranty — independent from the electronic warranty (expires {{date}})",
+      "warrantyIndependentNoDate": "Additional package warranty — independent from the electronic warranty",
+      "source": "Source: {{kind}} · {{reference}} · {{date}}",
+      "sourceLinked": "Source: <kind>{{kind}}</kind> · {{date}}",
+      "sourceKind": {
+        "autoAttach": "Auto-attached on stock intake",
+        "bulkAssign": "Bulk assignment",
+        "manualAdd": "Added manually",
+        "inventoryImport": "Confirmed inventory import",
+        "campaignPurchase": "Bought via campaign {{reference}}"
+      }
+    },
+    "eventLog": {
+      "title": "Usage history",
+      "empty": "No usage history yet.",
+      "error": "Could not load usage history.",
+      "notCounted": "not counted",
+      "columns": {
+        "time": "Time",
+        "type": "Event",
+        "reference": "Reference",
+        "actor": "Performed by"
+      }
+    }
   }
 }

@@ -13,9 +13,16 @@ import {
 } from '@/features/system/mocks/systemHandlers';
 import { campaignAudienceFixtures } from '@/mocks/fixtures/campaignAudience';
 import { campaignFixtures } from '@/mocks/fixtures/campaigns';
+import { countCampaignPurchases } from '@/mocks/stores/entitlementStore';
+import {
+  isGrantablePackage,
+  packageStore,
+} from '@/mocks/stores/servicePackageStore';
 import { randomId } from '@/shared/lib/id';
 import { maskName } from '@/shared/lib/mask';
+import type { ServicePackageDto } from '@/features/service-packages/schemas/servicePackageSchemas';
 
+import { mapPromotedPackage } from '../api/campaignMapper';
 import { buttonDeeplink } from '../constants/campaignCta';
 import { resolveDeviceDeeplink } from '../constants/deeplinkTargets';
 import {
@@ -31,8 +38,14 @@ import {
   campaignDraftInputSchema,
   type CampaignDto,
   type CampaignMetricsDto,
+  type CampaignOffer,
   type CampaignTransition,
+  type PromotedPackageDto,
 } from '../schemas/campaignSchemas';
+import {
+  firstPeriodPrice,
+  validatePackageOffer,
+} from '../utils/packagePricing';
 
 // In-memory mock backend for the campaigns module (spec §7). Resets on reload.
 // Authorization, the approval state machine, creator≠approver separation and
@@ -54,7 +67,7 @@ function allowed(capability: Capability): boolean {
 
 function error(key: string, status: number) {
   return HttpResponse.json(
-    { message: i18n.t('campaigns:errors.' + key) },
+    { code: key, message: i18n.t('campaigns:errors.' + key) },
     { status }
   );
 }
@@ -78,6 +91,61 @@ function hashId(id: string): number {
   return Math.abs(hash);
 }
 
+// ---- promoted package (campaign spec §4–§5) ---------------------------------
+
+// Catalogue summary of a package as campaign screens see it. Bundles are never
+// promotable, so they are reported as not grantable.
+export function toPromotedPackageDto(
+  pkg: ServicePackageDto
+): PromotedPackageDto {
+  return {
+    id: pkg.id,
+    code: pkg.code,
+    name: pkg.name,
+    group: pkg.group,
+    status: pkg.status,
+    grantable: isGrantablePackage(pkg) && pkg.group !== 'bundle',
+    billing_type: pkg.billing_type,
+    price: pkg.price,
+    billing_period_months: pkg.billing_period_months,
+    pricing_mode: pkg.pricing_mode ?? 'fixed',
+    term_months: pkg.term_months,
+  };
+}
+
+function promotedPackageOf(id: string | null): PromotedPackageDto | null {
+  const pkg = id ? packageStore.find((item) => item.id === id) : undefined;
+  return pkg ? toPromotedPackageDto(pkg) : null;
+}
+
+// The stored campaign keeps only the package reference; the summary is read
+// from the live catalogue on every response so an archived package shows up.
+function withPackage(campaign: CampaignDto): CampaignDto {
+  return {
+    ...campaign,
+    promoted_package: promotedPackageOf(campaign.promoted_package_id),
+  };
+}
+
+function packageGrantable(id: string | null): boolean {
+  return id === null || !!promotedPackageOf(id)?.grantable;
+}
+
+// A draft may only promote a grantable package, and its voucher must fit the
+// package's pricing (free/bundled: none; quotation: percent only; amount ≤ one
+// period).
+function packageInputError(
+  packageId: string | null,
+  offer: CampaignOffer | null
+) {
+  if (packageId === null) return null;
+  const pkg = promotedPackageOf(packageId);
+  if (!pkg?.grantable) return error('package_unavailable', 422);
+  if (validatePackageOffer(mapPromotedPackage(pkg), offer))
+    return error('invalid_package_offer', 422);
+  return null;
+}
+
 // ---- lazy scheduling -------------------------------------------------------
 
 // No real scheduler exists: a scheduled campaign "activates" when read after
@@ -89,7 +157,10 @@ function materialize(campaign: CampaignDto): CampaignDto {
     campaign.status === 'approved' &&
     campaign.schedule_type === 'scheduled' &&
     campaign.starts_at &&
-    Date.parse(campaign.starts_at) <= now
+    Date.parse(campaign.starts_at) <= now &&
+    // Same rule as the manual run: a package that is no longer grantable keeps
+    // the campaign waiting instead of silently starting it.
+    packageGrantable(campaign.promoted_package_id)
   ) {
     campaign.status = 'running';
     campaign.updated_at = new Date().toISOString();
@@ -181,12 +252,20 @@ function matchingDevices(
   c: AudienceConditions
 ): AudienceDeviceDto[] {
   const predicates = predicatesOf(c);
-  if (predicates.length === 0) return customer.devices;
-  return customer.devices.filter((device) =>
-    c.logic === 'or'
-      ? predicates.some((p) => p(customer, device))
-      : predicates.every((p) => p(customer, device))
-  );
+  const matched =
+    predicates.length === 0
+      ? customer.devices
+      : customer.devices.filter((device) =>
+          c.logic === 'or'
+            ? predicates.some((p) => p(customer, device))
+            : predicates.every((p) => p(customer, device))
+        );
+  // Excluding devices that already hold the promoted package is an AND on top
+  // of the and/or conditions, so it also holds when the logic is `or`.
+  const excluded = c.excludeActivePackageId;
+  return excluded
+    ? matched.filter((device) => !device.active_package_ids.includes(excluded))
+    : matched;
 }
 
 // shortcut: lazy in-memory dispatch, replace with a durable scheduler for production.
@@ -257,6 +336,8 @@ function inQuietHours(from: number, to: number): boolean {
 }
 
 function dispatch(campaign: CampaignDto): void {
+  // A campaign promoting an archived/unconfigured package must not go out.
+  if (!packageGrantable(campaign.promoted_package_id)) return;
   const now = Date.now();
   if (
     (campaign.starts_at && Date.parse(campaign.starts_at) > now) ||
@@ -353,7 +434,9 @@ function dispatch(campaign: CampaignDto): void {
         customerId: customer.customer_id,
         deviceId: device.device_id,
         deeplink: resolveDeviceDeeplink(
-          campaign.buttons[0] ? buttonDeeplink(campaign.buttons[0]) : null,
+          campaign.buttons[0]
+            ? buttonDeeplink(campaign.buttons[0], campaign.promoted_package_id)
+            : null,
           device.device_id
         ),
         sentAt: now,
@@ -423,9 +506,18 @@ function metricsFor(campaign: CampaignDto): CampaignMetricsDto {
     else conversionsQr++;
   }
 
+  // Packages bought through the campaign count as orders; recurring packages
+  // contribute their first (voucher-discounted) period only.
+  const promoted = promotedPackageOf(campaign.promoted_package_id);
+  const packagePurchases = promoted ? countCampaignPurchases(campaign.id) : 0;
+  const packageRevenue = promoted
+    ? packagePurchases *
+      (firstPeriodPrice(mapPromotedPackage(promoted), campaign.offer) ?? 0)
+    : 0;
   const revenue =
     conversionsBooking * config.campaign_booking_revenue +
-    conversionsQr * config.campaign_qr_revenue;
+    conversionsQr * config.campaign_qr_revenue +
+    packageRevenue;
   const suppressedOptOut = audience.filter(
     (customer) =>
       !customer.opt_in &&
@@ -443,9 +535,11 @@ function metricsFor(campaign: CampaignDto): CampaignMetricsDto {
     clicked,
     conversions_booking: conversionsBooking,
     conversions_qr: conversionsQr,
-    orders: conversionsBooking + conversionsQr,
+    orders: conversionsBooking + conversionsQr + packagePurchases,
     revenue,
     suppressed_opt_out: suppressedOptOut,
+    package_purchases: packagePurchases,
+    package_revenue: packageRevenue,
   };
 }
 
@@ -534,9 +628,9 @@ function isComplete(campaign: CampaignDto): boolean {
 export const campaignHandlers = [
   http.get('/api/campaigns', ({ request }) => {
     if (!allowed('campaign.read')) return error('forbidden', 403);
-    return HttpResponse.json(
-      pageOf(new URL(request.url), filterCampaigns(new URL(request.url)))
-    );
+    const url = new URL(request.url);
+    const page = pageOf(url, filterCampaigns(url));
+    return HttpResponse.json({ ...page, items: page.items.map(withPackage) });
   }),
 
   http.get('/api/campaigns/counts', ({ request }) => {
@@ -573,6 +667,16 @@ export const campaignHandlers = [
       listMembersWithCapability('campaign.approve').filter(
         (member) => member.id !== who.id
       )
+    );
+  }),
+
+  // Packages a campaign can promote; registered before `/campaigns/:id`.
+  http.get('/api/campaigns/package-options', () => {
+    if (!allowed('campaign.write')) return error('forbidden', 403);
+    return HttpResponse.json(
+      packageStore
+        .map(toPromotedPackageDto)
+        .filter((pkg) => pkg.grantable && pkg.group !== 'bundle')
     );
   }),
 
@@ -647,6 +751,11 @@ export const campaignHandlers = [
       !allowed('campaign.frequency.config')
     )
       return error('forbidden', 403);
+    const invalidPackage = packageInputError(
+      input.promotedPackageId,
+      input.offer
+    );
+    if (invalidPackage) return invalidPackage;
     const who = actor();
     const now = new Date().toISOString();
     const campaign: CampaignDto = {
@@ -673,6 +782,8 @@ export const campaignHandlers = [
       audience_count: input.audienceCount,
       ab_test: input.abTest,
       offer: input.offer,
+      promoted_package_id: input.promotedPackageId,
+      promoted_package: null,
       test_recipients: input.testRecipients,
       created_by: who.id,
       created_by_name: who.fullName,
@@ -703,14 +814,14 @@ export const campaignHandlers = [
         after: { offer: structuredClone(campaign.offer) },
         reason: input.reason,
       });
-    return HttpResponse.json(campaign, { status: 201 });
+    return HttpResponse.json(withPackage(campaign), { status: 201 });
   }),
 
   http.get('/api/campaigns/:id', ({ params }) => {
     if (!allowed('campaign.read')) return error('forbidden', 403);
     const campaign = find(String(params.id));
     if (!campaign) return error('not_found', 404);
-    return HttpResponse.json(campaign);
+    return HttpResponse.json(withPackage(campaign));
   }),
 
   http.put('/api/campaigns/:id', async ({ params, request }) => {
@@ -734,6 +845,11 @@ export const campaignHandlers = [
       JSON.stringify(current.offer) !== JSON.stringify(input.offer);
     if (offerChanged && !allowed('campaign.voucher.create'))
       return error('forbidden', 403);
+    const invalidPackage = packageInputError(
+      input.promotedPackageId,
+      input.offer
+    );
+    if (invalidPackage) return invalidPackage;
     const updated: CampaignDto = {
       ...current,
       tenant_id: input.tenantId,
@@ -757,6 +873,7 @@ export const campaignHandlers = [
       audience_count: input.audienceCount,
       ab_test: input.abTest,
       offer: input.offer,
+      promoted_package_id: input.promotedPackageId,
       test_recipients: input.testRecipients,
       updated_at: new Date().toISOString(),
     };
@@ -778,7 +895,7 @@ export const campaignHandlers = [
         after: { offer: structuredClone(updated.offer) },
         reason: input.reason,
       });
-    return HttpResponse.json(updated);
+    return HttpResponse.json(withPackage(updated));
   }),
 
   http.post('/api/campaigns/:id/transition', async ({ params, request }) => {
@@ -809,6 +926,16 @@ export const campaignHandlers = [
       who.id === current.created_by
     )
       return error('self_approve', 403);
+
+    // Going live (or toward it) needs a package that can still be granted.
+    if (
+      (action === 'submit' ||
+        action === 'approve' ||
+        action === 'run' ||
+        action === 'resume') &&
+      !packageGrantable(current.promoted_package_id)
+    )
+      return error('package_unavailable', 409);
 
     // Validate a submit before touching the stored campaign.
     let approver: { id: string; name: string } | undefined;
@@ -854,7 +981,7 @@ export const campaignHandlers = [
       after: { status: to },
       reason,
     });
-    return HttpResponse.json(current);
+    return HttpResponse.json(withPackage(current));
   }),
 
   http.get('/api/campaigns/:id/metrics', ({ params }) => {

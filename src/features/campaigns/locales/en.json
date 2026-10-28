@@ -29,5 +29,90 @@
     "currentCap": "This campaign: up to {{cap}} attempts per window, per account or device as selected in Audience.",
     "cycleCapLabel": "Maximum sends per window",
     "cycleCapHint": "This limits this campaign within the window above, not across its entire lifetime. 0 blocks all sends. Only authorized users can edit it."
+  },
+  "package": {
+    "price": {
+      "firstPeriod": "{{price}} first {{period}}",
+      "renewal": "then {{price}}/{{period}}",
+      "perPeriod": "{{price}}/{{period}}",
+      "oneTime": "{{price}} (one-time)",
+      "free": "Free",
+      "quotation": "Quoted after survey",
+      "quotationDiscount": "{{value}}% off the quote"
+    },
+    "period": {
+      "year": "year",
+      "months": "{{count}} months"
+    },
+    "field": {
+      "label": "Promoted service package",
+      "placeholder": "No package (optional)",
+      "hint": "Pick an on-sale package to send customers to buy it. Leave empty when the campaign is not about a service.",
+      "loadFailed": "Could not load the service packages.",
+      "retry": "Retry",
+      "unavailable": "no longer available",
+      "term": "{{months}}-month term"
+    },
+    "offerIssue": {
+      "free_package_discount": "Free or bundled packages take no discount voucher. Use loyalty points or remove the package.",
+      "quotation_amount_discount": "Quoted packages only accept a percentage discount, not an amount.",
+      "discount_exceeds_price": "The discount cannot exceed the price of one billing period."
+    },
+    "voucherBound": "Voucher applies to package:",
+    "excludeOwners": "Exclude devices that already have {{code}}",
+    "excludeOwnersHint": "Skips devices holding a still-valid entitlement of this package. Turn off for renewal reminders.",
+    "summaryLabel": "Service package",
+    "warning": "Package {{code}} is no longer on sale or fully configured, so this campaign cannot be approved or run.",
+    "warningRunning": "Package {{code}} is no longer on sale or fully configured, so sending is paused until the package is back on sale.",
+    "warningPaused": "Package {{code}} is no longer on sale or fully configured, so this campaign cannot be resumed until the package is back on sale.",
+    "previewStale": "The reach is being updated for the selected service package. Please try again in a moment.",
+    "metrics": {
+      "purchases": "Package purchases",
+      "revenue": "Package revenue",
+      "quotationNote": "Quoted-package revenue is not counted"
+    },
+    "error": {
+      "unavailable": "The service package is no longer available (stopped selling or not fully configured).",
+      "invalidOffer": "The offer does not fit the selected service package."
+    }
+  },
+  "button": {
+    "none": "No action button yet.",
+    "add": "Add action button",
+    "addSecondary": "Add secondary button",
+    "primary": "Primary button",
+    "secondary": "Secondary button",
+    "remove": "Remove button",
+    "typeLabel": "Button type",
+    "label": "Button text",
+    "coreModeLabel": "Which filter to buy",
+    "coreSkus": "Select filters",
+    "coreModeAutoHint": "The app opens the filter that is about to run out on the receiving customer's device.",
+    "screen": "App screen",
+    "type": {
+      "buy_core": "Buy filter",
+      "book_technician": "Book a technician",
+      "renew_warranty": "Renew warranty",
+      "open_screen": "Open another screen",
+      "buy_service_package": "Buy service package"
+    },
+    "defaultLabel": {
+      "buy_core": "Buy replacement filter",
+      "book_technician": "Book a technician",
+      "renew_warranty": "Renew warranty",
+      "open_screen": "View now",
+      "buy_service_package": "Buy plan"
+    },
+    "coreMode": {
+      "auto": "Automatic, based on the customer's device",
+      "specific": "Specific filters"
+    },
+    "suggest": {
+      "core": "Buy {{name}} filter"
+    },
+    "target": {
+      "auto": "Buy the filter for the customer's device",
+      "cores": "Buy filters: {{names}}"
+    }
   }
 }

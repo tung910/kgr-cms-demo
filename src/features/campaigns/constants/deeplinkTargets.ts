@@ -42,10 +42,18 @@ export const DEVICE_SCOPED_DEEPLINK_VALUES: ReadonlySet<string> = new Set([
   'onekangaroo://shop/cores',
 ]);
 
+// A package page (`service-packages/<id>`) is device-scoped too: entitlements
+// attach to a machine, so the page must open for the matched device.
+const PACKAGE_DEEPLINK_PREFIX = 'onekangaroo://service-packages/';
+
 export function isDeviceScopedDeeplink(
   deeplink: string | null | undefined
 ): boolean {
-  return !!deeplink && DEVICE_SCOPED_DEEPLINK_VALUES.has(deeplink);
+  return (
+    !!deeplink &&
+    (DEVICE_SCOPED_DEEPLINK_VALUES.has(deeplink) ||
+      deeplink.startsWith(PACKAGE_DEEPLINK_PREFIX))
+  );
 }
 
 // Binds a device-scoped deeplink to a concrete device (`?device=<id>`); returns

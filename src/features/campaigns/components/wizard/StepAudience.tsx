@@ -9,6 +9,7 @@ import {
   Radio,
   Select,
   Spin,
+  Switch,
 } from 'antd';
 import { useTranslation } from 'react-i18next';
 
@@ -26,6 +27,7 @@ import {
   SEGMENT_REGIONS,
 } from '../../constants/segmentOptions';
 import type { AudiencePreview } from '../../schemas/audienceSchemas';
+import type { PromotedPackage } from '../../schemas/campaignSchemas';
 import {
   SEGMENT_FIELDS,
   type SegmentField,
@@ -340,7 +342,13 @@ function PreviewPanel({ preview }: { preview: AudiencePreviewState }) {
 
 // B3 — who receives it: conditions, de-duplication, exclusions and the reach
 // preview (the author must see the real number before continuing).
-export function StepAudience({ preview }: { preview: AudiencePreviewState }) {
+export function StepAudience({
+  preview,
+  promotedPackage,
+}: {
+  preview: AudiencePreviewState;
+  promotedPackage?: PromotedPackage;
+}) {
   const { t } = useTranslation('campaigns');
   return (
     <div className="space-y-5">
@@ -349,6 +357,23 @@ export function StepAudience({ preview }: { preview: AudiencePreviewState }) {
           {t('audienceConditionsTitle')}
         </h3>
         <SegmentBuilder />
+      </section>
+
+      {/* Stays registered (hidden) without a package so the value survives. */}
+      <section
+        className={`rounded-xl border border-[#E7E8E9] p-4 ${
+          promotedPackage ? '' : 'hidden'
+        }`}
+      >
+        <Form.Item
+          name="excludePackageOwners"
+          valuePropName="checked"
+          label={t('package.excludeOwners', { code: promotedPackage?.code })}
+          tooltip={t('package.excludeOwnersHint')}
+          className="mb-0"
+        >
+          <Switch />
+        </Form.Item>
       </section>
 
       <section className="rounded-xl border border-[#E7E8E9] p-4">

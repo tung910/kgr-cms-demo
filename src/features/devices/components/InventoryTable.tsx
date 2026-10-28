@@ -13,6 +13,7 @@ import type {
   InventoryDevice,
   InventoryListFilters,
 } from '../schemas/inventorySchemas';
+import { EntitlementTags } from './EntitlementTags';
 
 const dayMs = 86_400_000;
 
@@ -80,6 +81,16 @@ export function InventoryTable({
       title: t('inventory.table.columns.status'),
       key: 'status',
       render: () => <NotActivatedTag />,
+    },
+    {
+      title: t('inventory.table.columns.entitlements'),
+      key: 'entitlements',
+      render: (_: unknown, device) => (
+        <EntitlementTags
+          items={device.entitlementsSummary}
+          variant="inventory"
+        />
+      ),
     },
     {
       title: t('inventory.table.columns.firmware'),
@@ -166,6 +177,12 @@ export function InventoryTable({
                 </div>
                 <NotActivatedTag />
               </div>
+              {device.entitlementsSummary.length > 0 ? (
+                <EntitlementTags
+                  items={device.entitlementsSummary}
+                  variant="inventory"
+                />
+              ) : null}
               <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E7E8E9] pt-3">
                 <span className="text-xs text-[#636466]">
                   {t('inventory.table.receivedAt', {

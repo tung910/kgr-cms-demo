@@ -12,6 +12,7 @@ import {
   NotificationOutlined,
   QrcodeOutlined,
   SettingOutlined,
+  ShoppingOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
 import { Breadcrumb, Layout } from 'antd';
@@ -41,6 +42,7 @@ const pathLabelKeys: Record<string, string> = {
   alerts: 'nav.alerts',
   customers: 'nav.customers',
   campaigns: 'nav.campaigns',
+  'service-packages': 'nav.service_packages',
   firmware: 'nav.ota',
   maps: 'nav.device_map',
   serials: 'nav.serials',
@@ -59,6 +61,7 @@ function getSelectedMenuKey(pathname: string): PortalMenuKey {
   if (pathname.startsWith('/maps')) return 'device_map';
   if (pathname.startsWith('/customers')) return 'customers';
   if (pathname.startsWith('/campaigns')) return 'campaigns';
+  if (pathname.startsWith('/service-packages')) return 'service_packages';
   if (pathname.startsWith('/serials')) return 'serials';
   if (pathname.startsWith('/analytics-reports')) return 'analytics';
   if (pathname.startsWith('/system/members')) return 'members';
@@ -113,6 +116,12 @@ export function AppShell() {
       key: 'campaigns',
       icon: <NotificationOutlined />,
       label: t('nav.campaigns'),
+      group: 'business',
+    },
+    {
+      key: 'service_packages',
+      icon: <ShoppingOutlined />,
+      label: t('nav.service_packages'),
       group: 'business',
     },
     {
@@ -203,11 +212,13 @@ export function AppShell() {
     .filter(Boolean)
     .map((segment, index) => ({
       title:
-        location.pathname.startsWith('/devices/') && index === 1
-          ? t('breadcrumb.deviceDetail', { id: segment })
-          : pathLabelKeys[segment]
-            ? t(pathLabelKeys[segment])
-            : segment,
+        location.pathname === '/service-packages/new' && index === 1
+          ? t('breadcrumb.createService')
+          : location.pathname.startsWith('/devices/') && index === 1
+            ? t('breadcrumb.deviceDetail', { id: segment })
+            : pathLabelKeys[segment]
+              ? t(pathLabelKeys[segment])
+              : segment,
     }));
 
   const navigateToMenu = (key: PortalMenuKey) => {
@@ -236,6 +247,12 @@ export function AppShell() {
       case 'campaigns':
         void navigate({
           to: '/campaigns',
+          search: { search: '', page: 1, pageSize: 10 },
+        });
+        break;
+      case 'service_packages':
+        void navigate({
+          to: '/service-packages',
           search: { search: '', page: 1, pageSize: 10 },
         });
         break;

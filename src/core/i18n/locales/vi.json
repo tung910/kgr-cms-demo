@@ -11,6 +11,7 @@
     "device_map": "Bản đồ thiết bị",
     "customers": "Khách hàng & BH",
     "campaigns": "Chiến dịch",
+    "service_packages": "Gói dịch vụ",
     "analytics": "Phân tích & báo cáo",
     "serials": "Serial & chống hàng giả",
     "coreConfig": "Cấu hình tuổi thọ lõi",
@@ -22,7 +23,8 @@
   },
   "breadcrumb": {
     "home": "Trang chủ",
-    "deviceDetail": "Chi tiết {{id}}"
+    "deviceDetail": "Chi tiết {{id}}",
+    "createService": "Tạo dịch vụ"
   },
   "roles": {
     "super_admin": "Super Admin",
@@ -92,6 +94,10 @@
     "online": "Online",
     "warning": "Lỗi",
     "offline": "Offline"
+  },
+  "mapRegionStatus": {
+    "stable": "Ổn định",
+    "warning": "Cảnh báo"
   },
   "distributionRegionGroup": {
     "zone": "Miền",

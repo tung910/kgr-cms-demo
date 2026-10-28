@@ -103,3 +103,5 @@ Mỗi milestone chạy `pnpm lint && pnpm typecheck && pnpm format:check` trư�
 ## Rủi ro / phụ thuộc còn mở (assumption)
 
 Voucher redemption (e-commerce §10), loyalty engine, doanh thu attribution, push provider thật — demo mock, chốt hợp đồng khi nối backend. Chuyển tenant và các chiều phân khúc `Backlog` chưa làm.
+
+Mở rộng chiến dịch gắn gói dịch vụ (CTA mua gói, voucher theo gói, lượt mua `campaign_purchase`): xem [spec](superpowers/specs/2026-10-28-service-package-campaigns-design.md) và mục "Quảng cáo gói qua chiến dịch" trong `docs/SERVICE_PACKAGE_CATALOG.md`.

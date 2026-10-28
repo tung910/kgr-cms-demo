@@ -16,7 +16,8 @@ import type { ButtonValues, WizardValues } from './wizardValues';
 
 // Up to two buttons (spec 7.1/7.3), each configured by type: "Mua lõi" follows
 // the customer's own core or targets SKUs picked from the core catalogue.
-export function ButtonsEditor() {
+// "Mua gói dịch vụ" is offered only once a package is promoted (spec 4.1).
+export function ButtonsEditor({ hasPackage }: { hasPackage: boolean }) {
   const { t } = useTranslation('campaigns');
   const form = Form.useFormInstance<WizardValues>();
   const buttons: ButtonValues[] = Form.useWatch('buttons', form) ?? [];
@@ -61,7 +62,12 @@ export function ButtonsEditor() {
                     >
                       <Select
                         className="w-full"
-                        options={BUTTON_TYPES.map(({ value, labelKey }) => ({
+                        options={BUTTON_TYPES.filter(
+                          ({ value }) =>
+                            hasPackage ||
+                            value !== 'buy_service_package' ||
+                            current?.type === value
+                        ).map(({ value, labelKey }) => ({
                           value,
                           label: t(labelKey),
                         }))}

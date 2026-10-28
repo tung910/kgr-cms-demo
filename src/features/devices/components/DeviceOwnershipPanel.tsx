@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Table, Timeline, message } from 'antd';
+import { Alert, Button, Table, Timeline, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { ApiError } from '@/core/api/error';
@@ -13,6 +13,7 @@ import { formatDateTimeInLocale as formatDateTime } from '@/shared/lib/format';
 import { removeDeviceOwner, revokeSharedMember } from '../api/deviceDetailApi';
 import { deviceQueries } from '../queries/deviceQueries';
 import type { Device, DeviceSharedMember } from '../schemas/deviceSchemas';
+import { activeEntitlementsCount } from '../utils/entitlementDisplay';
 import { DeviceOwnerChangeDialog } from './DeviceOwnerChangeDialog';
 import { DeviceReasonConfirmDialog } from './DeviceReasonConfirmDialog';
 
@@ -39,6 +40,9 @@ export function DeviceOwnershipPanel({
   const canRemove = Boolean(
     session && hasCapability(session.role, 'device.lifecycle')
   );
+  // §5.4 — entitlements go with the device, not the owner: surface the count
+  // in the owner-removal confirmation so the operator knows they stay put.
+  const transferCount = activeEntitlementsCount(device.entitlementsSummary);
 
   const remove = useMutation({
     mutationFn: async ({
@@ -236,6 +240,18 @@ export function DeviceOwnershipPanel({
         open={removal !== null}
         title={dialog.title}
         warning={dialog.warning}
+        extra={
+          removal?.kind === 'owner' && transferCount > 0 ? (
+            <Alert
+              type="info"
+              showIcon
+              message={t('ownership.entitlementsTransferNotice', {
+                count: transferCount,
+              })}
+              className="mb-4"
+            />
+          ) : undefined
+        }
         okText={dialog.okText}
         pending={remove.isPending}
         onCancel={() => setRemoval(null)}

@@ -7,6 +7,7 @@ import type { PageResponse } from '@/shared/types/pagination';
 
 import type { Campaign, CampaignListFilters } from '../schemas/campaignSchemas';
 import { CampaignStatusTag } from './CampaignStatusTag';
+import { PromotedPackageWarning } from './PromotedPackageWarning';
 
 export interface CampaignTableProps {
   data: PageResponse<Campaign>;
@@ -56,7 +57,10 @@ export function CampaignTable({
       title: t('table.columns.status'),
       key: 'status',
       render: (_: unknown, campaign) => (
-        <CampaignStatusTag status={campaign.status} />
+        <div className="max-w-[260px] min-w-0 space-y-1">
+          <CampaignStatusTag status={campaign.status} />
+          <PromotedPackageWarning campaign={campaign} />
+        </div>
       ),
     },
     {
@@ -130,7 +134,7 @@ export function CampaignTable({
               className="block w-full space-y-3 p-4 text-left"
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <Typography.Text strong>{campaign.name}</Typography.Text>
                   <div className="mt-1 text-xs text-[#636466]">
                     {campaign.id} · {t(`kind.${campaign.kind}`)}
@@ -138,6 +142,7 @@ export function CampaignTable({
                 </div>
                 <CampaignStatusTag status={campaign.status} />
               </div>
+              <PromotedPackageWarning campaign={campaign} />
               <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E7E8E9] pt-3 text-xs text-[#636466]">
                 <span>
                   {campaign.audienceCount === null

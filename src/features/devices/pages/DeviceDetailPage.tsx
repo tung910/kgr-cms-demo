@@ -9,6 +9,7 @@ import { PermissionGuard } from '@/core/permissions/PermissionGuard';
 
 import { DeviceCoreAlertsPanel } from '../components/DeviceCoreAlertsPanel';
 import { DeviceDeleteDialog } from '../components/DeviceDeleteDialog';
+import { DeviceEntitlementsPanel } from '../components/DeviceEntitlementsPanel';
 import { DeviceFilterCoresPanel } from '../components/DeviceFilterCoresPanel';
 import { DeviceHistoryPanel } from '../components/DeviceHistoryPanel';
 import { DeviceLifecycleActions } from '../components/DeviceLifecycleActions';
@@ -79,6 +80,7 @@ export function DeviceDetailPage({ deviceId }: DeviceDetailPageProps) {
 
       {iot ? <DeviceTelemetryPanel device={device} /> : null}
       <DeviceFilterCoresPanel device={device} />
+      <DeviceEntitlementsPanel device={device} />
 
       {iot ? <DeviceRemoteDiagnosticPanel device={device} /> : null}
 

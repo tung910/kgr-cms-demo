@@ -10,4 +10,8 @@ export const AUDIT_MODULES = [
   { value: 'backup', labelKey: 'audit.modules.backup' },
   { value: 'simulation', labelKey: 'audit.modules.simulation' },
   { value: 'audit_log', labelKey: 'audit.modules.audit_log' },
+  {
+    value: 'service_entitlements',
+    labelKey: 'audit.modules.service_entitlements',
+  },
 ] as const;

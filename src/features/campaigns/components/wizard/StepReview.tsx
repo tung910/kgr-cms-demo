@@ -7,6 +7,7 @@ import { campaignQueries } from '../../queries/campaignQueries';
 import type {
   CampaignDraftInput,
   CoreOption,
+  PromotedPackage,
 } from '../../schemas/campaignSchemas';
 import { CampaignSummary } from '../CampaignSummary';
 import { splitRecipients, type WizardValues } from './wizardValues';
@@ -14,6 +15,7 @@ import { splitRecipients, type WizardValues } from './wizardValues';
 export interface StepReviewProps {
   draft: CampaignDraftInput;
   cores: readonly CoreOption[];
+  promotedPackage?: PromotedPackage;
   testSending: boolean;
   onTestSend: (recipients: string[]) => void;
 }
@@ -22,6 +24,7 @@ export interface StepReviewProps {
 export function StepReview({
   draft,
   cores,
+  promotedPackage,
   testSending,
   onTestSend,
 }: StepReviewProps) {
@@ -33,7 +36,11 @@ export function StepReview({
   return (
     <div className="grid gap-5">
       <section className="min-w-0 overflow-x-auto rounded-xl border border-[#E7E8E9] bg-[#F7F8F8] p-4">
-        <CampaignSummary data={draft} cores={cores} />
+        <CampaignSummary
+          data={draft}
+          cores={cores}
+          promotedPackage={promotedPackage}
+        />
       </section>
       <section className="rounded-xl border border-[#E7E8E9] p-4">
         <Form.Item

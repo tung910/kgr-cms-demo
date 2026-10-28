@@ -15,6 +15,7 @@ import {
   campaignMetricsDtoSchema,
   campaignPageDtoSchema,
   coreOptionListDtoSchema,
+  promotedPackageListDtoSchema,
   type Campaign,
   type CampaignApprover,
   type CampaignCountFilters,
@@ -24,6 +25,7 @@ import {
   type CampaignMetrics,
   type CampaignTransitionInput,
   type CoreOption,
+  type PromotedPackage,
 } from '../schemas/campaignSchemas';
 import {
   mapAudiencePreview,
@@ -31,6 +33,7 @@ import {
   mapCampaignCounts,
   mapCampaignMetrics,
   mapCampaignPage,
+  mapPromotedPackage,
 } from './campaignMapper';
 
 function invalidResponse(error: {
@@ -165,6 +168,19 @@ export async function getCoreOptions(
   const parsed = coreOptionListDtoSchema.safeParse(response);
   if (!parsed.success) throw invalidResponse(parsed.error);
   return parsed.data;
+}
+
+// Packages a campaign may promote: active and fully configured only (the
+// server filters). Gated by `campaign.write`, not `service_package.read`.
+export async function getCampaignPackageOptions(
+  signal?: AbortSignal
+): Promise<PromotedPackage[]> {
+  const response = await apiClient.get<unknown>('/campaigns/package-options', {
+    signal,
+  });
+  const parsed = promotedPackageListDtoSchema.safeParse(response);
+  if (!parsed.success) throw invalidResponse(parsed.error);
+  return parsed.data.map(mapPromotedPackage);
 }
 
 export async function getCampaignMetrics(

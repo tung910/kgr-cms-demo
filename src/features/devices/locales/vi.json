@@ -31,6 +31,7 @@
         "description": "Lấy danh sách thiết bị mới nhập kho khi bạn chọn mục này."
       },
       "success": "Đã đồng bộ: thêm {{added}}, cập nhật {{updated}} thiết bị.",
+      "successWithEntitlements": "Đã đồng bộ: thêm {{added}}, cập nhật {{updated}} thiết bị, gắn {{count}} gói dịch vụ.",
       "upToDate": "Danh sách thiết bị trong kho đã được cập nhật mới nhất.",
       "error": "Không thể đồng bộ danh sách thiết bị trong kho. Vui lòng thử lại."
     },
@@ -49,7 +50,8 @@
         "identity": "Serial / Model",
         "firmware": "Firmware xuất xưởng",
         "age": "Số ngày trong kho",
-        "status": "Trạng thái kích hoạt"
+        "status": "Trạng thái kích hoạt",
+        "entitlements": "Gói dịch vụ"
       },
       "firmwareOutdated": "Cần cập nhật",
       "firmwareOutdatedHint": "Firmware cũ hơn bản phát hành hiện tại — thiết bị sẽ cần OTA ngay sau khi kích hoạt.",
@@ -59,7 +61,90 @@
       "receivedAt": "Ngày nhập kho: {{date}}",
       "notActivated": "Chưa kích hoạt"
     },
-    "description": "{{total}} thiết bị trong kho khớp với bộ lọc hiện tại · Chưa kích hoạt"
+    "description": "{{total}} thiết bị trong kho khớp với bộ lọc hiện tại · Chưa kích hoạt",
+    "import": {
+      "action": "Nhập thiết bị",
+      "title": "Nhập thiết bị và cấp gói dịch vụ",
+      "steps": {
+        "serials": "Nhập serial",
+        "batch": "Gói chung cho lô",
+        "devices": "Chỉnh từng máy",
+        "confirm": "Xem lại và xác nhận"
+      },
+      "sourceTitle": "Nhập danh sách serial",
+      "sourceHint": "Tải CSV UTF-8 có cột serial,model (tối đa 5 MiB và 10.000 dòng), hoặc xem trước máy từ kho. Chưa có thiết bị nào được nhập.",
+      "upload": "Tải lên CSV",
+      "warehouse": "Xem trước máy từ kho",
+      "template": "Tải CSV mẫu",
+      "fileLimit": "Chọn file CSV tối đa 5 MiB, không quá 10.000 dòng thiết bị.",
+      "previewReady": "Đã đọc {{count}} máy để xem trước. Dữ liệu kho chưa thay đổi.",
+      "serial": "Serial / model",
+      "packages": "Gói dịch vụ",
+      "selection": "Lựa chọn",
+      "noPackages": "Không cấp gói dịch vụ",
+      "packagesFor": "Gói dịch vụ cho {{serial}}",
+      "customized": "Đã chỉnh riêng",
+      "resetRow": "Dùng gói của lô",
+      "fromBatch": "Theo gói chung của lô",
+      "search": "Tìm serial hoặc model",
+      "deviceCount": "{{count}} máy",
+      "quota": "{{count}} lượt",
+      "timeOnly": "Quyền lợi theo thời hạn",
+      "noTerm": "Không có thời hạn cố định",
+      "term": "{{count}} tháng",
+      "batchTitle": "Chọn gói chung cho {{count}} máy",
+      "batchHint": "Đây là gói mặc định cho lô. Bạn có thể chỉnh riêng từng máy ở bước tiếp theo. Không giới hạn theo model. Chỉ chọn gói đang phát hành, đủ cấu hình; cấp gói có giá không đồng nghĩa đã thanh toán.",
+      "batchPackages": "Gói dịch vụ chung cho lô",
+      "noOptions": "Chưa có gói đang phát hành và đủ cấu hình. Bạn có thể tiếp tục mà không cấp gói.",
+      "optionsError": "Không tải được danh sách gói. Hãy thử lại trước khi tiếp tục.",
+      "unavailable": "Có gói đã chọn không còn hợp lệ. Hãy bỏ hoặc chọn gói khác trước khi tiếp tục.",
+      "editHint": "Thêm hoặc bỏ gói cho từng máy. Máy đã chỉnh riêng giữ nguyên lựa chọn khi đổi gói chung. Chọn “Dùng gói của lô” để khôi phục.",
+      "reviewSummary": "{{devices}} máy · {{customized}} máy chỉnh riêng · Dự kiến cấp {{count}} quyền lợi",
+      "confirmHint": "Xác nhận để nhập đúng lô và cấp các gói đang hiển thị. Backend xử lý serial đã tồn tại. Gói kết hợp cấp quyền lợi thành phần; cùng mã gói chỉ cấp một lần. Thời hạn dịch vụ bắt đầu theo quy tắc kích hoạt hiện có.",
+      "next": "Tiếp tục",
+      "back": "Quay lại",
+      "review": "Xem lại lô",
+      "confirm": "Xác nhận nhập kho và cấp gói",
+      "cancel": "Hủy",
+      "close": "Đóng",
+      "retry": "Thử lại",
+      "retryConfirm": "Gửi lại cùng xác nhận",
+      "discardTitle": "Bỏ bản nháp nhập kho?",
+      "discardDescription": "Các lựa chọn gói sẽ bị mất. Chưa xác nhận nhập kho.",
+      "discard": "Bỏ bản nháp",
+      "stay": "Tiếp tục chỉnh sửa",
+      "uncertain": "Chưa xác minh được kết quả xác nhận. Gửi lại cùng yêu cầu để lấy kết quả mà không cấp gói hai lần.",
+      "resultSummary": "Đã nhập: {{added}} · Bỏ qua: {{skipped}} · Lỗi: {{failed}} · Đã cấp: {{count}} quyền lợi",
+      "result": "Kết quả",
+      "detail": "Chi tiết",
+      "benefitCount": "Quyền lợi",
+      "statuses": {
+        "added": "Đã nhập",
+        "skipped": "Bỏ qua",
+        "failed": "Lỗi"
+      },
+      "resultCodes": {
+        "imported": "Đã xác nhận nhập kho",
+        "serial_exists": "Serial đã tồn tại; giữ nguyên quyền lợi cũ."
+      },
+      "csvErrors": {
+        "header": "CSV phải bắt đầu bằng hai cột serial,model.",
+        "empty": "File không có dòng thiết bị.",
+        "columns": "Dòng {{line}} phải có serial và model trong đúng hai cột.",
+        "quote": "Dấu ngoặc kép CSV không hợp lệ gần dòng {{line}}.",
+        "limit": "File vượt quá 10.000 dòng thiết bị."
+      },
+      "errors": {
+        "unknown": "Không hoàn tất được nhập kho. Vui lòng thử lại.",
+        "forbidden": "Bạn không có quyền nhập thiết bị.",
+        "invalid_input": "Yêu cầu nhập kho không hợp lệ. Hãy kiểm tra lại lô.",
+        "invalid_model": "Có mã model không tồn tại hoặc chưa có dữ liệu tham chiếu kho. Hãy kiểm tra cột model.",
+        "preview_unavailable": "Bản xem trước không còn hợp lệ hoặc đã xác nhận. Hãy tải lại kho trước khi nhập lô mới.",
+        "package_changed": "Gói hoặc thành phần gói kết hợp không còn đủ điều kiện. Hãy kiểm tra lại lựa chọn.",
+        "idempotency_conflict": "Khóa xác nhận đã dùng với dữ liệu khác. Hãy tạo bản xem trước mới.",
+        "inventory_sync_retired": "Đã ngừng đồng bộ kho trực tiếp. Hãy dùng luồng xem trước và xác nhận nhập kho."
+      }
+    }
   },
   "filters": {
     "searchAriaLabel": "Tìm thiết bị",
@@ -205,6 +290,7 @@
       "region": "Khách hàng & khu vực",
       "status": "Trạng thái",
       "filterLife": "Tuổi thọ lõi cần chú ý",
+      "entitlements": "Gói dịch vụ",
       "firmware": "Firmware",
       "lastSeen": "Lần cuối kết nối",
       "activatedAt": "Ngày kích hoạt",
@@ -380,7 +466,8 @@
     "reason": "Lý do",
     "cancel": "Hủy",
     "error": "Không thể hoàn tất thao tác.",
-    "notAvailable": "—"
+    "notAvailable": "—",
+    "entitlementsTransferNotice": "{{count}} gói dịch vụ còn hiệu lực sẽ chuyển theo máy"
   },
   "coreAlerts": {
     "title": "Cảnh báo lõi cần thay",
@@ -394,6 +481,11 @@
     },
     "createAppointment": "Tạo lịch kỹ thuật viên",
     "modalTitle": "Tạo lịch kỹ thuật viên — vị trí {{position}}",
+    "usePackage": {
+      "label": "Dùng gói dịch vụ",
+      "option": "{{name}} — còn {{remaining}} lượt",
+      "none": "Không dùng gói (khách trả phí)"
+    },
     "reason": "Lý do",
     "confirm": "Tạo phiếu",
     "cancel": "Hủy",
@@ -441,7 +533,11 @@
     "restoreNotEligible": "Thiết bị này không ở trạng thái có thể khôi phục.",
     "invalidResponse": "Máy chủ trả về dữ liệu thiết bị không hợp lệ.",
     "sameOwner": "Khách hàng này đã là chủ sở hữu hiện tại.",
-    "noOwner": "Thiết bị chưa có chủ sở hữu."
+    "noOwner": "Thiết bị chưa có chủ sở hữu.",
+    "entitlementNotEligible": "Quyền lợi không thuộc máy này hoặc không phải gói thay lõi giao bằng kỹ thuật viên.",
+    "entitlementNotActive": "Quyền lợi chưa hiệu lực hoặc đã hết hạn/thu hồi.",
+    "entitlementExhausted": "Quyền lợi đã hết lượt sử dụng.",
+    "idempotencyConflict": "Yêu cầu đã gửi với nội dung khác cho cùng một thao tác, vui lòng thử lại."
   },
   "telemetry": {
     "title": "Chất lượng nước vào/ra",
@@ -527,5 +623,85 @@
     "lastOnline": "Online lần cuối: {{date}}",
     "viewInDeviceList": "Xem trong danh sách thiết bị",
     "openProfile": "Mở hồ sơ đầy đủ"
+  },
+  "entitlements": {
+    "statuses": {
+      "pending": "Chưa bắt đầu",
+      "active": "Đang hiệu lực",
+      "expiring": "Sắp hết hạn",
+      "exhausted": "Hết lượt",
+      "expired": "Hết hạn",
+      "revoked": "Đã gỡ"
+    },
+    "eventTypes": {
+      "reserved": "Giữ chỗ",
+      "released": "Trả giữ chỗ",
+      "consumed": "Đã sử dụng",
+      "shipment": "Ghi nhận gửi lõi",
+      "manual": "Ghi nhận sử dụng (tay)",
+      "reversal": "Hoàn lượt",
+      "customerQrScan": "Khách tự quét QR (không trừ lượt)",
+      "attached": "Gắn gói",
+      "revoked": "Thu hồi / Đã gỡ"
+    },
+    "tags": {
+      "overflow": "+{{count}}",
+      "withName": "{{name}}: {{status}}",
+      "expiringDays": "Sắp hết hạn: còn {{count}} ngày",
+      "quota": "{{used}}/{{quota}} lượt",
+      "notStarted": "Chưa bắt đầu",
+      "notUsedYet": "Chưa sử dụng",
+      "tooltipTerm": "Thời hạn {{count}} tháng, tính từ ngày kích hoạt",
+      "tooltipNoTerm": "Không giới hạn thời hạn",
+      "tooltipSource": "nguồn {{reference}}"
+    },
+    "panel": {
+      "title": "Gói dịch vụ",
+      "loading": "Đang tải gói dịch vụ...",
+      "error": "Không thể tải gói dịch vụ.",
+      "empty": "Thiết bị chưa có gói dịch vụ nào.",
+      "delivery": {
+        "self": "Khách tự thay",
+        "technician": "Kỹ thuật viên thực hiện",
+        "shipment": "Giao bộ lõi cho khách"
+      },
+      "validity": "Hiệu lực: {{start}} – {{end}}",
+      "validityPending": "Hiệu lực: tính từ ngày kích hoạt thiết bị",
+      "noEnd": "không giới hạn",
+      "remainingDays": "Còn {{count}} ngày",
+      "usedOf": "Đã dùng {{used}}/{{quota}}",
+      "usedNoQuota": "Đã dùng {{used}} (chưa xác định tổng lượt)",
+      "reserved": "Đang giữ chỗ 1 — phiếu {{ticket}} ({{status}}, {{scheduled}})",
+      "noSchedule": "chưa có lịch hẹn",
+      "ticketStatus": {
+        "pending": "Chờ xác nhận",
+        "assigned": "Đã phân công",
+        "inProgress": "Đang xử lý"
+      },
+      "nextDue": "Lượt kế tiếp đến hạn: {{date}}",
+      "warrantyIndependent": "Bảo hành bổ sung theo gói — độc lập với bảo hành điện tử (hết hạn {{date}})",
+      "warrantyIndependentNoDate": "Bảo hành bổ sung theo gói — độc lập với bảo hành điện tử",
+      "source": "Nguồn: {{kind}} · {{reference}} · {{date}}",
+      "sourceLinked": "Nguồn: <kind>{{kind}}</kind> · {{date}}",
+      "sourceKind": {
+        "autoAttach": "Tự động gắn khi nhập kho",
+        "bulkAssign": "Gắn hàng loạt",
+        "manualAdd": "Thêm thủ công",
+        "inventoryImport": "Nhập lô đã xác nhận",
+        "campaignPurchase": "Mua qua chiến dịch {{reference}}"
+      }
+    },
+    "eventLog": {
+      "title": "Lịch sử sử dụng",
+      "empty": "Chưa có lịch sử sử dụng.",
+      "error": "Không thể tải lịch sử sử dụng.",
+      "notCounted": "không trừ lượt",
+      "columns": {
+        "time": "Thời gian",
+        "type": "Loại sự kiện",
+        "reference": "Tham chiếu",
+        "actor": "Người thực hiện"
+      }
+    }
   }
 }

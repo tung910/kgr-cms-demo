@@ -1,4 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
+import { getInventoryImportPackageOptions } from '../api/inventoryImportApi';
 
 import {
   getDevice,
@@ -20,11 +21,21 @@ import {
   getTelemetryHistory,
   listDiagnosticsJobs,
 } from '../api/deviceDetailApi';
+import {
+  getDeviceEntitlements,
+  getEntitlementEvents,
+} from '../api/entitlementApi';
 import type { TelemetryRange } from '../schemas/deviceDetailSchemas';
 import type { DeviceListFilters } from '../schemas/deviceSchemas';
 
 export const deviceQueries = {
   all: ['devices'] as const,
+  inventoryImportPackages: () =>
+    queryOptions({
+      queryKey: [...deviceQueries.all, 'inventory-import-packages'],
+      queryFn: ({ signal }) => getInventoryImportPackageOptions(signal),
+      staleTime: 0,
+    }),
   list: (filters: DeviceListFilters) =>
     queryOptions({
       queryKey: [...deviceQueries.all, 'list', filters] as const,
@@ -130,5 +141,21 @@ export const deviceQueries = {
         searchOwnerCandidates(deviceId, search.trim(), signal),
       enabled: search.trim().length >= 2,
       staleTime: 30_000,
+    }),
+  entitlements: (deviceId: string) =>
+    queryOptions({
+      queryKey: [...deviceQueries.all, 'entitlements', deviceId] as const,
+      queryFn: ({ signal }) => getDeviceEntitlements(deviceId, signal),
+    }),
+  entitlementEvents: (entitlementId: string, page: number) =>
+    queryOptions({
+      queryKey: [
+        ...deviceQueries.all,
+        'entitlement-events',
+        entitlementId,
+        page,
+      ] as const,
+      queryFn: ({ signal }) =>
+        getEntitlementEvents(entitlementId, page, signal),
     }),
 };

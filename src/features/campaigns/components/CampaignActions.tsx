@@ -11,6 +11,7 @@ import { hasCapability } from '@/core/permissions/capabilities';
 import { transitionCampaign } from '../api/campaignApi';
 import { campaignQueries } from '../queries/campaignQueries';
 import type { Campaign, CampaignTransition } from '../schemas/campaignSchemas';
+import { packageErrorMessage } from '../utils/packageErrors';
 
 export interface CampaignActionsProps {
   campaign: Campaign;
@@ -46,8 +47,12 @@ export function CampaignActions({ campaign }: CampaignActionsProps) {
       setReasonFor(null);
       form.resetFields();
     },
+    // Resuming/running with a package that is no longer grantable is rejected;
+    // say why instead of a generic failure.
     onError: (error: Error) =>
-      void message.error(error.message || t('errors.transitionFailed')),
+      void message.error(
+        packageErrorMessage(error, t, t('errors.transitionFailed'))
+      ),
   });
 
   const actions: CampaignTransition[] = [];

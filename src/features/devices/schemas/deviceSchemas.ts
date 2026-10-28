@@ -3,6 +3,8 @@ import { z } from 'zod';
 import type { ConnectionStatus } from '@/shared/constants/connectionStatus';
 import type { ProductConnectivity } from '@/shared/constants/productConnectivity';
 
+import { entitlementSummaryDtoSchema } from './entitlementSchemas';
+import type { EntitlementSummary } from './entitlementSchemas';
 import { productConnectivitySchema } from './productConnectivitySchema';
 
 // Connection state only. A device that reports a fault is still `online`;
@@ -159,6 +161,8 @@ export interface Device {
   sharedMembers: DeviceSharedMember[];
   ownerHistory: DeviceOwnerHistoryEntry[];
   operationLog: DeviceOperationLogEntry[];
+  // §8.1/§11: device service entitlements row summary (excludes revoked/expired).
+  entitlementsSummary: EntitlementSummary[];
 }
 
 export const deviceStatusSchema = z.enum(['online', 'offline']);
@@ -267,6 +271,8 @@ export const deviceDtoSchema = z.object({
   shared_members: z.array(deviceSharedMemberDtoSchema).optional(),
   owner_history: z.array(deviceOwnerHistoryEntryDtoSchema).optional(),
   operation_log: z.array(deviceOperationLogEntryDtoSchema),
+  // Legacy records predate this field (spec §11): nullish → mapper default [].
+  entitlements_summary: z.array(entitlementSummaryDtoSchema).nullish(),
 });
 
 export const devicePageDtoSchema = z.object({

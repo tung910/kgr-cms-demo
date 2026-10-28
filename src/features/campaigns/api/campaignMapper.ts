@@ -13,7 +13,25 @@ import type {
   CampaignMetrics,
   CampaignMetricsDto,
   CampaignPageDto,
+  PromotedPackage,
+  PromotedPackageDto,
 } from '../schemas/campaignSchemas';
+
+export function mapPromotedPackage(dto: PromotedPackageDto): PromotedPackage {
+  return {
+    id: dto.id,
+    code: dto.code,
+    name: dto.name,
+    group: dto.group,
+    status: dto.status,
+    grantable: dto.grantable,
+    billingType: dto.billing_type,
+    price: dto.price,
+    billingPeriodMonths: dto.billing_period_months,
+    pricingMode: dto.pricing_mode,
+    termMonths: dto.term_months,
+  };
+}
 
 export function mapCampaign(dto: CampaignDto): Campaign {
   return {
@@ -40,6 +58,10 @@ export function mapCampaign(dto: CampaignDto): Campaign {
     audienceCount: dto.audience_count,
     abTest: dto.ab_test,
     offer: dto.offer,
+    promotedPackageId: dto.promoted_package_id,
+    promotedPackage: dto.promoted_package
+      ? mapPromotedPackage(dto.promoted_package)
+      : null,
     testRecipients: dto.test_recipients,
     createdBy: dto.created_by,
     createdByName: dto.created_by_name,
@@ -91,6 +113,8 @@ export function mapCampaignMetrics(dto: CampaignMetricsDto): CampaignMetrics {
     orders: dto.orders,
     revenue: dto.revenue,
     suppressedOptOut: dto.suppressed_opt_out,
+    packagePurchases: dto.package_purchases,
+    packageRevenue: dto.package_revenue,
   };
 }
 

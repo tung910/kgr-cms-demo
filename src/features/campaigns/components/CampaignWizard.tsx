@@ -19,20 +19,24 @@ import {
 import type { AudiencePreview } from '../schemas/audienceSchemas';
 import { campaignQueries } from '../queries/campaignQueries';
 import { suggestButtonLabel } from '../utils/buttonText';
-import type { Campaign } from '../schemas/campaignSchemas';
+import type { Campaign, PromotedPackage } from '../schemas/campaignSchemas';
 import { CampaignPhonePreview } from './CampaignPhonePreview';
 import { offerText } from '../utils/offerText';
+import { packageErrorMessage } from '../utils/packageErrors';
+import { packageCardOf } from '../utils/packagePricing';
 import { StepAudience } from './wizard/StepAudience';
 import { StepInfo, StepMechanism, StepType } from './wizard/StepBasics';
 import { StepContent, StepOffer } from './wizard/StepContentOffer';
 import { StepReview } from './wizard/StepReview';
 import {
+  applyPackageChange,
   buildAudienceDefinition,
   buildButtons,
   buildDraftInput,
   buildOffer,
   DEFAULT_WIZARD_VALUES,
   fromCampaign,
+  packageFormPatch,
   type ButtonValues,
   type WizardValues,
 } from './wizard/wizardValues';
@@ -110,7 +114,27 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
     [campaign]
   );
   const watched = Form.useWatch([], form);
-  const values: WizardValues = { ...initial, ...watched };
+  // The promoted package is wizard state rather than a form field: the picker
+  // hands over a whole catalogue summary, and everything bound to it (CTA,
+  // voucher scope, owner filter) is synchronised by applyPackageChange.
+  const [promotedPackage, setPromotedPackage] = useState<
+    PromotedPackage | undefined
+  >(campaign?.promotedPackage ?? undefined);
+  const withPackage = (formValues: WizardValues): WizardValues => ({
+    ...formValues,
+    promotedPackageId: promotedPackage?.id,
+    promotedPackage,
+  });
+  const values = withPackage({ ...initial, ...watched });
+
+  const changePackage = (pkg: PromotedPackage | null) => {
+    const next = applyPackageChange(
+      withPackage({ ...initial, ...form.getFieldsValue(true) }),
+      pkg
+    );
+    setPromotedPackage(next.promotedPackage);
+    form.setFieldsValue(packageFormPatch(next));
+  };
 
   // ---- reach preview (B3) --------------------------------------------------
   const definition = buildAudienceDefinition(values);
@@ -135,16 +159,20 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
   const { mutate: runPreview } = previewMutation;
   const previewFresh = preview?.key === definitionKey;
   const onAudienceStep = step.key === 'audience';
+  // A reach was already computed (here or saved on the draft): later edits that
+  // change the definition, e.g. picking a package on the Content step, must
+  // refresh it wherever the author is, not only on the Audience step.
+  const hasReach = preview !== null || campaign?.audienceCount != null;
 
   useEffect(() => {
-    if (!onAudienceStep || previewFresh) return;
+    if (!(onAudienceStep || hasReach) || previewFresh) return;
     const timer = window.setTimeout(
       () =>
         runPreview({ definition: definitionRef.current, key: definitionKey }),
       400
     );
     return () => window.clearTimeout(timer);
-  }, [onAudienceStep, previewFresh, definitionKey, runPreview]);
+  }, [onAudienceStep, hasReach, previewFresh, definitionKey, runPreview]);
 
   const audienceCount = previewFresh
     ? (preview?.data.matched ?? null)
@@ -153,10 +181,10 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
   // ---- save / submit -------------------------------------------------------
   const saveMutation = useMutation({
     mutationFn: async (submit: boolean) => {
-      const merged: WizardValues = {
+      const merged = withPackage({
         ...initial,
         ...form.getFieldsValue(true),
-      };
+      });
       const reason = t(
         submit
           ? 'wizard.reason.submit'
@@ -187,7 +215,7 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
       });
     },
     onError: (error: Error) =>
-      void message.error(error.message || t('errors.saveFailed')),
+      void message.error(packageErrorMessage(error, t, t('errors.saveFailed'))),
   });
 
   const testSendMutation = useMutation({
@@ -229,9 +257,14 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
       goToErrorStep();
       return;
     }
-    if (preview === null && campaign?.audienceCount == null) {
+    if (!hasReach || previewMutation.isError) {
       void message.warning(t('wizard.previewRequired'));
       setStepIndex(steps.findIndex((item) => item.key === 'audience'));
+      return;
+    }
+    // The shown reach must match the definition being submitted.
+    if (!previewFresh) {
+      void message.warning(t('package.previewStale'));
       return;
     }
     saveMutation.mutate(true);
@@ -254,6 +287,7 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
     mechanism: <StepMechanism />,
     audience: (
       <StepAudience
+        promotedPackage={promotedPackage}
         preview={{
           loading: previewMutation.isPending,
           failed: previewMutation.isError,
@@ -266,12 +300,18 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
         }}
       />
     ),
-    content: <StepContent />,
-    offer: <StepOffer />,
+    content: (
+      <StepContent
+        promotedPackage={promotedPackage}
+        onPackageChange={changePackage}
+      />
+    ),
+    offer: <StepOffer promotedPackage={promotedPackage} />,
     review: (
       <StepReview
         draft={draft}
         cores={coreOptions}
+        promotedPackage={promotedPackage}
         testSending={testSendMutation.isPending}
         onTestSend={(recipients) => testSendMutation.mutate(recipients)}
       />
@@ -376,6 +416,7 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
               (button) => button.label
             )}
             offerLabel={offerText(buildOffer(values), t)}
+            packageCard={packageCardOf(promotedPackage, buildOffer(values), t)}
           />
         </PortalCard>
       </aside>

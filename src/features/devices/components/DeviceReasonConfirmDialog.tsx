@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Alert, Form, Input, Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 
@@ -6,6 +7,8 @@ export interface DeviceReasonConfirmDialogProps {
   title: string;
   /** Impact on the customer, shown above the reason field. */
   warning: string;
+  /** Extra info shown below the warning (e.g. §5.4 entitlement transfer note). */
+  extra?: ReactNode;
   okText: string;
   pending: boolean;
   onCancel: () => void;
@@ -21,6 +24,7 @@ export function DeviceReasonConfirmDialog({
   open,
   title,
   warning,
+  extra,
   okText,
   pending,
   onCancel,
@@ -42,6 +46,7 @@ export function DeviceReasonConfirmDialog({
       destroyOnHidden
     >
       <Alert type="warning" showIcon message={warning} className="mb-4" />
+      {extra}
       <Form<FormValues>
         form={form}
         layout="vertical"

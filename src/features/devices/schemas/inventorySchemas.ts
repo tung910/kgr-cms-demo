@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import type { ProductConnectivity } from '@/shared/constants/productConnectivity';
 
+import { entitlementSummaryDtoSchema } from './entitlementSchemas';
+import type { EntitlementSummary } from './entitlementSchemas';
 import { productConnectivitySchema } from './productConnectivitySchema';
 
 // Devices that left the factory but have never been bound to a customer
@@ -22,6 +24,8 @@ export const inventoryDeviceDtoSchema = z.object({
   module_firmware_version: z.string().min(1).nullable(),
   mainboard_firmware_version: z.string().min(1).nullable(),
   firmware_outdated: z.boolean(),
+  // Legacy records predate this field (spec §11): nullish → mapper default [].
+  entitlements_summary: z.array(entitlementSummaryDtoSchema).nullish(),
 });
 export type InventoryDeviceDto = z.infer<typeof inventoryDeviceDtoSchema>;
 
@@ -44,22 +48,6 @@ export const inventoryCountsDtoSchema = z.object({
 });
 export type InventoryCountsDto = z.infer<typeof inventoryCountsDtoSchema>;
 
-// Pulls never-activated units from the production/warehouse system.
-export const inventorySyncResultDtoSchema = z.object({
-  synced_at: z.string().datetime({ offset: true }),
-  added: z.number().int().nonnegative(),
-  updated: z.number().int().nonnegative(),
-});
-export type InventorySyncResultDto = z.infer<
-  typeof inventorySyncResultDtoSchema
->;
-
-export interface InventorySyncResult {
-  syncedAt: string;
-  added: number;
-  updated: number;
-}
-
 export interface InventoryDevice {
   id: string;
   modelName: string;
@@ -71,6 +59,7 @@ export interface InventoryDevice {
   moduleFirmwareVersion: string | null;
   mainboardFirmwareVersion: string | null;
   firmwareOutdated: boolean;
+  entitlementsSummary: EntitlementSummary[];
 }
 
 export interface InventoryCounts {

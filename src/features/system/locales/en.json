@@ -252,7 +252,8 @@
       "backup": "Backup",
       "simulation": "Role simulation",
       "audit_log": "Audit log",
-      "access": "Access control"
+      "access": "Access control",
+      "service_entitlements": "Device service entitlements"
     },
     "actions": {
       "login": "login",

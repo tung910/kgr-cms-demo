@@ -31,6 +31,12 @@ export const BUTTON_TYPES = [
     defaultLabelKey: 'button.defaultLabel.open_screen',
     deeplink: null,
   },
+  {
+    value: 'buy_service_package',
+    labelKey: 'button.type.buy_service_package',
+    defaultLabelKey: 'button.defaultLabel.buy_service_package',
+    deeplink: 'onekangaroo://service-packages',
+  },
 ] as const;
 export type ButtonType = (typeof BUTTON_TYPES)[number]['value'];
 
@@ -56,8 +62,17 @@ export function defaultLabelKeyOf(type: ButtonType): string {
 // The deeplink the app receives. `onekangaroo://shop/cores` with no `sku` is
 // device-scoped at send time (see resolveDeviceDeeplink); with `sku` it names
 // the chosen cores. The `sku` parameter is an assumed app contract.
-export function buttonDeeplink(button: CampaignButtonLike): string | null {
+// "Mua gói dịch vụ" opens the promoted package's page; without a package there
+// is nothing to open. The path form is a proposed app contract (spec 4.1).
+export function buttonDeeplink(
+  button: CampaignButtonLike,
+  promotedPackageId?: string | null
+): string | null {
   if (button.type === 'open_screen') return button.screen ?? null;
+  if (button.type === 'buy_service_package')
+    return promotedPackageId
+      ? `onekangaroo://service-packages/${encodeURIComponent(promotedPackageId)}`
+      : null;
   const base = BUTTON_TYPES.find(
     (item) => item.value === button.type
   )!.deeplink;
