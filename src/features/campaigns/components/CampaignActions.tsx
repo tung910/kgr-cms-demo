@@ -13,6 +13,12 @@ import { transitionCampaign } from '../api/campaignApi';
 import { campaignQueries } from '../queries/campaignQueries';
 import type { Campaign, CampaignTransition } from '../schemas/campaignSchemas';
 
+// Business error codes about the promoted package -> localized message key.
+const PACKAGE_ERROR_KEYS: Record<string, string> = {
+  package_unavailable: 'package.error.unavailable',
+  invalid_package_offer: 'package.error.invalidOffer',
+};
+
 export interface CampaignActionsProps {
   campaign: Campaign;
 }
@@ -51,12 +57,9 @@ export function CampaignActions({ campaign }: CampaignActionsProps) {
       // Resuming/running with a package that is no longer grantable is
       // rejected; say why instead of a generic failure.
       const code = getApiErrorCode(error);
+      const key = code ? PACKAGE_ERROR_KEYS[code] : undefined;
       void message.error(
-        code === 'package_unavailable'
-          ? t('package.error.unavailable')
-          : code === 'invalid_package_offer'
-            ? t('package.error.invalidOffer')
-            : error.message || t('errors.transitionFailed')
+        key ? t(key) : error.message || t('errors.transitionFailed')
       );
     },
   });

@@ -67,7 +67,7 @@ function allowed(capability: Capability): boolean {
 
 function error(key: string, status: number) {
   return HttpResponse.json(
-    { message: i18n.t('campaigns:errors.' + key) },
+    { code: key, message: i18n.t('campaigns:errors.' + key) },
     { status }
   );
 }
