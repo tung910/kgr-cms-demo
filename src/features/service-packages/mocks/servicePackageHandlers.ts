@@ -10,6 +10,7 @@ import { recordAudit } from '@/features/system/mocks/systemHandlers';
 import { modelFixtures } from '@/mocks/fixtures/models';
 import { packageStore } from '@/mocks/stores/servicePackageStore';
 import { withIdempotency } from '@/mocks/stores/operationStore';
+import { businessDateOf } from '@/shared/lib/businessDate';
 import { randomId } from '@/shared/lib/id';
 
 import { mapServicePackage } from '../api/servicePackageMapper';
@@ -374,7 +375,10 @@ export const servicePackageHandlers = [
             if (blockers.length > 0)
               return { ok: false, code: 'autoAttachBlocked', status: 400 };
 
-            const today = new Date().toISOString().slice(0, 10);
+            // Asia/Ho_Chi_Minh business date (spec §15.5/§16), matching the
+            // inventory-sync handler's `syncedDate` and the client's
+            // dayjs()-based date pickers — not a naive UTC slice.
+            const today = businessDateOf(new Date());
             if (from === null || from < today)
               return { ok: false, code: 'autoAttachFromPast', status: 400 };
           }

@@ -13,6 +13,7 @@ import {
   entitlementSummaries,
 } from '@/mocks/stores/entitlementStore';
 import { packageStore } from '@/mocks/stores/servicePackageStore';
+import { businessDateOf } from '@/shared/lib/businessDate';
 
 import { AGED_STOCK_DAYS, AGING_WARNING_DAYS } from '../constants/inventory';
 import type { InventoryDeviceDto } from '../schemas/inventorySchemas';
@@ -78,7 +79,10 @@ function attachAutoEntitlementsOnSync(
   devices: readonly InventoryDeviceDto[],
   syncedAt: string
 ): number {
-  const syncedDate = syncedAt.slice(0, 10); // calendar date, not datetime
+  // Calendar date in Asia/Ho_Chi_Minh business time (spec §15.5/§16), not a
+  // naive UTC slice — a sync near the UTC-day boundary must land on the same
+  // calendar date the client's dayjs()-based date pickers show.
+  const syncedDate = businessDateOf(syncedAt);
   const eligiblePackages = packageStore.filter(
     (pkg) =>
       pkg.status === 'active' &&
