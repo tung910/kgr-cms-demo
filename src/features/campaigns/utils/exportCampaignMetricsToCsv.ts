@@ -12,17 +12,18 @@ export interface CampaignMetricLabels {
   conversionsBooking: string;
   conversionsQr: string;
   revenue: string;
+  packagePurchases: string;
+  packageRevenue: string;
 }
 
-// Builds the metrics CSV client-side (like exportDevicesToCsv) so no download
-// endpoint is needed. Header labels are passed in already translated.
-export function exportCampaignMetricsToCsv(
+// Label/value rows of the export. The package columns are always present: a
+// campaign without a package simply reports 0.
+export function buildCampaignMetricsCsvRows(
   campaign: Campaign,
   metrics: CampaignMetrics,
-  labels: CampaignMetricLabels,
-  fileLabel: string
-): void {
-  const rows: Array<[string, string | number]> = [
+  labels: CampaignMetricLabels
+): Array<[string, string | number]> {
+  return [
     [labels.campaign, campaign.name],
     [labels.sendId, metrics.sendId],
     [labels.failed, metrics.failed],
@@ -34,7 +35,20 @@ export function exportCampaignMetricsToCsv(
     [labels.conversionsBooking, metrics.conversionsBooking],
     [labels.conversionsQr, metrics.conversionsQr],
     [labels.revenue, metrics.revenue],
+    [labels.packagePurchases, metrics.packagePurchases],
+    [labels.packageRevenue, metrics.packageRevenue],
   ];
+}
+
+// Builds the metrics CSV client-side (like exportDevicesToCsv) so no download
+// endpoint is needed. Header labels are passed in already translated.
+export function exportCampaignMetricsToCsv(
+  campaign: Campaign,
+  metrics: CampaignMetrics,
+  labels: CampaignMetricLabels,
+  fileLabel: string
+): void {
+  const rows = buildCampaignMetricsCsvRows(campaign, metrics, labels);
   const escape = (value: string | number) => {
     const text = String(value);
     return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;

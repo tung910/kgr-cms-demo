@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
+import { getApiErrorCode } from '@/core/api/error';
 import { useAuth } from '@/core/auth/useAuth';
 import { hasCapability } from '@/core/permissions/capabilities';
 
@@ -46,8 +47,18 @@ export function CampaignActions({ campaign }: CampaignActionsProps) {
       setReasonFor(null);
       form.resetFields();
     },
-    onError: (error: Error) =>
-      void message.error(error.message || t('errors.transitionFailed')),
+    onError: (error: Error) => {
+      // Resuming/running with a package that is no longer grantable is
+      // rejected; say why instead of a generic failure.
+      const code = getApiErrorCode(error);
+      void message.error(
+        code === 'package_unavailable'
+          ? t('package.error.unavailable')
+          : code === 'invalid_package_offer'
+            ? t('package.error.invalidOffer')
+            : error.message || t('errors.transitionFailed')
+      );
+    },
   });
 
   const actions: CampaignTransition[] = [];

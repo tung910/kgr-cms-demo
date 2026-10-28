@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
+import { Link } from '@tanstack/react-router';
+import { Trans, useTranslation } from 'react-i18next';
 
+import { useAuth } from '@/core/auth/useAuth';
+import { hasCapability } from '@/core/permissions/capabilities';
 import {
   PortalBadge,
   PortalCard,
@@ -64,6 +67,7 @@ function EntitlementCard({
   device: Device;
 }) {
   const { t, i18n } = useTranslation('devices');
+  const { session } = useAuth();
   const locale = i18n.resolvedLanguage;
   const snapshot = entitlement.packageSnapshot;
 
@@ -81,8 +85,14 @@ function EntitlementCard({
     entitlement.endsAt;
 
   const sourceKind = t(
-    'entitlements.panel.sourceKind.' + SOURCE_KIND_KEY[entitlement.source.kind]
+    'entitlements.panel.sourceKind.' + SOURCE_KIND_KEY[entitlement.source.kind],
+    { reference: entitlement.source.reference }
   );
+  // A campaign purchase names its campaign; the label links to it for roles
+  // that may open campaigns, and stays plain text for the rest.
+  const sourceDate = formatDateTime(entitlement.source.at, locale);
+  const campaignLinkable =
+    !!session && hasCapability(session.role, 'campaign.read');
 
   const warrantyLine =
     snapshot.group === 'warranty'
@@ -186,12 +196,30 @@ function EntitlementCard({
         <p className="m-0 mt-3 text-xs italic text-[#636466]">{warrantyLine}</p>
       ) : null}
 
-      <p className="m-0 mt-3 text-xs text-[#9A9B9C]">
-        {t('entitlements.panel.source', {
-          kind: sourceKind,
-          reference: entitlement.source.reference,
-          date: formatDateTime(entitlement.source.at, locale),
-        })}
+      <p className="m-0 mt-3 break-words text-xs text-[#9A9B9C]">
+        {entitlement.source.kind === 'campaign_purchase' ? (
+          <Trans
+            t={t}
+            i18nKey="entitlements.panel.sourceLinked"
+            values={{ kind: sourceKind, date: sourceDate }}
+            components={{
+              kind: campaignLinkable ? (
+                <Link
+                  to="/campaigns/$campaignId"
+                  params={{ campaignId: entitlement.source.reference }}
+                />
+              ) : (
+                <span />
+              ),
+            }}
+          />
+        ) : (
+          t('entitlements.panel.source', {
+            kind: sourceKind,
+            reference: entitlement.source.reference,
+            date: sourceDate,
+          })
+        )}
       </p>
 
       <div className="mt-3">

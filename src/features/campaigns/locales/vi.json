@@ -108,7 +108,17 @@
     "voucherBound": "Voucher áp dụng cho gói:",
     "excludeOwners": "Loại máy đã có gói {{code}}",
     "excludeOwnersHint": "Bỏ qua máy đang có quyền lợi còn hiệu lực của gói này. Tắt khi chiến dịch nhắc gia hạn.",
-    "summaryLabel": "Gói dịch vụ"
+    "summaryLabel": "Gói dịch vụ",
+    "warning": "Gói {{code}} đã ngừng bán hoặc chưa đủ cấu hình nên chiến dịch này không thể duyệt hoặc chạy.",
+    "metrics": {
+      "purchases": "Lượt mua gói",
+      "revenue": "Doanh thu gói",
+      "quotationNote": "Không tính doanh thu gói báo giá"
+    },
+    "error": {
+      "unavailable": "Gói dịch vụ không còn khả dụng (đã ngừng bán hoặc chưa đủ cấu hình).",
+      "invalidOffer": "Ưu đãi không phù hợp với gói dịch vụ đã chọn."
+    }
   },
   "common": {
     "on": "Bật",

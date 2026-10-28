@@ -687,12 +687,13 @@
       "warrantyIndependent": "Additional package warranty — independent from the electronic warranty (expires {{date}})",
       "warrantyIndependentNoDate": "Additional package warranty — independent from the electronic warranty",
       "source": "Source: {{kind}} · {{reference}} · {{date}}",
+      "sourceLinked": "Source: <kind>{{kind}}</kind> · {{date}}",
       "sourceKind": {
         "autoAttach": "Auto-attached on stock intake",
         "bulkAssign": "Bulk assignment",
         "manualAdd": "Added manually",
         "inventoryImport": "Confirmed inventory import",
-        "campaignPurchase": "Bought via campaign"
+        "campaignPurchase": "Bought via campaign {{reference}}"
       }
     },
     "eventLog": {

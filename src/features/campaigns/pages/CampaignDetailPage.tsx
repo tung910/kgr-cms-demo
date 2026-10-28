@@ -13,6 +13,7 @@ import { CampaignMetricsPanel } from '../components/CampaignMetricsPanel';
 import { CampaignPhonePreview } from '../components/CampaignPhonePreview';
 import { CampaignStatusTag } from '../components/CampaignStatusTag';
 import { CampaignSummary } from '../components/CampaignSummary';
+import { PromotedPackageWarning } from '../components/PromotedPackageWarning';
 import { offerText } from '../utils/offerText';
 import { packageCardOf } from '../utils/packagePricing';
 import { campaignQueries } from '../queries/campaignQueries';
@@ -70,6 +71,7 @@ export function CampaignDetailPage({ campaignId }: CampaignDetailPageProps) {
         }
       />
 
+      <PromotedPackageWarning campaign={campaign} />
       {campaign.status === 'draft' && campaign.rejectedReason ? (
         <Alert
           type="warning"

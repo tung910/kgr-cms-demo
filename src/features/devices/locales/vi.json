@@ -682,12 +682,13 @@
       "warrantyIndependent": "Bảo hành bổ sung theo gói — độc lập với bảo hành điện tử (hết hạn {{date}})",
       "warrantyIndependentNoDate": "Bảo hành bổ sung theo gói — độc lập với bảo hành điện tử",
       "source": "Nguồn: {{kind}} · {{reference}} · {{date}}",
+      "sourceLinked": "Nguồn: <kind>{{kind}}</kind> · {{date}}",
       "sourceKind": {
         "autoAttach": "Tự động gắn khi nhập kho",
         "bulkAssign": "Gắn hàng loạt",
         "manualAdd": "Thêm thủ công",
         "inventoryImport": "Nhập lô đã xác nhận",
-        "campaignPurchase": "Mua qua chiến dịch"
+        "campaignPurchase": "Mua qua chiến dịch {{reference}}"
       }
     },
     "eventLog": {

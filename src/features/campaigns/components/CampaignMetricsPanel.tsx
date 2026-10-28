@@ -97,6 +97,25 @@ export function CampaignMetricsPanel({ campaign }: CampaignMetricsPanelProps) {
           tone="primary"
           value={currency.format(data.revenue)}
         />
+        {campaign.promotedPackage ? (
+          <>
+            <PortalStatCard
+              label={t('package.metrics.purchases')}
+              tone="water"
+              value={data.packagePurchases}
+            />
+            <PortalStatCard
+              label={t('package.metrics.revenue')}
+              tone="primary"
+              value={currency.format(data.packageRevenue)}
+              detail={
+                campaign.promotedPackage.pricingMode === 'quotation'
+                  ? t('package.metrics.quotationNote')
+                  : undefined
+              }
+            />
+          </>
+        ) : null}
       </div>
       <p className="text-sm">
         {t('metrics.suppressedOptOut', { count: data.suppressedOptOut })}
@@ -127,6 +146,8 @@ export function CampaignMetricsPanel({ campaign }: CampaignMetricsPanelProps) {
                 conversionsBooking: t('metrics.conversionsBooking'),
                 conversionsQr: t('metrics.conversionsQr'),
                 revenue: t('metrics.revenue'),
+                packagePurchases: t('package.metrics.purchases'),
+                packageRevenue: t('package.metrics.revenue'),
               },
               t('metrics.fileLabel')
             )

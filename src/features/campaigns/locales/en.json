@@ -60,7 +60,17 @@
     "voucherBound": "Voucher applies to package:",
     "excludeOwners": "Exclude devices that already have {{code}}",
     "excludeOwnersHint": "Skips devices holding a still-valid entitlement of this package. Turn off for renewal reminders.",
-    "summaryLabel": "Service package"
+    "summaryLabel": "Service package",
+    "warning": "Package {{code}} is no longer on sale or fully configured, so this campaign cannot be approved or run.",
+    "metrics": {
+      "purchases": "Package purchases",
+      "revenue": "Package revenue",
+      "quotationNote": "Quoted-package revenue is not counted"
+    },
+    "error": {
+      "unavailable": "The service package is no longer available (stopped selling or not fully configured).",
+      "invalidOffer": "The offer does not fit the selected service package."
+    }
   },
   "button": {
     "none": "No action button yet.",
