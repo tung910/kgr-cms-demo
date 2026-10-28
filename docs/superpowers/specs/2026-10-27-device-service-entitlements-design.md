@@ -1,6 +1,6 @@
 # Gói dịch vụ gắn theo thiết bị (quyền lợi dịch vụ)
 
-Ngày: 27/10/2026 · Trạng thái: chờ chủ sản phẩm duyệt · Liên quan:
+Ngày: 27/10/2026 · Cập nhật: 28/10/2026 · Trạng thái: đã duyệt các quyết định tại mục 15; chi tiết phiếu/KTV và phân quyền tạm hoãn · Liên quan:
 `docs/SERVICE_PACKAGE_CATALOG.md`, `docs/CMS_QnA_V1_SPEC.md` (2.3, 2.4, 3.4b,
 9.3, 9.5).
 
@@ -41,7 +41,8 @@ không tham gia vào luồng này **[Đã chốt]**.
 
 **Không phải mục tiêu (lần này)**
 
-- Màn Lịch dịch vụ / quản lý phiếu (2.4). Ngoài luồng tạo phiếu thay lõi đã
+- Giai đoạn A chưa làm màn Lịch dịch vụ / quản lý phiếu (2.4); phiếu lắp
+  đặt và trang KTV thuộc giai đoạn B (§15). Ngoài luồng tạo phiếu thay lõi đã
   có (mục 6.3), phiếu chỉ được giả lập trong MSW để hiển thị giữ chỗ.
 - Cộng gói bảo hành vào bảo hành điện tử (mục 6.4).
 - Code app OneKangaroo; backend thật. Repo này chỉ có frontend + MSW.
@@ -133,12 +134,19 @@ báo thành công hiển thị thêm "gắn N gói dịch vụ".
 | Kiểu | Loại gói | Số lượt |
 |---|---|---|
 | Một lần | LD-STD, LD-PRO, TH-OLD | 1 |
-| Có số lượt | BT-FIL, CS-WQ | `floor(term_months / interval)` **[Đề xuất]** |
+| Có số lượt | BT-FIL, CS-WQ | `floor(term_months / interval)` **[Đã chốt: mặc định]** |
 | Có số lượt | BT-CLN | `visits` (đã có trong cấu hình) |
-| Có số lượt | BT-COR | 1 **[Đề xuất]** |
+| Có số lượt | BT-COR | 1 **[Đã chốt: mặc định]** |
 | Chỉ theo hạn | BH-EXT, BH-ADP, BH-CMP, CS-VIP, CS-APP | không đếm lượt |
 
-Số lượt được tính một lần lúc gắn và lưu vào bản chụp. Nếu công thức cho ra 0
+Công thức trong bảng là mặc định. Từng gói có thể chọn `quota_mode = default`
+hoặc `custom`; `custom_quota` phải là số nguyên dương khi dùng `custom`,
+ngược lại là `null`. Áp dụng cho `one_time` và `counted`; `time_only` không
+có tùy chỉnh lượt (`quota_mode = default`, `custom_quota = null`).
+Số lượt cuối cùng được tính một lần lúc gắn và lưu vào bản chụp cùng chế độ
+và giá trị tùy chỉnh. Đổi cấu hình chỉ tác động lần cấp mới. Chu kỳ không đổi
+khi tùy chỉnh số lượt. Bản xem lại hiển thị cách tính, tổng lượt, thời hạn.
+Nếu tổng lượt cuối cùng bằng 0
 thì gói không được bật tự gắn (form báo lỗi).
 
 ### 5.2. Thời hạn [Đã chốt]
@@ -148,10 +156,12 @@ thì gói không được bật tự gắn (form báo lỗi).
 - Kết thúc = bắt đầu + `term_months`. Loại một lần không có thời hạn thì không
   hết hạn cho tới khi dùng.
 - Lượt kế tiếp đến hạn (kiểu có chu kỳ) = bắt đầu + k × `interval`, với k là số
-  lượt đã dùng + 1 **[Đề xuất]**. Chỉ là thông tin gợi ý, không chặn việc dùng
-  sớm hay muộn.
-- Lượt chưa dùng mất khi hết hạn **[Đề xuất]**. Lượt đang giữ chỗ trước ngày
-  hết hạn vẫn được trừ nếu phiếu hoàn thành sau ngày hết hạn **[Đề xuất]**.
+  lượt đã dùng + 1 **[Đã chốt]**. Chỉ là thông tin gợi ý, không chặn việc dùng
+  sớm hay muộn. Chu kỳ không đổi theo số lượt tùy chỉnh; không hiển thị mốc
+  sau ngày hết hạn.
+- Lượt chưa dùng mất khi hết hạn **[Đã chốt]**. Lượt đang giữ chỗ trước ngày
+  hết hạn vẫn được trừ nếu phiếu hoàn thành sau ngày hết hạn **[Đã chốt]**.
+  Hủy phiếu sau hạn chỉ trả giữ chỗ, không khôi phục lượt có thể sử dụng.
 
 ### 5.3. Trạng thái
 
@@ -199,8 +209,11 @@ Với quyền lợi chỉ theo hạn: các sự kiện trên được ghi vào l
 
 ### 6.2. Ràng buộc
 
-- Không giữ chỗ / ghi nhận khi quyền lợi không ở trạng thái Đang hiệu lực hoặc
-  Sắp hết hạn, hoặc khi `đã dùng + đang giữ chỗ ≥ số lượt`.
+- Giữ chỗ mới / ghi nhận trực tiếp chỉ khi Đang hiệu lực hoặc Sắp hết hạn
+  và còn lượt. Không so quota với time_only. Ngoại lệ: lắp đặt trước kích
+  hoạt qua phiếu KTV (§15.2). Hoàn thành phiếu đã giữ chỗ hợp lệ được phép
+  sau hạn hoặc khi used + reserved = quota: chuyển reserved thành used,
+  không áp dụng kiểm tra còn lượt của một yêu cầu giữ chỗ mới.
 - Ghi nhận gửi lõi bắt buộc ít nhất một trong: mã vận đơn, mã QR lõi đã gửi.
   Nếu nhập mã QR, mã phải tồn tại trong hệ thống QR lõi **[Đề xuất]**. Kèm ghi
   chú tuỳ chọn.
@@ -271,7 +284,12 @@ Trên chi tiết thiết bị:
   quyền lợi riêng, đây là cách cấp thêm lượt bù đắp **[Đề xuất]**. Thời hạn
   tính từ ngày thêm **[Đề xuất]** (không lùi về ngày kích hoạt).
 - **Hoàn lượt**: như mục 6.2.
-- Không gỡ, không sửa hạn quyền lợi đã kích hoạt trong lần này.
+- Cho thu hồi gói cấp nhầm khi chưa từng sử dụng và không có giữ chỗ;
+  bắt buộc lý do, giữ snapshot/lịch sử/audit và chuyển `revoked` (Đã thu hồi).
+  Sự kiện sử dụng đã hoàn vẫn thuộc lịch sử đã dùng, không làm gói đủ điều
+  kiện thu hồi trở lại (lựa chọn triển khai thận trọng). Gói `time_only` có
+  sự kiện phục vụ cũng được coi đã dùng; quét QR không trừ lượt không tính
+  là sử dụng dịch vụ. Không sửa hạn quyền lợi trong lần này.
 
 ## 8. Giao diện
 
@@ -281,7 +299,9 @@ Trên chi tiết thiết bị:
   thẻ (tag): tên ngắn + thông tin theo trạng thái (mục 5.3): "Hết lượt", "Sắp
   hết hạn: còn N ngày", "x/y lượt" (đang hiệu lực, có lượt), hoặc chỉ tên. Hết hạn và đã gỡ
   không hiện. Không có gói: "—". Quá 2 thẻ: hiện 2 thẻ + "+N".
-- Tab Trong kho: cùng cột, thẻ màu xám "Chưa bắt đầu".
+- Tab Trong kho: cùng cột, thẻ màu xám "Chưa bắt đầu"; riêng lắp đặt
+  chưa dùng hiện "Chưa sử dụng", đã dùng hết hiện "Hết lượt" theo server,
+  không ép nhãn dựa vào tab.
 - Màu thẻ dùng tone sẵn có của portal (đang hiệu lực / cảnh báo / trung tính).
 
 ### 8.2. Chi tiết thiết bị — khối "Gói dịch vụ"
@@ -316,10 +336,14 @@ gói, nguồn gắn và thời hạn sẽ tính khi kích hoạt.
 
 Dòng thông tin trong hộp thoại đổi/xoá chủ (mục 5.4).
 
-## 9. Phân quyền [Giả định ⚠️]
+## 9. Phân quyền — tạm hoãn theo quyết định 28/10/2026
 
-Không có dòng tương ứng trong ma trận spec; đặt theo các quyền gần nhất và cần
-nghiệp vụ duyệt. Ẩn hẳn khi không có quyền.
+Chưa thêm capability hoặc thay đổi ma trận vai trò. Bảng dưới chỉ giữ làm
+phương án tham khảo, không phải yêu cầu triển khai đã duyệt. Giữ kiểm tra quyền
+hiện có; không thay bằng kiểm tra role hoặc mở quyền mặc định cho thao tác mới.
+Các thao tác mới chưa có quyền phù hợp phải để ngoài đợt triển khai cho tới khi
+chốt phân quyền. Điều kiện KTV được phân công là yêu cầu nghiệp vụ đã chốt,
+không thay thế kiểm tra capability khi triển khai giai đoạn phiếu/KTV.
 
 | Thao tác | Capability | Vai trò |
 |---|---|---|
@@ -345,8 +369,10 @@ phiếu.
 Quy ước sẵn có: DTO snake_case, parse Zod tại biên API, map sang domain
 camelCase, ngày ISO có offset.
 
-**Gói** — thêm `auto_attach: boolean`, `auto_attach_from: string | null`.
-Dữ liệu cũ thiếu trường → coi là `false` / `null`.
+**Gói** — thêm `auto_attach: boolean`, `auto_attach_from: string | null`,
+`quota_mode: default|custom`, `custom_quota: number|null`. Dữ liệu cũ thiếu
+cấu hình lượt dùng `default` / `null`.
+Dữ liệu cũ thiếu trường tự gắn → coi là `false` / `null`.
 
 - `POST /service-packages/{id}/auto-attach` — body
   `{ enabled, from, reason, changes[] }`.
@@ -361,7 +387,11 @@ EntitlementDto {
   id, device_id,
   package_snapshot: { package_id, code, name, group, service_type_code,
                       delivery: 'self'|'technician'|'shipment'|null,
-                      term_months: number|null, interval_months: number|null },
+                      term_months: number|null, interval_months: number|null,
+                      purpose, included_items, excluded_items,
+                      eligibility_description, model_scope, eligible_model_ids,
+                      pricing_mode, pricing_description, additional_cost_description,
+                      configuration, quota_mode, custom_quota, quota },
   kind: 'one_time'|'counted'|'time_only',
   quota: number|null,            // null với time_only
   used: number, reserved: number,
@@ -393,10 +423,27 @@ EntitlementEventDto {
   hoạt).
 - `POST /devices/inventory/entitlements/bulk` — `{ action: 'attach'|'revoke',
   package_id, device_ids? | filters?, reason, dry_run }`; `dry_run: true` trả
-  số ảnh hưởng/bỏ qua cho bước xem trước.
+  số ảnh hưởng/bỏ qua và `preview_id` cho bước xem trước. Xác nhận gửi
+  `{ preview_id, reason }` (và Idempotency-Key), không chạy lại bộ lọc để
+  bổ sung máy. Preview lưu tập ID cố định, thao tác, gói và người tạo; không
+  dùng preview của người khác. Kiểm tra lại từng máy khi xác nhận, trả số
+  thực tế/bỏ qua. Preview không tồn tại hoặc mất khi reload trả
+  `preview_not_found`, yêu cầu xem trước lại; hết phiên không được xác nhận.
 - Danh sách thiết bị và danh sách kho: mỗi dòng có thêm
   `entitlements_summary: [{ id, name, kind, status, used, quota, ends_at }]`
   (không gồm `revoked`/`expired`). Dữ liệu cũ thiếu trường → mảng rỗng.
+
+Thao tác thu hồi máy đã kích hoạt: `POST /entitlements/{id}/revoke` với
+`{ reason }`; từ chối nếu đã dùng hoặc đang giữ chỗ.
+
+Mọi lệnh ghi quyền lợi, bao gồm hoàn thành phiếu, nhận header
+`Idempotency-Key`. Client giữ nguyên khóa khi gửi lại cùng thao tác;
+server lưu kết quả và fingerprint payload theo actor + thao tác + khóa.
+Cùng payload trả lại kết quả cũ, không thêm event/audit; payload khác cùng
+khóa trả `idempotency_conflict`. Kiểm tra quyền vẫn chạy trước khi trả kết
+quả cũ. Kiểm tra, cập nhật lượt, event/audit và lưu kết quả phải nguyên tử.
+Mock lưu trong bộ nhớ; backend thật cần lưu bền vững (thời hạn lưu cần chốt
+khi tích hợp).
 
 Mọi lệnh ghi trả quyền lợi sau cập nhật; giá trị server thắng. Lỗi nghiệp vụ
 dùng mã lỗi có tên (ví dụ `entitlement_exhausted`, `entitlement_not_active`,
@@ -447,3 +494,78 @@ chọn quyền lợi hết lượt/hết hạn. Cập nhật danh mục phải t
 - Danh mục lý do ghi nhận tay / hoàn lượt (danh sách cụ thể, i18n).
 - Cách trình bày bước xem trước của thao tác hàng loạt.
 - Phân trang lịch sử sử dụng trong khối chi tiết.
+
+
+## 15. Quyết định sau phản biện — 28/10/2026
+
+Mục này ghi các quyết định chủ sản phẩm đã duyệt, thay thế các đề xuất cũ
+trái nội dung dưới đây. Chưa cho phép bắt đầu viết code sản phẩm trong lượt
+cập nhật tài liệu này.
+
+### 15.1. Phạm vi theo giai đoạn
+
+- Giai đoạn A: quyền lợi dịch vụ, snapshot đầy đủ, số lượt tùy chỉnh,
+  chống ghi nhận trùng, thao tác hàng loạt theo tập xem trước, thu hồi cấp nhầm.
+  Chưa thêm capability/ma trận quyền; thao tác phụ thuộc quyền mới tạm hoãn,
+  không triển khai endpoint ghi không có kiểm soát truy cập.
+- Giai đoạn B: phiếu lắp đặt và trang riêng KTV dùng chủ yếu trên điện thoại.
+  Người dùng đã chốt yêu cầu nghiệp vụ nhưng chưa muốn đi sâu luồng/UI.
+  Không tự xây màn này trong giai đoạn A. Cần thiết kế chi tiết và duyệt
+  phân quyền trước khi lập kế hoạch triển khai riêng.
+- Không có màn KTV không đồng nghĩa cho ghi nhận lắp đặt bằng nút sử dụng
+  thủ công. Các loại LD-STD, LD-PRO, TH-OLD phải qua phiếu xác nhận KTV;
+  giai đoạn A chỉ cấp/hiển thị, chưa mở ghi nhận thủ công cho các loại này.
+
+### 15.2. Lắp đặt và kích hoạt là hai mốc riêng
+
+Máy đã có gói khi khách đến nhận. KGR tạo phiếu và phân công KTV bằng cách
+chọn tên từ danh sách nhân sự (lưu ID, không chỉ chuỗi tên). KTV được phân
+công xác nhận lắp thành công khi đủ checklist và ảnh. Không cần thêm bước
+khách hàng/quản lý duyệt và không cần thao tác từ app.
+
+Phiếu giữ chỗ một lượt; hoàn thành chuyển giữ chỗ thành đã dùng, không trừ
+hai lần. Hủy phiếu trả giữ chỗ. Lắp đặt được phép trước kích hoạt/cloud:
+quyền lợi lắp đặt chưa kích hoạt hiển thị “Chưa sử dụng” và có thể phục vụ
+qua phiếu; hoàn thành không tự kích hoạt máy hoặc bắt đầu hạn gói khác.
+Ngoại lệ này không mở quyền sử dụng sớm cho các gói bảo trì/chăm sóc.
+
+Dù còn hiệu lực hay đã hết hạn, phiếu giữ chỗ hợp lệ trước hạn được hoàn
+thành. Gói lắp đặt đã dùng phải hiện “Hết lượt” dù máy chưa kích hoạt.
+
+Thông tin nghiệm thu tối thiểu: phiếu/máy/serial/gói, KTV được giao,
+người xác nhận, thời điểm hoàn thành, kết quả checklist và ảnh. Checklist,
+số ảnh, xác nhận thay, xử lý quay lại, tải ảnh khi mạng yếu và quy tắc đổi
+KTV chưa chốt chi tiết; không coi các ví dụ đề xuất trong trao đổi là chính
+sách đã duyệt.
+
+### 15.3. Thu hồi, hoàn lượt và chống trùng
+
+- Thu hồi trên máy đã kích hoạt chỉ khi chưa sử dụng và không có giữ chỗ;
+  bắt buộc lý do, giữ lịch sử, không xóa. Không yêu cầu gói nguồn còn active.
+- Chỉ hoàn sự kiện thực sự trừ lượt (`counts_against_quota = true`), loại
+  consumed/shipment/manual, chưa hoàn và thuộc đúng quyền lợi; không để
+  `used` âm. Hoàn lượt sau hạn không làm gói hiệu lực lại.
+- Cùng một thao tác gửi lại không tạo event/audit hay trừ thêm lần nữa,
+  kể cả khi còn nhiều lượt. Khóa chống trùng khác với kiểm tra quota.
+
+### 15.4. Hàng loạt
+
+- Xem trước cố định tập máy; xác nhận không thêm máy mới khớp bộ lọc.
+- Kiểm tra lại điều kiện từng máy, kể cả kích hoạt, model, quyền lợi và
+  trạng thái gói; trả số thực tế và lý do bỏ qua. Gói không còn hợp lệ để
+  gắn thì không được gắn tiếp.
+- Bộ chọn gỡ lấy gói từ quyền lợi đang tồn tại trong kho, bao gồm gói đã
+  ngừng bán; không dùng chung bộ chọn chỉ lấy gói đủ điều kiện gắn mới.
+- Gỡ khỏi máy chưa kích hoạt và thu hồi cấp nhầm sau kích hoạt cùng lưu
+  `revoked`, nhưng UI phân biệt nhãn theo ngữ cảnh và giữ nguyên audit.
+
+### 15.5. Các lựa chọn triển khai, chưa phải chính sách của KGR
+
+- Chuẩn so sánh ngày hiệu lực, ranh giới hết hạn và phép cộng tháng phải
+  nhất quán. Đề xuất giờ nghiệp vụ Asia/Ho_Chi_Minh; hết hạn khi
+  `now >= ends_at`, cộng tháng chặn ngày cuối tháng theo dayjs. Đây là
+  lựa chọn kỹ thuật cần thể hiện khi duyệt hợp đồng backend.
+- Không tự giới hạn thời gian phiếu giữ chỗ sau hạn; chưa có quyết định
+  nghiệp vụ về giới hạn này.
+- Khi nhiều gói cùng phù hợp, cấp tất cả như mục 4.2; chưa tự suy diễn
+  quy tắc loại trừ giữa các gói.

@@ -18,6 +18,32 @@ Zod 4, MSW 2, react-i18next, dayjs.
 **Spec:** `docs/superpowers/specs/2026-10-27-device-service-entitlements-design.md`
 (đọc cùng plan; số mục "§" bên dưới trỏ vào spec).
 
+
+## Phạm vi cập nhật 28/10/2026
+
+Spec §15 là các quyết định đã duyệt. Không thực thi ngay từ lượt chỉnh tài liệu.
+Giai đoạn A làm quyền lợi; giai đoạn B là phiếu lắp đặt/trang KTV điện thoại,
+chưa thiết kế chi tiết, không tự dựng UI hay tạo route trong giai đoạn A.
+Không suy diễn việc phác thảo được hoãn thành hủy yêu cầu phiếu KTV.
+
+Phân quyền tạm hoãn: không thêm capability/ma trận. Task 6 và phần hàng loạt
+Task 7 hiện là kế hoạch có điều kiện, chưa sẵn sàng thực thi. Mọi chỗ còn ghi
+`service_entitlement.record|adjust|bulk_assign` chỉ là phương án cũ để truy vết,
+không phải cho phép thêm quyền. Task 2–5 và tự gắn Task 7 dùng quyền sẵn có;
+Task 8 dùng quyền tạo phiếu hiện có, nhưng phải có chống trùng trước khi mở ghi.
+Task 9 chỉ xác nhận phần thực thi thật, không đánh dấu xong task đang hoãn.
+
+Chống trùng phải có trước bất kỳ endpoint ghi mới nào, kể cả tạo gói có cấu
+hình tự gắn và bật/tắt tự gắn: tách phần cơ chế operationKey của Task 6 lên
+Task 2 (store dùng chung ở src/mocks/stores/operationStore.ts, API truyền header).
+Task 6 dùng lại, không đợi Task 6 mới bảo vệ Task 3/7/8. Tạo gói và bật/tắt
+cũng kiểm quyền trước replay. UI giữ key tới khi thành công hoặc bắt đầu thao
+tác khác; không sinh key mới chỉ vì timeout.
+
+Các lựa chọn kỹ thuật của người lập kế hoạch: snapshot deep-copy; preview
+trong phiên, mất preview yêu cầu xem lại; dùng giờ nghiệp vụ và ranh giới hạn
+như §15.5. Không coi đây là chính sách bổ sung đã được chủ sản phẩm xác nhận.
+
 ## Global Constraints
 
 - Node.js 24+, pnpm 10+. Không thêm dependency, không thêm framework/test file
@@ -25,7 +51,7 @@ Zod 4, MSW 2, react-i18next, dayjs.
   `pnpm format:check` + kiểm tra trên trình duyệt với MSW (`pnpm dev`, mock
   mode bật sẵn trong `.env.local`).
 - Mỗi task kết thúc phải qua: `pnpm lint`, `pnpm typecheck`,
-  `pnpm format:check`. Task cuối chạy thêm `pnpm build`.
+  `pnpm format:check`. Mỗi thay đổi chạy thêm `pnpm build` theo AGENTS.md.
 - Không sửa tay `src/routeTree.gen.ts`.
 - DTO snake_case, parse Zod tại biên API, map sang domain camelCase; ngày giờ
   ISO có offset (`z.string().datetime({ offset: true })`); ngày thuần
@@ -51,18 +77,18 @@ Zod 4, MSW 2, react-i18next, dayjs.
 
 1. **Bấm nút hai lần / gửi đồng thời** (ghi nhận gửi lõi, ghi nhận tay, tạo
    phiếu có chọn gói khi chỉ còn 1 lượt): lần thứ hai phải bị từ chối
-   `entitlement_exhausted`, không bao giờ `used + reserved > quota`. → Task 5
+   `entitlement_exhausted`, không bao giờ `used + reserved > quota`. → Task 6
    bước kiểm tra, Task 8 bước kiểm tra.
 2. **Hoàn lượt cùng một sự kiện hai lần**, hoặc hoàn sự kiện không trừ lượt
    (`customer_qr_scan`, `reserved`): từ chối `already_reversed` /
-   `event_not_reversible`. → Task 5.
+   `event_not_reversible`. → Task 6.
 3. **Đồng bộ kho nhiều lần**: máy đã có gói không nhận trùng; gói tắt tự gắn,
    ngừng bán hoặc `auto_attach_from` ở tương lai thì không gắn. → Task 7.
 4. **Dữ liệu cũ thiếu trường mới** (`entitlements_summary`, `auto_attach`):
    danh sách vẫn hiển thị "—", không lỗi `invalidResponse`. → Task 2, Task 3.
 5. **Vai trò không đủ quyền gọi thẳng API ghi** (ví dụ `sales` POST
-   `/entitlements/{id}/usages`): mock trả 403, UI không hiện nút. → Task 5,
-   Task 7.
+   `/entitlements/{id}/usages`): mock trả 403, UI không hiện nút. → Task 6,
+   Task 7 (sau khi duyệt quyền).
 
 ---
 
@@ -89,7 +115,7 @@ Zod 4, MSW 2, react-i18next, dayjs.
 
 **Sửa**
 
-- `src/core/permissions/capabilities.ts`, `permissionCatalog.ts`
+- `src/core/permissions/capabilities.ts`, `permissionCatalog.ts`: chỉ đọc tham chiếu, không sửa trong đợt này
 - `src/features/system/constants/auditModules.ts` + `system/locales/{vi,en}.json`
 - `src/features/service-packages/{schemas/servicePackageSchemas.ts, api/servicePackageApi.ts, api/servicePackageMapper.ts, components/ServicePackageForm.tsx, components/ServicePackagePreview.tsx, components/ServicePackageTable.tsx, mocks/servicePackageHandlers.ts, locales/*}`
 - `src/mocks/fixtures/servicePackages.ts`
@@ -99,36 +125,20 @@ Zod 4, MSW 2, react-i18next, dayjs.
 
 ---
 
-### Task 1: Quyền và module audit
+### Task 1: Audit và giới hạn phân quyền (không sửa ma trận)
 
 **Files:**
-- Modify: `src/core/permissions/capabilities.ts`
-- Modify: `src/core/permissions/permissionCatalog.ts`
 - Modify: `src/features/system/constants/auditModules.ts`,
   `src/features/system/locales/{vi,en}.json`
 
-**Interfaces:**
-- Produces: capability `'service_entitlement.record'`,
-  `'service_entitlement.adjust'`, `'service_entitlement.bulk_assign'`; audit
-  module value `'service_entitlements'`.
+**Interfaces:** audit module `service_entitlements`; không sinh capability mới.
 
-- [ ] **Step 1:** Thêm 3 capability ngay sau `service_package.write` trong
-  `CAPABILITIES`, kèm comment ⚠️ giả định (không có dòng sheet; theo §9 spec).
-- [ ] **Step 2:** Thêm 3 dòng vào bảng ma trận trong comment và vào
-  `ROLE_CAPABILITIES`:
-  - `record`, `adjust`: `admin`, `service_center` (super_admin có sẵn mọi quyền).
-  - `bulk_assign`: `admin`.
-- [ ] **Step 3:** Thêm dòng `PERMISSION_CATALOG`
-  `{ key: 'device_entitlements', module: 'devices', cells: { update: 'service_entitlement.record', approve: 'service_entitlement.adjust', create: 'service_entitlement.bulk_assign' } }`
-  và key i18n tương ứng ở nơi các dòng catalog khác lấy nhãn (tìm
-  `device_inventory` trong `system/locales`).
-- [ ] **Step 4:** Thêm `{ value: 'service_entitlements', labelKey: 'audit.modules.service_entitlements' }`
-  vào `AUDIT_MODULES`; nhãn vi "Gói dịch vụ thiết bị", en "Device service
-  entitlements".
-- [ ] **Step 5:** Run `pnpm typecheck && pnpm lint && pnpm format:check` →
-  không lỗi. Mở `/system/...` màn phân quyền (SCR-04) với vai trò admin: thấy
-  dòng mới.
-- [ ] **Step 6: Commit** — `feat(permissions): add service entitlement capabilities`
+- [ ] **Step 1:** Thêm module audit và nhãn vi/en theo pattern hiện có.
+- [ ] **Step 2:** Giữ nguyên `capabilities.ts`, `permissionCatalog.ts` và
+  ma trận vai trò. Không triển khai endpoint/action ghi thuộc Task 6/7 khi
+  chưa chốt quyền; không bỏ guard để chạy demo.
+- [ ] **Step 3:** Kiểm tra diff không thêm `service_entitlement.*`; chạy bộ
+  kiểm tra bắt buộc. Commit `feat(audit): add service entitlement module`.
 
 ---
 
@@ -150,12 +160,16 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
   export function getEntitlementKind(type: ServiceTypeCode): EntitlementKind | null; // null cho TG-ALL, TG-SUB
   export function computeEntitlementQuota(
     configuration: ServicePackageConfiguration,
-    termMonths: number | null
+    termMonths: number | null,
+    quotaMode: 'default' | 'custom',
+    customQuota: number | null
   ): number | null; // time_only → null
   export type AutoAttachBlocker = 'pricing' | 'incomplete' | 'bundle' | 'term' | 'zeroQuota';
   export function getAutoAttachBlockers(pkg: {
     group: ServicePackageGroup;
     termMonths: number | null;
+    quotaMode: 'default' | 'custom';
+    customQuota: number | null;
     details: Pick<ServicePackageDetails, 'pricingMode' | 'configuration'> | null;
   }): AutoAttachBlocker[];
   ```
@@ -166,13 +180,15 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
   này), kiểu `EntitlementRecord`, `ServiceTicketRecord`.
 
 - [ ] **Step 1:** Viết `entitlementRules.ts` theo bảng §5.1:
-  - `one_time`: LD-STD, LD-PRO, TH-OLD → quota 1.
+  - `custom`: one_time/counted dùng customQuota nguyên dương; time_only
+    cấm custom. Dữ liệu cũ mặc định default/null.
+  - `default`, `one_time`: LD-STD, LD-PRO, TH-OLD → quota 1.
   - `counted`: BT-FIL, CS-WQ → `Math.floor(termMonths / interval)` (term
     `null` → 0); BT-CLN → `visits`; BT-COR → 1.
   - `time_only`: BH-EXT, BH-ADP, BH-CMP, CS-VIP, CS-APP → `null`.
   - Blockers theo thứ tự: `pricing` (khác `free_or_included`), `incomplete`
     (`details === null`), `bundle`, `term` (term `null` và kind khác
-    `one_time`), `zeroQuota` (counted và quota 0).
+    `one_time`), `zeroQuota` (counted và quota cuối cùng 0, đã tính override).
 - [ ] **Step 2:** Chuyển `packageStore` sang `servicePackageStore.ts`,
   `inventoryStore` + `nextSyncedNumber` sang `inventoryStore.ts` (export hàm
   `receiveNewUnits(): InventoryDeviceDto[]` cùng file); handler cũ import lại.
@@ -215,6 +231,9 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
 **Interfaces:**
 - Consumes: `getAutoAttachBlockers`, `computeEntitlementQuota` (Task 2).
 - Produces:
+  - DTO/domain/request thêm `quota_mode`/`quotaMode` (`default|custom`),
+    `custom_quota`/`customQuota` (số nguyên dương hoặc null); response cũ
+    `.nullish()` → default/null; request validate chéo theo spec §5.1.
   - DTO: `auto_attach: z.boolean().nullish()`,
     `auto_attach_from: z.string().date().nullish()`.
   - Domain `ServicePackage`: `autoAttach: boolean; autoAttachFrom: string | null`.
@@ -229,10 +248,13 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
   - `auto_attach` true ⇒ `auto_attach_from` bắt buộc và
     `getAutoAttachBlockers(...)` rỗng (issue `autoAttach`).
   - `auto_attach` false ⇒ `auto_attach_from === null`.
+  - Form chọn mặc định/tùy chỉnh cho one_time/counted, ẩn với time_only;
+    đổi về mặc định xóa custom_quota. Preview hiển thị tổng lượt và cách tính.
+    Bật tự gắn kiểm tra quota cuối cùng, không chỉ công thức mặc định.
 - [ ] **Step 2:** Form tạo gói: mục "Tự động gắn khi nhập kho" (checkbox +
   DatePicker, mặc định hôm nay). Chỉ bật được khi không có blocker; khi có, hiện
   checkbox disabled kèm lý do i18n theo blocker đầu tiên. Với kiểu `counted`,
-  hiện "Mỗi máy nhận N lượt" từ `computeEntitlementQuota`. Bản xem lại hiện dòng
+  hiện "Mỗi máy nhận N lượt" từ `computeEntitlementQuota` với chế độ/giá trị tùy chỉnh. Bản xem lại hiện dòng
   "Tự gắn từ dd/mm/yyyy" hoặc "Không tự gắn".
 - [ ] **Step 3:** Bảng gói: nhãn "Tự gắn từ dd/mm/yyyy" dưới tên gói khi
   `autoAttach`; hành động dòng "Bật tự gắn"/"Tắt tự gắn" trong
@@ -255,6 +277,8 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
     được, xem lại hiện ngày.
   - Bật/tắt trên danh sách → nhãn đổi; chọn ngày hôm qua bị từ chối.
   - Vai trò service_center: không thấy hành động bật/tắt.
+  - BT-FIL 12 tháng/6 tháng: mặc định 2 lượt, tùy chỉnh 3 lượt → preview 3;
+    số 0, số lẻ, time_only custom bị từ chối; đổi gói không đổi snapshot máy.
 - [ ] **Step 7: Commit** — `feat(service-packages): add auto-attach on stock intake`
 
 ---
@@ -272,7 +296,12 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
 **Interfaces:**
 - Produces (schemas, theo §11 spec):
   - `entitlementStatusSchema = z.enum(['pending','active','expiring','exhausted','expired','revoked'])`
-  - `entitlementPackageSnapshotDtoSchema` — `package_id, code, name, group (string), service_type_code (string), delivery ('self'|'technician'|'shipment'|null), term_months, interval_months`
+  - `entitlementPackageSnapshotDtoSchema` — `package_id, code, name, group (string), service_type_code (string), delivery ('self'|'technician'|'shipment'|null), term_months, interval_months,
+    purpose, included_items, excluded_items, eligibility_description,
+    model_scope, eligible_model_ids, pricing_mode, pricing_description,
+    additional_cost_description, configuration, quota_mode, custom_quota, quota`
+    — parse theo schema gói, deep-copy configuration/mảng khi cấp, không giữ
+    tham chiếu sống tới packageStore
   - `entitlementDtoSchema`, `entitlementEventDtoSchema` (đủ trường §11),
     `entitlementEventPageDtoSchema` (`items, page, page_size, total`).
   - `entitlementSummaryDtoSchema` — §11 + `term_months: number|null` và
@@ -311,10 +340,14 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
     `starts_at` hoặc `term_months`.
   - `status` theo thứ tự ưu tiên trong Global Constraints; `expiring` khi
     `ends_at − now ≤ 30 ngày`; `exhausted` khi `quota !== null && used >= quota`.
+  - Ngoại lệ lắp đặt trước kích hoạt: pending hiển thị “Chưa sử dụng”;
+    đã dùng hết thì exhausted dù chưa activated_at. API lắp đặt giai đoạn B
+    mới được phép giữ/dùng trước kích hoạt, không mở usage thủ công.
   - `reserved` = số phiếu `pending|assigned|in_progress` trỏ tới quyền lợi;
     `open_reservations` lấy từ đó.
   - `next_due_at` = `starts_at + (used + 1) × interval_months` cho `counted` có
-    interval và chưa `exhausted`; ngược lại `null`.
+    interval và chưa `exhausted`; nếu mốc sau ends_at thì null; ngược lại
+    `null`. Chu kỳ không đổi theo custom quota.
   - `attachPackage`: snapshot từ DTO gói; model của máy phải thuộc phạm vi gói
     (map `model_code` → `model_id` qua `modelFixtures`); không trùng gói trên
     cùng máy (`revoked` không tính) trừ khi `allowDuplicate`; thêm event
@@ -361,7 +394,8 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
 - [ ] **Step 1:** `EntitlementTags` (§8.1): tối đa 2 thẻ + "+N" (tooltip liệt
   kê phần còn lại); không có → "—"; nội dung theo trạng thái: `exhausted` "Hết
   lượt", `expiring` "Sắp hết hạn: còn N ngày", `active` + `quota` → "x/y lượt",
-  còn lại chỉ tên. `variant='inventory'`: thẻ xám "Chưa bắt đầu"; tooltip
+  còn lại chỉ tên. `variant='inventory'`: thẻ xám "Chưa bắt đầu"; riêng lắp đặt pending
+  hiện "Chưa sử dụng", exhausted hiện "Hết lượt"; không ghi đè status server. Tooltip
   "<tên> · <thời hạn N tháng, tính từ ngày kích hoạt> · nguồn <source_reference>".
 - [ ] **Step 2:** Cột "Gói dịch vụ" sau cột Lõi lọc trong `DeviceTable` và sau
   cột Trạng thái kích hoạt trong `InventoryTable`.
@@ -383,12 +417,14 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
   - Tab Trong kho: thẻ xám, tooltip đúng.
   - Chi tiết máy có giữ chỗ: hiện phiếu; máy có BH-EXT: dòng độc lập bảo hành.
   - Đổi ngôn ngữ EN: không còn chuỗi tiếng Việt cứng.
-  - Đổi chủ: thấy dòng "N gói…".
+  - Đổi chủ: thấy dòng "N gói…"; kiểm tra payload/nội dung thông báo chủ
+    cũ có ý quyền lợi chuyển theo máy theo §5.4. Nếu backend chưa có trường
+    tương ứng, ghi rõ giới hạn tích hợp, không giả vờ đã gửi thông báo thật.
 - [ ] **Step 6: Commit** — `feat(devices): show service entitlements on list and detail`
 
 ---
 
-### Task 6: Ghi nhận sử dụng, gửi lõi, hoàn lượt, thêm gói
+### Task 6: Ghi nhận, hoàn lượt, thêm/thu hồi gói — TẠM HOÃN tới khi duyệt quyền
 
 **Files:**
 - Create: `EntitlementActionDialogs.tsx`
@@ -401,6 +437,7 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
   ```ts
   recordEntitlementShipment(entitlementId: string, input: { trackingCode: string | null; coreQrCode: string | null; note: string | null }): Promise<Entitlement>
   recordEntitlementUsage(entitlementId: string, input: { reasonCode: UsageReasonCode; note: string }): Promise<Entitlement>
+  revokeDeviceEntitlement(entitlementId: string, input: { reason: string }, operationKey: string): Promise<Entitlement> // POST /entitlements/{id}/revoke
   reverseEntitlementEvent(entitlementId: string, input: { eventId: string; reason: string }): Promise<Entitlement>
   addDeviceEntitlement(deviceId: string, input: { packageId: string; reason: string }): Promise<Entitlement>
   getEntitlementPackageOptions(target: { deviceId: string } | 'inventory', signal?: AbortSignal): Promise<EntitlementPackageOption[]>
@@ -423,14 +460,28 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
   - Usage: cần `record`; `reason_code` + `note` bắt buộc; `counted`/`one_time`
     thì `used += 1`; `time_only` chỉ ghi event (`counts_against_quota: false`).
   - Chung cho hai lệnh trên: trạng thái phải `active|expiring`
-    (`entitlement_not_active`); `used + reserved < quota` (`entitlement_exhausted`).
+    (`entitlement_not_active`); chỉ khi quota !== null mới kiểm
+    `used + reserved < quota` (`entitlement_exhausted`). Time_only chỉ ghi
+    sự kiện không trừ lượt.
+  - Các lệnh ghi nhận/thêm/thu hồi/hoàn: API nhận operationKey riêng
+    (tham số cuối, kể cả các chữ ký minh họa bên trên), truyền Idempotency-Key.
+    UI tạo khóa một lần cho thao tác, giữ lại khi retry; mock lưu fingerprint
+    actor+route+key và kết quả, kiểm quyền trước replay; payload khác cùng
+    khóa → idempotency_conflict. Tất cả cập nhật/event/audit nguyên tử.
+  - Usage thủ công không áp dụng LD-STD/LD-PRO/TH-OLD; phải có phiếu KTV.
   - Reversal: cần `service_entitlement.adjust`; event phải thuộc quyền lợi, loại
     `consumed|shipment|manual` (`event_not_reversible`), chưa bị hoàn
-    (`already_reversed`); `used -= 1`, event `reversal` có
+    (`already_reversed`), counts_against_quota=true và used>0; `used -= 1`, event `reversal` có
     `reference.reversed_event_id`.
+  - Revoke: quyền điều chỉnh chưa duyệt; chặn tới khi chốt. Khi mở:
+    máy đã kích hoạt, chưa từng dùng dịch vụ, không reserved; bắt buộc lý do,
+    không yêu cầu gói nguồn active; ghi revoked, event và audit.
   - Add: cần `adjust`; máy phải đã kích hoạt; gói theo điều kiện §7.1 (`active`,
     không blocker); `attachPackage(..., { allowDuplicate: true, startsAt: now })`,
     source `manual_add`.
+  - Bộ chọn revoke hàng loạt lấy gói từ quyền lợi tồn tại trong kho,
+    bao gồm archived; mở rộng getEntitlementPackageOptions target inventory
+    thêm action attach|revoke vào API/query key; không dùng picker attach.
   - Package options: device → cùng điều kiện, lọc theo model máy; inventory →
     gói đủ điều kiện (mọi model). Đăng ký route
     `/api/devices/inventory/entitlements/package-options` **trước**
@@ -463,7 +514,7 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
 
 ---
 
-### Task 7: Đồng bộ kho tự gắn + gắn/gỡ hàng loạt
+### Task 7: Đồng bộ kho tự gắn + gắn/gỡ hàng loạt (phần hàng loạt TẠM HOÃN tới khi duyệt quyền)
 
 **Files:**
 - Create: `InventoryEntitlementBulkDialog.tsx`
@@ -482,10 +533,16 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
     bulkAssignInventoryEntitlements(input: {
       action: 'attach' | 'revoke'; packageId: string;
       target: { deviceIds: string[] } | { filters: { modelCode?: string; batchCode?: string; receivedFrom?: string; receivedTo?: string } };
-      reason: string; dryRun: boolean;
+      reason: string; dryRun: true;
     }): Promise<{ affected: number; skipped: { reason: 'already_attached' | 'not_attached' | 'model_out_of_scope' | 'activated'; count: number }[] }>
     ```
-    → `POST /devices/inventory/entitlements/bulk`.
+    → `POST /devices/inventory/entitlements/bulk` (xem trước).
+  - Preview response thêm `previewId: string`; xác nhận là hàm riêng
+    `confirmInventoryEntitlements(input: { previewId: string; reason: string }, operationKey: string)`
+    trả affected/skipped cùng kiểu; DTO snake_case tại API.
+  - Mock lưu preview theo actor, tập ID cố định, action/packageId; preview
+    chỉ hợp lệ trong phiên. Không tồn tại → preview_not_found; khác actor
+    → forbidden. Xác nhận không nhận bộ lọc hoặc ID bổ sung.
 
 - [ ] **Step 1:** Sync mock (§4.2): với mỗi máy mới, gắn mọi gói `active`,
   `auto_attach`, `auto_attach_from <= synced_at` (ngày), model trong phạm vi,
@@ -496,7 +553,10 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
   khi N > 0.
 - [ ] **Step 3:** Bulk mock: cần `service_entitlement.bulk_assign`; lý do bắt
   buộc; lọc máy theo `target`; bỏ qua có phân loại; `dry_run` không ghi gì;
-  chạy thật: attach (source `bulk_assign`, reference = id thao tác) hoặc revoke
+  xác nhận bằng preview_id, chỉ tập ID đã xem trước; kiểm tra lại từng máy
+  (kích hoạt, model, quyền lợi) và gói, không thêm máy mới; lý do bỏ qua
+  thêm not_found/package_ineligible khi phù hợp. Chống trùng theo Task 6.
+  Chạy thật: attach (source `bulk_assign`, reference = id thao tác) hoặc revoke
   (đặt `revoked`, event `revoked`); một `recordAudit` cho thao tác (gói, bộ lọc
   hoặc số máy, số ảnh hưởng/bỏ qua).
 - [ ] **Step 4:** UI tab Trong kho (`PermissionGuard` `bulk_assign`): bảng có
@@ -510,12 +570,16 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
   - Tắt tự gắn gói BH-EXT rồi đồng bộ → máy mới không nhận BH-EXT.
   - Bulk attach theo model KGR-B200: xem trước có "đã có gói" bị bỏ qua; xác
     nhận → thẻ xuất hiện. Bulk revoke → thẻ biến mất.
-  - Vai trò logistics: có nút Đồng bộ, không có nút Gắn/gỡ gói.
+  - Sau preview, thêm máy khớp lọc → không bị tác động; kích hoạt một máy
+    đã xem trước → bỏ qua. Gói ngừng bán vẫn gỡ được; gói attach vừa archived
+    → không gắn. Reload mất preview → yêu cầu xem lại; retry cùng key không
+    tạo thêm audit.
+  - Vai trò logistics: có nút Đồng bộ, không có nút Gắn/gỡ gói (sau duyệt quyền).
 - [ ] **Step 6: Commit** — `feat(devices): attach service packages on stock sync`
 
 ---
 
-### Task 8: Tạo phiếu thay lõi có chọn gói
+### Task 8: Tạo phiếu thay lõi có chọn gói (không phải phiếu lắp đặt KTV)
 
 **Files:**
 - Modify: `deviceDetailApi.ts`, `DeviceCoreAlertsPanel.tsx`, `src/mocks/handlers.ts`,
@@ -524,7 +588,8 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
 **Interfaces:**
 - Consumes: `deviceQueries.entitlements(deviceId)` (Task 4).
 - Produces: `createServiceTicketFromCoreAlert(deviceId: string, position: string, reason: string, entitlementId: string | null): Promise<void>`
-  — body thêm `entitlement_id`.
+  — body thêm `entitlement_id`, thêm operationKey tham số cuối cho header
+  Idempotency-Key; replay không tạo phiếu/giữ lượt thứ hai.
 
 - [ ] **Step 1:** Mock `POST /devices/:id/service-tickets`: nếu có
   `entitlement_id` — phải thuộc máy, BT-FIL/BT-COR, `delivery=technician`
@@ -541,12 +606,12 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
 - [ ] **Step 3:** Run checks. Trình duyệt: máy seed ở Task 4 Step 3 → tạo phiếu
   với gói → khối Gói dịch vụ hiện "đang giữ chỗ 1"; tạo phiếu khi chỉ còn 1
   lượt và đã giữ 1 → server báo hết lượt (Review Focus 1); chọn "Không dùng gói"
-  → lượt không đổi.
+  → lượt không đổi. Cùng key gọi lại chỉ một phiếu và một giữ chỗ.
 - [ ] **Step 4: Commit** — `feat(devices): reserve entitlement usage from core alert tickets`
 
 ---
 
-### Task 9: Tài liệu và kiểm tra toàn bộ
+### Task 9: Tài liệu, đối chiếu phạm vi và kiểm tra toàn bộ
 
 **Files:**
 - Modify: `docs/SERVICE_PACKAGE_CATALOG.md`, spec §11.
@@ -560,9 +625,44 @@ Không đổi hành vi hiện có; tạo nền cho các task sau.
 - [ ] **Step 2:** Run `pnpm lint && pnpm typecheck && pnpm format:check && pnpm build`
   → tất cả pass (cảnh báo có sẵn ở `public/mockServiceWorker.js` và chunk lớn
   của Vite không tính).
-- [ ] **Step 3:** Chạy lại một lượt toàn luồng với MSW theo thứ tự: bật tự gắn
-  gói → Đồng bộ kho → thẻ "Chưa bắt đầu" ở tab Trong kho → chi tiết máy đang sử
-  dụng → gửi lõi / ghi nhận / hoàn lượt → tạo phiếu thay lõi có gói → audit log.
-  Thử với 3 vai trò: admin, service_center, sales. Chụp màn hình danh sách và
-  khối chi tiết cho PR.
+- [ ] **Step 3:** Nghiệm thu giai đoạn A: tạo gói default/custom → bật tự
+  gắn → Đồng bộ kho → thẻ trong kho → đọc snapshot/chi tiết → lịch sử fixture,
+  đổi ngôn ngữ, dữ liệu cũ, audit; kiểm tra snapshot bất biến và self-check
+  kích hoạt ở phần kiểm chứng bổ sung. Chụp danh sách/chi tiết cho PR.
+  Chỉ sau duyệt quyền và mở Task 6/phần hàng loạt Task 7 mới nghiệm thu thêm
+  gửi lõi/ghi nhận/hoàn/thu hồi, bulk, vai trò và API 403. Task 8 nghiệm thu
+  khi cơ chế chống trùng đã có; phiếu KTV thuộc giai đoạn B, không đánh dấu
+  đã kiểm chỉ bằng fixture.
 - [ ] **Step 4: Commit** — `docs: document device service entitlements contract`
+
+
+## Giai đoạn B — Phiếu lắp đặt và trang KTV (chưa lập task triển khai)
+
+Đầu vào đã chốt: KGR tạo phiếu/gán KTV; KTV dùng trang riêng trên điện thoại,
+chỉ người được phân công tự hoàn thành khi đủ checklist và ảnh, không cần
+app/khách/quản lý duyệt. Giữ một lượt khi tạo phiếu; hoàn thành nguyên tử
+chuyển reserved → used, replay không trừ thêm. Cho lắp trước kích hoạt,
+không kích hoạt máy hoặc gói khác ngầm. Hủy trả giữ chỗ, sau hạn không mở lại
+lượt sử dụng. Không thay phiếu bằng manual usage.
+
+Trước khi viết plan riêng cần duyệt checklist/số ảnh, nhân sự và tài khoản
+KTV, quyền truy cập và PII, đổi người được giao, quay lại, tải ảnh thất bại.
+Không tự triển khai offline, OTP, chữ ký hoặc xác nhận thay.
+
+## Bổ sung kiểm chứng bắt buộc
+
+- Snapshot: sửa/ngừng bán gói nguồn sau cấp → configuration, bao gồm/không
+  bao gồm, quota/mode trên máy không đổi.
+- Quota: default, custom nguyên dương, dữ liệu cũ, time_only, quota=0;
+  lịch gợi ý sau ends_at → null, không đổi chu kỳ theo override.
+- Ngày: cuối tháng, đúng ends_at, còn đúng 30 ngày; hủy giữ chỗ sau hạn
+  không khôi phục hiệu lực. Không khẳng định luồng kho → kích hoạt đã được
+  kiểm chứng chỉ nhờ fixture: dùng self-check tạm mô phỏng cập nhật activated_at
+  và giữ nguyên snapshot; không thêm endpoint kích hoạt giả ra UI.
+- Lượt: replay cùng key, payload khác cùng key, hết lượt do reserved,
+  hoàn time_only, hoàn sau hạn, thu hồi đã dùng; không used âm/vượt quota.
+- Phạm vi: chưa sửa capability/role matrix; task bị hoãn không có endpoint
+  ghi không guard. Checklist nghiệm thu KTV chỉ kiểm ở giai đoạn B.
+- Mỗi thay đổi chạy pnpm lint, pnpm typecheck, pnpm format:check, pnpm build;
+  không thêm framework/test file ngoài phạm vi được duyệt. Self-check logic
+  tạm được ghi lại kết quả; kiểm tra trình duyệt MSW theo từng task thực thi.
