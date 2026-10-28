@@ -569,3 +569,71 @@ sách đã duyệt.
   nghiệp vụ về giới hạn này.
 - Khi nhiều gói cùng phù hợp, cấp tất cả như mục 4.2; chưa tự suy diễn
   quy tắc loại trừ giữa các gói.
+
+## 16. Bổ sung sau triển khai giai đoạn A — 28/10/2026
+
+**[Đã triển khai]** — mục này ghi lại đúng những gì đã lên code trong phạm vi
+giai đoạn A (xem ghi chú phạm vi đầu file), đối chiếu với bản nháp hợp đồng ở
+mục 11. Đây không phải đặc tả cho Task 6/giai đoạn B; các endpoint, trường và
+mã lỗi của Task 6 (ghi nhận gửi lõi/sử dụng tay/hoàn lượt/thu hồi) và phần
+hàng loạt của Task 7 (`POST /devices/inventory/entitlements/bulk`) vẫn giữ
+nguyên như bản nháp ở mục 11, **chưa có dòng code nào** — không được coi là đã
+xong chỉ vì xuất hiện ở mục 11.
+
+### 16.1. Endpoint thực tế đã có
+
+- `POST /service-packages/{id}/auto-attach` — đúng như mục 11, có
+  `Idempotency-Key` (`src/features/service-packages/mocks/servicePackageHandlers.ts`).
+- `POST /devices/inventory/sync` — trả thêm `entitlements_attached: number`
+  (nullish để tương thích dữ liệu cũ), đúng như mục 11
+  (`src/features/devices/schemas/inventorySchemas.ts`).
+- `GET /devices/{id}/entitlements` → `EntitlementDto[]`.
+- `GET /entitlements/{id}/events` → trang `EntitlementEventDto[]`, mới nhất
+  trước (`src/features/devices/mocks/entitlementHandlers.ts`). Hai endpoint
+  này chỉ đọc — không có endpoint ghi nào khác cho quyền lợi trong giai đoạn A.
+- `POST /devices/{id}/service-tickets` nhận thêm `entitlement_id` tùy chọn để
+  giữ một lượt khi tạo phiếu thay lõi từ cảnh báo lõi (§6.3); không có luồng
+  tạo phiếu nào khác tiêu thụ quyền lợi.
+
+Các endpoint sau của mục 11 **chưa tồn tại** trong mã nguồn — thuộc giai đoạn
+sau, chờ duyệt `service_entitlement.record`/`adjust`/`bulk_assign`:
+`POST /entitlements/{id}/shipments`, `POST /entitlements/{id}/usages`,
+`POST /entitlements/{id}/reversals`, `POST /entitlements/{id}/revoke`,
+`POST /devices/{id}/entitlements` (thêm gói thủ công cho máy đã kích hoạt),
+`GET /devices/{id}/entitlements/package-options`,
+`GET /devices/inventory/entitlements/package-options`,
+`POST /devices/inventory/entitlements/bulk`.
+
+### 16.2. `entitlements_summary` có thêm hai trường so với bản nháp mục 11
+
+Bản nháp mục 11 chỉ liệt kê
+`{ id, name, kind, status, used, quota, ends_at }`. Mã nguồn đã triển khai
+thêm hai trường để phục vụ tooltip ở tab Trong kho (§8.2):
+
+```
+entitlements_summary: [{ id, name, kind, status, used, quota, ends_at,
+                          term_months, source_reference }]
+```
+
+(`src/features/devices/schemas/entitlementSchemas.ts`,
+`entitlementSummaryDtoSchema`). Vẫn loại trừ `revoked`/`expired`; dữ liệu cũ
+thiếu trường → mảng rỗng, như mục 11 đã định.
+
+### 16.3. Mã lỗi thực tế đã dùng
+
+Chỉ các mã lỗi sau tồn tại trong handler của giai đoạn A — client chỉ cần xử
+lý i18n cho đúng danh sách này, không phải danh sách đầy đủ ở mục 11:
+
+- `autoAttachBlocked`, `autoAttachFromPast`, `noChange`, `invalidTransition`
+  (gói đã ngừng bán) — từ `POST /service-packages/{id}/auto-attach`.
+- `idempotency_conflict` — dùng chung cho mọi lệnh ghi có
+  `Idempotency-Key` ở giai đoạn A (bật/tắt tự gắn; sau này cũng dùng cho
+  Task 6/7/8 qua `operationStore`).
+- `entitlement_exhausted`, `entitlement_not_active`, `entitlement_not_eligible`
+  — từ `POST /devices/{id}/service-tickets` khi `entitlement_id` không hợp lệ
+  để giữ chỗ.
+
+Mã lỗi `event_not_reversible`, `already_reversed`, `core_qr_not_found`,
+`preview_not_found` thuộc các luồng hoàn lượt/thu hồi/quét QR lõi/xem trước
+hàng loạt của Task 6 và phần hàng loạt Task 7 — **chưa có trong mã nguồn**,
+không được client dựa vào cho tới khi các endpoint tương ứng được triển khai.

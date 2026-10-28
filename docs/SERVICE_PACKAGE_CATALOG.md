@@ -40,11 +40,30 @@ kết hợp hoặc thuê thiết bị. Kiểm tra này có ở picker và MSW kh
 Các trường vật tư, linh kiện, chính sách SLA là tham chiếu mô tả, chưa có
 API xác thực tương thích, tồn kho hoặc chính sách thực thi.
 
+## Tự gắn khi nhập kho (giai đoạn A)
+
+Một gói có thể bật "tự gắn khi nhập kho" (`auto_attach`, `auto_attach_from`,
+`quota_mode`, `custom_quota`) qua `POST /service-packages/{id}/auto-attach`
+trên trang chi tiết gói. Khi bật, gói đủ điều kiện được gắn tự động cho máy
+mới nhập kho trong lần Đồng bộ kho kế tiếp, sinh ra bản ghi "quyền lợi dịch
+vụ" (service entitlement) đọc được từ danh sách thiết bị/kho và chi tiết
+thiết bị. Hợp đồng dữ liệu, mã lỗi và chính sách chi tiết của quyền lợi dịch
+vụ được đặc tả riêng tại
+`docs/superpowers/specs/2026-10-27-device-service-entitlements-design.md`
+(mục 11 và phần bổ sung giai đoạn A) — không lặp lại ở đây.
+
 ## Giới hạn vận hành
 
-- Đây là danh mục, chưa tạo yêu cầu phục vụ, lịch hẹn thực tế hoặc quyền lợi
-  của khách hàng; chưa gia hạn bảo hành, thu tiền, auto-debit hay reset lõi.
-- Backend thật cần xác nhận và triển khai hợp đồng trên; thay đổi này chỉ
+- Đây là danh mục, chưa tạo yêu cầu phục vụ hay lịch hẹn thực tế; chưa gia
+  hạn bảo hành, thu tiền, auto-debit hay reset lõi.
+- Quyền lợi dịch vụ gắn theo máy (service entitlements) đã có ở giai đoạn A,
+  nhưng chỉ ở mức đọc và tự gắn khi nhập kho: xem danh sách/chi tiết, lịch sử
+  sự kiện tự động (tự gắn, giữ chỗ khi tạo phiếu thay lõi từ cảnh báo lõi).
+  Chưa có màn quản lý phiếu dịch vụ/lịch dịch vụ, chưa có trang kỹ thuật viên,
+  và chưa mở ghi nhận sử dụng tay, gửi lõi, hoàn lượt, thu hồi hay gắn/gỡ
+  hàng loạt — các thao tác ghi này bị hoãn tới khi quyền (capability) tương
+  ứng được duyệt (xem mục 15 của spec quyền lợi dịch vụ).
+- Backend thật cần xác nhận và triển khai các hợp đồng trên; thay đổi này chỉ
   cung cấp frontend và mock. Không cam kết đồng bộ app đã hoạt động.
 - MSW lưu dữ liệu/audit trong bộ nhớ; tải lại sẽ khôi phục fixture. Khi sửa
   handler/schema bằng HMR, tải lại trang để khởi tạo lại worker và handler.
