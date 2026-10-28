@@ -394,7 +394,7 @@ const seedNow = dayjs();
       const consumeEvent = appendEntitlementEvent(record.id, {
         type: 'manual',
         countsAgainstQuota: true,
-        reason: 'callCenter',
+        reason: 'Tổng đài xử lý',
         note: 'Ghi nhận qua tổng đài theo yêu cầu khách.',
         occurredAt: seedNow.subtract(1, 'month').toISOString(),
       });
@@ -458,14 +458,14 @@ const seedNow = dayjs();
       appendEntitlementEvent(record.id, {
         type: 'manual',
         countsAgainstQuota: true,
-        reason: 'centerService',
+        reason: 'Dịch vụ tại trung tâm',
         note: 'Vệ sinh máy lượt 1.',
         occurredAt: seedNow.subtract(6, 'week').toISOString(),
       });
       appendEntitlementEvent(record.id, {
         type: 'manual',
         countsAgainstQuota: true,
-        reason: 'centerService',
+        reason: 'Dịch vụ tại trung tâm',
         note: 'Vệ sinh máy lượt 2.',
         occurredAt: seedNow.subtract(2, 'week').toISOString(),
       });
