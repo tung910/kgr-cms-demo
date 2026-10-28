@@ -5,19 +5,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
-import { getApiErrorCode } from '@/core/api/error';
 import { useAuth } from '@/core/auth/useAuth';
 import { hasCapability } from '@/core/permissions/capabilities';
 
 import { transitionCampaign } from '../api/campaignApi';
 import { campaignQueries } from '../queries/campaignQueries';
 import type { Campaign, CampaignTransition } from '../schemas/campaignSchemas';
-
-// Business error codes about the promoted package -> localized message key.
-const PACKAGE_ERROR_KEYS: Record<string, string> = {
-  package_unavailable: 'package.error.unavailable',
-  invalid_package_offer: 'package.error.invalidOffer',
-};
+import { packageErrorMessage } from '../utils/packageErrors';
 
 export interface CampaignActionsProps {
   campaign: Campaign;
@@ -53,15 +47,12 @@ export function CampaignActions({ campaign }: CampaignActionsProps) {
       setReasonFor(null);
       form.resetFields();
     },
-    onError: (error: Error) => {
-      // Resuming/running with a package that is no longer grantable is
-      // rejected; say why instead of a generic failure.
-      const code = getApiErrorCode(error);
-      const key = code ? PACKAGE_ERROR_KEYS[code] : undefined;
+    // Resuming/running with a package that is no longer grantable is rejected;
+    // say why instead of a generic failure.
+    onError: (error: Error) =>
       void message.error(
-        key ? t(key) : error.message || t('errors.transitionFailed')
-      );
-    },
+        packageErrorMessage(error, t, t('errors.transitionFailed'))
+      ),
   });
 
   const actions: CampaignTransition[] = [];

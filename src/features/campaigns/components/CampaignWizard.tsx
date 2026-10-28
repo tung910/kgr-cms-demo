@@ -22,6 +22,7 @@ import { suggestButtonLabel } from '../utils/buttonText';
 import type { Campaign, PromotedPackage } from '../schemas/campaignSchemas';
 import { CampaignPhonePreview } from './CampaignPhonePreview';
 import { offerText } from '../utils/offerText';
+import { packageErrorMessage } from '../utils/packageErrors';
 import { packageCardOf } from '../utils/packagePricing';
 import { StepAudience } from './wizard/StepAudience';
 import { StepInfo, StepMechanism, StepType } from './wizard/StepBasics';
@@ -158,16 +159,20 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
   const { mutate: runPreview } = previewMutation;
   const previewFresh = preview?.key === definitionKey;
   const onAudienceStep = step.key === 'audience';
+  // A reach was already computed (here or saved on the draft): later edits that
+  // change the definition, e.g. picking a package on the Content step, must
+  // refresh it wherever the author is, not only on the Audience step.
+  const hasReach = preview !== null || campaign?.audienceCount != null;
 
   useEffect(() => {
-    if (!onAudienceStep || previewFresh) return;
+    if (!(onAudienceStep || hasReach) || previewFresh) return;
     const timer = window.setTimeout(
       () =>
         runPreview({ definition: definitionRef.current, key: definitionKey }),
       400
     );
     return () => window.clearTimeout(timer);
-  }, [onAudienceStep, previewFresh, definitionKey, runPreview]);
+  }, [onAudienceStep, hasReach, previewFresh, definitionKey, runPreview]);
 
   const audienceCount = previewFresh
     ? (preview?.data.matched ?? null)
@@ -210,7 +215,7 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
       });
     },
     onError: (error: Error) =>
-      void message.error(error.message || t('errors.saveFailed')),
+      void message.error(packageErrorMessage(error, t, t('errors.saveFailed'))),
   });
 
   const testSendMutation = useMutation({
@@ -252,9 +257,14 @@ export function CampaignWizard({ campaign }: CampaignWizardProps) {
       goToErrorStep();
       return;
     }
-    if (preview === null && campaign?.audienceCount == null) {
+    if (!hasReach || previewMutation.isError) {
       void message.warning(t('wizard.previewRequired'));
       setStepIndex(steps.findIndex((item) => item.key === 'audience'));
+      return;
+    }
+    // The shown reach must match the definition being submitted.
+    if (!previewFresh) {
+      void message.warning(t('package.previewStale'));
       return;
     }
     saveMutation.mutate(true);
