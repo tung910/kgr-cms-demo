@@ -91,8 +91,11 @@ hình và không thuộc nhóm bundle được chọn.
   voucher giảm giá; gói báo giá chỉ giảm %; số tiền giảm không vượt giá một kỳ.
   Vi phạm bị chặn ở form và trả 422 `invalid_package_offer`.
 - Đối tượng: điều kiện `excludeActivePackageId` loại máy đã có gói (AND với các
-  điều kiện khác), mặc định bật khi chọn gói. Đổi hoặc bỏ gói thì wizard xoá nút,
-  voucher không còn hợp lệ và đặt lại điều kiện loại trừ.
+  điều kiện khác), mặc định bật khi chọn gói. Bỏ gói thì wizard xoá nút CTA
+  "Mua gói dịch vụ", gỡ ràng buộc voucher với gói và đặt lại loại trừ về bật; đổi
+  sang gói khác thì giữ nút, cập nhật mã áp dụng sang gói mới, chỉ xoá giá trị
+  voucher không hợp lệ với gói mới và giữ lựa chọn loại trừ. Với chiến dịch
+  trigger có gói, mock luôn bỏ qua máy đã có gói đó, bất kể công tắc loại trừ.
 - Gói không còn phát hành được (ngừng bán, mất cấu hình): tạo/sửa nháp trả 422
   `package_unavailable`; gửi duyệt, duyệt, chạy, chạy lại trả 409
   `package_unavailable` và không sinh lượt gửi. Chiến dịch đang chạy hiện cảnh
@@ -112,8 +115,8 @@ dịch dùng mã `DEV-…`, thiết bị và quyền lợi dùng `KGR-…`, nên
 trước không liên hệ với 3 lượt mua seed. Chiến dịch chỉ ghi nhận lượt mua và
 doanh thu từ quyền lợi trong mock; việc đổi voucher khi thanh toán thuộc
 storefront (§10), chưa làm ở đây. Gói bundle không được quảng cáo. Bản dịch EN
-của màn chiến dịch chưa đầy đủ (chỉ nhánh `package`/`button`), phần còn lại và
-mọi thông báo lỗi hiển thị tiếng Việt.
+của màn chiến dịch chỉ có một phần nhỏ (`package`, `button`, tiêu đề điều kiện
+đối tượng và `mechanism`); phần còn lại và mọi thông báo lỗi hiển thị tiếng Việt.
 
 ## Giới hạn
 

@@ -1,6 +1,6 @@
 # Chiến dịch quảng cáo gói dịch vụ
 
-Ngày: 28/10/2026 · Trạng thái: chờ duyệt · Liên quan:
+Ngày: 28/10/2026 · Trạng thái: đã duyệt 28/10/2026 · Liên quan:
 `docs/SERVICE_PACKAGE_CATALOG.md`, `docs/CAMPAIGN_FEATURE_BUILD_PLAN.md`,
 `docs/CMS_QnA_V1_SPEC.md` §7, `docs/CMS_QnA_V1_SPEC_7_SUPPLEMENT.md` §7.4,
 `docs/superpowers/specs/2026-10-27-device-service-entitlements-design.md`,

@@ -101,7 +101,7 @@
   - `dispatch`: bỏ qua chiến dịch có gói không grantable; trigger có gói bỏ máy đã có gói (bất kể toggle); deeplink dùng `buttonDeeplink(button, campaign.promoted_package_id)`.
   - `metricsFor`: `package_purchases = countCampaignPurchases(id)`; `package_revenue = purchases × (firstPeriodPrice(pkg, offer) ?? 0)`; cộng vào `orders` và `revenue`. Chiến dịch không gói: hai field = 0 và `orders/revenue` không đổi.
 - [x] **Step 5: Assert tạm** `<scratchpad>/assert-campaign-mock.mjs` qua SSR trên store (không qua handler cần localStorage): `isGrantablePackage` đúng cho `pkg-demo-clean` (true), `pkg-demo-survey` (false, draft); `countCampaignPurchases('CMP-0009') === 3`; các quyền lợi đó có `source.kind === 'campaign_purchase'`, `starts_override_at` khác null, nằm trên 3 máy khác nhau; `countCampaignPurchases('CMP-0001') === 0`.
-- [x] **Step 6: Kiểm tra HTTP mock trên trình duyệt** (DevTools `fetch`): package-options không có bundle/draft; vai trò không có `campaign.write` → 403; lưu nháp với `pkg-demo-survey` → 422; voucher amount 600.001 trên `pkg-demo-clean` → 422; ngừng bán `pkg-demo-clean` ở danh mục rồi `pause` → `resume` `CMP-0009` → 409, số lượt gửi không tăng khi tải lại danh sách; mở lại gói (hoặc reload). So `CMP-0001/0004/0006` với baseline Step 1 — phải trùng.
+- [x] **Step 6: Kiểm tra HTTP mock trên trình duyệt** (DevTools `fetch`): package-options không có bundle/draft; vai trò không có `campaign.write` → 403; lưu nháp với `pkg-demo-survey` → 422; voucher amount 600.001 trên `pkg-demo-clean` → 422; ngừng bán `pkg-demo-clean` ở danh mục rồi `pause` → `resume` `CMP-0009` → 409, số lượt gửi không tăng khi tải lại danh sách; mở lại gói (hoặc reload). So `CMP-0001/0004/0006` với baseline Step 1 — phải trùng. _(Đã chạy dưới dạng script msw/node, không phải `fetch` trong DevTools.)_
 - [x] **Step 7:** `pnpm typecheck && pnpm lint`; commit `feat(campaigns): serve promoted packages and purchase entitlements in mocks`.
 
 ### Task 3: Wizard — chọn gói, CTA, voucher, đối tượng, xem trước
@@ -124,7 +124,7 @@
 - [x] **Step 4: Voucher.** Khi có gói thì ẩn ô `appliesTo`, hiện tag gói. Gói miễn phí thì disable hai loại voucher giảm giá. Gói báo giá thì disable giảm tiền. Rule form gọi `validatePackageOffer` và hiện key `package.offerIssue.<issue>`.
 - [x] **Step 5: Đối tượng.** `StepAudience` hiện switch "Loại máy đã có gói này" (chỉ khi có gói), xem trước số khách gọi lại khi switch đổi.
 - [x] **Step 6: Xem trước/tóm tắt.** Truyền `packageCard` vào `CampaignPhonePreview`; `StepReview` và `CampaignSummary` hiện gói + dòng giá; chiến dịch không gói hiển thị như cũ.
-- [x] **Step 7: Kiểm tra trên trình duyệt (MSW, VI rồi EN):**
+- [x] **Step 7: Kiểm tra trên trình duyệt (MSW, VI rồi EN):** _(Đã bấm: bộ chọn gói ở 1024px EN, dòng giá DEMO-BT-2L, CTA theo trạng thái chọn gói, đổi sang DEMO-LD-STD, bỏ gói, lỗi tràn nhãn dài đã sửa. Chưa bấm: lượt VI, lưu nháp rồi mở lại, sửa CMP-0001, đổi số khách khi bật/tắt loại trừ, chặn mạng thử lại; các mục này chỉ có assert SSR/đọc code.)_
   - Tạo chiến dịch với `DEMO-BT-2L` + voucher 20% → xem trước hiện "480.000đ năm đầu" và "sau đó 600.000đ/năm".
   - Đổi sang `DEMO-LD-STD` (miễn phí) → voucher giảm giá bị disable hoặc báo lỗi.
   - Bỏ gói → nút "Mua gói dịch vụ" và tag gói biến mất, `appliesTo` tự do hiện lại.
@@ -147,7 +147,7 @@
 - [x] **Step 1:** Cảnh báo trong cột trạng thái `CampaignTable` và đầu `CampaignDetailPage`. `CampaignActions` map lỗi `package_unavailable`/`invalid_package_offer` sang thông báo i18n.
 - [x] **Step 2:** `CampaignMetricsPanel` thêm hai ô "Lượt mua gói", "Doanh thu gói" khi có gói. Gói báo giá thì thêm ghi chú "Không tính doanh thu gói báo giá". CSV thêm hai cột (label truyền từ panel như các cột cũ); chiến dịch không gói vẫn xuất 0.
 - [x] **Step 3:** `DeviceEntitlementsPanel`: `SOURCE_KIND_KEY.campaign_purchase = 'campaignPurchase'`, nhãn "Mua qua chiến dịch {{reference}}". Có `campaign.read` thì nhãn là `Link` tới `/campaigns/$campaignId`.
-- [x] **Step 4: Kiểm tra trên trình duyệt:**
+- [x] **Step 4: Kiểm tra trên trình duyệt:** _(Đã bấm: số liệu CMP-0009, link từ KGR-0002, ngừng bán gói rồi thấy cảnh báo ở danh sách, 390px ở danh sách/chi tiết/thiết bị. Chưa bấm: nội dung CSV tải về, vai trò không có `campaign.read`, cảnh báo ở chi tiết, lỗi chạy lại sau tạm dừng; 409 chỉ có assert msw/node.)_
   - `CMP-0009` hiện lượt mua 3 và doanh thu gói 1.440.000đ, và cả hai nằm trong tổng đơn/doanh thu.
   - CSV có hai cột mới.
   - Mở một trong ba máy đã seed → quyền lợi "Vệ sinh máy" với nguồn "Mua qua chiến dịch CMP-0009", bấm link tới đúng chiến dịch.
@@ -162,7 +162,7 @@
 
 - [x] **Step 1:** `rg -n "buttonDeeplink\(|grantablePackage|appliesTo" src`. Kiểm tra không còn caller cũ thiếu tham số và không còn bản sao logic grantable.
 - [x] **Step 2:** Chạy tuần tự `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`; ghi exit code và tách riêng warning có sẵn (worker lint, chunk > 500 kB).
-- [x] **Step 3:** Đi lại khoảnh khắc thành công từ đầu đến cuối trên trình duyệt: tạo → gửi duyệt → duyệt bằng tài khoản khác → chạy → số liệu → thiết bị. Chụp ảnh ở 1440/768/390px. _(chỉ làm một phần: xem mục Kết quả triển khai.)_
+- [ ] **Step 3:** Đi lại khoảnh khắc thành công từ đầu đến cuối trên trình duyệt: tạo → gửi duyệt → duyệt bằng tài khoản khác → chạy → số liệu → thiết bị. Chụp ảnh ở 1440/768/390px. _(chỉ làm một phần: xem mục Kết quả triển khai.)_
 - [ ] **Step 4:** Review diff độc lập; xử lý phát hiện thật, chạy lại các check bị ảnh hưởng. _(chưa tick: review cuối toàn nhánh chạy sau khi commit tài liệu này.)_
 - [x] **Step 5:** Ghi kết quả và giới hạn vào plan và tài liệu. Commit `docs: document service package campaigns and verification`. Không push.
 
