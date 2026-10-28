@@ -1,4 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
+import { getInventoryImportPackageOptions } from '../api/inventoryImportApi';
 
 import {
   getDevice,
@@ -29,6 +30,12 @@ import type { DeviceListFilters } from '../schemas/deviceSchemas';
 
 export const deviceQueries = {
   all: ['devices'] as const,
+  inventoryImportPackages: () =>
+    queryOptions({
+      queryKey: [...deviceQueries.all, 'inventory-import-packages'],
+      queryFn: ({ signal }) => getInventoryImportPackageOptions(signal),
+      staleTime: 0,
+    }),
   list: (filters: DeviceListFilters) =>
     queryOptions({
       queryKey: [...deviceQueries.all, 'list', filters] as const,
