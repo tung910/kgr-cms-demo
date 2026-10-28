@@ -37,7 +37,14 @@ export function PromotedPackageWarning({
     >
       <WarningOutlined className="mt-0.5 shrink-0" />
       <span className="min-w-0">
-        {t('package.warning', { code: pkg.code })}
+        {t(
+          campaign.status === 'running'
+            ? 'package.warningRunning'
+            : campaign.status === 'paused'
+              ? 'package.warningPaused'
+              : 'package.warning',
+          { code: pkg.code }
+        )}
       </span>
     </div>
   );

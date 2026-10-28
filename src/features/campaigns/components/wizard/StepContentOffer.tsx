@@ -292,7 +292,7 @@ export function StepOffer({
               <DatePicker className="w-full" format="DD/MM/YYYY" />
             </Form.Item>
           </section>
-          {promotedPackage ? (
+          {promotedPackage && kind === 'points' ? null : promotedPackage ? (
             <section className="rounded-xl border border-[#E7E8E9] p-4">
               <span className="text-sm">{t('package.voucherBound')} </span>
               <Tag className="m-0">{promotedPackage.code}</Tag>

@@ -268,10 +268,14 @@ export function buildButtons(
 
 export function buildOffer(values: WizardValues): CampaignOffer | null {
   if (!values.offerEnabled) return null;
-  // A promoted package replaces the free "applies to" text (spec 4.2).
+  // A promoted package replaces the free "applies to" text for vouchers; loyalty
+  // points do not depend on the package, so they carry no scope (spec 4.2).
+  const isPoints = values.offerKind === 'points';
   const appliesTo =
-    values.promotedPackage?.code ??
-    (values.appliesTo?.trim() || buttonCoreSkus(values).join(', '));
+    isPoints && values.promotedPackage
+      ? undefined
+      : (values.promotedPackage?.code ??
+        (values.appliesTo?.trim() || buttonCoreSkus(values).join(', ')));
   const common = {
     ...(values.validUntil
       ? { validUntil: values.validUntil.toISOString() }

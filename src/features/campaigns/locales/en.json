@@ -50,7 +50,8 @@
       "hint": "Pick an on-sale package to send customers to buy it. Leave empty when the campaign is not about a service.",
       "loadFailed": "Could not load the service packages.",
       "retry": "Retry",
-      "unavailable": "no longer available"
+      "unavailable": "no longer available",
+      "term": "{{months}}-month term"
     },
     "offerIssue": {
       "free_package_discount": "Free or bundled packages take no discount voucher. Use loyalty points or remove the package.",
@@ -62,6 +63,9 @@
     "excludeOwnersHint": "Skips devices holding a still-valid entitlement of this package. Turn off for renewal reminders.",
     "summaryLabel": "Service package",
     "warning": "Package {{code}} is no longer on sale or fully configured, so this campaign cannot be approved or run.",
+    "warningRunning": "Package {{code}} is no longer on sale or fully configured, so sending is paused until the package is back on sale.",
+    "warningPaused": "Package {{code}} is no longer on sale or fully configured, so this campaign cannot be resumed until the package is back on sale.",
+    "previewStale": "The reach is being updated for the selected service package. Please try again in a moment.",
     "metrics": {
       "purchases": "Package purchases",
       "revenue": "Package revenue",

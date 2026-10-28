@@ -98,7 +98,8 @@
       "hint": "Chọn một gói đang bán để chiến dịch dẫn khách tới mua. Bỏ trống nếu chiến dịch không liên quan dịch vụ.",
       "loadFailed": "Không tải được danh sách gói dịch vụ.",
       "retry": "Thử lại",
-      "unavailable": "không còn khả dụng"
+      "unavailable": "không còn khả dụng",
+      "term": "hạn {{months}} tháng"
     },
     "offerIssue": {
       "free_package_discount": "Gói miễn phí hoặc gộp giá không áp dụng voucher giảm giá. Hãy dùng điểm thưởng hoặc bỏ gói.",
@@ -110,6 +111,9 @@
     "excludeOwnersHint": "Bỏ qua máy đang có quyền lợi còn hiệu lực của gói này. Tắt khi chiến dịch nhắc gia hạn.",
     "summaryLabel": "Gói dịch vụ",
     "warning": "Gói {{code}} đã ngừng bán hoặc chưa đủ cấu hình nên chiến dịch này không thể duyệt hoặc chạy.",
+    "warningRunning": "Gói {{code}} đã ngừng bán hoặc chưa đủ cấu hình nên chiến dịch tạm dừng gửi cho tới khi gói được bán lại.",
+    "warningPaused": "Gói {{code}} đã ngừng bán hoặc chưa đủ cấu hình nên chiến dịch không thể tiếp tục cho tới khi gói được bán lại.",
+    "previewStale": "Đang cập nhật số khách nhận được theo gói dịch vụ đã chọn. Vui lòng thử lại sau giây lát.",
     "metrics": {
       "purchases": "Lượt mua gói",
       "revenue": "Doanh thu gói",

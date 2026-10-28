@@ -37,6 +37,10 @@ export function PromotedPackageField({
     [
       pkg.code,
       pkg.name,
+      t(`groups.${pkg.group}`, { ns: 'servicePackages' }),
+      pkg.termMonths
+        ? t('package.field.term', { months: pkg.termMonths })
+        : null,
       packagePriceLines(pkg, null, t)[0],
       pkg.grantable ? null : t('package.field.unavailable'),
     ]
