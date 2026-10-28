@@ -398,6 +398,11 @@
     },
     "createAppointment": "Tạo lịch kỹ thuật viên",
     "modalTitle": "Tạo lịch kỹ thuật viên — vị trí {{position}}",
+    "usePackage": {
+      "label": "Dùng gói dịch vụ",
+      "option": "{{name}} — còn {{remaining}} lượt",
+      "none": "Không dùng gói (khách trả phí)"
+    },
     "reason": "Lý do",
     "confirm": "Tạo phiếu",
     "cancel": "Hủy",
@@ -445,7 +450,11 @@
     "restoreNotEligible": "Thiết bị này không ở trạng thái có thể khôi phục.",
     "invalidResponse": "Máy chủ trả về dữ liệu thiết bị không hợp lệ.",
     "sameOwner": "Khách hàng này đã là chủ sở hữu hiện tại.",
-    "noOwner": "Thiết bị chưa có chủ sở hữu."
+    "noOwner": "Thiết bị chưa có chủ sở hữu.",
+    "entitlementNotEligible": "Quyền lợi không thuộc máy này hoặc không phải gói thay lõi giao bằng kỹ thuật viên.",
+    "entitlementNotActive": "Quyền lợi chưa hiệu lực hoặc đã hết hạn/thu hồi.",
+    "entitlementExhausted": "Quyền lợi đã hết lượt sử dụng.",
+    "idempotencyConflict": "Yêu cầu đã gửi với nội dung khác cho cùng một thao tác, vui lòng thử lại."
   },
   "telemetry": {
     "title": "Chất lượng nước vào/ra",

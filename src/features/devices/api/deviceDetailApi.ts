@@ -166,15 +166,27 @@ export async function getCoreAlerts(
   }));
 }
 
+// §6.3: `entitlementId` lets the ticket reserve one usage slot on a BT-FIL/
+// BT-COR technician-delivery entitlement; `null` preserves the pre-existing
+// "khách trả phí" behavior. `operationKey` is sent as the Idempotency-Key
+// header (spec §11) so a resubmitted request (retry or double-click) never
+// creates a second ticket/reservation.
 export async function createServiceTicketFromCoreAlert(
   deviceId: string,
   position: string,
-  reason: string
+  reason: string,
+  entitlementId: string | null,
+  operationKey: string
 ): Promise<void> {
-  await apiClient.post<unknown>(devicePath(deviceId, '/service-tickets'), {
-    reason,
-    core_position: position,
-  });
+  await apiClient.post<unknown>(
+    devicePath(deviceId, '/service-tickets'),
+    {
+      reason,
+      core_position: position,
+      entitlement_id: entitlementId,
+    },
+    { headers: { 'Idempotency-Key': operationKey } }
+  );
 }
 
 function mapDiagnosticsJob(dto: {

@@ -400,6 +400,11 @@
     },
     "createAppointment": "Create technician appointment",
     "modalTitle": "Create technician appointment — position {{position}}",
+    "usePackage": {
+      "label": "Use a service package",
+      "option": "{{name}} — {{remaining}} uses left",
+      "none": "Don't use a package (customer pays)"
+    },
     "reason": "Reason",
     "confirm": "Create ticket",
     "cancel": "Cancel",
@@ -447,7 +452,11 @@
     "restoreNotEligible": "This device is not in a restorable state.",
     "invalidResponse": "The server returned an invalid device response.",
     "sameOwner": "This customer already owns the device.",
-    "noOwner": "The device has no owner."
+    "noOwner": "The device has no owner.",
+    "entitlementNotEligible": "This entitlement does not belong to this device or is not a technician-delivery filter-replacement package.",
+    "entitlementNotActive": "This entitlement is not active, or has expired/been revoked.",
+    "entitlementExhausted": "This entitlement has no remaining uses.",
+    "idempotencyConflict": "The same request was resubmitted with different content; please try again."
   },
   "telemetry": {
     "title": "Water quality in/out",

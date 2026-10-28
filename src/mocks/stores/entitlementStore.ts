@@ -238,7 +238,11 @@ function isModelInScope(
   return details.eligible_model_ids.includes(model.model_id);
 }
 
-function appendEntitlementEvent(
+// Exported so write handlers outside this module (e.g. the core-alert →
+// service-ticket flow in src/mocks/handlers.ts, Task 8) can append a
+// `reserved`/`released` event tied to a ticket they create, instead of
+// duplicating this shape.
+export function appendEntitlementEvent(
   entitlementId: string,
   input: {
     type: EntitlementEventType;

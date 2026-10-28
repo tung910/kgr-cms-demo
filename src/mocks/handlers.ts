@@ -17,7 +17,15 @@ import { isPortalRole, type PortalRole } from '@/core/auth/types';
 import { systemHandlers } from '@/features/system/mocks/systemHandlers';
 import { deviceExtraHandlers } from '@/features/devices/mocks/deviceExtraHandlers';
 import { entitlementHandlers } from '@/features/devices/mocks/entitlementHandlers';
-import { entitlementSummaries } from '@/mocks/stores/entitlementStore';
+import {
+  appendEntitlementEvent,
+  entitlementRecords,
+  entitlementSummaries,
+  serviceTickets,
+  toEntitlementDto,
+  type EntitlementRecord,
+} from '@/mocks/stores/entitlementStore';
+import { withIdempotency } from '@/mocks/stores/operationStore';
 import { campaignHandlers } from '@/features/campaigns/mocks/campaignHandlers';
 import { servicePackageHandlers } from '@/features/service-packages/mocks/servicePackageHandlers';
 import { mapHandlers } from '@/features/maps/mocks/mapHandlers';
@@ -1183,6 +1191,16 @@ export const handlers = [
 
     return HttpResponse.json(alerts);
   }),
+  // §6.3 "Tạo phiếu từ cảnh báo lõi": an optional `entitlement_id` lets this
+  // ticket reserve one usage slot on a BT-FIL/BT-COR technician-delivery
+  // entitlement (spec §6.1/§6.2). Idempotency-protected (§11 "Mọi lệnh ghi
+  // quyền lợi ... nhận header Idempotency-Key") the same way
+  // servicePackageHandlers.ts protects package-create/auto-attach: the
+  // permission check runs first, then every validation + mutation + the
+  // reservation event runs inside `withIdempotency`'s callback so a replay
+  // (same actor + route + Idempotency-Key + payload) returns the cached
+  // result without creating a second ticket or reservation. No
+  // `entitlement_id` in the body → entirely unchanged behavior.
   http.post(
     '/api/devices/:deviceId/service-tickets',
     async ({ params, request }) => {
@@ -1190,20 +1208,111 @@ export const handlers = [
       const deviceId = String(params.deviceId);
       const device = deviceStore.find((item) => item.device_id === deviceId);
       if (!device) return deviceError('notFound', 404);
-      const body = (await request.json().catch(() => null)) as {
+
+      const requestBody = (await request.json().catch(() => null)) as {
         reason?: string;
         core_position?: string;
+        entitlement_id?: string | null;
       } | null;
-      if (!body?.reason?.trim()) return deviceError('invalidInput', 400);
-      if (body.core_position) {
-        const positions =
-          assignedCorePositions.get(deviceId) ?? new Set<string>();
-        positions.add(body.core_position);
-        assignedCorePositions.set(deviceId, positions);
+      const idempotencyKey =
+        request.headers.get('Idempotency-Key') ?? undefined;
+
+      type ServiceTicketOutcome =
+        { ok: true; ticketId: string } | { ok: false; code: string };
+
+      const outcome = withIdempotency(
+        getMockActor(),
+        'devices.service-tickets.create',
+        idempotencyKey,
+        requestBody,
+        (): ServiceTicketOutcome => {
+          if (!requestBody?.reason?.trim())
+            return { ok: false, code: 'invalidInput' };
+
+          const entitlementId = requestBody.entitlement_id ?? null;
+          let entitlementRecord: EntitlementRecord | undefined;
+
+          if (entitlementId !== null) {
+            entitlementRecord = entitlementRecords.find(
+              (record) => record.id === entitlementId
+            );
+            const snapshot = entitlementRecord?.package_snapshot;
+            const isEligibleType =
+              snapshot?.service_type_code === 'BT-FIL' ||
+              snapshot?.service_type_code === 'BT-COR';
+            if (
+              !entitlementRecord ||
+              entitlementRecord.device_id !== deviceId ||
+              !isEligibleType ||
+              snapshot?.delivery !== 'technician'
+            )
+              return { ok: false, code: 'entitlement_not_eligible' };
+
+            const dto = toEntitlementDto(entitlementRecord, new Date());
+            if (dto.status !== 'active' && dto.status !== 'expiring')
+              return { ok: false, code: 'entitlement_not_active' };
+            if (dto.quota === null || dto.used + dto.reserved >= dto.quota)
+              return { ok: false, code: 'entitlement_exhausted' };
+          }
+
+          if (requestBody.core_position) {
+            const positions =
+              assignedCorePositions.get(deviceId) ?? new Set<string>();
+            positions.add(requestBody.core_position);
+            assignedCorePositions.set(deviceId, positions);
+          }
+
+          const ticketId = `WT-${randomId().slice(0, 8)}`;
+
+          if (entitlementRecord) {
+            const ticketCode = `SR-${randomId().slice(0, 8).toLocaleUpperCase()}`;
+            serviceTickets.push({
+              ticket_id: ticketId,
+              ticket_code: ticketCode,
+              device_id: deviceId,
+              entitlement_id: entitlementRecord.id,
+              status: 'pending',
+              scheduled_at: null,
+            });
+            appendEntitlementEvent(entitlementRecord.id, {
+              type: 'reserved',
+              countsAgainstQuota: false,
+              reference: { ticket_code: ticketCode },
+              occurredAt: new Date().toISOString(),
+            });
+          }
+
+          return { ok: true, ticketId };
+        }
+      );
+
+      if (outcome.status === 'conflict')
+        return HttpResponse.json(
+          {
+            code: 'idempotency_conflict',
+            message: i18n.t('devices:errors.idempotencyConflict'),
+          },
+          { status: 409 }
+        );
+
+      const result = outcome.result;
+      if (!result.ok) {
+        const status = result.code === 'invalidInput' ? 400 : 409;
+        const key =
+          result.code === 'entitlement_not_eligible'
+            ? 'entitlementNotEligible'
+            : result.code === 'entitlement_not_active'
+              ? 'entitlementNotActive'
+              : result.code === 'entitlement_exhausted'
+                ? 'entitlementExhausted'
+                : 'invalidInput';
+        return HttpResponse.json(
+          { code: result.code, message: i18n.t('devices:errors.' + key) },
+          { status }
+        );
       }
-      return HttpResponse.json({
-        ticket_id: `WT-${randomId().slice(0, 8)}`,
-      });
+
+      return HttpResponse.json({ ticket_id: result.ticketId });
     }
   ),
   http.get(
