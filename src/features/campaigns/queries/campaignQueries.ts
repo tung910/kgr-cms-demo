@@ -5,6 +5,7 @@ import {
   getCampaignApprovers,
   getCampaignCounts,
   getCampaignMetrics,
+  getCampaignPackageOptions,
   getCoreOptions,
   getCampaigns,
 } from '../api/campaignApi';
@@ -43,5 +44,10 @@ export const campaignQueries = {
     queryOptions({
       queryKey: [...campaignQueries.all, 'core-options'] as const,
       queryFn: ({ signal }) => getCoreOptions(signal),
+    }),
+  packageOptions: () =>
+    queryOptions({
+      queryKey: [...campaignQueries.all, 'package-options'] as const,
+      queryFn: ({ signal }) => getCampaignPackageOptions(signal),
     }),
 };

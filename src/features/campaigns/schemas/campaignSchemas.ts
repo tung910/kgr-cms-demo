@@ -73,6 +73,7 @@ const buttonTypeSchema = z.enum([
   'book_technician',
   'renew_warranty',
   'open_screen',
+  'buy_service_package',
 ]) satisfies z.ZodType<ButtonType>;
 
 const coreModeSchema = z.enum([
@@ -114,6 +115,41 @@ export const coreOptionDtoSchema = z.object({
 });
 export const coreOptionListDtoSchema = z.array(coreOptionDtoSchema);
 export type CoreOption = z.infer<typeof coreOptionDtoSchema>;
+
+// Minimal catalogue summary of the promoted package (spec §5). Campaign screens
+// read this embedded copy instead of the service-package catalogue, so they do
+// not need `service_package.read`. `grantable` is true when the package is
+// active and fully configured (the same rule the inventory import uses).
+export const promotedPackageDtoSchema = z.object({
+  id: z.string().min(1),
+  code: z.string().min(1),
+  name: z.string().min(1),
+  group: z.enum(['installation', 'warranty', 'maintenance', 'care', 'bundle']),
+  status: z.enum(['draft', 'active', 'archived']),
+  grantable: z.boolean(),
+  billing_type: z.enum(['one_time', 'recurring', 'subscription']),
+  price: z.number().int().nonnegative().nullable(),
+  // Length of one billing period; the voucher discounts the first one only.
+  billing_period_months: z.number().int().positive().nullable(),
+  pricing_mode: z.enum(['fixed', 'free_or_included', 'quotation']),
+  term_months: z.number().int().positive().nullable(),
+});
+export const promotedPackageListDtoSchema = z.array(promotedPackageDtoSchema);
+export type PromotedPackageDto = z.infer<typeof promotedPackageDtoSchema>;
+
+export interface PromotedPackage {
+  id: string;
+  code: string;
+  name: string;
+  group: PromotedPackageDto['group'];
+  status: PromotedPackageDto['status'];
+  grantable: boolean;
+  billingType: PromotedPackageDto['billing_type'];
+  price: number | null;
+  billingPeriodMonths: number | null;
+  pricingMode: PromotedPackageDto['pricing_mode'];
+  termMonths: number | null;
+}
 
 const offerTypeSchema = z.enum([
   'voucher',
@@ -203,6 +239,9 @@ export const campaignDtoSchema = z.object({
   audience_count: z.number().int().nonnegative().nullable(),
   ab_test: abTestSchema.nullable(),
   offer: campaignOfferSchema.nullable(),
+  // Optional promoted service package: the reference plus a catalogue summary.
+  promoted_package_id: z.string().nullable(),
+  promoted_package: promotedPackageDtoSchema.nullable(),
   test_recipients: z.array(z.string()),
   created_by: z.string(),
   created_by_name: z.string(),
@@ -253,6 +292,10 @@ export const campaignMetricsDtoSchema = z.object({
   // Customers who turned this notification group off (APP-060) and therefore
   // never received the campaign.
   suppressed_opt_out: z.number().int().nonnegative(),
+  // Part of `orders` / `revenue` that came from the promoted package, after the
+  // voucher; recurring packages count the first period only (spec 4.6).
+  package_purchases: z.number().int().nonnegative(),
+  package_revenue: z.number().nonnegative(),
 });
 export type CampaignMetricsDto = z.infer<typeof campaignMetricsDtoSchema>;
 
@@ -288,6 +331,8 @@ export interface Campaign {
   audienceCount: number | null;
   abTest: AbTest | null;
   offer: CampaignOffer | null;
+  promotedPackageId: string | null;
+  promotedPackage: PromotedPackage | null;
   testRecipients: string[];
   createdBy: string;
   createdByName: string;
@@ -316,6 +361,8 @@ export interface CampaignMetrics {
   orders: number;
   revenue: number;
   suppressedOptOut: number;
+  packagePurchases: number;
+  packageRevenue: number;
 }
 
 export interface CampaignCounts {
@@ -370,6 +417,7 @@ export interface CampaignDraftInput {
   audienceCount: number | null;
   abTest: AbTest | null;
   offer: CampaignOffer | null;
+  promotedPackageId: string | null;
   testRecipients: string[];
 }
 
@@ -394,30 +442,39 @@ export interface CampaignTransitionInput {
 // Request body shape for creating/saving a draft (camelCase), used by the
 // mock backend to validate what the wizard sends. Content is only checked for
 // completeness when the draft is submitted for approval.
-export const campaignDraftInputSchema = z.object({
-  reason: z.string().trim().min(1),
-  priority: z.number().int().nonnegative(),
-  tenantId: z.literal(CAMPAIGN_TENANT_ID),
-  name: z.string().trim().min(1),
-  kind: campaignKindSchema,
-  displayType: displayTypeSchema,
-  notificationGroup: notificationGroupSchema,
-  title: z.string(),
-  content: z.string(),
-  buttons: buttonsSchema,
-  scheduleType: campaignScheduleSchema,
-  startsAt: z.string().nullable(),
-  endsAt: z.string().nullable(),
-  triggerPreset: triggerPresetSchema.nullable(),
-  triggerConfig: triggerConfigSchema.nullable(),
-  frequencyCapPerCustomer: z.number().int().nonnegative(),
-  audience: audienceConditionsSchema,
-  dedupe: dedupeModeSchema,
-  suppression: suppressionSchema,
-  audienceCount: z.number().int().nonnegative().nullable(),
-  abTest: abTestSchema.nullable(),
-  offer: campaignOfferSchema.nullable(),
-  testRecipients: z.array(z.string()),
-});
+export const campaignDraftInputSchema = z
+  .object({
+    reason: z.string().trim().min(1),
+    priority: z.number().int().nonnegative(),
+    tenantId: z.literal(CAMPAIGN_TENANT_ID),
+    name: z.string().trim().min(1),
+    kind: campaignKindSchema,
+    displayType: displayTypeSchema,
+    notificationGroup: notificationGroupSchema,
+    title: z.string(),
+    content: z.string(),
+    buttons: buttonsSchema,
+    scheduleType: campaignScheduleSchema,
+    startsAt: z.string().nullable(),
+    endsAt: z.string().nullable(),
+    triggerPreset: triggerPresetSchema.nullable(),
+    triggerConfig: triggerConfigSchema.nullable(),
+    frequencyCapPerCustomer: z.number().int().nonnegative(),
+    audience: audienceConditionsSchema,
+    dedupe: dedupeModeSchema,
+    suppression: suppressionSchema,
+    audienceCount: z.number().int().nonnegative().nullable(),
+    abTest: abTestSchema.nullable(),
+    offer: campaignOfferSchema.nullable(),
+    promotedPackageId: z.string().min(1).nullable(),
+    testRecipients: z.array(z.string()),
+  })
+  // A "Mua gói dịch vụ" button needs a package to point at.
+  .refine(
+    (input) =>
+      !input.buttons.some((button) => button.type === 'buy_service_package') ||
+      !!input.promotedPackageId,
+    { message: 'package_required', path: ['promotedPackageId'] }
+  );
 
 export type CampaignPage = PageResponse<Campaign>;

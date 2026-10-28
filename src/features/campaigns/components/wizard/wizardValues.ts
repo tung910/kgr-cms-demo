@@ -357,6 +357,7 @@ export function buildDraftInput(
         }
       : null,
     offer: buildOffer(values),
+    promotedPackageId: null,
     testRecipients: splitRecipients(values.testRecipients ?? ''),
   };
 }

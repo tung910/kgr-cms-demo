@@ -45,6 +45,8 @@ const base: CampaignDto = {
   audience_count: null,
   ab_test: null,
   offer: null,
+  promoted_package_id: null,
+  promoted_package: null,
   test_recipients: [],
   created_by: 'u-sales',
   created_by_name: 'KD Demo',

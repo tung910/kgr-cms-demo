@@ -79,6 +79,9 @@ export const audienceConditionsSchema = z.object({
   coreRemainingDays: integerRangeSchema,
   loyaltyPoints: integerRangeSchema,
   regionTds: numberRangeSchema,
+  // Excludes devices that already hold an unexpired entitlement of this
+  // package (spec 4.4); undefined = no constraint.
+  excludeActivePackageId: z.string().min(1).optional(),
 });
 export type AudienceConditions = z.infer<typeof audienceConditionsSchema>;
 
@@ -132,6 +135,8 @@ export const audienceDeviceDtoSchema = z.object({
   // Days since the customer last bought a consumable for this device (commerce
   // signal, not a sensor) — drives the "đã mua lõi → dừng nhắc" exit rule.
   last_core_purchase_days_ago: z.number().int().nonnegative(),
+  // IDs of the service packages this device holds a still-valid entitlement of.
+  active_package_ids: z.array(z.string()),
 });
 export type AudienceDeviceDto = z.infer<typeof audienceDeviceDtoSchema>;
 

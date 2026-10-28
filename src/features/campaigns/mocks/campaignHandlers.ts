@@ -446,6 +446,8 @@ function metricsFor(campaign: CampaignDto): CampaignMetricsDto {
     orders: conversionsBooking + conversionsQr,
     revenue,
     suppressed_opt_out: suppressedOptOut,
+    package_purchases: 0,
+    package_revenue: 0,
   };
 }
 
@@ -673,6 +675,9 @@ export const campaignHandlers = [
       audience_count: input.audienceCount,
       ab_test: input.abTest,
       offer: input.offer,
+      // Neutral until the package behaviour lands (next task).
+      promoted_package_id: null,
+      promoted_package: null,
       test_recipients: input.testRecipients,
       created_by: who.id,
       created_by_name: who.fullName,

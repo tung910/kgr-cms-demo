@@ -78,6 +78,21 @@
     "points": "điểm",
     "vnd": "đ"
   },
+  "package": {
+    "price": {
+      "firstPeriod": "{{price}} {{period}} đầu",
+      "renewal": "sau đó {{price}}/{{period}}",
+      "perPeriod": "{{price}}/{{period}}",
+      "oneTime": "{{price}} (một lần)",
+      "free": "Miễn phí",
+      "quotation": "Báo giá sau khảo sát",
+      "quotationDiscount": "Giảm {{value}}% trên báo giá"
+    },
+    "period": {
+      "year": "năm",
+      "months": "{{count}} tháng"
+    }
+  },
   "common": {
     "on": "Bật",
     "off": "Tắt"
@@ -387,13 +402,15 @@
       "buy_core": "Mua lõi",
       "book_technician": "Đặt lịch kỹ thuật viên",
       "renew_warranty": "Gia hạn bảo hành",
-      "open_screen": "Mở màn hình khác"
+      "open_screen": "Mở màn hình khác",
+      "buy_service_package": "Mua gói dịch vụ"
     },
     "defaultLabel": {
       "buy_core": "Mua lõi thay thế",
       "book_technician": "Đặt lịch kỹ thuật viên",
       "renew_warranty": "Gia hạn bảo hành",
-      "open_screen": "Xem ngay"
+      "open_screen": "Xem ngay",
+      "buy_service_package": "Mua gói"
     },
     "coreMode": {
       "auto": "Tự động theo máy của khách",
