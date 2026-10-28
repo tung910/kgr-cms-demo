@@ -531,5 +531,26 @@
     "lastOnline": "Last online: {{date}}",
     "viewInDeviceList": "View in device list",
     "openProfile": "Open full profile"
+  },
+  "entitlements": {
+    "statuses": {
+      "pending": "Not started",
+      "active": "Active",
+      "expiring": "Expiring soon",
+      "exhausted": "Used up",
+      "expired": "Expired",
+      "revoked": "Removed"
+    },
+    "eventTypes": {
+      "reserved": "Reserved",
+      "released": "Reservation released",
+      "consumed": "Used",
+      "shipment": "Core shipment logged",
+      "manual": "Manual usage logged",
+      "reversal": "Usage reversed",
+      "customerQrScan": "Customer QR scan (not counted)",
+      "attached": "Attached",
+      "revoked": "Revoked / removed"
+    }
   }
 }

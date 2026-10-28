@@ -527,5 +527,26 @@
     "lastOnline": "Online lần cuối: {{date}}",
     "viewInDeviceList": "Xem trong danh sách thiết bị",
     "openProfile": "Mở hồ sơ đầy đủ"
+  },
+  "entitlements": {
+    "statuses": {
+      "pending": "Chưa bắt đầu",
+      "active": "Đang hiệu lực",
+      "expiring": "Sắp hết hạn",
+      "exhausted": "Hết lượt",
+      "expired": "Hết hạn",
+      "revoked": "Đã gỡ"
+    },
+    "eventTypes": {
+      "reserved": "Giữ chỗ",
+      "released": "Trả giữ chỗ",
+      "consumed": "Đã sử dụng",
+      "shipment": "Ghi nhận gửi lõi",
+      "manual": "Ghi nhận sử dụng (tay)",
+      "reversal": "Hoàn lượt",
+      "customerQrScan": "Khách tự quét QR (không trừ lượt)",
+      "attached": "Gắn gói",
+      "revoked": "Thu hồi / Đã gỡ"
+    }
   }
 }

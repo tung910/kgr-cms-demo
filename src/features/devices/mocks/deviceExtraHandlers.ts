@@ -7,6 +7,7 @@ import {
   type Capability,
 } from '@/core/permissions/capabilities';
 import { inventoryStore, receiveNewUnits } from '@/mocks/stores/inventoryStore';
+import { entitlementSummaries } from '@/mocks/stores/entitlementStore';
 
 import { AGED_STOCK_DAYS, AGING_WARNING_DAYS } from '../constants/inventory';
 import type { InventoryDeviceDto } from '../schemas/inventorySchemas';
@@ -73,7 +74,15 @@ export const deviceExtraHandlers = [
   http.get('/api/devices/inventory', ({ request }) => {
     if (!allowed('device.read')) return error('forbidden', 403);
     const url = new URL(request.url);
-    return HttpResponse.json(pageOf(url, filterInventory(url)));
+    const page = pageOf(url, filterInventory(url));
+    const now = new Date();
+    return HttpResponse.json({
+      ...page,
+      items: page.items.map((device) => ({
+        ...device,
+        entitlements_summary: entitlementSummaries(device.device_id, now),
+      })),
+    });
   }),
   http.get('/api/devices/inventory/counts', ({ request }) => {
     if (!allowed('device.read')) return error('forbidden', 403);

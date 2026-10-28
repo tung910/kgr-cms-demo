@@ -6,6 +6,8 @@ import type {
 } from '../schemas/deviceSchemas';
 import type { PageResponse } from '@/shared/types/pagination';
 
+import { mapEntitlementSummary } from './entitlementMapper';
+
 function mapTelemetry(
   telemetry: DeviceDto['latest_telemetry'][number]
 ): DeviceTelemetry {
@@ -92,6 +94,9 @@ export function mapDevice(dto: DeviceDto): Device {
       beforeValue: entry.before_value,
       afterValue: entry.after_value,
     })),
+    entitlementsSummary: (dto.entitlements_summary ?? []).map(
+      mapEntitlementSummary
+    ),
   };
 }
 

@@ -16,6 +16,8 @@ import {
 import { isPortalRole, type PortalRole } from '@/core/auth/types';
 import { systemHandlers } from '@/features/system/mocks/systemHandlers';
 import { deviceExtraHandlers } from '@/features/devices/mocks/deviceExtraHandlers';
+import { entitlementHandlers } from '@/features/devices/mocks/entitlementHandlers';
+import { entitlementSummaries } from '@/mocks/stores/entitlementStore';
 import { campaignHandlers } from '@/features/campaigns/mocks/campaignHandlers';
 import { servicePackageHandlers } from '@/features/service-packages/mocks/servicePackageHandlers';
 import { mapHandlers } from '@/features/maps/mocks/mapHandlers';
@@ -435,6 +437,15 @@ function deviceForRole(
   };
 }
 
+// §11: list/detail rows carry the device's non-revoked/non-expired
+// entitlements so the list and detail screens never need a per-row request.
+function withEntitlementsSummary(device: DeviceDto): DeviceDto {
+  return {
+    ...device,
+    entitlements_summary: entitlementSummaries(device.device_id, new Date()),
+  };
+}
+
 function appendOperationLog(
   device: DeviceDto,
   action: string,
@@ -807,6 +818,7 @@ export const handlers = [
   ...campaignHandlers,
   ...servicePackageHandlers,
   ...deviceExtraHandlers,
+  ...entitlementHandlers,
   ...mapHandlers,
   http.get('/api/dashboard/summary', ({ request }) => {
     if (hasServerError(new URL(request.url))) {
@@ -881,7 +893,11 @@ export const handlers = [
     return HttpResponse.json({
       items: filtered
         .slice(start, start + pageSize)
-        .map((device) => deviceForRole(withAttentionCore(device), role)),
+        .map((device) =>
+          withEntitlementsSummary(
+            deviceForRole(withAttentionCore(device), role)
+          )
+        ),
       page,
       page_size: pageSize,
       total: filtered.length,
@@ -930,7 +946,9 @@ export const handlers = [
       );
     }
 
-    return HttpResponse.json(deviceForRole(device, getMockRole()));
+    return HttpResponse.json(
+      withEntitlementsSummary(deviceForRole(device, getMockRole()))
+    );
   }),
   http.post('/api/devices/:deviceId/lifecycle-state', ({ params, request }) =>
     mutateDevice(params.deviceId, request, 'set_lifecycle_state')

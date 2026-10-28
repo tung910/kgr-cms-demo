@@ -20,6 +20,10 @@ import {
   getTelemetryHistory,
   listDiagnosticsJobs,
 } from '../api/deviceDetailApi';
+import {
+  getDeviceEntitlements,
+  getEntitlementEvents,
+} from '../api/entitlementApi';
 import type { TelemetryRange } from '../schemas/deviceDetailSchemas';
 import type { DeviceListFilters } from '../schemas/deviceSchemas';
 
@@ -130,5 +134,21 @@ export const deviceQueries = {
         searchOwnerCandidates(deviceId, search.trim(), signal),
       enabled: search.trim().length >= 2,
       staleTime: 30_000,
+    }),
+  entitlements: (deviceId: string) =>
+    queryOptions({
+      queryKey: [...deviceQueries.all, 'entitlements', deviceId] as const,
+      queryFn: ({ signal }) => getDeviceEntitlements(deviceId, signal),
+    }),
+  entitlementEvents: (entitlementId: string, page: number) =>
+    queryOptions({
+      queryKey: [
+        ...deviceQueries.all,
+        'entitlement-events',
+        entitlementId,
+        page,
+      ] as const,
+      queryFn: ({ signal }) =>
+        getEntitlementEvents(entitlementId, page, signal),
     }),
 };

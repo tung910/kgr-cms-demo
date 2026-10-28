@@ -1,5 +1,6 @@
 import type { PageResponse } from '@/shared/types/pagination';
 
+import { mapEntitlementSummary } from './entitlementMapper';
 import type {
   InventoryCounts,
   InventoryCountsDto,
@@ -20,6 +21,9 @@ export function mapInventoryDevice(dto: InventoryDeviceDto): InventoryDevice {
     moduleFirmwareVersion: dto.module_firmware_version,
     mainboardFirmwareVersion: dto.mainboard_firmware_version,
     firmwareOutdated: dto.firmware_outdated,
+    entitlementsSummary: (dto.entitlements_summary ?? []).map(
+      mapEntitlementSummary
+    ),
   };
 }
 
