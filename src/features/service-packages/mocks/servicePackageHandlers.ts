@@ -6,8 +6,8 @@ import {
   hasCapability,
   type Capability,
 } from '@/core/permissions/capabilities';
-import { servicePackageFixtures } from '@/mocks/fixtures/servicePackages';
 import { modelFixtures } from '@/mocks/fixtures/models';
+import { packageStore } from '@/mocks/stores/servicePackageStore';
 import { randomId } from '@/shared/lib/id';
 
 import {
@@ -20,14 +20,10 @@ import {
 // In-memory mock backend for the add-on service packages (M11). Resets on
 // reload. Authorization, the publish/archive transition rules and the
 // immutable audit trail live here, mirroring the device/campaign handlers.
+// `packageStore` itself lives in src/mocks/stores/servicePackageStore.ts so
+// other mock handlers (device service entitlements) can share it.
 const roleKey = 'cms-portal:mock-auth-role'; // shared with handlers.ts
 const userKey = 'cms-portal:mock-auth-user'; // shared with systemHandlers.ts
-
-const packageStore: ServicePackageDto[] = servicePackageFixtures.map(
-  (item) => ({
-    ...item,
-  })
-);
 
 // Append-only audit log. Entries are never edited or deleted from the UI.
 interface PackageAuditEntry {
