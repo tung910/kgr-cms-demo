@@ -45,7 +45,7 @@ export function StepContent({
   };
 
   return (
-    <div className="grid gap-5">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <section className="rounded-xl border border-[#E7E8E9] p-4">
         <Form.Item
           name="title"
@@ -194,7 +194,7 @@ export function StepOffer({
     validatePackageOffer(promotedPackage, voucherOf(value, undefined)) !== null;
 
   return (
-    <div className="grid gap-5">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <section className="rounded-xl border border-[#E7E8E9] p-4">
         <Form.Item
           name="offerEnabled"

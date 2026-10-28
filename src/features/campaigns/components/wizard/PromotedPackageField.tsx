@@ -44,7 +44,7 @@ export function PromotedPackageField({
       .join(' — ');
 
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       {options.isError ? (
         <Alert
           type="error"
@@ -63,7 +63,8 @@ export function PromotedPackageField({
         />
       ) : null}
       <Select
-        className="w-full"
+        className="w-full min-w-0"
+        popupMatchSelectWidth={false}
         showSearch={{ optionFilterProp: 'label' }}
         allowClear
         disabled={options.isError}
