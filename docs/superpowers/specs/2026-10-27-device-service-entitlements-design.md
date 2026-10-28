@@ -595,8 +595,11 @@ xong chỉ vì xuất hiện ở mục 11.
   giữ một lượt khi tạo phiếu thay lõi từ cảnh báo lõi (§6.3); không có luồng
   tạo phiếu nào khác tiêu thụ quyền lợi.
 
-Các endpoint sau của mục 11 **chưa tồn tại** trong mã nguồn — thuộc giai đoạn
-sau, chờ duyệt `service_entitlement.record`/`adjust`/`bulk_assign`:
+Các endpoint sau của mục 11 **chưa tồn tại** trong mã nguồn — vẫn thuộc phạm vi
+nghiệp vụ Giai đoạn A (mục 15.1), chỉ đang chờ duyệt phân quyền
+`service_entitlement.record`/`adjust`/`bulk_assign` (mục 9), **không phải**
+Giai đoạn B (phiếu lắp đặt/trang KTV, mục 15.1) — hai ranh giới "chờ duyệt
+quyền" và "Giai đoạn B" là độc lập, đừng nhầm lẫn:
 `POST /entitlements/{id}/shipments`, `POST /entitlements/{id}/usages`,
 `POST /entitlements/{id}/reversals`, `POST /entitlements/{id}/revoke`,
 `POST /devices/{id}/entitlements` (thêm gói thủ công cho máy đã kích hoạt),
@@ -637,3 +640,15 @@ Mã lỗi `event_not_reversible`, `already_reversed`, `core_qr_not_found`,
 `preview_not_found` thuộc các luồng hoàn lượt/thu hồi/quét QR lõi/xem trước
 hàng loạt của Task 6 và phần hàng loạt Task 7 — **chưa có trong mã nguồn**,
 không được client dựa vào cho tới khi các endpoint tương ứng được triển khai.
+
+### 16.4. Giờ nghiệp vụ dùng cho so sánh ngày hiệu lực — chốt kỹ thuật tạm thời
+
+Theo đề xuất ở mục 15.5, mã nguồn giai đoạn A đã áp dụng nhất quán giờ nghiệp
+vụ **Asia/Ho_Chi_Minh** cho mọi so sánh ngày hiệu lực tự động gắn: cả handler
+`POST /devices/inventory/sync` (so khớp `auto_attach_from` với ngày đồng bộ)
+lẫn handler `POST /service-packages/{id}/auto-attach` (kiểm tra
+`autoAttachFromPast`) đều quy đổi timestamp về ngày lịch `YYYY-MM-DD` theo múi
+giờ này qua helper dùng chung `businessDateOf`
+(`src/shared/lib/businessDate.ts`), thay vì cắt 10 ký tự đầu của chuỗi ISO
+(giờ UTC) như trước. Đây vẫn là lựa chọn kỹ thuật của mục 15.5, chưa phải
+chính sách đã duyệt — cần xác nhận lại khi chốt hợp đồng backend thật.

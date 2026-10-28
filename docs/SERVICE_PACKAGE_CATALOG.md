@@ -62,7 +62,9 @@ vụ được đặc tả riêng tại
   Chưa có màn quản lý phiếu dịch vụ/lịch dịch vụ, chưa có trang kỹ thuật viên,
   và chưa mở ghi nhận sử dụng tay, gửi lõi, hoàn lượt, thu hồi hay gắn/gỡ
   hàng loạt — các thao tác ghi này bị hoãn tới khi quyền (capability) tương
-  ứng được duyệt (xem mục 15 của spec quyền lợi dịch vụ).
+  ứng được duyệt (tên capability `service_entitlement.record`/`adjust`/
+  `bulk_assign` ở mục 9, quyết định hoãn triển khai ở mục 15 của spec quyền
+  lợi dịch vụ).
 - Backend thật cần xác nhận và triển khai các hợp đồng trên; thay đổi này chỉ
   cung cấp frontend và mock. Không cam kết đồng bộ app đã hoạt động.
 - MSW lưu dữ liệu/audit trong bộ nhớ; tải lại sẽ khôi phục fixture. Khi sửa
