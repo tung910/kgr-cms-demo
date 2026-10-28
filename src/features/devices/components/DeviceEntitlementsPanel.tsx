@@ -13,7 +13,10 @@ import {
 
 import { deviceQueries } from '../queries/deviceQueries';
 import type { Device } from '../schemas/deviceSchemas';
-import type { Entitlement } from '../schemas/entitlementSchemas';
+import type {
+  Entitlement,
+  EntitlementOpenReservation,
+} from '../schemas/entitlementSchemas';
 import {
   ENTITLEMENT_STATUS_TONE,
   daysRemaining,
@@ -26,7 +29,16 @@ const SOURCE_KIND_KEY: Record<Entitlement['source']['kind'], string> = {
   manual_add: 'manualAdd',
 };
 
-const TICKET_STATUS_KEY: Record<string, string> = {
+// §6.1/§11: `open_reservations[].ticket_status` is a closed 3-value enum
+// (`pending`/`assigned`/`in_progress` — the only statuses that count as an
+// "open" reservation), enforced at the API boundary by
+// `entitlementOpenReservationDtoSchema`. This mapping is total over that
+// union, so every reservation resolves to a real i18n key — no fallback to
+// a raw, untranslated status string is needed or reachable.
+const TICKET_STATUS_KEY: Record<
+  EntitlementOpenReservation['ticketStatus'],
+  string
+> = {
   pending: 'pending',
   assigned: 'assigned',
   in_progress: 'inProgress',
@@ -114,20 +126,33 @@ function EntitlementCard({
 
       {entitlement.kind === 'counted' ? (
         <div className="mt-3 space-y-2">
-          <div className="flex items-center justify-between text-xs text-[#636466]">
-            <span>
-              {t('entitlements.panel.usedOf', {
-                used: entitlement.used,
-                quota: entitlement.quota ?? 0,
-              })}
-            </span>
-          </div>
-          <PortalProgress
-            value={entitlement.used}
-            max={entitlement.quota ?? 0}
-            tone={ENTITLEMENT_STATUS_TONE[entitlement.status]}
-            className="h-1.5"
-          />
+          {entitlement.quota !== null ? (
+            <>
+              <div className="flex items-center justify-between text-xs text-[#636466]">
+                <span>
+                  {t('entitlements.panel.usedOf', {
+                    used: entitlement.used,
+                    quota: entitlement.quota,
+                  })}
+                </span>
+              </div>
+              <PortalProgress
+                value={entitlement.used}
+                max={entitlement.quota}
+                tone={ENTITLEMENT_STATUS_TONE[entitlement.status]}
+                className="h-1.5"
+              />
+            </>
+          ) : (
+            // Defensive: computeEntitlementQuota never returns null for a
+            // `counted`-kind entitlement (only `time_only`/bundle kinds do),
+            // but `Entitlement.quota` isn't type-narrowed by `kind`, so this
+            // guards against legacy/malformed data instead of showing a
+            // misleading "x/0".
+            <p className="m-0 text-xs text-[#636466]">
+              {t('entitlements.panel.usedNoQuota', { used: entitlement.used })}
+            </p>
+          )}
           {entitlement.openReservations.map((reservation) => (
             <p
               key={reservation.ticketId}
@@ -137,8 +162,7 @@ function EntitlementCard({
                 ticket: reservation.ticketCode,
                 status: t(
                   'entitlements.panel.ticketStatus.' +
-                    (TICKET_STATUS_KEY[reservation.ticketStatus] ??
-                      reservation.ticketStatus)
+                    TICKET_STATUS_KEY[reservation.ticketStatus]
                 ),
                 scheduled: reservation.scheduledAt
                   ? formatDateTime(reservation.scheduledAt, locale)

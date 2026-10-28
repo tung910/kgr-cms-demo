@@ -581,6 +581,7 @@
       "noEnd": "no end date",
       "remainingDays": "{{count}} days left",
       "usedOf": "Used {{used}}/{{quota}}",
+      "usedNoQuota": "Used {{used}} (total not set)",
       "reserved": "1 reserved — ticket {{ticket}} ({{status}}, {{scheduled}})",
       "noSchedule": "not scheduled yet",
       "ticketStatus": {

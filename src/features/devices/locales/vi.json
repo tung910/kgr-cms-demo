@@ -576,6 +576,7 @@
       "noEnd": "không giới hạn",
       "remainingDays": "Còn {{count}} ngày",
       "usedOf": "Đã dùng {{used}}/{{quota}}",
+      "usedNoQuota": "Đã dùng {{used}} (chưa xác định tổng lượt)",
       "reserved": "Đang giữ chỗ 1 — phiếu {{ticket}} ({{status}}, {{scheduled}})",
       "noSchedule": "chưa có lịch hẹn",
       "ticketStatus": {
