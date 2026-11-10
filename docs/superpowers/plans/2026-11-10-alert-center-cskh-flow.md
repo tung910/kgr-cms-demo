@@ -145,7 +145,7 @@ git add docs/superpowers/specs/2026-11-10-alert-center-cskh-flow-design.md docs/
 git commit -m "docs(alerts): add alert handling flow spec and plan"
 ```
 
-- [ ] **Step 1: Viết `alertEnums.ts`**
+- [x] **Step 1: Viết `alertEnums.ts`**
 
 Theo mẫu `src/features/campaigns/constants/campaignStatus.ts`: mỗi tập là mảng
 `as const` gồm `{ value, labelKey }`, khoá nhãn thuộc namespace `alerts`, kèm
@@ -186,7 +186,7 @@ export const APPOINTMENT_SLOTS = [
 Thêm `ALERT_SEVERITY_TONES: Record<AlertSeverity, PortalTone>` =
 `critical: 'danger'`, `medium: 'warning'`, `low: 'water'`.
 
-- [ ] **Step 2: Viết DTO trong `alertSchemas.ts`**
+- [x] **Step 2: Viết DTO trong `alertSchemas.ts`**
 
 ```ts
 const isoDateTime = z.string().datetime({ offset: true });
@@ -324,7 +324,7 @@ export const technicianSuggestionsDtoSchema = z.object({
 });
 ```
 
-- [ ] **Step 3: Viết model, bộ lọc và đầu vào trong cùng file**
+- [x] **Step 3: Viết model, bộ lọc và đầu vào trong cùng file**
 
 Model là bản camelCase của DTO, giữ nguyên cấu trúc lồng và giữ nguyên
 `null`/`undefined`: `Alert`, `AlertSla`, `AlertTicketSummary`, `AlertDetail`,
@@ -379,12 +379,12 @@ export interface TechnicianSuggestionParams {
 }
 ```
 
-- [ ] **Step 4: Viết `alertMapper.ts`**
+- [x] **Step 4: Viết `alertMapper.ts`**
 
 Hàm thuần, xuất: `mapAlert`, `mapAlertPage`, `mapAlertCounts`,
 `mapAlertDetail`, `mapAlertFilterOptions`, `mapTechnicianSuggestions`.
 
-- [ ] **Step 5: Viết `alertApi.ts`**
+- [x] **Step 5: Viết `alertApi.ts`**
 
 Dùng `invalidResponse` theo mẫu `devices/api/deviceApi.ts` với khoá
 `alerts:errors.invalidResponse`. Mọi hàm đọc nhận `signal?: AbortSignal`. Chỉ
@@ -405,7 +405,7 @@ Dùng `invalidResponse` theo mẫu `devices/api/deviceApi.ts` với khoá
 | `getTechnicianSuggestions(params, signal?)`             | `GET /service-tickets/technician-suggestions` với `alert_id`, `appointment_date`, `appointment_slot`, `service_type`                       | `TechnicianSuggestions` |
 | `assignTechnician(ticketId, input)`                     | `PUT /service-tickets/:ticketId/assignment`, thân `{ technician_id, reason? }`                                                             | `void`                 |
 
-- [ ] **Step 6: Viết `alertQueries.ts`**
+- [x] **Step 6: Viết `alertQueries.ts`**
 
 ```ts
 export const alertQueries = {
@@ -424,7 +424,7 @@ và việc tự đóng thay đổi mà không có thao tác của người đang
 `counts` bỏ `status`, `mine`, `overdue`, `page`, `pageSize` như
 `deviceQueries.statusCounts`. `filterOptions` đặt `staleTime: 5 * 60 * 1000`.
 
-- [ ] **Step 7: Viết `alertSla.ts`**
+- [x] **Step 7: Viết `alertSla.ts`**
 
 ```ts
 export type SlaState =
@@ -449,12 +449,12 @@ Luật của `getSlaState`, xét theo thứ tự: `dueAt === null` → `none`; c
 → `overdue`; có `warningAt` và `now >= warningAt` → `warning`; còn lại
 `running`.
 
-- [ ] **Step 8: Kiểm tra**
+- [x] **Step 8: Kiểm tra**
 
 Chạy: `pnpm typecheck` rồi `pnpm lint`.
 Kết quả mong đợi: typecheck không lỗi; lint chỉ còn 1 cảnh báo có sẵn.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/features/alerts
