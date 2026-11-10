@@ -1,43 +1,102 @@
 {
   "page": {
     "title": "Trung tâm cảnh báo",
-    "description": "Theo dõi và xử lý cảnh báo toàn hệ thống theo mã lỗi dùng chung"
+    "description": "{{total}} cảnh báo",
+    "export": "Xuất báo cáo",
+    "empty": "Không có cảnh báo phù hợp bộ lọc.",
+    "claimSuccess": "Đã nhận xử lý cảnh báo."
   },
   "stats": {
-    "open": "Cảnh báo đang mở",
-    "highUnresolved": "Mức độ cao chưa xử lý",
-    "total": "Tổng số cảnh báo"
+    "open": "Đang mở",
+    "criticalOpen": "Nghiêm trọng đang mở",
+    "overdue": "Quá SLA",
+    "mine": "Chờ tôi xử lý"
   },
   "filters": {
-    "severityLabel": "Mức độ nghiêm trọng",
-    "resolvedVisibilityLabel": "Hiển thị cảnh báo đã xử lý",
-    "all": "Tất cả",
-    "open": "Đang mở",
-    "includeResolved": "Bao gồm đã xử lý"
+    "search": "Tìm serial hoặc mã lỗi",
+    "severity": "Mức độ",
+    "status": "Trạng thái",
+    "group": "Nhóm xử lý",
+    "region": "Khu vực",
+    "model": "Model",
+    "mine": "Của tôi",
+    "overdue": "Quá SLA",
+    "includeClosed": "Hiện cả đã xử lý",
+    "reset": "Đặt lại"
+  },
+  "table": {
+    "name": "Cảnh báo",
+    "occurrences": "Ghi nhận {{count}} lần",
+    "severity": "Mức độ",
+    "errorCode": "Mã lỗi",
+    "deviceId": "Serial",
+    "model": "Model",
+    "region": "Khu vực",
+    "raisedAt": "Thời gian",
+    "sla": "SLA",
+    "status": "Trạng thái",
+    "handler": "Người xử lý",
+    "ticket": "Phiếu",
+    "actions": "Thao tác",
+    "claim": "Nhận xử lý",
+    "total": "{{total}} cảnh báo"
   },
   "severity": {
-    "high": "Cao",
+    "critical": "Nghiêm trọng",
     "medium": "Trung bình",
     "low": "Thấp"
   },
   "status": {
     "new": "Mới",
-    "assigned": "Đã giao",
-    "resolved": "Đã xử lý"
+    "acknowledged": "Đã nhận xử lý",
+    "unreachable": "Không liên lạc được",
+    "ticketed": "Đã tạo phiếu",
+    "declined": "Khách không cần xử lý",
+    "closed": "Đã đóng"
   },
-  "list": {
-    "empty": "Không có cảnh báo phù hợp",
-    "columns": {
-      "identity": "Mã lỗi / Thiết bị",
-      "message": "Nội dung",
-      "severity": "Mức độ",
-      "status": "Trạng thái",
-      "raisedAt": "Thời gian",
-      "actions": "Thao tác"
-    },
-    "assignee": "Người xử lý: {{name}}",
-    "currentUser": "Bạn",
-    "assign": "Nhận xử lý",
-    "resolve": "Đóng cảnh báo"
+  "group": { "cskh": "CSKH", "technical": "Kỹ thuật" },
+  "ticketStatus": {
+    "tt1": "TT1 Đã đặt",
+    "tt2": "TT2 Điều phối",
+    "tt3": "TT3 Nhận việc",
+    "tt4": "TT4 Xuất vật tư",
+    "tt5": "TT5 Bắt đầu đi",
+    "tt6": "TT6 Check-in",
+    "tt7": "TT7 Nghiệm thu",
+    "tt8": "TT8 Thanh toán",
+    "tt9": "TT9 Đánh giá",
+    "cancelled": "Huỷ"
+  },
+  "assignment": {
+    "unassigned": "Chờ giao KTV",
+    "pending": "Chờ KTV nhận việc",
+    "accepted": "KTV đã nhận",
+    "declined": "Cần giao lại KTV",
+    "expired": "Cần giao lại KTV"
+  },
+  "sla": {
+    "lessThanMinute": "dưới 1 phút",
+    "minutes": "{{minutes}} phút",
+    "hoursMinutes": "{{hours}} giờ {{minutes}} phút",
+    "overdue": "Quá hạn",
+    "met": "Đạt",
+    "late": "Trễ"
+  },
+  "export": {
+    "ticketCode": "Mã phiếu",
+    "ticketStatus": "Trạng thái phiếu",
+    "success": "Đã xuất {{count}} cảnh báo."
+  },
+  "errors": {
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "not_found": "Cảnh báo hoặc phiếu không còn tồn tại.",
+    "already_handled": "Cảnh báo đã có người nhận xử lý.",
+    "not_handler": "Bạn không còn là người xử lý hiện tại.",
+    "invalid_state": "Trạng thái cảnh báo đã thay đổi.",
+    "validation": "Vui lòng kiểm tra thông tin đã nhập.",
+    "specialty_mismatch": "KTV không có chuyên môn phù hợp.",
+    "technician_unavailable": "KTV bận trong khung giờ này.",
+    "invalidResponse": "Dịch vụ cảnh báo trả về dữ liệu không hợp lệ.",
+    "generic": "Không thể hoàn tất thao tác."
   }
 }

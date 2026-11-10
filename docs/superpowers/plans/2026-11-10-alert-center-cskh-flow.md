@@ -742,7 +742,7 @@ git commit -m "feat(alerts): add mock backend for alert handling and ticket disp
     thêm. Task 4 tạo `AlertDetailDrawer` và thêm
     `{filters.alertId ? <AlertDetailDrawer ... /> : null}` vào trang.
 
-- [ ] **Step 1: Viết route**
+- [x] **Step 1: Viết route**
 
 Theo khung `src/routes/_authenticated/devices/index.tsx`.
 
@@ -778,12 +778,12 @@ bỏ `alertId` để chọn một dòng không tải lại danh sách. `loader` 
 `pendingMs: 200`, `pendingComponent: AlertListSkeleton`,
 `errorComponent: RouteErrorState`.
 
-- [ ] **Step 2: Sửa điều hướng menu**
+- [x] **Step 2: Sửa điều hướng menu**
 
 Trong `AppShell.tsx`, `case 'alerts'` thành
 `navigate({ to: '/alerts', search: { search: '', page: 1, pageSize: 10 } })`.
 
-- [ ] **Step 3: Viết `useNow`, `AlertSlaCell`, `AlertStatusTag`**
+- [x] **Step 3: Viết `useNow`, `AlertSlaCell`, `AlertStatusTag`**
 
 `AlertSlaCell({ sla, raisedAt, now })` hiển thị theo `getSlaState`:
 
@@ -799,7 +799,7 @@ Trong `AppShell.tsx`, `case 'alerts'` thành
 Thời gian viết dạng "2 giờ 15 phút", "15 phút", "dưới 1 phút" qua khoá i18n có
 tham số, không nối chuỗi trong component.
 
-- [ ] **Step 4: Viết `AlertFilters` và `AlertTable`**
+- [x] **Step 4: Viết `AlertFilters` và `AlertTable`**
 
 Bộ lọc theo spec mục 6: ô tìm serial hoặc mã lỗi; mức độ; trạng thái; nhóm xử
 lý; khu vực và model (lựa chọn từ `alertQueries.filterOptions()`); khoảng thời
@@ -812,7 +812,7 @@ lý, phiếu (mã và `TicketStatusTag`), thao tác. Cột thao tác chỉ có n
 lý", hiện khi trạng thái `new` và người dùng có `alerts.handle`. Bấm vào dòng
 ghi `alertId` lên URL. Phân trang ghi `page`, `pageSize` lên URL.
 
-- [ ] **Step 5: Viết `AlertListPage`**
+- [x] **Step 5: Viết `AlertListPage`**
 
 Theo `DeviceListPage`: `useDeferredValue(filters)`, `useSuspenseQuery` cho
 `list` và `counts`. Bốn thẻ tổng: đang mở, nghiêm trọng đang mở, quá SLA, chờ
@@ -823,7 +823,7 @@ cáo" bọc trong `PermissionGuard capability="alerts.export"`.
 `invalidateQueries({ queryKey: alertQueries.all })` và `message.success`; lỗi →
 `message.error(alertErrorMessage(error, t))` và cũng `invalidateQueries`.
 
-- [ ] **Step 6: Viết `exportAlertsToCsv.ts`**
+- [x] **Step 6: Viết `exportAlertsToCsv.ts`**
 
 `downloadAlertsCsv(alerts: Alert[], labels: AlertCsvLabels): void` dùng
 `downloadCsv` của `@/shared/lib/csv`, tiền tố file `alerts`. Cột: tên cảnh báo,
@@ -831,7 +831,7 @@ mức độ, mã lỗi, serial, model, khu vực, thời gian, trạng thái, ng
 phiếu, trạng thái phiếu. Không có cột khách hàng, KTV hay lịch hẹn. Nhãn đã
 dịch truyền vào từ trang như `maps`/`campaigns` đang làm.
 
-- [ ] **Step 7: Viết lại hai file locale**
+- [x] **Step 7: Viết lại hai file locale**
 
 Xoá các khoá của bản demo. Cấu trúc khoá cấp một: `page`, `stats`, `filters`,
 `table`, `severity`, `status`, `group`, `ticketStatus`, `assignment`, `sla`,
@@ -873,7 +873,7 @@ Xoá các khoá của bản demo. Cấu trúc khoá cấp một: `page`, `stats`
       `rg -P '[à-ỹÀ-Ỹ]' src/features/alerts --glob '!**/locales/**' --glob '!**/mocks/**'`
       không ra kết quả.
 
-- [ ] **Step 9: Chạy bốn lệnh kiểm tra và commit**
+- [x] **Step 9: Chạy bốn lệnh kiểm tra và commit**
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm format:check && pnpm build
