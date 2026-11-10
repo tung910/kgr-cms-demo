@@ -92,6 +92,16 @@ Sheet `Phân quyền` (bản cũ, 48 dòng) bị bỏ qua — bản `(v1)` thay 
 - Phân công KTV, đổi lịch, cập nhật trạng thái (Chờ xác nhận / Đã phân công / Đang xử lý / Hoàn thành / Hủy), ghi chú & ảnh nghiệm thu.
 - Xem dạng danh sách và lịch.
 
+Quy đổi trạng thái chi tiết của phiếu sang năm trạng thái trên tab:
+
+| Trạng thái chi tiết                           | Trạng thái mục 2.4 |
+| --------------------------------------------- | ------------------ |
+| TT1 Đã đặt                                    | Chờ xác nhận       |
+| TT2 Điều phối, TT3 Nhận việc                  | Đã phân công       |
+| TT4 Xuất vật tư, TT5 Bắt đầu đi, TT6 Check-in | Đang xử lý         |
+| TT7 Nghiệm thu, TT8 Thanh toán, TT9 Đánh giá  | Hoàn thành         |
+| Hủy                                           | Hủy                |
+
 ### 2.5. Push thông báo
 
 - Nút "Push thông báo": gửi tới 1 KH, danh sách KH hoặc nhóm lọc (khu vực, model, trạng thái BH).
@@ -275,7 +285,7 @@ Sheet `Phân quyền` (bản cũ, 48 dòng) bị bỏ qua — bản `(v1)` thay 
 ### 6.1. Danh sách cảnh báo
 
 - Header: số cảnh báo đang mở, số nghiêm trọng.
-- Mỗi dòng: tên cảnh báo, mức độ, mã lỗi, serial, model, khu vực, thời gian, SLA còn lại, người xử lý.
+- Mỗi dòng: tên cảnh báo, mức độ, mã lỗi, serial, model, khu vực, thời gian, SLA còn lại, trạng thái, phiếu (mã và trạng thái), người xử lý. "Người xử lý" là nhân viên CMS đã nhận cảnh báo.
 
 ### 6.2. Bộ lọc & xuất báo cáo
 
@@ -284,12 +294,14 @@ Sheet `Phân quyền` (bản cũ, 48 dòng) bị bỏ qua — bản `(v1)` thay 
 
 ### 6.3. Quy trình xử lý
 
-- Trạng thái: Mới → Đã nhận xử lý (gán KTV) → Đóng; nút "Nhận xử lý", "Đóng" (bắt buộc ghi kết quả).
+- Nhóm CSKH: Mới → Đã nhận xử lý → Không liên lạc được / Khách không cần xử lý / Đã tạo phiếu → Đóng. Chi tiết luồng Trang C theo `docs/superpowers/specs/2026-11-10-alert-center-cskh-flow-design.md`.
+- Nhóm Kỹ thuật: Mới → Đã nhận xử lý → Đóng kèm kết quả; người nhận xử lý là nhân viên CMS, không phải KTV của phiếu dịch vụ.
 - Lịch sử thao tác từng cảnh báo; tự đóng khi thiết bị hết lỗi (tùy cấu hình).
 
 ### 6.4. SLA & escalation
 
 - Đếm ngược SLA realtime theo mức độ; đổi màu khi sắp hết / quá hạn.
+- SLA của nhóm CSKH dừng tại lần đầu tiên nhân viên ghi kết quả liên hệ; SLA của nhóm Kỹ thuật tiếp tục đến khi đóng cảnh báo.
 - Escalation lên cấp quản lý khi quá SLA.
 
 ### 6.5. Kênh thông báo
@@ -557,3 +569,13 @@ Sheet `Phân quyền` (bản cũ, 48 dòng) bị bỏ qua — bản `(v1)` thay 
 2. Mục 2.1 / 3.2 / 3.4: mức che PII (4 số cuối SĐT, ẩn cột chủ sở hữu) cần áp dụng nhất quán ở UI, file xuất và API.
 3. Mục 9.2: định dạng file Excel/CSV lô QR do KGR cung cấp — chưa có mẫu.
 4. Mục 10.2: Admin có `R, C, U` trên nhóm quyền nhưng ghi chú nói "Admin chỉ được xem để đối chiếu, không sửa" — mâu thuẫn, cần chốt.
+5. Bảng phân nhóm xử lý và mức độ cho toàn bộ mã lỗi `ER00051`–`ER00074`. Đang dùng: bảng ở bước C2 của spec thiết kế luồng CSKH.
+6. Lõi mức 1 chỉ để app nhắc, mức 2 mới chuyển CSKH. Đang dùng: đúng như vậy.
+7. "KTV hoàn thành" là mốc nào của phiếu. Đang dùng: TT7 ký nghiệm thu.
+8. Gọi không được bao nhiêu lần thì dừng, có tự đóng không. Đang dùng: không giới hạn, không tự đóng.
+9. CSKH tạo phiếu có cần tạm tính và chọn hình thức thanh toán không. Đang dùng: không, phiếu ghi "trả khi xong".
+10. CSKH và điều phối có phải hai vai trò riêng trên CMS không. Đang dùng: cùng vai trò TT DV.
+11. Quá SLA thì báo cho ai. Đang dùng: chỉ đánh dấu trên danh sách.
+12. SLA tính theo giờ đồng hồ hay giờ làm việc. Đang dùng: giờ đồng hồ.
+13. Khách tự đặt dịch vụ trên app cho cùng lỗi thì cảnh báo có tự gắn với phiếu đó không. Đang dùng: không tự gắn; form tạo phiếu chỉ cảnh báo máy đang có phiếu mở.
+14. Sau khi khách không cần xử lý, bao lâu thì được tạo lại cảnh báo cho cùng lỗi. Đang dùng: chỉ khi lỗi hết rồi xuất hiện lại.

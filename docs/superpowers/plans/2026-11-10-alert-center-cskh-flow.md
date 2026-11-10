@@ -1231,7 +1231,7 @@ báo lỗi, không có gì thay đổi, trang không vỡ.
 Thu trình duyệt về 375 px và 768 px: bảng cuộn ngang được, ngăn kéo và hai form
 dùng được, không có nội dung tràn khỏi màn hình.
 
-- [ ] **Step 4: Cập nhật `docs/CMS_QnA_V1_SPEC.md`**
+- [x] **Step 4: Cập nhật `docs/CMS_QnA_V1_SPEC.md`**
 
 - Mục 6.1: "người xử lý" là nhân viên CMS nhận cảnh báo; thêm cột trạng thái và
   phiếu.
@@ -1244,7 +1244,7 @@ dùng được, không có nội dung tràn khỏi màn hình.
 
 Không sửa ma trận quyền của mục 6 và mục 2.
 
-- [ ] **Step 5: Viết mô tả PR**
+- [x] **Step 5: Viết mô tả PR**
 
 Theo mẫu `.github/PULL_REQUEST_TEMPLATE.md` và file mô tả PR bản đồ đã có: tóm
 tắt, ảnh hưởng tới từng vai trò, danh sách API backend cần làm (bảng ở Task 1
@@ -1252,7 +1252,7 @@ Step 5), các giả định chờ xác nhận (mục 10 của spec thiết kế)
 và phần chưa kiểm tra. Ghi rõ giá trị SLA mặc định trong cấu hình hệ thống vẫn
 đang trống.
 
-- [ ] **Step 6: Chạy bốn lệnh kiểm tra và commit**
+- [x] **Step 6: Chạy bốn lệnh kiểm tra và commit**
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm format:check && pnpm build
