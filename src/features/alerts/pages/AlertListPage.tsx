@@ -27,6 +27,7 @@ import { formatDateTimeInLocale } from '@/shared/lib/format';
 import { acknowledgeAlert, getAllAlerts } from '../api/alertApi';
 import { AlertFilters } from '../components/AlertFilters';
 import { AlertTable } from '../components/AlertTable';
+import { AlertDetailDrawer } from '../components/AlertDetailDrawer';
 import { alertQueries } from '../queries/alertQueries';
 import type { AlertListFilters } from '../schemas/alertSchemas';
 import { alertErrorMessage } from '../utils/alertErrors';
@@ -163,6 +164,16 @@ export function AlertListPage({ filters }: { filters: AlertListPageFilters }) {
           <PageState kind="empty" description={t('page.empty')} />
         )}
       </PortalCard>
+      {filters.alertId ? (
+        <AlertDetailDrawer
+          alertId={filters.alertId}
+          onClose={() =>
+            void navigate({
+              search: (previous) => ({ ...previous, alertId: undefined }),
+            })
+          }
+        />
+      ) : null}
     </div>
   );
 }

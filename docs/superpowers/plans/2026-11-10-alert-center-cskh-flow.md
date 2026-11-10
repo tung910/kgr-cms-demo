@@ -905,7 +905,7 @@ git commit -m "feat(alerts): rebuild alert list with URL filters, SLA and export
     Task 5 và 6 gắn hộp thoại vào các hành động `contact`, `assign`,
     `reassign`.
 
-- [ ] **Step 1: Viết `getAlertActions`**
+- [x] **Step 1: Viết `getAlertActions`**
 
 "Là người xử lý" nghĩa là `alert.handler?.id === viewer.userId`.
 
@@ -918,7 +918,7 @@ git commit -m "feat(alerts): rebuild alert list with URL filters, SLA and export
 | `assign`      | `service.write`, là người xử lý, trạng thái `ticketed`, `ticket.assignmentState === 'unassigned'`                                     |
 | `reassign`    | `service.write`, là người xử lý, trạng thái `ticketed`, `ticket.assignmentState` là `declined` hoặc `expired`                         |
 
-- [ ] **Step 2: Viết các khối thông tin**
+- [x] **Step 2: Viết các khối thông tin**
 
 `AlertInfoBlocks.tsx` xuất bốn component, mỗi cái nhận `alert: AlertDetail`:
 
@@ -933,18 +933,18 @@ git commit -m "feat(alerts): rebuild alert list with URL filters, SLA and export
 - `AlertSiblingsBlock`: danh sách cảnh báo khác đang mở của cùng máy; bấm một
   dòng đổi `alertId` trên URL. Ẩn khi rỗng.
 
-- [ ] **Step 3: Viết `AlertHistoryTimeline`**
+- [x] **Step 3: Viết `AlertHistoryTimeline`**
 
 Mỗi dòng: nhãn hành động (`history.<action>`), tên người thực hiện, thời điểm,
 trạng thái trước → sau khi có, và `note` khi có. Mới nhất ở trên.
 
-- [ ] **Step 4: Viết `CloseAlertDialog`**
+- [x] **Step 4: Viết `CloseAlertDialog`**
 
 `CloseAlertDialog({ open, pending, onCancel, onConfirm }: { open: boolean; pending: boolean; onCancel: () => void; onConfirm: (result: string) => void })`.
 Một ô văn bản "Kết quả xử lý", bắt buộc, tối đa 500 ký tự, theo mẫu
 `DeviceReasonConfirmDialog`.
 
-- [ ] **Step 5: Viết `AlertDetailDrawer` và gắn vào trang**
+- [x] **Step 5: Viết `AlertDetailDrawer` và gắn vào trang**
 
 Ant Design `Drawer`, rộng 720. Dùng `useQuery(alertQueries.detail(alertId))`.
 Ba trạng thái: đang tải (skeleton), lỗi `notFound` hoặc `forbidden`
@@ -981,7 +981,7 @@ Trong `AlertListPage`, `onClose` gọi
       có `recoversAfterMs` chuyển Đã đóng với kết quả "Thiết bị hết lỗi", lịch
       sử ghi người thực hiện là Hệ thống.
 
-- [ ] **Step 7: Chạy bốn lệnh kiểm tra và commit**
+- [x] **Step 7: Chạy bốn lệnh kiểm tra và commit**
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm format:check && pnpm build

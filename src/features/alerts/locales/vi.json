@@ -87,6 +87,74 @@
     "ticketStatus": "Trạng thái phiếu",
     "success": "Đã xuất {{count}} cảnh báo."
   },
+  "detail": {
+    "title": "Chi tiết cảnh báo",
+    "summary": "Tóm tắt",
+    "device": "Thiết bị",
+    "customer": "Khách hàng",
+    "siblings": "Cảnh báo khác đang mở cùng máy",
+    "history": "Lịch sử",
+    "noHistory": "Chưa có lịch sử.",
+    "raisedAt": "Phát sinh lúc",
+    "lastSeenAt": "Ghi nhận gần nhất",
+    "occurrenceCount": "Số lần ghi nhận",
+    "contactAttempts": "Số lần đã gọi",
+    "declineReason": "Lý do",
+    "closeResult": "Kết quả",
+    "connection": "Kết nối",
+    "warranty": "Bảo hành",
+    "customerName": "Khách hàng",
+    "phone": "Số điện thoại",
+    "address": "Địa chỉ lắp đặt",
+    "result": "Kết quả xử lý",
+    "connectionStatus": { "online": "Trực tuyến", "offline": "Ngoại tuyến" },
+    "warrantyStatus": {
+      "active": "Còn hạn",
+      "expiring": "Sắp hết hạn",
+      "expired": "Hết hạn",
+      "none": "Không bảo hành"
+    }
+  },
+  "actions": {
+    "acknowledge": "Nhận xử lý",
+    "takeover": "Chuyển cho tôi",
+    "contact": "Ghi kết quả liên hệ",
+    "close": "Đóng cảnh báo",
+    "assign": "Giao KTV",
+    "reassign": "Giao lại KTV",
+    "cancel": "Huỷ",
+    "acknowledgeSuccess": "Đã nhận xử lý cảnh báo.",
+    "takeoverSuccess": "Đã chuyển người xử lý.",
+    "closeSuccess": "Đã đóng cảnh báo."
+  },
+  "declineReason": {
+    "guided_self_fix": "Đã hướng dẫn khách tự xử lý",
+    "customer_fixed": "Khách đã tự xử lý",
+    "customer_refused": "Khách từ chối dịch vụ",
+    "false_alarm": "Máy hoạt động bình thường",
+    "other": "Lý do khác"
+  },
+  "closeResult": {
+    "ticket_done": "Đã xử lý theo phiếu",
+    "device_recovered": "Thiết bị hết lỗi",
+    "manual": "Đóng thủ công"
+  },
+  "history": {
+    "acknowledge": "Nhận xử lý",
+    "takeover": "Đổi người xử lý",
+    "contact_unreachable": "Không liên lạc được",
+    "contact_declined": "Khách không cần xử lý",
+    "ticket_created": "Tạo phiếu dịch vụ",
+    "ticket_merged": "Gộp cảnh báo vào phiếu",
+    "technician_assigned": "Giao KTV",
+    "technician_reassigned": "Giao lại KTV",
+    "technician_declined": "KTV từ chối",
+    "technician_expired": "KTV quá hạn phản hồi",
+    "ticket_cancelled": "Phiếu bị huỷ",
+    "closed_ticket_done": "Đóng khi hoàn thành phiếu",
+    "closed_recovered": "Đóng khi thiết bị hết lỗi",
+    "closed_manual": "Đóng thủ công"
+  },
   "errors": {
     "forbidden": "Bạn không có quyền thực hiện thao tác này.",
     "not_found": "Cảnh báo hoặc phiếu không còn tồn tại.",

@@ -83,6 +83,74 @@
     "ticketStatus": "Ticket status",
     "success": "Exported {{count}} alerts."
   },
+  "detail": {
+    "title": "Alert detail",
+    "summary": "Summary",
+    "device": "Device",
+    "customer": "Customer",
+    "siblings": "Other open alerts on this device",
+    "history": "History",
+    "noHistory": "No history yet.",
+    "raisedAt": "Raised at",
+    "lastSeenAt": "Last seen at",
+    "occurrenceCount": "Occurrences",
+    "contactAttempts": "Contact attempts",
+    "declineReason": "Decline reason",
+    "closeResult": "Close result",
+    "connection": "Connection",
+    "warranty": "Warranty",
+    "customerName": "Customer",
+    "phone": "Phone",
+    "address": "Installation address",
+    "result": "Handling result",
+    "connectionStatus": { "online": "Online", "offline": "Offline" },
+    "warrantyStatus": {
+      "active": "Active",
+      "expiring": "Expiring",
+      "expired": "Expired",
+      "none": "No warranty"
+    }
+  },
+  "actions": {
+    "acknowledge": "Claim",
+    "takeover": "Take over",
+    "contact": "Record contact result",
+    "close": "Close alert",
+    "assign": "Assign technician",
+    "reassign": "Reassign technician",
+    "cancel": "Cancel",
+    "acknowledgeSuccess": "Alert claimed.",
+    "takeoverSuccess": "Alert taken over.",
+    "closeSuccess": "Alert closed."
+  },
+  "declineReason": {
+    "guided_self_fix": "Guided customer self-fix",
+    "customer_fixed": "Customer fixed it",
+    "customer_refused": "Customer refused service",
+    "false_alarm": "Device operating normally",
+    "other": "Other"
+  },
+  "closeResult": {
+    "ticket_done": "Resolved through service ticket",
+    "device_recovered": "Device recovered",
+    "manual": "Closed manually"
+  },
+  "history": {
+    "acknowledge": "Alert claimed",
+    "takeover": "Handler changed",
+    "contact_unreachable": "Customer unreachable",
+    "contact_declined": "Customer declined service",
+    "ticket_created": "Service ticket created",
+    "ticket_merged": "Alert merged into ticket",
+    "technician_assigned": "Technician assigned",
+    "technician_reassigned": "Technician reassigned",
+    "technician_declined": "Technician declined",
+    "technician_expired": "Technician response expired",
+    "ticket_cancelled": "Ticket cancelled",
+    "closed_ticket_done": "Closed after ticket completion",
+    "closed_recovered": "Closed after device recovery",
+    "closed_manual": "Closed manually"
+  },
   "errors": {
     "forbidden": "You do not have permission for this action.",
     "not_found": "The alert or ticket no longer exists.",
