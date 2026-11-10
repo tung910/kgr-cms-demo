@@ -151,6 +151,17 @@
     "closed_recovered": "Closed after device recovery",
     "closed_manual": "Closed manually"
   },
+  "contact": {
+    "title": "Record contact result",
+    "agreed": "Customer agreed to a technician visit",
+    "declined": "Customer does not need service",
+    "unreachable": "Customer unreachable",
+    "reason": "Reason",
+    "note": "Note",
+    "continue": "Continue to create ticket",
+    "submit": "Save result",
+    "success": "Contact result saved."
+  },
   "errors": {
     "forbidden": "You do not have permission for this action.",
     "not_found": "The alert or ticket no longer exists.",

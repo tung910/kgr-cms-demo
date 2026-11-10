@@ -7,7 +7,12 @@ import { getApiErrorCode } from '@/core/api/error';
 import { useAuth } from '@/core/auth/useAuth';
 import type { Capability } from '@/core/permissions/capabilities';
 import { PageState } from '@/shared/components/PageState';
-import { acknowledgeAlert, closeAlert, takeOverAlert } from '../api/alertApi';
+import {
+  acknowledgeAlert,
+  closeAlert,
+  recordContactResult,
+  takeOverAlert,
+} from '../api/alertApi';
 import { alertQueries } from '../queries/alertQueries';
 import type { AlertDetail } from '../schemas/alertSchemas';
 import { alertErrorMessage } from '../utils/alertErrors';
@@ -19,6 +24,7 @@ import {
   AlertSummaryBlock,
 } from './AlertInfoBlocks';
 import { CloseAlertDialog } from './CloseAlertDialog';
+import { ContactResultDialog } from './ContactResultDialog';
 
 export type AlertAction =
   'acknowledge' | 'takeover' | 'contact' | 'close' | 'assign' | 'reassign';
@@ -80,6 +86,7 @@ export function AlertDetailDrawer({
   const queryClient = useQueryClient();
   const query = useQuery(alertQueries.detail(alertId));
   const [closeOpen, setCloseOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: alertQueries.all });
   const mutation = useMutation({
@@ -115,6 +122,20 @@ export function AlertDetailDrawer({
           can: (capability) => session.capabilities.includes(capability),
         })
       : [];
+  const contact = useMutation({
+    mutationFn: (input: Parameters<typeof recordContactResult>[1]) =>
+      recordContactResult(alertId, input),
+    onSuccess: async () => {
+      setContactOpen(false);
+      void message.success(t('contact.success'));
+      await refresh();
+    },
+    onError: async (error) => {
+      setContactOpen(false);
+      void message.error(alertErrorMessage(error, t));
+      await refresh();
+    },
+  });
   return (
     <Drawer
       title={alert?.name ?? t('detail.title')}
@@ -134,6 +155,7 @@ export function AlertDetailDrawer({
                 }
                 onClick={() => {
                   if (action === 'close') setCloseOpen(true);
+                  else if (action === 'contact') setContactOpen(true);
                   else if (action === 'acknowledge' || action === 'takeover')
                     mutation.mutate({ action });
                 }}
@@ -172,6 +194,16 @@ export function AlertDetailDrawer({
         pending={mutation.isPending}
         onCancel={() => setCloseOpen(false)}
         onConfirm={(result) => mutation.mutate({ action: 'close', result })}
+      />
+      <ContactResultDialog
+        open={contactOpen}
+        canCreateTicket={Boolean(
+          session?.capabilities.includes('service.write')
+        )}
+        pending={contact.isPending}
+        onCancel={() => setContactOpen(false)}
+        onSubmit={(input) => contact.mutate(input)}
+        onAgreed={() => setContactOpen(false)}
       />
     </Drawer>
   );

@@ -1008,7 +1008,7 @@ git commit -m "feat(alerts): add alert detail drawer with claim, takeover and cl
   `onAgreed` được gọi khi người dùng chọn "Khách đồng ý" và bấm tiếp tục;
   Task 6 nối nó với `TicketWizardModal`.
 
-- [ ] **Step 1: Viết `ContactResultDialog`**
+- [x] **Step 1: Viết `ContactResultDialog`**
 
 Một `Form` của Ant Design. Trường `outcome` là nhóm radio ba lựa chọn theo thứ
 tự: "Khách đồng ý cho thợ đến", "Khách không cần xử lý", "Không liên lạc được".
@@ -1022,7 +1022,7 @@ Lựa chọn đầu chỉ render khi `canCreateTicket`.
 
 Ghi chú tối đa 500 ký tự.
 
-- [ ] **Step 2: Nối vào ngăn kéo**
+- [x] **Step 2: Nối vào ngăn kéo**
 
 `canCreateTicket` là `can('service.write')`. Mutation `recordContactResult`:
 thành công → đóng hộp thoại, `message.success`, `invalidateQueries`; lỗi →
@@ -1049,7 +1049,7 @@ bằng việc mở form tạo phiếu.
       và đăng nhập bằng thành viên đó. Hộp thoại chỉ có hai lựa chọn, không có
       "Khách đồng ý".
 
-- [ ] **Step 4: Chạy bốn lệnh kiểm tra và commit**
+- [x] **Step 4: Chạy bốn lệnh kiểm tra và commit**
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm format:check && pnpm build

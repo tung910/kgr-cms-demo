@@ -155,6 +155,17 @@
     "closed_recovered": "Đóng khi thiết bị hết lỗi",
     "closed_manual": "Đóng thủ công"
   },
+  "contact": {
+    "title": "Ghi kết quả liên hệ",
+    "agreed": "Khách đồng ý cho thợ đến",
+    "declined": "Khách không cần xử lý",
+    "unreachable": "Không liên lạc được",
+    "reason": "Lý do",
+    "note": "Ghi chú",
+    "continue": "Tiếp tục tạo phiếu",
+    "submit": "Lưu kết quả",
+    "success": "Đã lưu kết quả liên hệ."
+  },
   "errors": {
     "forbidden": "Bạn không có quyền thực hiện thao tác này.",
     "not_found": "Cảnh báo hoặc phiếu không còn tồn tại.",
