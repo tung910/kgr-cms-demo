@@ -17,6 +17,7 @@ import { isPortalRole, type PortalRole } from '@/core/auth/types';
 import { systemHandlers } from '@/features/system/mocks/systemHandlers';
 import { deviceExtraHandlers } from '@/features/devices/mocks/deviceExtraHandlers';
 import { campaignHandlers } from '@/features/campaigns/mocks/campaignHandlers';
+import { alertHandlers } from '@/features/alerts/mocks/alertHandlers';
 import type { DeviceDto } from '@/features/devices/schemas/deviceSchemas';
 import type { ConnectionStatus } from '@/shared/constants/connectionStatus';
 
@@ -804,6 +805,7 @@ export const handlers = [
   }),
   ...campaignHandlers,
   ...deviceExtraHandlers,
+  ...alertHandlers,
   http.get('/api/dashboard/summary', ({ request }) => {
     if (hasServerError(new URL(request.url))) {
       return HttpResponse.json(

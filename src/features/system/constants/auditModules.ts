@@ -7,6 +7,11 @@ export const AUDIT_MODULES = [
   { value: 'role_groups', labelKey: 'audit.modules.role_groups' },
   { value: 'system_config', labelKey: 'audit.modules.system_config' },
   { value: 'campaigns', labelKey: 'audit.modules.campaigns' },
+  { value: 'alerts', labelKey: 'audit.modules.alerts' },
+  {
+    value: 'service_tickets',
+    labelKey: 'audit.modules.service_tickets',
+  },
   { value: 'backup', labelKey: 'audit.modules.backup' },
   { value: 'simulation', labelKey: 'audit.modules.simulation' },
   { value: 'audit_log', labelKey: 'audit.modules.audit_log' },

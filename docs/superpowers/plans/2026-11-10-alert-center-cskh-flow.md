@@ -483,7 +483,7 @@ git commit -m "feat(alerts): add alert and service ticket data contract"
   (`@/features/system/mocks/systemHandlers`).
 - Produces: `alertHandlers` (mảng handler MSW); các endpoint ở Task 1 Step 5.
 
-- [ ] **Step 1: Viết fixture**
+- [x] **Step 1: Viết fixture**
 
 `src/mocks/fixtures/alerts.ts` xuất `alertSeeds`, `stationFixtures`,
 `technicianFixtures`. Mã lỗi và tên cảnh báo là dữ liệu minh hoạ; ghi chú trong
@@ -532,7 +532,7 @@ với `mockBehavior` lần lượt là `accept`, `decline`, `ignore`,
 `accept` và một KTV có `busySlots` chứa `'08:00-10:00'`. Ghi chú trong file cho
 biết KTV nào mang hành vi nào, vì người kiểm tra tay cần biết.
 
-- [ ] **Step 2: Dựng kho dữ liệu và các hàm dùng chung trong `alertHandlers.ts`**
+- [x] **Step 2: Dựng kho dữ liệu và các hàm dùng chung trong `alertHandlers.ts`**
 
 Kho dữ liệu trong bộ nhớ: `alertStore`, `ticketStore`. Lấy vai trò và người
 dùng hiện tại từ `localStorage` bằng hai khoá `cms-portal:mock-auth-role` và
@@ -559,7 +559,7 @@ SLA tính lúc đọc từ `getSystemConfigParams().sla_by_severity[severity]` (
 `null` thì cả hai là `null`. `stopped_at` của nhóm CSKH là thời điểm ghi kết quả
 liên hệ đầu tiên; của nhóm Kỹ thuật là thời điểm đóng.
 
-- [ ] **Step 3: Viết hàm `materialize()` chạy đầu mọi handler đọc và ghi**
+- [x] **Step 3: Viết hàm `materialize()` chạy đầu mọi handler đọc và ghi**
 
 Không có bộ hẹn giờ; trạng thái tiến theo thời gian đã trôi, giống
 `materialize` của `campaignHandlers.ts`. Các hằng thời gian (đặt ở đầu file):
@@ -591,7 +591,7 @@ Luật, áp cho từng phiếu theo `mockBehavior` của KTV đang được giao
 Mỗi chuyển đổi tự động thêm một dòng `history` với `actor_name` là
 `'Hệ thống'` và gọi `recordAudit(null, { module, action, target, before, after, actorName: 'Hệ thống' })`.
 
-- [ ] **Step 4: Viết các handler đọc**
+- [x] **Step 4: Viết các handler đọc**
 
 `GET /api/alerts`, `/api/alerts/counts`, `/api/alerts/filter-options`,
 `/api/alerts/:id`. Tất cả cần `alerts.read`.
@@ -615,7 +615,7 @@ Mỗi chuyển đổi tự động thêm một dòng `history` với `actor_name
   `cancelled`, không tính phiếu của chính cảnh báo này.
 - Máy không có chủ: cảnh báo luôn mang `handler_group: 'technical'`.
 
-- [ ] **Step 5: Viết các handler ghi trên cảnh báo**
+- [x] **Step 5: Viết các handler ghi trên cảnh báo**
 
 Mọi handler: kiểm tra quyền → `materialize()` → kiểm tra trạng thái → cập nhật
 → thêm `history` → `recordAudit(actor, { module: 'alerts', action, target: alert.id, before, after, reason })`
@@ -629,7 +629,7 @@ Mọi handler: kiểm tra quyền → `materialize()` → kiểm tra trạng th�
 | `POST /alerts/:id/close`           | `alerts.handle`, là người xử lý   | Nhóm `technical`, trạng thái `acknowledged`, `result` không rỗng                             | `closed`, `close_result = { kind: 'manual', note: result }`, đặt `sla.stopped_at`                          |
 | `POST /alerts/:id/service-ticket`  | `alerts.handle` và `service.write`, là người xử lý | Nhóm `cskh`, trạng thái `acknowledged`/`unreachable`; kiểm tra thân theo Step 6 | Tạo phiếu `tt1`; cảnh báo và các cảnh báo gộp → `ticketed`; đặt `sla.stopped_at` nếu chưa có; tăng `contact_attempts` |
 
-- [ ] **Step 6: Viết luật kiểm tra thân của `service-ticket`**
+- [x] **Step 6: Viết luật kiểm tra thân của `service-ticket`**
 
 - `contact_name`, `address` không rỗng; `contact_phone` gồm 9 đến 11 chữ số.
 - `appointment_date` không sớm hơn hôm nay; `appointment_slot` thuộc
@@ -645,7 +645,7 @@ Mọi handler: kiểm tra quyền → `materialize()` → kiểm tra trạng th�
   `handlers.ts`.
 - Có `technician_id` thì giao luôn theo luật Step 7; phiếu thành `tt2`.
 
-- [ ] **Step 7: Viết handler của phiếu**
+- [x] **Step 7: Viết handler của phiếu**
 
 `GET /api/service-tickets/technician-suggestions` (cần `service.write`): trạm
 là trạm có `region` trùng `region` của máy; danh sách KTV của trạm đó, sắp
@@ -662,7 +662,7 @@ chuyên môn `repair` → `specialty_mismatch`. Thành công: phiếu `tt2`,
 hoặc `technician_reassigned` trên mọi cảnh báo gắn với phiếu, và
 `recordAudit` với `module: 'service_tickets'`.
 
-- [ ] **Step 8: Đăng ký module audit**
+- [x] **Step 8: Đăng ký module audit**
 
 Thêm `{ value: 'alerts', labelKey: 'audit.modules.alerts' }` và
 `{ value: 'service_tickets', labelKey: 'audit.modules.service_tickets' }` vào
@@ -698,7 +698,7 @@ await post(`/api/alerts/${id}/contact-results`, { outcome: 'declined' }); // [42
 và không dòng `history` nào có `note`. Đăng nhập tài khoản Kho vận:
 `GET /api/alerts` trả 403.
 
-- [ ] **Step 10: Chạy bốn lệnh kiểm tra và commit**
+- [x] **Step 10: Chạy bốn lệnh kiểm tra và commit**
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm format:check && pnpm build
