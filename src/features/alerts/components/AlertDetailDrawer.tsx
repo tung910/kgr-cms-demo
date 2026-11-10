@@ -25,6 +25,9 @@ import {
 } from './AlertInfoBlocks';
 import { CloseAlertDialog } from './CloseAlertDialog';
 import { ContactResultDialog } from './ContactResultDialog';
+import { TicketWizardModal } from './TicketWizardModal';
+import { AssignTechnicianModal } from './AssignTechnicianModal';
+import { AlertTicketBlock } from './AlertTicketBlock';
 
 export type AlertAction =
   'acknowledge' | 'takeover' | 'contact' | 'close' | 'assign' | 'reassign';
@@ -87,6 +90,10 @@ export function AlertDetailDrawer({
   const query = useQuery(alertQueries.detail(alertId));
   const [closeOpen, setCloseOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [ticketOpen, setTicketOpen] = useState(false);
+  const [assignMode, setAssignMode] = useState<'assign' | 'reassign' | null>(
+    null
+  );
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: alertQueries.all });
   const mutation = useMutation({
@@ -156,6 +163,8 @@ export function AlertDetailDrawer({
                 onClick={() => {
                   if (action === 'close') setCloseOpen(true);
                   else if (action === 'contact') setContactOpen(true);
+                  else if (action === 'assign' || action === 'reassign')
+                    setAssignMode(action);
                   else if (action === 'acknowledge' || action === 'takeover')
                     mutation.mutate({ action });
                 }}
@@ -183,6 +192,7 @@ export function AlertDetailDrawer({
       ) : alert ? (
         <div className="space-y-4">
           <AlertSummaryBlock alert={alert} />
+          <AlertTicketBlock alert={alert} />
           <AlertDeviceBlock alert={alert} />
           <AlertCustomerBlock alert={alert} />
           <AlertSiblingsBlock alert={alert} />
@@ -203,8 +213,26 @@ export function AlertDetailDrawer({
         pending={contact.isPending}
         onCancel={() => setContactOpen(false)}
         onSubmit={(input) => contact.mutate(input)}
-        onAgreed={() => setContactOpen(false)}
+        onAgreed={() => {
+          setContactOpen(false);
+          setTicketOpen(true);
+        }}
       />
+      {alert ? (
+        <TicketWizardModal
+          open={ticketOpen}
+          alert={alert}
+          onClose={() => setTicketOpen(false)}
+        />
+      ) : null}
+      {alert && assignMode ? (
+        <AssignTechnicianModal
+          open
+          alert={alert}
+          mode={assignMode}
+          onClose={() => setAssignMode(null)}
+        />
+      ) : null}
     </Drawer>
   );
 }

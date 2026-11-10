@@ -1080,7 +1080,7 @@ git commit -m "feat(alerts): record customer contact results on alerts"
   - `AssignTechnicianModal({ open, alert, mode, onClose }: { open: boolean; alert: AlertDetail; mode: 'assign' | 'reassign'; onClose: () => void })`.
   - `AlertTicketBlock({ alert }: { alert: AlertDetail })`.
 
-- [ ] **Step 1: Viết `TechnicianPicker`**
+- [x] **Step 1: Viết `TechnicianPicker`**
 
 Dùng `useQuery(alertQueries.technicianSuggestions(params))`. Phía trên hiện tên
 trạm. Bảng chọn một dòng, giữ thứ tự backend trả về, cột: tên, chuyên môn, rảnh
@@ -1088,7 +1088,7 @@ trong khung giờ, số phiếu trong ngày, điểm đánh giá. Dòng bị vô
 tooltip lý do khi `freeInSlot` là `false`, hoặc khi `params.serviceType` là
 `repair` mà chuyên môn không phải `repair`. Danh sách rỗng hiện trạng thái rỗng.
 
-- [ ] **Step 2: Viết `TicketWizardModal` bước 1 (C7)**
+- [x] **Step 2: Viết `TicketWizardModal` bước 1 (C7)**
 
 Ant Design `Modal` với `Steps` hai bước và một `Form`. Giá trị ban đầu:
 
@@ -1117,7 +1117,7 @@ cảnh báo cùng máy" (nhóm checkbox, mỗi mục là tên và mã lỗi) ch�
 Luật kiểm tra phía giao diện trùng với Task 2 Step 6. `DatePicker` vô hiệu các
 ngày trước hôm nay.
 
-- [ ] **Step 3: Viết bước 2 (C8) và việc gửi**
+- [x] **Step 3: Viết bước 2 (C8) và việc gửi**
 
 Bước 2 render `TechnicianPicker` với ngày, khung giờ và loại dịch vụ của bước
 1. Hai nút: "Tạo phiếu và giao KTV" (cần đã chọn KTV) và "Lưu phiếu, giao KTV
@@ -1129,7 +1129,7 @@ phiếu, `invalidateQueries({ queryKey: alertQueries.all })`. Lỗi `validation`
 Lỗi `invalid_state`, `not_handler`, `not_found` → đóng form, hiện thông báo,
 `invalidateQueries`.
 
-- [ ] **Step 4: Viết `AssignTechnicianModal`**
+- [x] **Step 4: Viết `AssignTechnicianModal`**
 
 Dùng cho hành động `assign` và `reassign`. Lấy ngày, khung giờ và loại dịch vụ
 từ `alert.ticketDetail`; nếu ngày hoặc khung giờ vắng mặt (nhóm quyền tuỳ biến
@@ -1138,7 +1138,7 @@ lịch hẹn thay cho danh sách. Render `TechnicianPicker`; chế độ `reassi
 thêm ô lý do bắt buộc. Gửi `assignTechnician(alert.ticket.id, input)`; xử lý kết quả
 như Step 3.
 
-- [ ] **Step 5: Viết `AlertTicketBlock` và nối vào ngăn kéo**
+- [x] **Step 5: Viết `AlertTicketBlock` và nối vào ngăn kéo**
 
 Chỉ render khi `alert.ticket` khác `null`. Hiện mã phiếu, `TicketStatusTag`,
 nhãn trạng thái giao KTV, loại dịch vụ; KTV và lịch hẹn khi có trong
@@ -1185,7 +1185,7 @@ Dùng KTV theo hành vi ghi trong `src/mocks/fixtures/alerts.ts`.
 - [ ] Nhật ký hệ thống có dòng module "Phiếu dịch vụ" cho việc giao và giao lại
       KTV, kèm lý do.
 
-- [ ] **Step 7: Chạy bốn lệnh kiểm tra và commit**
+- [x] **Step 7: Chạy bốn lệnh kiểm tra và commit**
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm format:check && pnpm build
