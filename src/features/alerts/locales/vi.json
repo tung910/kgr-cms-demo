@@ -1,43 +1,233 @@
 {
   "page": {
     "title": "Trung tâm cảnh báo",
-    "description": "Theo dõi và xử lý cảnh báo toàn hệ thống theo mã lỗi dùng chung"
+    "description": "{{total}} cảnh báo",
+    "export": "Xuất báo cáo",
+    "empty": "Không có cảnh báo phù hợp bộ lọc.",
+    "claimSuccess": "Đã nhận xử lý cảnh báo."
   },
   "stats": {
-    "open": "Cảnh báo đang mở",
-    "highUnresolved": "Mức độ cao chưa xử lý",
-    "total": "Tổng số cảnh báo"
+    "open": "Đang mở",
+    "criticalOpen": "Nghiêm trọng đang mở",
+    "overdue": "Quá SLA",
+    "mine": "Chờ tôi xử lý"
   },
   "filters": {
-    "severityLabel": "Mức độ nghiêm trọng",
-    "resolvedVisibilityLabel": "Hiển thị cảnh báo đã xử lý",
-    "all": "Tất cả",
-    "open": "Đang mở",
-    "includeResolved": "Bao gồm đã xử lý"
+    "search": "Tìm serial hoặc mã lỗi",
+    "severity": "Mức độ",
+    "status": "Trạng thái",
+    "group": "Nhóm xử lý",
+    "region": "Khu vực",
+    "model": "Model",
+    "mine": "Của tôi",
+    "overdue": "Quá SLA",
+    "includeClosed": "Hiện cả đã xử lý",
+    "reset": "Đặt lại"
+  },
+  "table": {
+    "name": "Cảnh báo",
+    "occurrences": "Ghi nhận {{count}} lần",
+    "severity": "Mức độ",
+    "errorCode": "Mã lỗi",
+    "deviceId": "Serial",
+    "model": "Model",
+    "region": "Khu vực",
+    "raisedAt": "Thời gian",
+    "sla": "SLA",
+    "status": "Trạng thái",
+    "handler": "Người xử lý",
+    "ticket": "Phiếu",
+    "actions": "Thao tác",
+    "claim": "Nhận xử lý",
+    "total": "{{total}} cảnh báo"
   },
   "severity": {
-    "high": "Cao",
+    "critical": "Nghiêm trọng",
     "medium": "Trung bình",
     "low": "Thấp"
   },
   "status": {
     "new": "Mới",
-    "assigned": "Đã giao",
-    "resolved": "Đã xử lý"
+    "acknowledged": "Đã nhận xử lý",
+    "unreachable": "Không liên lạc được",
+    "ticketed": "Đã tạo phiếu",
+    "declined": "Khách không cần xử lý",
+    "closed": "Đã đóng"
   },
-  "list": {
-    "empty": "Không có cảnh báo phù hợp",
-    "columns": {
-      "identity": "Mã lỗi / Thiết bị",
-      "message": "Nội dung",
-      "severity": "Mức độ",
-      "status": "Trạng thái",
-      "raisedAt": "Thời gian",
-      "actions": "Thao tác"
-    },
-    "assignee": "Người xử lý: {{name}}",
-    "currentUser": "Bạn",
-    "assign": "Nhận xử lý",
-    "resolve": "Đóng cảnh báo"
+  "group": { "cskh": "CSKH", "technical": "Kỹ thuật" },
+  "ticketStatus": {
+    "tt1": "TT1 Đã đặt",
+    "tt2": "TT2 Điều phối",
+    "tt3": "TT3 Nhận việc",
+    "tt4": "TT4 Xuất vật tư",
+    "tt5": "TT5 Bắt đầu đi",
+    "tt6": "TT6 Check-in",
+    "tt7": "TT7 Nghiệm thu",
+    "tt8": "TT8 Thanh toán",
+    "tt9": "TT9 Đánh giá",
+    "cancelled": "Huỷ"
+  },
+  "assignment": {
+    "unassigned": "Chờ giao KTV",
+    "pending": "Chờ KTV nhận việc",
+    "accepted": "KTV đã nhận",
+    "declined": "Cần giao lại KTV",
+    "expired": "Cần giao lại KTV"
+  },
+  "sla": {
+    "lessThanMinute": "dưới 1 phút",
+    "minutes": "{{minutes}} phút",
+    "hoursMinutes": "{{hours}} giờ {{minutes}} phút",
+    "overdue": "Quá hạn",
+    "met": "Đạt",
+    "late": "Trễ"
+  },
+  "export": {
+    "ticketCode": "Mã phiếu",
+    "ticketStatus": "Trạng thái phiếu",
+    "success": "Đã xuất {{count}} cảnh báo."
+  },
+  "detail": {
+    "title": "Chi tiết cảnh báo",
+    "summary": "Tóm tắt",
+    "device": "Thiết bị",
+    "customer": "Khách hàng",
+    "siblings": "Cảnh báo khác đang mở cùng máy",
+    "history": "Lịch sử",
+    "noHistory": "Chưa có lịch sử.",
+    "raisedAt": "Phát sinh lúc",
+    "lastSeenAt": "Ghi nhận gần nhất",
+    "occurrenceCount": "Số lần ghi nhận",
+    "contactAttempts": "Số lần đã gọi",
+    "declineReason": "Lý do",
+    "closeResult": "Kết quả",
+    "connection": "Kết nối",
+    "warranty": "Bảo hành",
+    "customerName": "Khách hàng",
+    "phone": "Số điện thoại",
+    "address": "Địa chỉ lắp đặt",
+    "result": "Kết quả xử lý",
+    "connectionStatus": { "online": "Trực tuyến", "offline": "Ngoại tuyến" },
+    "warrantyStatus": {
+      "active": "Còn hạn",
+      "expiring": "Sắp hết hạn",
+      "expired": "Hết hạn",
+      "none": "Không bảo hành"
+    }
+  },
+  "actions": {
+    "acknowledge": "Nhận xử lý",
+    "takeover": "Chuyển cho tôi",
+    "contact": "Ghi kết quả liên hệ",
+    "close": "Đóng cảnh báo",
+    "assign": "Giao KTV",
+    "reassign": "Giao lại KTV",
+    "cancel": "Huỷ",
+    "acknowledgeSuccess": "Đã nhận xử lý cảnh báo.",
+    "takeoverSuccess": "Đã chuyển người xử lý.",
+    "closeSuccess": "Đã đóng cảnh báo."
+  },
+  "declineReason": {
+    "guided_self_fix": "Đã hướng dẫn khách tự xử lý",
+    "customer_fixed": "Khách đã tự xử lý",
+    "customer_refused": "Khách từ chối dịch vụ",
+    "false_alarm": "Máy hoạt động bình thường",
+    "other": "Lý do khác"
+  },
+  "closeResult": {
+    "ticket_done": "Đã xử lý theo phiếu",
+    "device_recovered": "Thiết bị hết lỗi",
+    "manual": "Đóng thủ công"
+  },
+  "history": {
+    "acknowledge": "Nhận xử lý",
+    "takeover": "Đổi người xử lý",
+    "contact_unreachable": "Không liên lạc được",
+    "contact_declined": "Khách không cần xử lý",
+    "ticket_created": "Tạo phiếu dịch vụ",
+    "ticket_merged": "Gộp cảnh báo vào phiếu",
+    "technician_assigned": "Giao KTV",
+    "technician_reassigned": "Giao lại KTV",
+    "technician_declined": "KTV từ chối",
+    "technician_expired": "KTV quá hạn phản hồi",
+    "ticket_cancelled": "Phiếu bị huỷ",
+    "closed_ticket_done": "Đóng khi hoàn thành phiếu",
+    "closed_recovered": "Đóng khi thiết bị hết lỗi",
+    "closed_manual": "Đóng thủ công"
+  },
+  "contact": {
+    "title": "Ghi kết quả liên hệ",
+    "agreed": "Khách đồng ý cho thợ đến",
+    "declined": "Khách không cần xử lý",
+    "unreachable": "Không liên lạc được",
+    "reason": "Lý do",
+    "note": "Ghi chú",
+    "continue": "Tiếp tục tạo phiếu",
+    "submit": "Lưu kết quả",
+    "success": "Đã lưu kết quả liên hệ."
+  },
+  "serviceType": {
+    "core_replacement": "Thay lõi",
+    "repair": "Sửa chữa",
+    "cleaning_check": "Vệ sinh & kiểm tra"
+  },
+  "specialty": { "general": "Tổng quát", "repair": "Sửa chữa" },
+  "ticket": {
+    "title": "Phiếu dịch vụ",
+    "createTitle": "Tạo phiếu dịch vụ",
+    "code": "Mã phiếu",
+    "status": "Trạng thái",
+    "assignment": "Giao KTV",
+    "serviceType": "Loại dịch vụ",
+    "technician": "KTV",
+    "appointment": "Lịch hẹn",
+    "contact": "Người liên hệ",
+    "note": "Ghi chú cho KTV",
+    "source": "Cảnh báo {{code}} · {{device}} · {{model}} · {{warranty}}",
+    "otherOpen": "Máy đang có {{count}} phiếu chưa đóng.",
+    "cores": "Lõi cần thay",
+    "issue": "Mô tả lỗi",
+    "contactName": "Người liên hệ",
+    "contactPhone": "Số điện thoại",
+    "date": "Ngày hẹn",
+    "slot": "Khung giờ",
+    "merge": "Gộp cảnh báo cùng máy",
+    "information": "Thông tin phiếu",
+    "dispatch": "Giao KTV",
+    "next": "Tiếp theo",
+    "back": "Quay lại",
+    "saveLater": "Lưu phiếu, giao KTV sau",
+    "createAndAssign": "Tạo phiếu và giao KTV",
+    "createSuccess": "Đã tạo phiếu {{code}}."
+  },
+  "technician": {
+    "station": "Trạm: {{name}}",
+    "name": "KTV",
+    "specialty": "Chuyên môn",
+    "free": "Rảnh",
+    "ticketsToday": "Phiếu trong ngày",
+    "rating": "Điểm đánh giá",
+    "yes": "Có",
+    "no": "Không",
+    "busy": "Bận trong khung giờ này",
+    "specialtyMismatch": "Không có chuyên môn sửa chữa",
+    "empty": "Không có KTV phù hợp.",
+    "assign": "Giao KTV",
+    "reassign": "Giao lại KTV",
+    "reason": "Lý do giao lại",
+    "scheduleForbidden": "Bạn không có quyền xem lịch hẹn.",
+    "assignSuccess": "Đã giao KTV."
+  },
+  "errors": {
+    "forbidden": "Bạn không có quyền thực hiện thao tác này.",
+    "not_found": "Cảnh báo hoặc phiếu không còn tồn tại.",
+    "already_handled": "Cảnh báo đã có người nhận xử lý.",
+    "not_handler": "Bạn không còn là người xử lý hiện tại.",
+    "invalid_state": "Trạng thái cảnh báo đã thay đổi.",
+    "validation": "Vui lòng kiểm tra thông tin đã nhập.",
+    "specialty_mismatch": "KTV không có chuyên môn phù hợp.",
+    "technician_unavailable": "KTV bận trong khung giờ này.",
+    "invalidResponse": "Dịch vụ cảnh báo trả về dữ liệu không hợp lệ.",
+    "generic": "Không thể hoàn tất thao tác."
   }
 }

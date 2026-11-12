@@ -1,43 +1,229 @@
 {
   "page": {
-    "title": "Alert Center",
-    "description": "Monitor and handle fleet-wide alerts using the shared error-code table"
+    "title": "Alert center",
+    "description": "{{total}} alerts",
+    "export": "Export report",
+    "empty": "No alerts match these filters.",
+    "claimSuccess": "Alert claimed."
   },
   "stats": {
-    "open": "Open alerts",
-    "highUnresolved": "Unresolved high severity",
-    "total": "Total alerts"
+    "open": "Open",
+    "criticalOpen": "Critical open",
+    "overdue": "SLA overdue",
+    "mine": "Waiting for me"
   },
   "filters": {
-    "severityLabel": "Severity",
-    "resolvedVisibilityLabel": "Show resolved alerts",
-    "all": "All",
-    "open": "Open",
-    "includeResolved": "Include resolved"
+    "search": "Search serial or error code",
+    "severity": "Severity",
+    "status": "Status",
+    "group": "Handler group",
+    "region": "Region",
+    "model": "Model",
+    "mine": "Mine",
+    "overdue": "SLA overdue",
+    "includeClosed": "Include resolved",
+    "reset": "Reset"
   },
-  "severity": {
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+  "table": {
+    "name": "Alert",
+    "occurrences": "{{count}} occurrences",
+    "severity": "Severity",
+    "errorCode": "Error code",
+    "deviceId": "Serial",
+    "model": "Model",
+    "region": "Region",
+    "raisedAt": "Raised at",
+    "sla": "SLA",
+    "status": "Status",
+    "handler": "Handler",
+    "ticket": "Ticket",
+    "actions": "Actions",
+    "claim": "Claim",
+    "total": "{{total}} alerts"
   },
+  "severity": { "critical": "Critical", "medium": "Medium", "low": "Low" },
   "status": {
     "new": "New",
-    "assigned": "Assigned",
-    "resolved": "Resolved"
+    "acknowledged": "Acknowledged",
+    "unreachable": "Unreachable",
+    "ticketed": "Ticket created",
+    "declined": "Customer declined service",
+    "closed": "Closed"
   },
-  "list": {
-    "empty": "No matching alerts",
-    "columns": {
-      "identity": "Error code / Device",
-      "message": "Message",
-      "severity": "Severity",
-      "status": "Status",
-      "raisedAt": "Time",
-      "actions": "Actions"
-    },
-    "assignee": "Assignee: {{name}}",
-    "currentUser": "You",
-    "assign": "Assign to me",
-    "resolve": "Close alert"
+  "group": { "cskh": "Customer care", "technical": "Technical" },
+  "ticketStatus": {
+    "tt1": "TT1 Booked",
+    "tt2": "TT2 Dispatching",
+    "tt3": "TT3 Accepted",
+    "tt4": "TT4 Materials issued",
+    "tt5": "TT5 Travelling",
+    "tt6": "TT6 Checked in",
+    "tt7": "TT7 Accepted by customer",
+    "tt8": "TT8 Payment",
+    "tt9": "TT9 Rated",
+    "cancelled": "Cancelled"
+  },
+  "assignment": {
+    "unassigned": "Waiting for technician",
+    "pending": "Waiting for technician acceptance",
+    "accepted": "Technician accepted",
+    "declined": "Technician reassignment required",
+    "expired": "Technician reassignment required"
+  },
+  "sla": {
+    "lessThanMinute": "under 1 minute",
+    "minutes": "{{minutes}} minutes",
+    "hoursMinutes": "{{hours}} hours {{minutes}} minutes",
+    "overdue": "Overdue",
+    "met": "Met",
+    "late": "Late"
+  },
+  "export": {
+    "ticketCode": "Ticket code",
+    "ticketStatus": "Ticket status",
+    "success": "Exported {{count}} alerts."
+  },
+  "detail": {
+    "title": "Alert detail",
+    "summary": "Summary",
+    "device": "Device",
+    "customer": "Customer",
+    "siblings": "Other open alerts on this device",
+    "history": "History",
+    "noHistory": "No history yet.",
+    "raisedAt": "Raised at",
+    "lastSeenAt": "Last seen at",
+    "occurrenceCount": "Occurrences",
+    "contactAttempts": "Contact attempts",
+    "declineReason": "Decline reason",
+    "closeResult": "Close result",
+    "connection": "Connection",
+    "warranty": "Warranty",
+    "customerName": "Customer",
+    "phone": "Phone",
+    "address": "Installation address",
+    "result": "Handling result",
+    "connectionStatus": { "online": "Online", "offline": "Offline" },
+    "warrantyStatus": {
+      "active": "Active",
+      "expiring": "Expiring",
+      "expired": "Expired",
+      "none": "No warranty"
+    }
+  },
+  "actions": {
+    "acknowledge": "Claim",
+    "takeover": "Take over",
+    "contact": "Record contact result",
+    "close": "Close alert",
+    "assign": "Assign technician",
+    "reassign": "Reassign technician",
+    "cancel": "Cancel",
+    "acknowledgeSuccess": "Alert claimed.",
+    "takeoverSuccess": "Alert taken over.",
+    "closeSuccess": "Alert closed."
+  },
+  "declineReason": {
+    "guided_self_fix": "Guided customer self-fix",
+    "customer_fixed": "Customer fixed it",
+    "customer_refused": "Customer refused service",
+    "false_alarm": "Device operating normally",
+    "other": "Other"
+  },
+  "closeResult": {
+    "ticket_done": "Resolved through service ticket",
+    "device_recovered": "Device recovered",
+    "manual": "Closed manually"
+  },
+  "history": {
+    "acknowledge": "Alert claimed",
+    "takeover": "Handler changed",
+    "contact_unreachable": "Customer unreachable",
+    "contact_declined": "Customer declined service",
+    "ticket_created": "Service ticket created",
+    "ticket_merged": "Alert merged into ticket",
+    "technician_assigned": "Technician assigned",
+    "technician_reassigned": "Technician reassigned",
+    "technician_declined": "Technician declined",
+    "technician_expired": "Technician response expired",
+    "ticket_cancelled": "Ticket cancelled",
+    "closed_ticket_done": "Closed after ticket completion",
+    "closed_recovered": "Closed after device recovery",
+    "closed_manual": "Closed manually"
+  },
+  "contact": {
+    "title": "Record contact result",
+    "agreed": "Customer agreed to a technician visit",
+    "declined": "Customer does not need service",
+    "unreachable": "Customer unreachable",
+    "reason": "Reason",
+    "note": "Note",
+    "continue": "Continue to create ticket",
+    "submit": "Save result",
+    "success": "Contact result saved."
+  },
+  "serviceType": {
+    "core_replacement": "Core replacement",
+    "repair": "Repair",
+    "cleaning_check": "Cleaning & inspection"
+  },
+  "specialty": { "general": "General", "repair": "Repair" },
+  "ticket": {
+    "title": "Service ticket",
+    "createTitle": "Create service ticket",
+    "code": "Ticket code",
+    "status": "Status",
+    "assignment": "Assignment",
+    "serviceType": "Service type",
+    "technician": "Technician",
+    "appointment": "Appointment",
+    "contact": "Contact",
+    "note": "Technician note",
+    "source": "Alert {{code}} · {{device}} · {{model}} · {{warranty}}",
+    "otherOpen": "This device has {{count}} other open tickets.",
+    "cores": "Cores to replace",
+    "issue": "Issue description",
+    "contactName": "Contact name",
+    "contactPhone": "Contact phone",
+    "date": "Appointment date",
+    "slot": "Time slot",
+    "merge": "Merge alerts on the same device",
+    "information": "Ticket information",
+    "dispatch": "Dispatch",
+    "next": "Next",
+    "back": "Back",
+    "saveLater": "Save ticket, assign later",
+    "createAndAssign": "Create ticket and assign technician",
+    "createSuccess": "Ticket {{code}} created."
+  },
+  "technician": {
+    "station": "Station: {{name}}",
+    "name": "Technician",
+    "specialty": "Specialty",
+    "free": "Available",
+    "ticketsToday": "Tickets today",
+    "rating": "Rating",
+    "yes": "Yes",
+    "no": "No",
+    "busy": "Busy in this time slot",
+    "specialtyMismatch": "Required repair specialty is missing",
+    "empty": "No technicians available.",
+    "assign": "Assign technician",
+    "reassign": "Reassign technician",
+    "reason": "Reassignment reason",
+    "scheduleForbidden": "You do not have permission to view the appointment schedule.",
+    "assignSuccess": "Technician assigned."
+  },
+  "errors": {
+    "forbidden": "You do not have permission for this action.",
+    "not_found": "The alert or ticket no longer exists.",
+    "already_handled": "This alert has already been claimed.",
+    "not_handler": "You are no longer the current handler.",
+    "invalid_state": "The alert status has changed.",
+    "validation": "Please check the submitted information.",
+    "specialty_mismatch": "The technician does not have the required specialty.",
+    "technician_unavailable": "The technician is unavailable in this time slot.",
+    "invalidResponse": "The alert service returned invalid data.",
+    "generic": "The action could not be completed."
   }
 }

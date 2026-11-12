@@ -225,7 +225,10 @@ export function AppShell() {
         void navigate({ to: '/firmware' });
         break;
       case 'alerts':
-        void navigate({ to: '/alerts' });
+        void navigate({
+          to: '/alerts',
+          search: { search: '', page: 1, pageSize: 10 },
+        });
         break;
       case 'device_map':
         void navigate({ to: '/maps' });

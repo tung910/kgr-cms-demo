@@ -249,6 +249,8 @@
       "role_groups": "Nhóm quyền",
       "system_config": "Cấu hình hệ thống",
       "campaigns": "Chiến dịch truyền thông",
+      "alerts": "Trung tâm cảnh báo",
+      "service_tickets": "Phiếu dịch vụ",
       "backup": "Sao lưu",
       "simulation": "Mô phỏng vai trò",
       "audit_log": "Nhật ký hệ thống",

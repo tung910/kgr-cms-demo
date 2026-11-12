@@ -14,7 +14,6 @@ import { Route as R403RouteImport } from './routes/403'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedAnalyticsReportsRouteImport } from './routes/_authenticated/analytics-reports'
 import { Route as AuthenticatedAutomationRouteImport } from './routes/_authenticated/automation'
 import { Route as AuthenticatedCareContentRouteImport } from './routes/_authenticated/care-content'
@@ -26,6 +25,7 @@ import { Route as AuthenticatedInventoryAllocationRouteImport } from './routes/_
 import { Route as AuthenticatedMapsRouteImport } from './routes/_authenticated/maps'
 import { Route as AuthenticatedSystemIntegrationsRouteImport } from './routes/_authenticated/system-integrations'
 import { Route as AuthenticatedWarrantiesRouteImport } from './routes/_authenticated/warranties'
+import { Route as AuthenticatedAlertsIndexRouteImport } from './routes/_authenticated/alerts/index'
 import { Route as AuthenticatedCampaignsIndexRouteImport } from './routes/_authenticated/campaigns/index'
 import { Route as AuthenticatedCampaignsCampaignIdRouteImport } from './routes/_authenticated/campaigns/$campaignId'
 import { Route as AuthenticatedCampaignsNewRouteImport } from './routes/_authenticated/campaigns/new'
@@ -59,11 +59,6 @@ const LoginRoute = LoginRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
-  id: '/alerts',
-  path: '/alerts',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAnalyticsReportsRoute =
@@ -126,6 +121,12 @@ const AuthenticatedWarrantiesRoute = AuthenticatedWarrantiesRouteImport.update({
   path: '/warranties',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAlertsIndexRoute =
+  AuthenticatedAlertsIndexRouteImport.update({
+    id: '/alerts/',
+    path: '/alerts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCampaignsIndexRoute =
   AuthenticatedCampaignsIndexRouteImport.update({
     id: '/campaigns/',
@@ -192,7 +193,6 @@ export interface FileRoutesByFullPath {
   '/403': typeof R403Route
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
-  '/alerts': typeof AuthenticatedAlertsRoute
   '/analytics-reports': typeof AuthenticatedAnalyticsReportsRoute
   '/automation': typeof AuthenticatedAutomationRoute
   '/care-content': typeof AuthenticatedCareContentRoute
@@ -211,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/system/audit': typeof AuthenticatedSystemAuditRoute
   '/system/config': typeof AuthenticatedSystemConfigRoute
   '/system/members': typeof AuthenticatedSystemMembersRoute
+  '/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/campaigns/': typeof AuthenticatedCampaignsIndexRoute
   '/devices/': typeof AuthenticatedDevicesIndexRoute
   '/serials/': typeof AuthenticatedSerialsIndexRoute
@@ -219,7 +220,6 @@ export interface FileRoutesByTo {
   '/$': typeof SplatRoute
   '/403': typeof R403Route
   '/login': typeof LoginRoute
-  '/alerts': typeof AuthenticatedAlertsRoute
   '/analytics-reports': typeof AuthenticatedAnalyticsReportsRoute
   '/automation': typeof AuthenticatedAutomationRoute
   '/care-content': typeof AuthenticatedCareContentRoute
@@ -239,6 +239,7 @@ export interface FileRoutesByTo {
   '/system/audit': typeof AuthenticatedSystemAuditRoute
   '/system/config': typeof AuthenticatedSystemConfigRoute
   '/system/members': typeof AuthenticatedSystemMembersRoute
+  '/alerts': typeof AuthenticatedAlertsIndexRoute
   '/campaigns': typeof AuthenticatedCampaignsIndexRoute
   '/devices': typeof AuthenticatedDevicesIndexRoute
   '/serials': typeof AuthenticatedSerialsIndexRoute
@@ -249,7 +250,6 @@ export interface FileRoutesById {
   '/403': typeof R403Route
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/analytics-reports': typeof AuthenticatedAnalyticsReportsRoute
   '/_authenticated/automation': typeof AuthenticatedAutomationRoute
   '/_authenticated/care-content': typeof AuthenticatedCareContentRoute
@@ -269,6 +269,7 @@ export interface FileRoutesById {
   '/_authenticated/system/audit': typeof AuthenticatedSystemAuditRoute
   '/_authenticated/system/config': typeof AuthenticatedSystemConfigRoute
   '/_authenticated/system/members': typeof AuthenticatedSystemMembersRoute
+  '/_authenticated/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/_authenticated/campaigns/': typeof AuthenticatedCampaignsIndexRoute
   '/_authenticated/devices/': typeof AuthenticatedDevicesIndexRoute
   '/_authenticated/serials/': typeof AuthenticatedSerialsIndexRoute
@@ -280,7 +281,6 @@ export interface FileRouteTypes {
     | '/403'
     | '/'
     | '/login'
-    | '/alerts'
     | '/analytics-reports'
     | '/automation'
     | '/care-content'
@@ -299,6 +299,7 @@ export interface FileRouteTypes {
     | '/system/audit'
     | '/system/config'
     | '/system/members'
+    | '/alerts/'
     | '/campaigns/'
     | '/devices/'
     | '/serials/'
@@ -307,7 +308,6 @@ export interface FileRouteTypes {
     | '/$'
     | '/403'
     | '/login'
-    | '/alerts'
     | '/analytics-reports'
     | '/automation'
     | '/care-content'
@@ -327,6 +327,7 @@ export interface FileRouteTypes {
     | '/system/audit'
     | '/system/config'
     | '/system/members'
+    | '/alerts'
     | '/campaigns'
     | '/devices'
     | '/serials'
@@ -336,7 +337,6 @@ export interface FileRouteTypes {
     | '/403'
     | '/_authenticated'
     | '/login'
-    | '/_authenticated/alerts'
     | '/_authenticated/analytics-reports'
     | '/_authenticated/automation'
     | '/_authenticated/care-content'
@@ -356,6 +356,7 @@ export interface FileRouteTypes {
     | '/_authenticated/system/audit'
     | '/_authenticated/system/config'
     | '/_authenticated/system/members'
+    | '/_authenticated/alerts/'
     | '/_authenticated/campaigns/'
     | '/_authenticated/devices/'
     | '/_authenticated/serials/'
@@ -403,13 +404,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/alerts': {
-      id: '/_authenticated/alerts'
-      path: '/alerts'
-      fullPath: '/alerts'
-      preLoaderRoute: typeof AuthenticatedAlertsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/analytics-reports': {
@@ -489,6 +483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWarrantiesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/alerts/': {
+      id: '/_authenticated/alerts/'
+      path: '/alerts'
+      fullPath: '/alerts/'
+      preLoaderRoute: typeof AuthenticatedAlertsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/campaigns/': {
       id: '/_authenticated/campaigns/'
       path: '/campaigns'
@@ -563,7 +564,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedAnalyticsReportsRoute: typeof AuthenticatedAnalyticsReportsRoute
   AuthenticatedAutomationRoute: typeof AuthenticatedAutomationRoute
   AuthenticatedCareContentRoute: typeof AuthenticatedCareContentRoute
@@ -583,13 +583,13 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSystemAuditRoute: typeof AuthenticatedSystemAuditRoute
   AuthenticatedSystemConfigRoute: typeof AuthenticatedSystemConfigRoute
   AuthenticatedSystemMembersRoute: typeof AuthenticatedSystemMembersRoute
+  AuthenticatedAlertsIndexRoute: typeof AuthenticatedAlertsIndexRoute
   AuthenticatedCampaignsIndexRoute: typeof AuthenticatedCampaignsIndexRoute
   AuthenticatedDevicesIndexRoute: typeof AuthenticatedDevicesIndexRoute
   AuthenticatedSerialsIndexRoute: typeof AuthenticatedSerialsIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedAnalyticsReportsRoute: AuthenticatedAnalyticsReportsRoute,
   AuthenticatedAutomationRoute: AuthenticatedAutomationRoute,
   AuthenticatedCareContentRoute: AuthenticatedCareContentRoute,
@@ -609,6 +609,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSystemAuditRoute: AuthenticatedSystemAuditRoute,
   AuthenticatedSystemConfigRoute: AuthenticatedSystemConfigRoute,
   AuthenticatedSystemMembersRoute: AuthenticatedSystemMembersRoute,
+  AuthenticatedAlertsIndexRoute: AuthenticatedAlertsIndexRoute,
   AuthenticatedCampaignsIndexRoute: AuthenticatedCampaignsIndexRoute,
   AuthenticatedDevicesIndexRoute: AuthenticatedDevicesIndexRoute,
   AuthenticatedSerialsIndexRoute: AuthenticatedSerialsIndexRoute,

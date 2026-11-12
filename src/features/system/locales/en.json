@@ -249,6 +249,8 @@
       "role_groups": "Role groups",
       "system_config": "System settings",
       "campaigns": "Campaigns",
+      "alerts": "Alert center",
+      "service_tickets": "Service tickets",
       "backup": "Backup",
       "simulation": "Role simulation",
       "audit_log": "Audit log",
